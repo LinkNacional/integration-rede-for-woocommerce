@@ -66,6 +66,14 @@ Credcards icons have been forkled from Storefront in:
 
 * [Storefront](https://github.com/woocommerce/storefront/tree/master/assets/images/credit-cards).
 
+Banner:
+
+* [Freepik](https://br.freepik.com/vetores-gratis/conjunto-de-banner-de-pagamento_4378405.htm#page=3&query=cartao+de+credito+banner&position=33).
+
+Icon:
+
+* [Freepik](https://br.freepik.com/vetores-gratis/icones-economia_794700.htm#page=1&query=cartao%20de%20credito&position=20).
+
 = Contributors =
 
 You can contribute source code on our page at [GitHub](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
