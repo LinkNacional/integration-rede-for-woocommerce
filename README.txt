@@ -89,6 +89,7 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 - Plugin internationalization and translation for pt_BR
 - Inclusion of credit card banners icons
 - Expiration date now accepts 2 or 4 digits for year as well
+- Sanitize inputs fields
 
 == Upgrade Notice ==
 
