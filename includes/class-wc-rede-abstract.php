@@ -163,7 +163,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 		}
 
 		if ( array_sum( str_split( $card_number_checksum ) ) % 10 !== 0 ) {
-			throw new Exception( esc_attr_e( 'Please enter a valid credit card number', 'integration-rede-for-woocommerce' ) );
+			throw new Exception( esc_attr__( 'Please enter a valid credit card number', 'integration-rede-for-woocommerce' ) );
 		}
 
 		return true;
@@ -173,7 +173,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 
 		try {
 			if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
-				throw new Exception( esc_attr_e( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
 			}
 
 			if ( preg_replace(
@@ -181,17 +181,17 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 				'',
 				$posted[ $this->id . '_holder_name' ]
 			) != $posted[ $this->id . '_holder_name' ] ) {
-				throw new Exception( esc_attr_e( 'Cardholder name can only contain letters', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Cardholder name can only contain letters', 'integration-rede-for-woocommerce' ) );
 			}
 
 			if ( ! isset( $posted[ $this->id . '_expiry' ] ) || '' === $posted[ $this->id . '_expiry' ] ) {
-				throw new Exception( esc_attr_e( 'Please enter card expiration date', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Please enter card expiration date', 'integration-rede-for-woocommerce' ) );
 			}
 
 			//if user filled expiry date with 3 digits,
 			// throw an exception and let him/her/they know.
 			if ( isset( $posted[ $this->id . '_expiry' ][2] ) && ! isset( $posted[ $this->id . '_expiry' ][3] ) ) {
-				throw new Exception( esc_attr_e( 'Expiration date must contain 2 or 4 digits', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Expiration date must contain 2 or 4 digits', 'integration-rede-for-woocommerce' ) );
 			}
 
 			if ( strtotime(
@@ -201,15 +201,15 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 					$this->normalize_expiration_date( $posted[ $this->id . '_expiry' ] )
 				)
 			) < strtotime( date( 'Y-m' ) . '-01' ) ) {
-				throw new Exception( esc_attr_e( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
 			}
 
 			if ( ! isset( $posted[ $this->id . '_cvc' ] ) || '' === $posted[ $this->id . '_cvc' ] ) {
-				throw new Exception( esc_attr_e( 'Please enter card security code', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Please enter card security code', 'integration-rede-for-woocommerce' ) );
 			}
 
 			if ( preg_replace( '/[^0-9]/', '', $posted[ $this->id . '_cvc' ] ) != $posted[ $this->id . '_cvc' ] ) {
-				throw new Exception( esc_attr_e( 'Security code must contain only numbers', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Security code must contain only numbers', 'integration-rede-for-woocommerce' ) );
 			}
 		} catch ( Exception $e ) {
 			$this->add_error( $e->getMessage() );
@@ -278,7 +278,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 
 		try {
 			if ( ! isset( $posted['rede_credit_installments'] ) || '' === $posted['rede_credit_installments'] ) {
-				throw new Exception( esc_attr_e( 'Please enter the number of installments', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Please enter the number of installments', 'integration-rede-for-woocommerce' ) );
 			}
 
 			$installments = absint( $posted['rede_credit_installments'] );
@@ -286,7 +286,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 			$max_parcels = $this->get_option( 'max_parcels_number' );
 
 			if ( $installments > $max_parcels || ( ( $min_value != 0 ) && ( ( $order_total / $installments ) < $min_value ) ) ) {
-				throw new Exception( esc_attr_e( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
+				throw new Exception( esc_attr__( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
 			}
 		} catch ( Exception $e ) {
 			$this->add_error( $e->getMessage() );

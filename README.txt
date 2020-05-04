@@ -2,9 +2,10 @@
 Contributors: MarcosAlexandre
 Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0
-Tested up to: 5.3
-Stable tag: 2.0.0
-Requires PHP: 7.1
+Tested up to: 5.4.1
+WC requires at least: 3.0.0
+WC tested up to: 4.0.1
+Stable tag: 2.0.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -89,6 +90,11 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.0.1 - 2020/05/04 =
+
+- Update compatibility information
+- Correction of the internationalization of error messages on the checkout page
 
 = 2.0.0 - 2019/11/02 =
 
