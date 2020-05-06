@@ -7,6 +7,8 @@
  * Version:     2.0.1
  * Requires PHP:      7.1
  * Requires at least: 5.0
+ * WC requires at least: 3.0.0
+ * WC tested up to: 4.0.1
  * Author:      MarcosAlexandre
  * Author URI:        https://marcosalexandre.dev/
  * License:           MIT
