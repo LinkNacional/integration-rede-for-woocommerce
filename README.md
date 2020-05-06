@@ -16,7 +16,7 @@ Rede API integration for WooCommerce
 
 Use Rede API integration for WooCommerce in your WooCommerce store and allow your customers to pay by credit card.
 
-A [Rede] (https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
+A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
 
 == Development ==
 
@@ -39,17 +39,17 @@ Go to “plugins” in your WordPress admin, then click activate.
 
 * Have a website ready with WordPress and WooCommerce installed.
 * Use SSL certificate (2048 bit recommended).
-* Have registration on [Rede] (https://www.userede.com.br/new/e-rede#telefone)
+* Have registration on [Rede](https://www.userede.com.br/new/e-rede#telefone)
 
 = Plugin Settings: =
 
 You can access the plugin settings screen from the WordPress admin page under `WooCommerce -> Settings -> Payments -> Pay with the Rede`.
 
-The plugin works with the ** Test ** and ** Production ** environments, where you must use the ** Test ** environment to test the integration before using it in the ** Production ** environment. Once it is tested and validated, you can use the ** Production ** environment where you can sign in with the ** PV ** and the ** Token ** of ecommerce affiliation with the Rede.
+The plugin works with the **Test** and **Production** environments, where you must use the **Test** environment to test the integration before using it in the **Production** environment. Once it is tested and validated, you can use the **Production** environment where you can sign in with the **PV** and the **Token** of ecommerce affiliation with the Rede.
 
 #### Notes on the test environment ####
 
-In the **Test environment** you can use some test cards available in the [Rede Integration Guide] (https://www.userede.com.br/desenvolvedores/pt/produto/e-Rede#tutorial) by accessing the `Playground Tutorial -> How to use the playground`, just do the [Register] (https://www.userede.com.br/desenvolvedores/pt/cadastro).
+In the **Test environment** you can use some test cards available in the [Rede Integration Guide](https://www.userede.com.br/desenvolvedores/pt/produto/e-Rede#tutorial) by accessing the `Playground Tutorial -> How to use the playground`, just do the [Register](https://www.userede.com.br/desenvolvedores/pt/cadastro).
 
 == Doubts? ==
 
