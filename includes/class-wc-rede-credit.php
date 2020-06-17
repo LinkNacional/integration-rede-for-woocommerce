@@ -337,8 +337,16 @@ class WC_Rede_Credit extends WC_Rede_Abstract {
 
 	public function get_installments( $order_total = 0 ) {
 		$installments = [];
-		$min_value = $this->min_parcels_value;
-		$max_parcels = $this->max_parcels_number;
+
+        $defaults = array(
+            'min_value' => $this->min_parcels_value,
+            'max_parcels' => $this->max_parcels_number,
+        );
+
+        $installments_result = wp_parse_args(apply_filters('integration_rede_installments', $defaults), $defaults);
+
+        $min_value = $installments_result['min_value'];
+        $max_parcels = $installments_result['max_parcels'];
 
 		for ( $i = 1; $i <= $max_parcels; ++$i ) {
 			if ( ( $order_total / $i ) >= $min_value ) {
