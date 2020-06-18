@@ -119,89 +119,90 @@ class WC_Rede_Credit extends WC_Rede_Abstract {
 	}
 
 	public function display_meta( $order ) {
+        if ($order->get_payment_method() == 'rede_credit'):
 		?>
-		<h3><?php esc_attr_e( 'Rede', 'integration-rede-for-woocommerce' ); ?></h3>
-		<table>
-			<tbody>
-			<tr>
-				<td><?php esc_attr_e( 'Environment', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_environment' ); ?></td>
-			</tr>
+            <h3><?php esc_attr_e( 'Rede', 'integration-rede-for-woocommerce' ); ?></h3>
+            <table>
+                <tbody>
+                <tr>
+                    <td><?php esc_attr_e( 'Environment', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_environment' ); ?></td>
+                </tr>
 
-			<tr>
-				<td><?php esc_attr_e( 'Return Code', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_return_code' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Return Code', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_return_code' ); ?></td>
+                </tr>
 
-			<tr>
-				<td><?php esc_attr_e( 'Return Message', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_return_message' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Return Message', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_return_message' ); ?></td>
+                </tr>
 
-			<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_id' ) ) ) { ?>
-				<tr>
-					<td><?php esc_attr_e( 'Transaction ID', 'integration-rede-for-woocommerce' ); ?></td>
-					<td><?php echo $order->get_meta( '_wc_rede_transaction_id' ); ?></td>
-				</tr>
-			<?php } ?>
+                <?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_id' ) ) ) { ?>
+                    <tr>
+                        <td><?php esc_attr_e( 'Transaction ID', 'integration-rede-for-woocommerce' ); ?></td>
+                        <td><?php echo $order->get_meta( '_wc_rede_transaction_id' ); ?></td>
+                    </tr>
+                <?php } ?>
 
-			<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_refund_id' ) ) ) { ?>
-				<tr>
-					<td><?php esc_attr_e( 'Refund ID', 'integration-rede-for-woocommerce' ); ?></td>
-					<td><?php echo $order->get_meta( '_wc_rede_transaction_refund_id' ); ?></td>
-				</tr>
-			<?php } ?>
+                <?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_refund_id' ) ) ) { ?>
+                    <tr>
+                        <td><?php esc_attr_e( 'Refund ID', 'integration-rede-for-woocommerce' ); ?></td>
+                        <td><?php echo $order->get_meta( '_wc_rede_transaction_refund_id' ); ?></td>
+                    </tr>
+                <?php } ?>
 
-			<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_cancel_id' ) ) ) { ?>
-				<tr>
-					<td><?php esc_attr_e( 'Cancellation ID', 'integration-rede-for-woocommerce' ); ?></td>
-					<td><?php echo $order->get_meta( '_wc_rede_transaction_cancel_id' ); ?></td>
-				</tr>
-			<?php } ?>
+                <?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_cancel_id' ) ) ) { ?>
+                    <tr>
+                        <td><?php esc_attr_e( 'Cancellation ID', 'integration-rede-for-woocommerce' ); ?></td>
+                        <td><?php echo $order->get_meta( '_wc_rede_transaction_cancel_id' ); ?></td>
+                    </tr>
+                <?php } ?>
 
-			<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_nsu' ) ) ) { ?>
-				<tr>
-					<td><?php esc_attr_e( 'Nsu', 'integration-rede-for-woocommerce' ); ?></td>
-					<td><?php echo $order->get_meta( '_wc_rede_transaction_nsu' ); ?></td>
-				</tr>
-			<?php } ?>
+                <?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_nsu' ) ) ) { ?>
+                    <tr>
+                        <td><?php esc_attr_e( 'Nsu', 'integration-rede-for-woocommerce' ); ?></td>
+                        <td><?php echo $order->get_meta( '_wc_rede_transaction_nsu' ); ?></td>
+                    </tr>
+                <?php } ?>
 
-			<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_authorization_code' ) ) ) { ?>
-				<tr>
-					<td><?php esc_attr_e( 'Authorization Code', 'integration-rede-for-woocommerce' ); ?></td>
-					<td><?php echo $order->get_meta( '_wc_rede_transaction_authorization_code' ); ?></td>
-				</tr>
-			<?php } ?>
+                <?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_authorization_code' ) ) ) { ?>
+                    <tr>
+                        <td><?php esc_attr_e( 'Authorization Code', 'integration-rede-for-woocommerce' ); ?></td>
+                        <td><?php echo $order->get_meta( '_wc_rede_transaction_authorization_code' ); ?></td>
+                    </tr>
+                <?php } ?>
 
-			<tr>
-				<td><?php esc_attr_e( 'Bin', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_bin' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Bin', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_bin' ); ?></td>
+                </tr>
 
-			<tr>
-				<td><?php esc_attr_e( 'Last 4', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_last4' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Last 4', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_last4' ); ?></td>
+                </tr>
 
-			<tr>
-				<td><?php esc_attr_e( 'Installments', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_installments' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Installments', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_installments' ); ?></td>
+                </tr>
 
 
-			<tr>
-				<td><?php esc_attr_e( 'Cardholder', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_holder' ); ?></td>
-			</tr>
+                <tr>
+                    <td><?php esc_attr_e( 'Cardholder', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_holder' ); ?></td>
+                </tr>
 
-			<tr>
-				<td><?php esc_attr_e( 'Card Expiration', 'integration-rede-for-woocommerce' ); ?></td>
-				<td><?php echo $order->get_meta( '_wc_rede_transaction_expiration' ); ?></td>
-			</tr>
-			</tbody>
-		</table>
-
+                <tr>
+                    <td><?php esc_attr_e( 'Card Expiration', 'integration-rede-for-woocommerce' ); ?></td>
+                    <td><?php echo $order->get_meta( '_wc_rede_transaction_expiration' ); ?></td>
+                </tr>
+                </tbody>
+            </table>
 		<?php
+        endif;
 	}
 
 	public function init_form_fields() {
