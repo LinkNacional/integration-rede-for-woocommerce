@@ -4,18 +4,18 @@
  * Plugin URI:        https://github.com/marcos-alexandre82/integration-rede-for-woocommerce
  * GitHub Plugin URI: https://github.com/marcos-alexandre82/integration-rede-for-woocommerce
  * Description: Rede API integration for WooCommerce
- * Version:     2.0.1
- * Requires PHP:      7.1
+ * Version:     2.1.0
+ * Requires PHP:      7.0
  * Requires at least: 5.0
  * WC requires at least: 3.0.0
- * WC tested up to: 4.0.1
+ * WC tested up to: 4.3.1
  * Author:      MarcosAlexandre
  * Author URI:        https://marcosalexandre.dev/
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
  * Text Domain: integration-rede-for-woocommerce
  * Domain Path: /languages
- * 
+ *
  * @package WC_Rede
  */
 
@@ -121,17 +121,17 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 				if ( version_compare( $version, self::VERSION, '<' ) ) {
 					if ( $options = get_option( 'woocommerce_rede_settings' ) ) {
 						$credit_options = array(
-							'enabled' => $options['enabled'],
-							'title' => 'Ativar',
+							'enabled'            => $options['enabled'],
+							'title'              => 'Ativar',
 
-							'environment' => $options['environment'],
-							'token' => $options['token'],
-							'pv' => $options['pv'],
+							'environment'        => $options['environment'],
+							'token'              => $options['token'],
+							'pv'                 => $options['pv'],
 
-							'soft_descriptor' => $options['soft_descriptor'],
-							'auto_capture' => $options['authorization'],
+							'soft_descriptor'    => $options['soft_descriptor'],
+							'auto_capture'       => $options['authorization'],
 
-							'min_parcels_value' => $options['smallest_installment'],
+							'min_parcels_value'  => $options['smallest_installment'],
 							'max_parcels_number' => $options['installments'],
 						);
 
@@ -175,7 +175,7 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 
 	function rede_activation() {
 		if ( ! wp_next_scheduled( 'update_rede_orders' ) ) {
-			wp_schedule_event( current_time( 'timestamp' ), 'hourly', 'update_rede_orders' );
+			wp_schedule_event( time(), 'hourly', 'update_rede_orders' );
 		}
 	}
 
@@ -184,18 +184,18 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 	function update_rede_orders() {
 		$orders = new WP_Query(
 			array(
-				'post_type' => 'shop_order',
+				'post_type'   => 'shop_order',
 				'post_status' => array( 'wc-on-hold', 'wc-processing' ),
 			)
 		);
 
 		foreach ( $orders->posts as $order ) {
-			$wc_order = new WC_Order( $order->get_id() );
-			$wc_id = $wc_order->get_id();
+			$wc_order        = new WC_Order( $order->ID );
+			$wc_id           = $wc_order->get_id();
 			$payment_gateway = wc_get_payment_gateway_by_order( $wc_order );
-			$order_id = get_post_meta( $wc_id, '_wc_rede_order_id', true );
-			$status = get_post_meta( $wc_id, '_wc_rede_status', true );
-			$tid = $tid = get_post_meta( $wc_id, '_wc_rede_transaction_id', true );
+			$order_id        = get_post_meta( $wc_id, '_wc_rede_order_id', true );
+			$status          = get_post_meta( $wc_id, '_wc_rede_status', true );
+			$tid             = $tid = get_post_meta( $wc_id, '_wc_rede_transaction_id', true );
 
 			if ( $payment_gateway instanceof WC_Rede_Abstract ) {
 				if ( $status == 'PENDING' || $status == 'SUBMITTED' ) {
@@ -214,7 +214,10 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 	function rede_scripts() {
 		$plugin_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_style( 'style', $plugin_url . 'assets/css/style.css' );
+		//wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
+		wp_enqueue_script( 'woo-rede-animated-card', $plugin_url . 'assets/js/card.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede.js', array(), '1.0.0', true );
 	}
 
 	add_action( 'wp_enqueue_scripts', 'rede_scripts' );

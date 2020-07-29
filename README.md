@@ -2,11 +2,11 @@
 Contributors: MarcosAlexandre
 Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0
-Tested up to: 5.4.1
+Tested up to: 5.4.2
 WC requires at least: 3.0.0
-WC tested up to: 4.0.1
-Stable tag: 2.0.1
-Requires PHP: 7.1
+WC tested up to: 4.3.1
+Stable tag: 2.1.0
+Requires PHP: 7.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -91,6 +91,18 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.1.0 - 2020/07/25 =
+
+- Update compatibility information
+- Correction of the order id
+- Implementation of installment filter
+- Implementation of a filter to display the Network data on the order page only if this is the payment method used.
+
+= 2.0.2 - 2020/05/23 =
+
+- Update compatibility information
+- Correction of the order id
 
 = 2.0.1 - 2020/05/04 =
 

@@ -3,9 +3,9 @@
 
 abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 
-	public $debug = 'no';
-	public $auto_capture = true;
-	public $min_parcels_value = 0;
+	public $debug              = 'no';
+	public $auto_capture       = true;
+	public $min_parcels_value  = 0;
 	public $mas_parcels_number = 12;
 
 	public function get_valid_value( $value ) {
@@ -20,7 +20,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 		return urlencode(
 			add_query_arg(
 				array(
-					'key' => $order->order_key,
+					'key'   => $order->order_key,
 					'order' => $order->get_id(),
 				),
 				$url
@@ -42,10 +42,10 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 		$order_id = $order->get_id();
 
 		if ( $this->id === $order->get_payment_method() ) {
-			$tid = get_post_meta( $order_id, '_wc_rede_transaction_id', true );
-			$authorization_code = get_post_meta( $order_id, '_wc_rede_transaction_authorization_code', true );
-			$installments = get_post_meta( $order_id, '_wc_rede_transaction_installments', true );
-			$last = array_pop( $items );
+			$tid                     = get_post_meta( $order_id, '_wc_rede_transaction_id', true );
+			$authorization_code      = get_post_meta( $order_id, '_wc_rede_transaction_authorization_code', true );
+			$installments            = get_post_meta( $order_id, '_wc_rede_transaction_installments', true );
+			$last                    = array_pop( $items );
 			$items['payment_return'] = array(
 				'label' => esc_attr__( 'Payment:', 'integration-rede-for-woocommerce' ),
 				'value' => sprintf(
