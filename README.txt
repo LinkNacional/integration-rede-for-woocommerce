@@ -18,6 +18,20 @@ Use Rede API integration for WooCommerce in your WooCommerce store and allow you
 
 A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
 
+== Example Filter Usage ==
+
+```
+function rede_card_installments_filter($installments)
+{
+    $installments['min_value'] = 40;
+    $installments['max_parcels'] = 3;
+    return $installments;
+}
+
+add_filter('integration_rede_installments', 'rede_card_installments_filter');
+
+```
+
 == Development ==
 
 This version of the **Integration Rede for WooCommerce** plugin was developed without any encouragement from Rede. This means that none of the developers of this plugin have any bonds with the Rede and we count on your help to improve the code and operation of this plugin.
@@ -63,6 +77,10 @@ You can ask questions by:
 This plugin is a fork that fixes some bugs and implements new features to the plugin developed in:
 
 * [DevelopersRede](https://github.com/DevelopersRede/woocommerce).
+
+Implementation of the installment filter and data display on the order page:**
+
+* [Kaoe](https://github.com/kaoecoito).
 
 Credcards icons have been forkled from Storefront in:
 
