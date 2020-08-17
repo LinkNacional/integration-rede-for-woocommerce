@@ -1,13 +1,10 @@
-/*
-document.addEventListener('DOMContentLoaded', function () {
-	document.body.addEventListener('init_checkout updated_checkout checkout_error', function (e) {
-*/
-jQuery( function( $ ) {
-	jQuery(document.body).on('init_checkout updated_checkout checkout_error', function(){
-
+jQuery(document).ready( function(){
+	jQuery( 'body' )
+	.on( 'init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div ', function() {
+			
 		var card = new Card({
-			form: '.woocommerce-checkout',
-			container: '.card-animation',
+			form: '.wc-payment-rede-form-fields',
+			container: '.card-wrapper',
 
 			/**
 			 * Selectors
