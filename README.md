@@ -1,4 +1,4 @@
-=== Integration Rede for WooCommerce ===
+===Integration Rede for WooCommerce===
 Contributors: MarcosAlexandre
 Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0
