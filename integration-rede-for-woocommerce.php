@@ -28,7 +28,7 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 	class WC_Rede {
 
 
-		const VERSION = '2.0.0';
+		const VERSION = '2.1.0';
 
 		protected static $instance = null;
 
@@ -216,7 +216,7 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 
 		//wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
 		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
-		wp_enqueue_script( 'woo-rede-animated-card', $plugin_url . 'assets/js/card.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card', $plugin_url . 'assets/js/card.js', array(), '2.5.0', true );
 		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede.js', array(), '1.0.0', true );
 	}
 
