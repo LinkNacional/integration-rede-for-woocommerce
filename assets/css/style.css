@@ -1,5 +1,18 @@
 /*
 *
+* Inclusão do logo da Rede
+*
+*/
+#rede-credit-payment-form .payment-method-description {
+    display: inline-flex;
+}
+#rede-credit-payment-form .payment-method-description #logo-rede {
+    width: 60px;
+    margin-left: 10px;
+}
+
+/*
+*
 * Inclusão dos ícones das bandeiras dos cartões de crédito
 *
 */
