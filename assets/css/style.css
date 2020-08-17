@@ -5,6 +5,7 @@
 */
 #rede-credit-payment-form .payment-method-description {
     display: inline-flex;
+    margin: 0 0 20px;
 }
 #rede-credit-payment-form .payment-method-description #logo-rede {
     width: 60px;
