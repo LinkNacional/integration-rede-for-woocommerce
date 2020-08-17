@@ -56,19 +56,19 @@ You can ask questions by:
 
 ## Credits
 
-This plugin is a fork that fixes some bugs and implements new features to the plugin developed in:
+**This plugin is a fork that fixes some bugs and implements new features to the plugin developed in:**
 
 -   [DevelopersRede](https://github.com/DevelopersRede/woocommerce).
 
-### Credcards icons have been forkled from Storefront in:
+**Credcards icons have been forkled from Storefront in:**
 
 -   [Storefront](https://github.com/woocommerce/storefront/tree/master/assets/images/credit-cards).
 
-### Banner:
+**Banner:**
 
 -   [Freepik](https://br.freepik.com/vetores-gratis/conjunto-de-banner-de-pagamento_4378405.htm#page=3&query=cartao+de+credito+banner&position=33).
 
-### Icon:
+**Icon:**
 
 -   [Freepik](https://br.freepik.com/vetores-gratis/icones-economia_794700.htm#page=1&query=cartao%20de%20credito&position=20).
 
@@ -78,34 +78,34 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 
 ## Frequently Asked Questions
 
-### What is the license of the plugin?
+**What is the license of the plugin?**
 
 -   This plugin is licensed as MIT.
 
-### What do I need to use this plugin?
+**What do I need to use this plugin?**
 
 -   Have installed the WooCommerce plugin.
 
 ## Changelog
 
-### 2.1.0 - 2020/07/25
+**2.1.0 - 2020/07/25**
 
 -   Update compatibility information
 -   Correction of the order id
 -   Implementation of installment filter
 -   Implementation of a filter to display the Network data on the order page only if this is the payment method used.
 
-### 2.0.2 - 2020/05/23
+**2.0.2 - 2020/05/23**
 
 -   Update compatibility information
 -   Correction of the order id
 
-### 2.0.1 - 2020/05/04
+**2.0.1 - 2020/05/04**
 
 -   Update compatibility information
 -   Correction of the internationalization of error messages on the checkout page
 
-### 2.0.0 - 2019/11/02
+**2.0.0 - 2019/11/02**
 
 -   Correction of the number of installments display
 -   Year placeholder adjustment at card expiration
