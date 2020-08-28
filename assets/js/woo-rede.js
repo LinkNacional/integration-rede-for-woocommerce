@@ -1,9 +1,11 @@
 jQuery(document).ready( function(){
 	jQuery( 'body' )
-	.on( 'init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div ', function() {
+	.on( 'init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div', function() {
+		
+		jQuery('.wc-payment-rede-form-fields').card({
 			
-		var card = new Card({
-			form: '.wc-payment-rede-form-fields',
+		/*var card = new Card({
+			form: '.wc-payment-rede-form-fields',*/
 			container: '.card-wrapper',
 
 			/**
@@ -33,6 +35,12 @@ jQuery(document).ready( function(){
 				validDate: 'VÁLIDO\nATÉ',
 				monthYear: ''
 			},
+
+			/**
+			 * Debug
+			 */
+			debug: true,
+
 		});
 
 	});
