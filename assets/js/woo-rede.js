@@ -1,22 +1,24 @@
-jQuery(document).ready( function(){
-	jQuery( 'body' )
-	.on( 'init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div', function() {
-		
-		jQuery('.wc-payment-rede-form-fields').card({
-			
-		/*var card = new Card({
-			form: '.wc-payment-rede-form-fields',*/
-			container: '.card-wrapper',
+window.jQuery(function ($) {
+	const $form = $('.woocommerce .woocommerce-checkout');
+	const inputSelectors = {
+		numberInput: '#rede-card-number',
+		nameInput: '#rede-card-holder-name',
+		expiryInput: '#rede-card-expiry',
+		cvcInput: '#rede-card-cvc',
+	};
+
+	$(document.body).on('updated_checkout wc-credit-card-form-init', function (e) {
+		// maybe delete old card data
+		$form.data('card', null)
+
+		// init animated card
+		$form.card({
+			container: '#rede-card-animation',
 
 			/**
 			 * Selectors
 			 */
-			formSelectors: {
-				numberInput: 'input[name="rede_credit_number"]',
-				expiryInput: 'input[name="rede_credit_expiry"]',
-				cvcInput: 'input[name="rede_credit_cvc"]',
-				nameInput: 'input[name="rede_credit_holder_name"]'
-			},
+			formSelectors: inputSelectors,
 
 			/**
 			 * Placeholders
@@ -29,19 +31,26 @@ jQuery(document).ready( function(){
 			},
 
 			/**
-			 * Translation Portuguese Brasilian
+			 * Translation Brazilian Portuguese
 			 */
 			messages: {
-				validDate: 'VÁLIDO\nATÉ',
+				validDate: 'VALIDADE',
 				monthYear: ''
 			},
 
 			/**
 			 * Debug
 			 */
-			debug: true,
-
+			debug: !!window.wooRede.debug,
 		});
 
+
+		// Workaround to maintain the card data rendered after checkout updates
+		Object.values(inputSelectors).reverse().forEach(function (selector) {
+			$(selector)[0].dispatchEvent(new CustomEvent('change'));
+		})
+
+		$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('focus'));
+		$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('blur'));
 	});
 });
