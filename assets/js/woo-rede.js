@@ -1,47 +1,43 @@
-jQuery(document).ready( function(){
-	jQuery( 'body' )
-	.on( 'init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div', function() {
-		
-		jQuery('.wc-payment-rede-form-fields').card({
-			
-		/*var card = new Card({
-			form: '.wc-payment-rede-form-fields',*/
-			container: '.card-wrapper',
+jQuery(document).ready(function () {
+	jQuery('body')
+		.on('init init_checkout updated_checkout payment_method_selected checkout_error update_checkout updated_wc_div', function () {
 
-			/**
-			 * Selectors
-			 */
-			formSelectors: {
-				numberInput: 'input[name="rede_credit_number"]',
-				expiryInput: 'input[name="rede_credit_expiry"]',
-				cvcInput: 'input[name="rede_credit_cvc"]',
-				nameInput: 'input[name="rede_credit_holder_name"]'
-			},
+			jQuery('.woocommerce .woocommerce-checkout').card({
+				container: '#rede-card-animation',
 
-			/**
-			 * Placeholders
-			 */
-			placeholders: {
-				number: '•••• •••• •••• ••••',
-				name: 'NOME',
-				expiry: 'MM/ANO',
-				cvc: 'CVC'
-			},
+				/**
+				 * Selectors
+				 */
+				formSelectors: {
+					numberInput: '#rede-card-number',
+					nameInput: '#rede-card-holder-name',
+					expiryInput: '#rede-card-expiry',
+					cvcInput: '#rede-card-cvc',
+				},
 
-			/**
-			 * Translation Portuguese Brasilian
-			 */
-			messages: {
-				validDate: 'VÁLIDO\nATÉ',
-				monthYear: ''
-			},
+				/**
+				 * Placeholders
+				 */
+				placeholders: {
+					number: '•••• •••• •••• ••••',
+					name: 'NOME',
+					expiry: 'MM/ANO',
+					cvc: 'CVC'
+				},
 
-			/**
-			 * Debug
-			 */
-			debug: true,
+				/**
+				 * Translation Brazilian Portuguese
+				 */
+				messages: {
+					validDate: 'VALIDADE',
+					monthYear: ''
+				},
+
+				/**
+				 * Debug
+				 */
+				debug: !!window.wooRede,
+			});
 
 		});
-
-	});
 });
