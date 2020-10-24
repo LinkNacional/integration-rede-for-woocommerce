@@ -73,14 +73,37 @@
 *
 */
 #rede-card-animation {
-    margin: 10px 0 25px;
+	margin: 10px 0 25px;
 }
 #rede-credit-payment-form {
-    padding: 0 !important;
+	padding: 0 !important;
+}
+#rede-card-holder-name {
+    text-transform: uppercase;
+}
+#rede-card-animation .jp-card .jp-card-front .jp-card-shiny {
+    position: relative;
+    top: -35px;
+}
+#rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-number {
+    top: -30px;
+	position: relative;
+	margin-bottom: 0;
+}
+#rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-name {
+	width: 275px;
+	top: 60px;
+	font-weight: 500;
+}
+#rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry {
+	top: 15px;
 }
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry::after,
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry::before {
 	opacity: 1;
+}
+.jp-card .jp-card-front .jp-card-lower .jp-card-expiry::after {
+	top: 12px;
 }
 #rede-card-animation .jp-card .jp-card-back, 
 #rede-card-animation .jp-card .jp-card-front {
