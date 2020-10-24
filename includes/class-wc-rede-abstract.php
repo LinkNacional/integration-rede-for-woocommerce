@@ -1,6 +1,5 @@
 <?php
 
-
 abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 
 	public $debug              = 'no';
@@ -80,7 +79,7 @@ abstract class WC_Rede_Abstract extends WC_Payment_Gateway {
 			echo wpautop( wptexturize( $description ) );
 		}
 
-		wp_enqueue_script( 'wc-credit-card-form' );
+		//wp_enqueue_script( 'wc-credit-card-form' );
 
 		$this->get_checkout_form( $this->get_order_total() );
 	}
