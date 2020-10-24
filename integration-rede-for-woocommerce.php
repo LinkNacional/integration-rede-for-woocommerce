@@ -27,7 +27,7 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 
 	class WC_Rede {
 
-
+		const FILE = __FILE__;
 		const VERSION = '2.1.0';
 
 		protected static $instance = null;
@@ -211,14 +211,4 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 	function rede_deactivation() {
 		wp_clear_scheduled_hook( 'update_rede_orders' );
 	}
-	function rede_scripts() {
-		$plugin_url = plugin_dir_url( __FILE__ );
-
-		//wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
-		wp_enqueue_script( 'woo-rede-animated-card', $plugin_url . 'assets/js/card.js', array(), '2.5.0', true );
-		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede.js', array(), '1.0.0', true );
-	}
-
-	add_action( 'wp_enqueue_scripts', 'rede_scripts' );
 endif;
