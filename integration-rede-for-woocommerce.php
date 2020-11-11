@@ -5,10 +5,10 @@
  * GitHub Plugin URI: https://github.com/marcos-alexandre82/integration-rede-for-woocommerce
  * Description: Rede API integration for WooCommerce
  * Version:     2.1.0
- * Requires PHP:      7.0
- * Requires at least: 5.0
+ * Requires PHP:      7.2
+ * Requires at least: 5.5.3
  * WC requires at least: 3.0.0
- * WC tested up to: 4.3.1
+ * WC tested up to: 4.6.2
  * Author:      MarcosAlexandre
  * Author URI:        https://marcosalexandre.dev/
  * License:           MIT
