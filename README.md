@@ -5,7 +5,7 @@ Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0  
 Tested up to: 5.5.3  
 WC requires at least: 3.0.0  
-WC tested up to: 4.6.2  
+WC tested up to: 4.7.0  
 Stable tag: 2.1.0  
 Requires PHP: 7.2  
 License: MIT License URI: https://opensource.org/licenses/MIT  
