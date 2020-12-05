@@ -24,7 +24,6 @@ A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is
     $installments['max_parcels'] = 3;
     return $installments;
 }
-
 add_filter('integration_rede_installments', 'rede_card_installments_filter'); 
 ```
 
