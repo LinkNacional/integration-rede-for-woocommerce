@@ -5,7 +5,7 @@ Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0  
 Tested up to: 5.5.3  
 WC requires at least: 3.0.0  
-WC tested up to: 4.7.0  
+WC tested up to: 4.7.1  
 Stable tag: 2.1.0  
 Requires PHP: 7.2  
 License: MIT License URI: https://opensource.org/licenses/MIT  
@@ -93,6 +93,12 @@ You can ask questions by:
 ## Contributors
 
 You can contribute source code on our page at [GitHub](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
+
+### Special Thanks
+
+* [Kaoe](https://github.com/kaoecoito/) implementation of the filter for installments.
+
+* [Luiz "Bills"](https://github.com/luizbills/) help in implementing the new card layout.
 
 ## Frequently Asked Questions
 

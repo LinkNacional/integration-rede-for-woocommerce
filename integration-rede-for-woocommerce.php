@@ -9,7 +9,7 @@
  * Requires at least: 5.0
  * Tested up to: 5.5.3
  * WC requires at least: 3.0.0
- * WC tested up to: 4.7.0
+ * WC tested up to: 4.7.1
  * Author:      MarcosAlexandre
  * Author URI:        https://marcosalexandre.dev/
  * License:           MIT
@@ -28,7 +28,7 @@ if ( ! class_exists( 'WC_Rede' ) ) :
 
 	class WC_Rede {
 
-		const FILE = __FILE__;
+		const FILE    = __FILE__;
 		const VERSION = '2.1.0';
 
 		protected static $instance = null;
