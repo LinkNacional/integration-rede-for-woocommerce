@@ -78,10 +78,6 @@ This plugin is a fork that fixes some bugs and implements new features to the pl
 
 * [DevelopersRede](https://github.com/DevelopersRede/woocommerce).
 
-Implementation of the installment filter and data display on the order page:**
-
-* [Kaoe](https://github.com/kaoecoito).
-
 Credcards icons have been forkled from Storefront in:
 
 * [Storefront](https://github.com/woocommerce/storefront/tree/master/assets/images/credit-cards).
@@ -100,9 +96,9 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 
 = Special Thanks =
 
-* [Kaoe](https://github.com/kaoecoito/) implementation of the filter for installments.
+* [Kaoe](https://github.com/kaoecoito/) Implementation of the installment filter and data display on the order page.
 
-* [Luiz "Bills"](https://github.com/luizbills/) help in implementing the new card layout.
+* [Luiz "Bills"](https://github.com/luizbills/) Help in implementing the new card layout.
 
 == Frequently Asked Questions ==
 
