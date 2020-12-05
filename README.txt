@@ -29,7 +29,6 @@ function rede_card_installments_filter($installments)
 }
 
 add_filter('integration_rede_installments', 'rede_card_installments_filter');
-
 ```
 
 == Development ==
@@ -112,7 +111,7 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 
 == Changelog ==
 
-= 2.1.0 - 2020/07/25 =
+= 2.1.0 - 2020/12/05 =
 
 - Update compatibility information
 - Correction of the order id
