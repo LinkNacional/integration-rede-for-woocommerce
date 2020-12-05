@@ -114,6 +114,7 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 - Correction of the order id
 - Implementation of installment filter
 - Implementation of a filter to display the Network data on the order page only if this is the payment method used.
+- Improvements to the card layout on the checkout page.
 
 = 2.0.2 - 2020/05/23 =
 
