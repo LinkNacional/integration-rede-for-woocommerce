@@ -27,8 +27,7 @@ function rede_card_installments_filter($installments)
     return $installments;
 }
 
-add_filter('integration_rede_installments', 'rede_card_installments_filter');
-
+add_filter('integration_rede_installments', 'rede_card_installments_filter'); 
 ```
 
 ## Development
