@@ -2,10 +2,11 @@
 Contributors: MarcosAlexandre
 Tags: rede, e-rede, redecard, woocommerce
 Requires at least: 5.0
-Tested up to: 5.4.1
+Tested up to: 5.5.3
 WC requires at least: 3.0.0
-WC tested up to: 4.0.1
-Stable tag: 2.0.1
+WC tested up to: 4.7.1
+Stable tag: 2.1.0
+Requires PHP: 7.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -16,6 +17,16 @@ Rede API integration for WooCommerce
 Use Rede API integration for WooCommerce in your WooCommerce store and allow your customers to pay by credit card.
 
 A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
+
+== Example Filter Usage ==
+
+    function rede_card_installments_filter($installments) {
+        $installments['min_value'] = 40;
+        $installments['max_parcels'] = 3;
+        return $installments;
+    }
+    add_filter('integration_rede_installments', 'rede_card_installments_filter');
+
 
 == Development ==
 
@@ -79,6 +90,12 @@ Icon:
 
 You can contribute source code on our page at [GitHub](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
 
+= Special Thanks =
+
+* [Kaoe](https://github.com/kaoecoito/) Implementation of the installment filter and data display on the order page.
+
+* [Luiz "Bills"](https://github.com/luizbills/) Help in implementing the new card layout.
+
 == Frequently Asked Questions ==
 
 = What is the license of the plugin? =
@@ -90,6 +107,19 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.1.0 - 2020/12/05 =
+
+- Update compatibility information
+- Correction of the order id
+- Implementation of installment filter
+- Implementation of a filter to display the Network data on the order page only if this is the payment method used.
+- Improvements to the card layout on the checkout page.
+
+= 2.0.2 - 2020/05/23 =
+
+- Update compatibility information
+- Correction of the order id
 
 = 2.0.1 - 2020/05/04 =
 
