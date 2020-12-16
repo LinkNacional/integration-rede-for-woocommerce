@@ -422,7 +422,7 @@ class WC_Rede_Credit extends WC_Rede_Abstract {
 
 		if ( $valid ) {
 			$installments = isset( $_POST['rede_credit_installments'] ) ? absint( $_POST['rede_credit_installments'] ) : 1;
-			$expiration   = explode( ' / ', $_POST['rede_credit_expiry'] );
+			$expiration   = explode( '/', $_POST['rede_credit_expiry'] );
 
 			$card_data = array(
 				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
