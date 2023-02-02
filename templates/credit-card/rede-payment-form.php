@@ -44,7 +44,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="form-row form-row-wide rede-card">
 					<label for="installments">
 						<?php esc_attr_e( 'Installments ', 'integration-rede-for-woocommerce' ); ?>
-						<?php echo count( $installments ); ?>
 						<span class="required">*</span>
 					</label> 
 					<select id="installments" name="rede_credit_installments">
