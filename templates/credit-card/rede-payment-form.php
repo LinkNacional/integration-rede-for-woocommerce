@@ -50,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<select id="installments" name="rede_credit_installments">
 						<?php
 						foreach ( $installments as $installment ) {
-							printf( '<option value="%d">%s</option>', $installment['num'], $installment['label'] );
+							printf( '<option value="%d">%s</option>', esc_attr( $installment['num'] ), esc_html( $installment['label'] ) );
 						}
 						?>
 					</select>
