@@ -350,30 +350,19 @@ class WC_Rede_Credit extends WC_Rede_Abstract {
 		$max_parcels = $installments_result['max_parcels'];
 
 		for ( $i = 1; $i <= $max_parcels; ++$i ) {
-			if ( ( $order_total / $i ) >= $min_value ) {
-				$label = sprintf( '%dx de R$ %.02f', $i, $order_total / $i );
-			}
-
 			if ( ( $order_total / $i ) < $min_value ) {
 				break;
 			}
 
-			if ( 1 === $i ) {
-				$label = sprintf( 'R$ %.02f à vista', $order_total );
-			}
+			$label = sprintf( '%dx de %s', $i, strip_tags( wc_price( $order_total / $i ) ) );
+
+			if ( $i === 1 ) $label .= ' à vista';
 
 			$installments[] = array(
 				'num'   => $i,
 				'label' => $label,
 			);
 
-		}
-
-		if ( count( $installments ) === 0 ) {
-			$installments[] = array(
-				'num'   => 1,
-				'label' => sprintf( 'R$ %.02f à vista', $order_total ),
-			);
 		}
 
 		return $installments;
@@ -422,7 +411,17 @@ class WC_Rede_Credit extends WC_Rede_Abstract {
 
 		if ( $valid ) {
 			$installments = isset( $_POST['rede_credit_installments'] ) ? absint( $_POST['rede_credit_installments'] ) : 1;
+			//$expiration   = explode( ' / ', $_POST['rede_credit_expiry'] );
 			$expiration   = explode( '/', $_POST['rede_credit_expiry'] );
+			$credit_expiry = $_POST['rede_credit_expiry'];
+			if (strpos($credit_expiry, '/') !== false) {
+				$expiration   = explode( '/', $credit_expiry );
+			} else {
+				$expiration = [
+					substr($credit_expiry, 0, 2),
+					substr($credit_expiry, -2, 2),
+				];
+			}
 
 			$card_data = array(
 				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
