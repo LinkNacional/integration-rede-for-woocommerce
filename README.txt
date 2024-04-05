@@ -1,140 +1,114 @@
-=== Integration Rede for WooCommerce ===
-Contributors: MarcosAlexandre
-Tags: rede, e-rede, redecard, woocommerce
-Requires at least: 5.0
-Tested up to: 5.5.3
-WC requires at least: 3.0.0
-WC tested up to: 4.7.1
-Stable tag: 2.1.0
-Requires PHP: 7.2
-License: MIT
-License URI: https://opensource.org/licenses/MIT
+=== Plugin Name ===
+Contributors: marcosalexandre, linknacional
+Donate link: https://linknacional.com.br/
+Tags: comments, spam
+Requires at least: 3.0.1
+Tested up to: 3.4
+Stable tag: 4.3
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Rede API integration for WooCommerce
+Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
 
 == Description ==
 
-Use Rede API integration for WooCommerce in your WooCommerce store and allow your customers to pay by credit card.
+This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
 
-A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
+For backwards compatibility, if this section is missing, the full length of the short description will be used, and
+Markdown parsed.
 
-== Example Filter Usage ==
+A few notes about the sections above:
 
-    function rede_card_installments_filter($installments) {
-        $installments['min_value'] = 40;
-        $installments['max_parcels'] = 3;
-        return $installments;
-    }
-    add_filter('integration_rede_installments', 'rede_card_installments_filter');
+*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
+*   "Tags" is a comma separated list of tags that apply to the plugin
+*   "Requires at least" is the lowest version that the plugin will work on
+*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
+higher versions... this is just the highest one you've verified.
+*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
+stable.
 
+    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
+if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
+for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
+is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
+your in-development version, without having that information incorrectly disclosed about the current stable version
+that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
 
-== Development ==
-
-This version of the **Integration Rede for WooCommerce** plugin was developed without any encouragement from Rede. This means that none of the developers of this plugin have any bonds with the Rede and we count on your help to improve the code and operation of this plugin.
-
-= Compatibility =
-
-Compatible since version 3.0.x of WooCommerce.
-
-Works with the plugin:
-* [WooCommerce](https://wordpress.org/plugins/woocommerce/)
+    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
+you put the stable version, in order to eliminate any doubt.
 
 == Installation ==
 
-Download the plugin
-Upload the plugin to the wp-content/plugins directory,
-Go to “plugins” in your WordPress admin, then click activate.
+This section describes how to install the plugin and get it working.
 
-= Requirements: =
+e.g.
 
-* Have a website ready with WordPress and WooCommerce installed.
-* Use SSL certificate (2048 bit recommended).
-* Have registration on [Rede](https://www.userede.com.br/new/e-rede#telefone)
-
-= Plugin Settings: =
-
-You can access the plugin settings screen from the WordPress admin page under `WooCommerce -> Settings -> Payments -> Pay with the Rede`.
-
-The plugin works with the **Test** and **Production** environments, where you must use the **Test** environment to test the integration before using it in the **Production** environment. Once it is tested and validated, you can use the **Production** environment where you can sign in with the **PV** and the **Token** of ecommerce affiliation with the Rede.
-
-#### Notes on the test environment ####
-
-In the **Test environment** you can use some test cards available in the [Rede Integration Guide](https://www.userede.com.br/desenvolvedores/pt/produto/e-Rede#tutorial) by accessing the `Playground Tutorial -> How to use the playground`, just do the [Register](https://www.userede.com.br/desenvolvedores/pt/cadastro).
-
-== Doubts? ==
-
-You can ask questions by:  
-
-* Using our [forum on Github](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
-* Creating a topic in the [WordPress help forum](https://wordpress.org/support/plugin/integration-rede-for-woocommerce).
-
-= Credits =
-
-This plugin is a fork that fixes some bugs and implements new features to the plugin developed in:
-
-* [DevelopersRede](https://github.com/DevelopersRede/woocommerce).
-
-Credcards icons have been forkled from Storefront in:
-
-* [Storefront](https://github.com/woocommerce/storefront/tree/master/assets/images/credit-cards).
-
-Banner:
-
-* [Freepik](https://br.freepik.com/vetores-gratis/conjunto-de-banner-de-pagamento_4378405.htm#page=3&query=cartao+de+credito+banner&position=33).
-
-Icon:
-
-* [Freepik](https://br.freepik.com/vetores-gratis/icones-economia_794700.htm#page=1&query=cartao%20de%20credito&position=20).
-
-= Contributors =
-
-You can contribute source code on our page at [GitHub](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
-
-= Special Thanks =
-
-* [Kaoe](https://github.com/kaoecoito/) Implementation of the installment filter and data display on the order page.
-
-* [Luiz "Bills"](https://github.com/luizbills/) Help in implementing the new card layout.
+1. Upload `lkn-integration-rede-for-woocommerce.php` to the `/wp-content/plugins/` directory
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 
 == Frequently Asked Questions ==
 
-= What is the license of the plugin? =
+= A question that someone might have =
 
-* This plugin is licensed as MIT.
+An answer to that question.
 
-= What do I need to use this plugin? =
+= What about foo bar? =
 
-* Have installed the WooCommerce plugin.
+Answer to foo bar dilemma.
+
+== Screenshots ==
+
+1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
+the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
+directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
+(or jpg, jpeg, gif).
+2. This is the second screen shot
 
 == Changelog ==
 
-= 2.1.0 - 2020/12/05 =
+= 1.0 =
+* A change since the previous version.
+* Another change.
 
-- Update compatibility information
-- Correction of the order id
-- Implementation of installment filter
-- Implementation of a filter to display the Network data on the order page only if this is the payment method used.
-- Improvements to the card layout on the checkout page.
-
-= 2.0.2 - 2020/05/23 =
-
-- Update compatibility information
-- Correction of the order id
-
-= 2.0.1 - 2020/05/04 =
-
-- Update compatibility information
-- Correction of the internationalization of error messages on the checkout page
-
-= 2.0.0 - 2019/11/02 =
-
-- Correction of the number of installments display
-- Year placeholder adjustment at card expiration
-- Plugin internationalization and translation for pt_BR
-- Inclusion of credit card banners icons
-- Expiration date now accepts 2 or 4 digits for year as well
-- Sanitize inputs fields
+= 0.5 =
+* List versions from most recent at top to oldest at bottom.
 
 == Upgrade Notice ==
 
-Corrected the display of the installments, changed the card validity field to accept 2 or 4 digits, made the internationalization and translation process for pt_BR, and implemented WordPress Coding Standards. Also added the icons of the card flags.
+= 1.0 =
+Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+
+= 0.5 =
+This version fixes a security related bug.  Upgrade immediately.
+
+== Arbitrary section ==
+
+You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
+plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
+"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+
+== A brief Markdown Example ==
+
+Ordered list:
+
+1. Some feature
+1. Another feature
+1. Something else about the plugin
+
+Unordered list:
+
+* something
+* something else
+* third thing
+
+Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
+Titles are optional, naturally.
+
+[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
+            "Markdown is what the parser uses to process much of the readme file"
+
+Markdown uses email style notation for blockquotes and I've been told:
+> Asterisks for *emphasis*. Double it up  for **strong**.
+
+`<?php code(); // goes in backticks ?>`
