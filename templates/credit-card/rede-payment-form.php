@@ -63,7 +63,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<input id="rede-card-holder-name"
 					name="rede_credit_holder_name" class="input-text"
 					type="text"
-					autocomplete="off"
+					maxlength="22" autocomplete="off"
 					style="font-size: 1.5em; padding: 8px 45px;"/>
 					<div class="icon-rede-input">
 						<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
