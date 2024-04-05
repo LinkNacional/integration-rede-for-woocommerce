@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<label for="rede-card-number">
 					<?php esc_attr_e( 'Card Number', 'integration-rede-for-woocommerce' ); ?>
 					<span class="required">*</span>
-				</label> 
+				</label>
 				<input id ="rede-card-number"
 					name="rede_credit_number"
 					class="input-text jp-card-invalid wc-credit-card-form-card-number"
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<path class="svg" d="M182.385,14.258c-2.553-2.553-5.621-3.829-9.205-3.829H42.821c-3.585,0-6.653,1.276-9.207,3.829c-2.553,2.553-3.829,5.621-3.829,9.206v99.071c0,3.585,1.276,6.654,3.829,9.207c2.554,2.553,5.622,3.829,9.207,3.829H173.18c3.584,0,6.652-1.276,9.205-3.829s3.83-5.622,3.83-9.207V23.464C186.215,19.879,184.938,16.811,182.385,14.258z M175.785,122.536c0,0.707-0.258,1.317-0.773,1.834c-0.516,0.515-1.127,0.772-1.832,0.772H42.821c-0.706,0-1.317-0.258-1.833-0.773c-0.516-0.518-0.774-1.127-0.774-1.834V73h135.571V122.536z M175.785,41.713H40.214v-18.25c0-0.706,0.257-1.316,0.774-1.833c0.516-0.515,1.127-0.773,1.833-0.773H173.18c0.705,0,1.316,0.257,1.832,0.773c0.516,0.517,0.773,1.127,0.773,1.833V41.713z" style="fill: rgb(21, 140, 186);"></path>
 								<rect class="svg" x="50.643" y="104.285" width="20.857" height="10.429" style="fill: rgb(21, 140, 186);"></rect>
 								<rect class="svg" x="81.929" y="104.285" width="31.286" height="10.429" style="fill: rgb(21, 140, 186);"></rect>
-							</g>			
+							</g>
 						</svg>
 					</div>
 			</div>
@@ -45,11 +45,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<label for="installments">
 						<?php esc_attr_e( 'Installments ', 'integration-rede-for-woocommerce' ); ?>
 						<span class="required">*</span>
-					</label> 
+					</label>
 					<select id="installments" name="rede_credit_installments">
 						<?php
 						foreach ( $installments as $installment ) {
-							printf( '<option value="%d">%s</option>', $installment['num'], $installment['label'] );
+							printf( '<option value="%d">%s</option>', esc_attr( $installment['num'] ), esc_html( $installment['label'] ) );
 						}
 						?>
 					</select>
@@ -58,7 +58,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="form-row form-row-wide rede-card">
 				<label for="rede-card-holder-name">
 					<?php esc_attr_e( 'Name on Card', 'integration-rede-for-woocommerce' ); ?><span class="required">*</span>
-				</label> 
+				</label>
 				<input id="rede-card-holder-name"
 					name="rede_credit_holder_name" class="input-text"
 					type="text"
@@ -91,11 +91,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 			</div>
 			<div class="form-row form-row-last rede-card">
-				<label for="rede-card-cvc">Código de segurança<span class="required">*</span>
+				<label for="rede-card-cvc">Código de segurança <span class="required">*</span>
 				</label>
 				<input id="rede-card-cvc"
 					name="rede_credit_cvc"
-					class="input-text wc-credit-card-form-card-cvc" 
+					class="input-text wc-credit-card-form-card-cvc"
 					type="tel"
 					autocomplete="off"
 					placeholder="<?php esc_attr_e( 'CVC', 'integration-rede-for-woocommerce' ); ?>"
