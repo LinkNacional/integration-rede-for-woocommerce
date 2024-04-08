@@ -45,6 +45,10 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
             'Symfony\\Component\\Console\\' => 26,
             'Sabre\\Event\\' => 12,
         ),
+        'R' => 
+        array (
+            'Rede\\' => 5,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
@@ -54,6 +58,7 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
         ),
         'M' => 
         array (
+            'Monolog\\' => 8,
             'Microsoft\\PhpParser\\' => 20,
         ),
         'L' => 
@@ -71,6 +76,7 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
             'Composer\\XdebugHandler\\' => 23,
             'Composer\\Semver\\' => 16,
             'Composer\\Pcre\\' => 14,
+            'Composer\\Installers\\' => 20,
         ),
         'A' => 
         array (
@@ -82,8 +88,8 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
         'phpDocumentor\\Reflection\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
-            1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
         ),
         'Webmozart\\Assert\\' => 
         array (
@@ -129,9 +135,13 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
         array (
             0 => __DIR__ . '/..' . '/sabre/event/lib',
         ),
+        'Rede\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/developersrede/erede-php/src/Rede',
+        ),
         'Psr\\Log\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/log/src',
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
         'Psr\\Container\\' => 
         array (
@@ -144,6 +154,10 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
         'PHPStan\\PhpDocParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpstan/phpdoc-parser/src',
+        ),
+        'Monolog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Microsoft\\PhpParser\\' => 
         array (
@@ -176,6 +190,10 @@ class ComposerStaticInit18fe8db317deffef933cab979e1ab98a
         'Composer\\Pcre\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/pcre/src',
+        ),
+        'Composer\\Installers\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers',
         ),
         'AdvancedJsonRpc\\' => 
         array (

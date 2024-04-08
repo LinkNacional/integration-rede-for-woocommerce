@@ -19,5 +19,13 @@
     "require-dev": {
         "phan/phan": "5.4.1"
     },
-    "require": {}
+    "require": {
+        "developersrede/erede-php": "4.2.1",
+        "monolog/monolog": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
 }

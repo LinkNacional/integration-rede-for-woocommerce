@@ -1,4 +1,10 @@
 <?php
+namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+
+use Exception;
+use WC_Logger;
+use WC_Order;
+use WC_Payment_Gateway;
 
 abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment_Gateway {
 

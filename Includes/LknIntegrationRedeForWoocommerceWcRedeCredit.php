@@ -1,4 +1,10 @@
 <?php
+namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+
+use Exception;
+use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
+use WC_Order;
+use WP_Error;
 
 class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeForWoocommerceWcRedeAbstract {
 
@@ -41,81 +47,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			$this->log = $this->get_logger();
 		}
 
-		$this->api = new WC_Rede_API( $this );
-
-		if ( ! $this->auto_capture ) {
-			add_action(
-				'woocommerce_order_status_completed',
-				array(
-					$this,
-					'process_capture',
-				)
-			);
-		}
-
-		add_action(
-			'woocommerce_order_status_cancelled',
-			array(
-				$this,
-				'process_refund',
-			)
-		);
-		add_action(
-			'woocommerce_order_status_refunded',
-			array(
-				$this,
-				'process_refund',
-			)
-		);
-
-		add_action(
-			'woocommerce_update_options_payment_gateways_' . $this->id,
-			array(
-				$this,
-				'process_admin_options',
-			)
-		);
-		add_action(
-			'woocommerce_api_wc_rede_credit',
-			array(
-				$this,
-				'check_return',
-			)
-		);
-		add_action(
-			'woocommerce_thankyou_' . $this->id,
-			array(
-				$this,
-				'thankyou_page',
-			)
-		);
-		add_action(
-			'wp_enqueue_scripts',
-			array(
-				$this,
-				'checkout_scripts',
-			)
-		);
-
-		add_filter(
-			'woocommerce_get_order_item_totals',
-			array(
-				$this,
-				'order_items_payment_details',
-			),
-			10,
-			2
-		);
-
-		add_action(
-			'woocommerce_admin_order_data_after_billing_address',
-			array(
-				$this,
-				'display_meta',
-			),
-			10,
-			1
-		);
+		$this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
+		
 	}
 
 	public function display_meta( $order ) {
@@ -376,7 +309,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
-		$plugin_url = plugin_dir_url( WC_Rede::FILE );
+		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE );
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
 		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
@@ -553,7 +486,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'installments' => $this->get_installments( $order_total ),
 			),
 			'woocommerce/rede/',
-			WC_Rede::get_templates_path()
+			LknIntegrationRedeForWoocommerceWcRede::get_templates_path()
 		);
 	}
 }

@@ -33,5 +33,6 @@ class LknIntegrationRedeForWoocommerceDeactivator
 	 */
 	public static function deactivate()
 	{
+		wp_clear_scheduled_hook( 'update_rede_orders' );
 	}
 }

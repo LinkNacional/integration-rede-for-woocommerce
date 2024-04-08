@@ -33,5 +33,8 @@ class LknIntegrationRedeForWoocommerceActivator
 	 */
 	public static function activate()
 	{
+		if ( ! wp_next_scheduled( 'update_rede_orders' ) ) {
+			wp_schedule_event( time(), 'hourly', 'update_rede_orders' );
+		}
 	}
 }

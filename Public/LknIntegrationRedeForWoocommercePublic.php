@@ -1,5 +1,5 @@
 <?php
-namespace Lkn\IntegrationRedeForWoocommerce\Public;
+namespace Lkn\IntegrationRedeForWoocommerce\PublicView;
 
 /**
  * The public-facing functionality of the plugin.

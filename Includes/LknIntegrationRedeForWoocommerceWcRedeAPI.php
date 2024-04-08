@@ -1,6 +1,7 @@
 <?php
+namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
-abstract class LknIntegrationRedeForWoocommerceWcRedeAPI {
+class LknIntegrationRedeForWoocommerceWcRedeAPI {
 
 	protected $gateway;
 

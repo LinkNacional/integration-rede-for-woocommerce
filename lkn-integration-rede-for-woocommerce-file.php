@@ -9,6 +9,8 @@ if (!defined('WPINC')) {
 	die;
 }
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 /**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
@@ -22,7 +24,6 @@ define('LknIntegrationRedeForWoocommerce_VERSION', '1.0.0');
  */
 function activate_LknIntegrationRedeForWoocommerce()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/LknIntegrationRedeForWoocommerceActivator';
 	LknIntegrationRedeForWoocommerceActivator::activate();
 }
 
@@ -32,18 +33,12 @@ function activate_LknIntegrationRedeForWoocommerce()
  */
 function deactivate_LknIntegrationRedeForWoocommerce()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/LknIntegrationRedeForWoocommerceDeactivator.php';
 	LknIntegrationRedeForWoocommerceDeactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_LknIntegrationRedeForWoocommerce');
 register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerce');
 
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path(__FILE__) . 'includes/LknIntegrationRedeForWoocommerce.php';
 
 /**
  * Begins execution of the plugin.
