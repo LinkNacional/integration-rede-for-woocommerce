@@ -18,7 +18,7 @@ class LknIntegrationRedeForWoocommerceWcRede {
 	public function register_scripts() {
 	}
 
-	public static function get_instance() {
+	public function get_instance() {
 		if ( null == self::$instance ) {
 			self::$instance = new self();
 		}
@@ -35,7 +35,8 @@ class LknIntegrationRedeForWoocommerceWcRede {
 	}
 
 	public function add_gateway( $methods ) {
-		array_push( $methods, 'WC_Rede_Credit' );
+		$wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+		array_push( $methods, $wc_rede_credit_class);
 
 		return $methods;
 	}

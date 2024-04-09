@@ -17,7 +17,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 		$token = $gateway->token;
 
 		if ( $gateway->environment == 'test' ) {
-			$environment = \Rede\Environment::sandbox();
+			$environment = \Rede\Environment::sandbox(); //TODO verificar causa do cacarregamento infinito
 		} else {
 			$environment = \Rede\Environment::production();
 		}

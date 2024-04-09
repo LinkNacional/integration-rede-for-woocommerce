@@ -21,14 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<label for="rede-card-number">
 					<?php esc_attr_e( 'Card Number', 'integration-rede-for-woocommerce' ); ?>
 					<span class="required">*</span>
-				</label>
-				<input id ="rede-card-number"
-					name="rede_credit_number"
-					class="input-text jp-card-invalid wc-credit-card-form-card-number"
-					type="tel"
-					maxlength="22" autocomplete="off"
-					placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;"
-					style="font-size: 1.5em; padding: 8px 45px;"/>
 					<div class="icon-rede-input">
 						<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="3px" width="24px" height="17px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
 							<g>
@@ -38,6 +30,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</g>
 						</svg>
 					</div>
+				</label>
+				<input id ="rede-card-number"
+					name="rede_credit_number"
+					class="input-text jp-card-invalid wc-credit-card-form-card-number"
+					type="tel"
+					maxlength="22" autocomplete="off"
+					placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;"
+					style="font-size: 1.5em; padding: 8px 45px;"/>
 			</div>
 
 			<?php if ( is_array( $installments ) && count( $installments ) > 1 ) : ?>
@@ -109,3 +109,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 </fieldset>
+                        

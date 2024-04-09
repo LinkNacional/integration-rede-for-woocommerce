@@ -46,9 +46,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		if ( 'yes' == $this->debug ) {
 			$this->log = $this->get_logger();
 		}
-
-		$this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
 		
+		$this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
 	}
 
 	public function display_meta( $order ) {
@@ -309,7 +308,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
-		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE );
+		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
 		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
