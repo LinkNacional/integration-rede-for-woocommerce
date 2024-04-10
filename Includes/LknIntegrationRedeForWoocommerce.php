@@ -1,10 +1,10 @@
 <?php
 
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+
 use Lkn\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
 use Lkn\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
-use WC_Payment_Gateways;
 
 /**
  * The file that defines the core plugin class
@@ -165,10 +165,8 @@ class LknIntegrationRedeForWoocommerce
 	{
 
 		$plugin_public = new LknIntegrationRedeForWoocommercePublic($this->get_plugin_name(), $this->get_version());
-
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
-		
 		$this->wc_rede_class->get_instance();
 		$this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'update_rede_orders');
 		$this->loader->add_action('init', $this->wc_rede_class, 'load_plugin_textdomain');
@@ -178,8 +176,32 @@ class LknIntegrationRedeForWoocommerce
 		
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkout_scripts');
+		
+		$this->loader->add_action('before_woocommerce_init', $this, 'before_woocommerce_initActive');		
+		$this->loader->add_action('woocommerce_blocks_loaded', $this, 'woocommerce_blocks_loadedActive' );
+	}
 
+	function before_woocommerce_initActive() { // TODO terminar compatibilidade com WooCommerce editor por blocos
+		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				'cart_checkout_blocks', __FILE__, true
+			);
+		}
+	}
 
+	function woocommerce_blocks_loadedActive(){ // TODO terminar compatibilidade com WooCommerce editor por blocos
+		if( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+			return;
+		}
+	
+		require_once( 'LknIntegrationRedeForWoocommerceWcRedeCredit.php' );
+		
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			function( \Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+				add_option('payment_method_registry', json_encode($payment_method_registry));
+				$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeBlocks );
+		} );
 	}
 	
 	/**

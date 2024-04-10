@@ -300,7 +300,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	public function checkout_scripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
-		wp_enqueue_script( 'fix-infinite-loading.js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
 		
 		
 		if ( ! is_checkout() ) {
