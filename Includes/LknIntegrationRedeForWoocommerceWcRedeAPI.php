@@ -1,6 +1,11 @@
 <?php
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
+use Rede\Environment;
+use Rede\Store;
+use Rede\Transaction;
+use Rede\eRede;
+
 class LknIntegrationRedeForWoocommerceWcRedeAPI {
 
 	protected $gateway;
@@ -17,9 +22,9 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 		$token = $gateway->token;
 
 		if ( $gateway->environment == 'test' ) {
-			$environment = \Rede\Environment::sandbox(); //TODO verificar causa do cacarregamento infinito
+			$environment = Environment::sandbox();
 		} else {
-			$environment = \Rede\Environment::production();
+			$environment = Environment::production();
 		}
 
 		$this->gateway = $gateway;
@@ -27,7 +32,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 		$this->soft_descriptor = $gateway->soft_descriptor;
 		$this->partner_gateway = $gateway->partner_gateway;
 		$this->partner_module = $gateway->partner_module;
-		$this->store = new \Rede\Store( $pv, $token, $environment );
+		$this->store = new Store( $pv, $token, $environment );		
 	}
 
 	/**
@@ -35,7 +40,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 	 * @param $amount
 	 * @param int $installments
 	 * @param array $credit_card_data
-	 * @return \Rede\Transaction|StdClass
+	 * @return Transaction|StdClass
 	 */
 	public function do_transaction_request(
 		$id,
@@ -43,7 +48,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 		$installments = 1,
 		$credit_card_data = array()
 	) {
-		$transaction = ( new \Rede\Transaction( $amount, $id ) )->creditCard(
+		$transaction = ( new Transaction( $amount, $id ) )->creditCard(
 			$credit_card_data['card_number'],
 			$credit_card_data['card_cvv'],
 			$credit_card_data['card_expiration_month'],
@@ -63,7 +68,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 			$transaction->additional( $this->partner_gateway, $this->partner_module );
 		}
 
-		$transaction = ( new \Rede\eRede( $this->store, $this->get_logger() ) )->create( $transaction );
+		$transaction = ( new eRede( $this->store, $this->get_logger() ) )->create( $transaction );
 
 		return $transaction;
 	}
@@ -77,17 +82,17 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 	}
 
 	public function do_transaction_consultation( $tid ) {
-		return ( new \Rede\eRede( $this->store, $this->get_logger() ) )->get( $tid );
+		return ( new eRede( $this->store, $this->get_logger() ) )->get( $tid );
 	}
 
 	public function do_transaction_cancellation( $tid, $amount = 0 ) {
-		$transaction = ( new \Rede\eRede( $this->store, $this->get_logger() ) )->cancel( ( new \Rede\Transaction( $amount ) )->setTid( $tid ) );
+		$transaction = ( new eRede( $this->store, $this->get_logger() ) )->cancel( ( new Transaction( $amount ) )->setTid( $tid ) );
 
 		return $transaction;
 	}
 
 	public function do_transaction_capture( $tid, $amount ) {
-		$transaction = ( new \Rede\eRede( $this->store, $this->get_logger() ) )->capture( ( new \Rede\Transaction( $amount ) )->setTid( $tid ) );
+		$transaction = ( new eRede( $this->store, $this->get_logger() ) )->capture( ( new Transaction( $amount ) )->setTid( $tid ) );
 
 		return $transaction;
 	}

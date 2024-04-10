@@ -298,6 +298,11 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function checkout_scripts() {
+		
+		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
+		wp_enqueue_script( 'fix-infinite-loading.js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		
+		
 		if ( ! is_checkout() ) {
 			return;
 		}
@@ -308,7 +313,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
-		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
 		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );

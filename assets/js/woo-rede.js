@@ -56,12 +56,4 @@ window.jQuery(function ($) {
 	$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('focus'));
 	$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('blur'));
 
-	/* setTimeout(() => {
-		let blockUIs = document.querySelectorAll('.blockUI');
-		// Convertendo o NodeList em um array usando o método Array.from()
-		Array.from(blockUIs).map((blockUI)=>{
-			blockUI.style.display = 'none';
-		});
-		
-	}, 300); */ //TODO Encontrar hook para executar a remoção do load mesmo que o metodo esteja desativado caso não resolva na API
 });
