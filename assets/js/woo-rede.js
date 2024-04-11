@@ -1,7 +1,5 @@
 window.jQuery(function ($) {
-	setTimeout(() => {
-		
-	}, 100);
+	
 	const $form = $('.woocommerce .woocommerce-checkout');
 	const inputSelectors = {
 		numberInput: '#rede-card-number',

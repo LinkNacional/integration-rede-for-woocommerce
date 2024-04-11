@@ -177,11 +177,11 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkout_scripts');
 		
-		$this->loader->add_action('before_woocommerce_init', $this, 'before_woocommerce_initActive');		
-		$this->loader->add_action('woocommerce_blocks_loaded', $this, 'woocommerce_blocks_loadedActive' );
+		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
+		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
 	}
 
-	function before_woocommerce_initActive() { // TODO terminar compatibilidade com WooCommerce editor por blocos
+	function wcEditorBlocksActive() { // TODO terminar compatibilidade com WooCommerce editor por blocos
 		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
 				'cart_checkout_blocks', __FILE__, true
@@ -189,19 +189,12 @@ class LknIntegrationRedeForWoocommerce
 		}
 	}
 
-	function woocommerce_blocks_loadedActive(){ // TODO terminar compatibilidade com WooCommerce editor por blocos
+	function wcEditorBlocksAddPaymentMethod(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry){ // TODO terminar compatibilidade com WooCommerce editor por blocos
 		if( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
 			return;
-		}
-	
-		require_once( 'LknIntegrationRedeForWoocommerceWcRedeCredit.php' );
+		}	
 		
-		add_action(
-			'woocommerce_blocks_payment_method_type_registration',
-			function( \Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
-				add_option('payment_method_registry', json_encode($payment_method_registry));
-				$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeBlocks );
-		} );
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeBlocks );
 	}
 	
 	/**
