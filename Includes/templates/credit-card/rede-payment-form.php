@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php esc_attr_e( 'Installments ', 'integration-rede-for-woocommerce' ); ?>
 						<span class="required">*</span>
 					</label>
-					<select id="installments" name="rede_credit_installments">
+					<select id="installments" name="rede_credit_installments"> <!-- //TODO Corrigir CSS para ficar no padrão dos outros campos -->
 						<?php
 						foreach ( $installments as $installment ) {
 							printf( '<option value="%d">%s</option>', esc_attr( $installment['num'] ), esc_html( $installment['label'] ) );
