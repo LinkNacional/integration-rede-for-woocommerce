@@ -180,7 +180,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 	}
 
 	protected function validate_card_fields( $posted ) {
-
 		try {
 			if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
 				throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
