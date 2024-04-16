@@ -1,3 +1,5 @@
 jQuery(window).on('load', function() {
-    jQuery('.blockUI').hide();
+    setTimeout(() => {        
+        jQuery('.blockUI').hide();
+    }, 500);
 });

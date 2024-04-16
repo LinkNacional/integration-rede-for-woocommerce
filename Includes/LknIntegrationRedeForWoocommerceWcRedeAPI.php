@@ -6,7 +6,7 @@ use Rede\Store;
 use Rede\Transaction;
 use Rede\eRede;
 
-class LknIntegrationRedeForWoocommerceWcRedeAPI {
+class LknIntegrationRedeForWoocommerceWcRedeAPI { //TODO verificar erro do processamento do cartão
 
 	protected $gateway;
 

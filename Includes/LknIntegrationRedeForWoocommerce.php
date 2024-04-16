@@ -179,9 +179,12 @@ class LknIntegrationRedeForWoocommerce
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
 		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
+
+		$LknIntegrationRedeForWoocommerceEndPoints = new LknIntegrationRedeForWoocommerceEndPoints;
+        $this->loader->add_action('rest_api_init', $LknIntegrationRedeForWoocommerceEndPoints, 'registerGetTransactionInstallment');
 	}
 
-	function wcEditorBlocksActive() { // TODO terminar compatibilidade com WooCommerce editor por blocos
+	function wcEditorBlocksActive() { 
 		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
 				'cart_checkout_blocks', __FILE__, true
@@ -189,7 +192,7 @@ class LknIntegrationRedeForWoocommerce
 		}
 	}
 
-	function wcEditorBlocksAddPaymentMethod(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry){ // TODO terminar compatibilidade com WooCommerce editor por blocos
+	function wcEditorBlocksAddPaymentMethod(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry){ 
 		if( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
 			return;
 		}	

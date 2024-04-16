@@ -1,57 +1,55 @@
 window.jQuery(function ($) {
-	
-	const $form = $('.woocommerce .woocommerce-checkout');
-	const inputSelectors = {
-		numberInput: '#rede-card-number',
-		nameInput: '#rede-card-holder-name',
-		expiryInput: '#rede-card-expiry',
-		cvcInput: '#rede-card-cvc',
-	};
-	
-	
-	// maybe delete old card data
-	$form.data('card', null)
+  if (!document.querySelector('.wc-block-checkout')) {
+    const $form = $('.woocommerce .woocommerce-checkout')
+    const inputSelectors = {
+      numberInput: '#rede-card-number',
+      nameInput: '#rede-card-holder-name',
+      expiryInput: '#rede-card-expiry',
+      cvcInput: '#rede-card-cvc'
+    }
 
-	// init animated card
-	$form.card({
-		container: '#rede-card-animation',
+    // maybe delete old card data
+    $form.data('card', null)
 
-		/**
-		 * Selectors
-		 */
-		formSelectors: inputSelectors,
+    // init animated card
+    $form.card({
+      container: '#rede-card-animation',
 
-		/**
-		 * Placeholders
-		 */
-		placeholders: {
-			number: '•••• •••• •••• ••••',
-			name: 'NOME',
-			expiry: 'MM/ANO',
-			cvc: 'CVC'
-		},
+      /**
+			 * Selectors
+			 */
+      formSelectors: inputSelectors,
 
-		/**
-		 * Translation Brazilian Portuguese
-		 */
-		messages: {
-			validDate: 'VALIDADE',
-			monthYear: ''
-		},
+      /**
+			 * Placeholders
+			 */
+      placeholders: {
+        number: '•••• •••• •••• ••••',
+        name: 'NOME',
+        expiry: 'MM/ANO',
+        cvc: 'CVC'
+      },
 
-		/**
-		 * Debug
-		 */
-		debug: !!window.wooRede.debug,
-	});
+      /**
+			 * Translation Brazilian Portuguese
+			 */
+      messages: {
+        validDate: 'VALIDADE',
+        monthYear: ''
+      },
 
+      /**
+			 * Debug
+			 */
+      debug: !!window.wooRede.debug
+    })
 
-	// Workaround to maintain the card data rendered after checkout updates
-	Object.values(inputSelectors).reverse().forEach(function (selector) {
-		$(selector)[0].dispatchEvent(new CustomEvent('change'));
-	})
+    // Workaround to maintain the card data rendered after checkout updates
+    Object.values(inputSelectors).reverse().forEach(function (selector) {
+      $(selector)[0].dispatchEvent(new CustomEvent('change'))
+    })
 
-	$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('focus'));
-	$(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('blur'));
-
-});
+    $(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('focus'))
+    $(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('blur'))
+  }
+})
