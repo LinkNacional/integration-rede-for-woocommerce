@@ -10,7 +10,7 @@ const Content = props => {
     emitResponse
   } = props;
   const {
-    onPaymentProcessing
+    onPaymentSetup
   } = eventRegistration;
   const wcComponents = window.wc.blocksComponents;
   const [creditObject, setCreditObject] = window.wp.element.useState({
@@ -95,7 +95,7 @@ const Content = props => {
     });
   }, []);
   window.wp.element.useEffect(() => {
-    const unsubscribe = onPaymentProcessing(async () => {
+    const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
       const allFieldsFilled = Object.values(creditObject).every(field => field.trim() !== '');
       if (allFieldsFilled) {
@@ -124,7 +124,7 @@ const Content = props => {
     };
   }, [creditObject,
     // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentProcessing, translations // Adicione translations como dependência
+    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {

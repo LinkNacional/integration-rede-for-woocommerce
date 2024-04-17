@@ -58,78 +58,78 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				<tbody>
 					<tr>
 						<td><?php esc_attr_e( 'Environment', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_environment' ); ?></td>
+						<td><?php esc_attr_e($order->get_meta( '_wc_rede_transaction_environment' )); ?></td>
 					</tr>
 
 					<tr>
 						<td><?php esc_attr_e( 'Return Code', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_return_code' ); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_return_code' )); ?></td>
 					</tr>
 
 					<tr>
 						<td><?php esc_attr_e( 'Return Message', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_return_message' ); ?></td>
+						<td><?php esc_attr_e($order->get_meta( '_wc_rede_transaction_return_message' )); ?></td>
 					</tr>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_id' ) ) ) { ?>
 						<tr>
 							<td><?php esc_attr_e( 'Transaction ID', 'integration-rede-for-woocommerce' ); ?></td>
-							<td><?php echo $order->get_meta( '_wc_rede_transaction_id' ); ?></td>
+							<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_id' )); ?></td>
 						</tr>
 					<?php } ?>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_refund_id' ) ) ) { ?>
 						<tr>
 							<td><?php esc_attr_e( 'Refund ID', 'integration-rede-for-woocommerce' ); ?></td>
-							<td><?php echo $order->get_meta( '_wc_rede_transaction_refund_id' ); ?></td>
+							<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_refund_id' )); ?></td>
 						</tr>
 					<?php } ?>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_cancel_id' ) ) ) { ?>
 						<tr>
 							<td><?php esc_attr_e( 'Cancellation ID', 'integration-rede-for-woocommerce' ); ?></td>
-							<td><?php echo $order->get_meta( '_wc_rede_transaction_cancel_id' ); ?></td>
+							<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_cancel_id' )); ?></td>
 						</tr>
 					<?php } ?>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_nsu' ) ) ) { ?>
 						<tr>
 							<td><?php esc_attr_e( 'Nsu', 'integration-rede-for-woocommerce' ); ?></td>
-							<td><?php echo $order->get_meta( '_wc_rede_transaction_nsu' ); ?></td>
+							<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_nsu' )); ?></td>
 						</tr>
 					<?php } ?>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_authorization_code' ) ) ) { ?>
 						<tr>
 							<td><?php esc_attr_e( 'Authorization Code', 'integration-rede-for-woocommerce' ); ?></td>
-							<td><?php echo $order->get_meta( '_wc_rede_transaction_authorization_code' ); ?></td>
+							<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_authorization_code' )); ?></td>
 						</tr>
 					<?php } ?>
 
 					<tr>
 						<td><?php esc_attr_e( 'Bin', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_bin' ); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_bin' )); ?></td>
 					</tr>
 
 					<tr>
 						<td><?php esc_attr_e( 'Last 4', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_last4' ); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_last4' )); ?></td>
 					</tr>
 
 					<tr>
 						<td><?php esc_attr_e( 'Installments', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_installments' ); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_installments' )); ?></td>
 					</tr>
 
 
 					<tr>
 						<td><?php esc_attr_e( 'Cardholder', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_holder' ); ?></td>
+						<td><?php echo esc_attr(($order->get_meta( '_wc_rede_transaction_holder' ))); ?></td>
 					</tr>
 
 					<tr>
 						<td><?php esc_attr_e( 'Card Expiration', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php echo $order->get_meta( '_wc_rede_transaction_expiration' ); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_expiration' )); ?></td>
 					</tr>
 				</tbody>
 			</table>
@@ -326,26 +326,29 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function process_payment( $order_id ) {
-		$order       = new WC_Order( $order_id );
-		$card_number = isset( $_POST['rede_credit_number'] ) ? sanitize_text_field( $_POST['rede_credit_number'] ) : '';
+		$order       = wc_get_order( $order_id );
+		$card_number = isset( $_POST['rede_credit_number'] ) ? 
+			sanitize_text_field( $_POST['rede_credit_number'] ) : '';
 		$valid       = true;
-
+	
 		if ( $valid ) {
 			$valid = $this->validate_card_number( $card_number );
 		}
-
+	
 		if ( $valid ) {
 			$valid = $this->validate_card_fields( $_POST );
 		}
-
+	
 		if ( $valid ) {
 			$valid = $this->validate_installments( $_POST, $order->get_total() );
 		}
-
+	
 		if ( $valid ) {
-			$installments = isset( $_POST['rede_credit_installments'] ) ? absint( $_POST['rede_credit_installments'] ) : 1;
-			//$expiration   = explode( '/', $_POST['rede_credit_expiry'] );
-			$credit_expiry = $_POST['rede_credit_expiry'];
+			$installments = isset( $_POST['rede_credit_installments'] ) ? 
+				absint( sanitize_text_field($_POST['rede_credit_installments']) ) : 1;
+			
+			$credit_expiry = sanitize_text_field($_POST['rede_credit_expiry']);
+			
 			if (strpos($credit_expiry, '/') !== false) {
 				$expiration   = explode( '/', $credit_expiry );
 			} else {
@@ -354,7 +357,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 					substr($credit_expiry, -2, 2),
 				];
 			}			
-
+	
 			$card_data = array(
 				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
 				'card_expiration_month' => sanitize_text_field( $expiration[0] ),
@@ -362,50 +365,51 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'card_cvv'              => sanitize_text_field( $_POST['rede_credit_cvc'] ),
 				'card_holder'           => sanitize_text_field( $_POST['rede_credit_holder_name'] ),
 			);
-
+	
 			try {
 				$order_id    = $order->get_id();
 				$amount      = $order->get_total();
 				$transaction = $this->api->do_transaction_request( $order_id + time(), $amount, $installments, $card_data );
-
-				update_post_meta( $order_id, '_transaction_id', $transaction->getTid() );
-				update_post_meta( $order_id, '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
-				update_post_meta( $order_id, '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
-				update_post_meta( $order_id, '_wc_rede_transaction_installments', $installments );
-				update_post_meta( $order_id, '_wc_rede_transaction_id', $transaction->getTid() );
-				update_post_meta( $order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
-				update_post_meta( $order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
-				update_post_meta( $order_id, '_wc_rede_transaction_bin', $transaction->getCardBin() );
-				update_post_meta( $order_id, '_wc_rede_transaction_last4', $transaction->getLast4() );
-				update_post_meta( $order_id, '_wc_rede_transaction_nsu', $transaction->getNsu() );
-				update_post_meta( $order_id, '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
-
+	
+				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
+				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
+				$order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
+				$order->update_meta_data( '_wc_rede_transaction_installments', $installments );
+				$order->update_meta_data( '_wc_rede_transaction_id', $transaction->getTid() );
+				$order->update_meta_data( '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
+				$order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
+				$order->update_meta_data( '_wc_rede_transaction_bin', $transaction->getCardBin() );
+				$order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
+				$order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
+				$order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
+	
 				$authorization = $transaction->getAuthorization();
-
+	
 				if ( ! is_null( $authorization ) ) {
-					update_post_meta( $order_id, '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
+					$order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
 				}
-
-				update_post_meta( $order_id, '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
-				update_post_meta( $order_id, '_wc_rede_transaction_expiration', sprintf( '%02d/%04d', $expiration[0], $expiration[1] ) );
-
-				update_post_meta( $order_id, '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
-
+	
+				$order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
+				$order->update_meta_data( '_wc_rede_transaction_expiration', sprintf( '%02d/%d', $expiration[0], intval($expiration[1]) ) );
+	
+				$order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
+	
 				$authorization = $transaction->getAuthorization();
-
+	
 				if ( ! is_null( $authorization ) ) {
-					update_post_meta( $order_id, '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
+					$order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
 				}
-
-				update_post_meta( $order_id, '_wc_rede_transaction_environment', $this->environment );
-
+								
+				$order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
+				
 				$this->process_order_status( $order, $transaction, '' );
+				$order->save();
 			} catch ( Exception $e ) {
 				$this->add_error( $e->getMessage() );
 				$valid = false;
 			}
 		}
-
+	
 		if ( $valid ) {
 			return array(
 				'result'   => 'success',
@@ -418,6 +422,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			);
 		}
 	}
+	
 
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
 		$order = new WC_Order( $order_id );

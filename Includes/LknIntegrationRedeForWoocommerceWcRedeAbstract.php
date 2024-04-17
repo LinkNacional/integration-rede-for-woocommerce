@@ -82,7 +82,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 	public function payment_fields() {
 		if ( $description = $this->get_description() ) {
-			echo wpautop( wptexturize( $description ) );
+			echo wpautop( esc_html( wp_kses_post($description) ) );
 		}
 
 		//wp_enqueue_script( 'wc-credit-card-form' );

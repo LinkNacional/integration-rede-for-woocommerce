@@ -16,11 +16,12 @@ final class LknIntegrationRedeForWoocommerceEndPoints {
     public function getphpAttributes() {
         $installments = get_option('woocommerce_rede_credit_settings')['max_parcels_number'];
         
+        
         // Convertendo $installments para um objeto em vez de uma string
         $installments_obj = (object) [
             'installments' => (int)$installments,
             'translations' => [
-                'fieldsNotFilled' => esc_attr_e('Please fill in all fields correctly.', 'integration-rede-for-woocommerce')
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce')
             ]
         ];
         
