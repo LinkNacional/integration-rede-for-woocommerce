@@ -19,7 +19,7 @@
     /* Defina o tamanho da fonte */
     --wp--preset--spacing--20: min(1.5rem, 2vw);
     /* Defina o espaçamento */
-    --wp--preset--color--contrast-2: #515151;
+    --wp--preset--color--contrast-2: #2B2D2F;
     /* Defina a cor do texto */
     --wp--preset--color--base: #f9f9f9;
     /* Defina a cor de fundo */
@@ -30,7 +30,8 @@
 
     white-space: nowrap;
     background-color: var(--wp--preset--color--base);
-    border: var(--wp--preset--border-width--focus) solid #414141; /* Largura de 1px e cor #414141 */
+    border: var(--wp--preset--border-width--focus) solid #414141;
+    /* Largura de 1px e cor #414141 */
     border-radius: 4px;
     box-sizing: border-box;
     color: var(--wp--preset--color--contrast-2);
@@ -39,7 +40,7 @@
     margin: 0;
     min-height: 0;
     width: 100%;
-    padding: var(--wp--preset--spacing--20) 0.5em 0.5em;
+    padding: var(--wp--preset--spacing--20) 0.3em 0.5em;
     height: 3.5rem;
     padding-top: 1.5rem;
 }

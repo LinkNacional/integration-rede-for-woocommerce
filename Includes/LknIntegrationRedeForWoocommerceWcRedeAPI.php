@@ -6,7 +6,7 @@ use Rede\Store;
 use Rede\Transaction;
 use Rede\eRede;
 
-class LknIntegrationRedeForWoocommerceWcRedeAPI { //TODO verificar erro do processamento do cartão
+class LknIntegrationRedeForWoocommerceWcRedeAPI { 
 
 	protected $gateway;
 
@@ -73,7 +73,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI { //TODO verificar erro do proce
 		return $transaction;
 	}
 
-	protected function get_logger() {
+	protected function get_logger() { //TODO verificar erro do processamento do cartão
 		$logger = new \Monolog\Logger( 'rede' );
 		$logger->pushHandler( new \Monolog\Handler\StreamHandler( WP_CONTENT_DIR . '/uploads/wc-logs/rede.log', \Monolog\Logger::DEBUG ) );
 		$logger->info( 'Log Rede' );

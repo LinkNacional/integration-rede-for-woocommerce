@@ -181,6 +181,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 	protected function validate_card_fields( $posted ) {
 		try {
+
 			if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
 				throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
 			}
@@ -222,7 +223,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 			}
 		} catch ( Exception $e ) {
 			$this->add_error( $e->getMessage() );
-
+			
 			return false;
 		}
 
@@ -267,10 +268,11 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 	public function add_error( $message ) {
 		global $woocommerce;
 
-		$title = '<strong>' . esc_attr( $this->title ) . ':</strong> ';
+		$title = '<strong>' . esc_html( $this->title ) . ':</strong> ';
 
 		if ( function_exists( 'wc_add_notice' ) ) {
-			wc_add_notice( $title . $message, 'error' );
+			$message = wp_kses( $message, array() );
+			throw new Exception( "{$title} {$message}" );
 		} else {
 			$woocommerce->add_error( $title . $message );
 		}

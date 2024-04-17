@@ -329,6 +329,10 @@ msgstr "Este plugin depende da última versão do %s para funcionar!"
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
+#: includes/views/notices/LknIntegrationRedeForWoocommerceEndPoints.php:23
+msgid "Please fill in all fields correctly"
+msgstr "Por favor, preencha todos os campos corretamente."
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"
