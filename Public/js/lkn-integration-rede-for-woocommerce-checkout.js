@@ -1,7 +1,8 @@
 const settings = window.wc.wcSettings.getSetting('rede_credit_data', {});
-const label = window.wp.htmlEntities.decodeEntities(settings.title) || window.wp.i18n.__('My Custom Gateway', 'rede_credit');
+const label = window.wp.htmlEntities.decodeEntities(settings.title);
+// Obtendo o nonce da variável global
+const nonce = window.myScriptNonce;
 const Content = props => {
-  // TODO adicionar mensagem de erro manual quando campos forem digitados errados
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'));
@@ -107,7 +108,8 @@ const Content = props => {
               rede_credit_installments: creditObject.rede_credit_installments,
               rede_credit_expiry: creditObject.rede_credit_expiry,
               rede_credit_cvc: creditObject.rede_credit_cvc,
-              rede_credit_holder_name: creditObject.rede_credit_holder_name
+              rede_credit_holder_name: creditObject.rede_credit_holder_name,
+              rede_card_nonce: nonce
             }
           }
         };
@@ -123,8 +125,8 @@ const Content = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {

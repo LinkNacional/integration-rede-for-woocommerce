@@ -27,6 +27,7 @@ if ( current_user_can( 'install_plugins' ) ) {
 				</strong>: 
 				<?php
 				printf(
+					// translators: %s is the name of the plugin required for this one to work.
 					__(
 						'This plugin depends on the last version of %s to work!',
 						'integration-rede-for-woocommerce'

@@ -12,6 +12,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPayment
     public function initialize() {
         $this->settings = get_option( 'woocommerce_rede_credit_settings', [] );
         $this->gateway = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+        
     }
 
     public function is_active() {
@@ -37,10 +38,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPayment
             wp_set_script_translations( 'rede_credit-blocks-integration');
             
         }
-        return [ 'rede_credit-blocks-integration' ];
+
+        return [ 'rede_credit-blocks-integration' ];       
     }
 
     public function get_payment_method_data() {
+        $nonce = wp_create_nonce( 'redeCardNonce' );
+
+        // Imprimindo o nonce como uma variável global
+        echo '<script>window.myScriptNonce = "' . esc_attr($nonce) . '";</script>';
+        
 		return [
 			'title' => $this->gateway->title,
 			'description' => $this->gateway->description,

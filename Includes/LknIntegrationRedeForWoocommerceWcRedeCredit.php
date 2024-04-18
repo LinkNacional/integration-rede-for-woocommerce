@@ -58,7 +58,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				<tbody>
 					<tr>
 						<td><?php esc_attr_e( 'Environment', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php esc_attr_e($order->get_meta( '_wc_rede_transaction_environment' )); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_environment' )); ?></td>
 					</tr>
 
 					<tr>
@@ -68,7 +68,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 					<tr>
 						<td><?php esc_attr_e( 'Return Message', 'integration-rede-for-woocommerce' ); ?></td>
-						<td><?php esc_attr_e($order->get_meta( '_wc_rede_transaction_return_message' )); ?></td>
+						<td><?php echo esc_attr($order->get_meta( '_wc_rede_transaction_return_message' )); ?></td>
 					</tr>
 
 					<?php if ( ! empty( $order->get_meta( '_wc_rede_transaction_id' ) ) ) { ?>
@@ -284,7 +284,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		for ( $i = 1; $i <= $max_parcels; ++$i ) {
 			if ( ( $order_total / $i ) < $min_value ) break;
 
-			$label = sprintf( '%dx de %s', $i, strip_tags( wc_price( $order_total / $i ) ) );
+			$label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
 
 			if ( $i === 1 ) $label .= ' (à vista)';
 
@@ -326,6 +326,14 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function process_payment( $order_id ) {
+		
+		if(!wp_verify_nonce($_POST['rede_card_nonce'], 'redeCardNonce')){
+			return array(
+				'result'   => 'fail',
+				'redirect' => '',
+			);
+		}
+		
 		$order       = wc_get_order( $order_id );
 		$card_number = isset( $_POST['rede_credit_number'] ) ? 
 			sanitize_text_field( $_POST['rede_credit_number'] ) : '';

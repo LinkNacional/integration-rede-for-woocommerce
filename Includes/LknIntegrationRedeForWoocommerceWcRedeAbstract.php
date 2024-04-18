@@ -54,6 +54,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 			$items['payment_return'] = array(
 				'label' => esc_attr__( 'Payment:', 'integration-rede-for-woocommerce' ),
 				'value' => sprintf(
+					// translators: %1$s is the Order ID, %2$s is the number of installments, %3$s is the Transaction Id.
 					__( '<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />', 'integration-rede-for-woocommerce' ),
 					//'value' => sprintf('<strong>Order ID</strong>: %s<br /><strong>Installments</strong>: %s<br /><strong>Transaction Id</strong>: %s<br />',
 					$order_id,
@@ -61,7 +62,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 					$tid
 				),
 			);
-
+			
+			// translators: %s is the name of the plugin required for this one to work.
 			$items['payment_return']['value'] .= sprintf( __( '<strong>Autorization Code</strong>: %s', 'integration-rede-for-woocommerce' ), $authorization_code );
 
 			$items[] = $last;
@@ -210,7 +212,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 					'$2-$1-01',
 					$this->normalize_expiration_date( $posted[ $this->id . '_expiry' ] )
 				)
-			) < strtotime( date( 'Y-m' ) . '-01' ) ) {
+			) < strtotime( gmdate( 'Y-m' ) . '-01' ) ) {
 				throw new Exception( esc_attr__( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
 			}
 

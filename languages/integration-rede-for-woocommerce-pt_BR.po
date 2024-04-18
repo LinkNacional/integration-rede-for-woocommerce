@@ -316,6 +316,10 @@ msgstr "MÊS / ANO"
 msgid "CVC"
 msgstr "CVC"
 
+#: templates/credit-card/rede-payment-form.php:108
+msgid "Security Code"
+msgstr "Código de segurança"
+
 #: includes/views/notices/html-notice-woocommerce-missing.php:22
 msgid "Integration Rede for WooCommerce Disabled"
 msgstr "Integration Rede for WooCommerce Disabilitado"
@@ -330,7 +334,7 @@ msgid "WooCommerce"
 msgstr "WooCommerce"
 
 #: includes/views/notices/LknIntegrationRedeForWoocommerceEndPoints.php:23
-msgid "Please fill in all fields correctly"
+msgid "Please fill in all fields correctly."
 msgstr "Por favor, preencha todos os campos corretamente."
 
 #. Name of the plugin
