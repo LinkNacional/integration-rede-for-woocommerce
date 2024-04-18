@@ -21,7 +21,7 @@
     },
     "require": {
         "developersrede/erede-php": "4.2.1",
-        "monolog/monolog": "*"
+        "monolog/monolog": "2.x-dev"
     },
     "config": {
         "allow-plugins": {

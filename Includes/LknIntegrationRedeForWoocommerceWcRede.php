@@ -36,7 +36,10 @@ class LknIntegrationRedeForWoocommerceWcRede {
 
 	public function add_gateway( $methods ) {
 		$wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+		$wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
+		
 		array_push( $methods, $wc_rede_credit_class);
+		array_push( $methods, $wc_maxipago_credit_class);
 
 		return $methods;
 	}
