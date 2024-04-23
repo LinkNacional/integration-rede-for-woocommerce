@@ -11,7 +11,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 	public $debug              = 'no';
 	public $auto_capture       = true;
 	public $min_parcels_value  = 0;
-	public $mas_parcels_number = 12;
+	public $max_parcels_number = 12;
 
 	public function get_valid_value( $value ) {
 		return preg_replace( '/[^\d\.]+/', '', str_replace( ',', '.', $value ) );
@@ -168,7 +168,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 	protected function validate_card_number( $card_number ) {
 		$card_number_checksum = '';
-
 		foreach ( str_split( strrev( preg_replace( '/[^\d]/', '', $card_number ) ) ) as $i => $d ) {
 			$card_number_checksum .= $i % 2 !== 0 ? $d * 2 : $d;
 		}
