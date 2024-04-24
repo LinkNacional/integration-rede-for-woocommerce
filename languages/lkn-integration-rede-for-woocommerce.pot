@@ -193,6 +193,9 @@ msgstr ""
 msgid "Invalid number of installments"
 msgstr ""
 
+msgid "Merchant ID or Merchant Key is invalid!"
+msgstr ""
+
 msgid "Pay for your purchase with a credit card through "
 msgstr ""
 

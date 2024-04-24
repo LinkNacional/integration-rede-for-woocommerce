@@ -315,9 +315,11 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'assets/css/style-maxipago.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style-rede.css', array(), '1.0.0', 'all' );
 
 		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'assets/js/woo-maxipago.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-rede-js', 'wooRede', [
