@@ -142,7 +142,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
             array(
                 'installments' => $this->get_installments($order_total),
             ),
-            'woocommerce/rede/',
+            'woocommerce/maxipago/',
             LknIntegrationRedeForWoocommerceWcRede::get_templates_path()
         );
     }

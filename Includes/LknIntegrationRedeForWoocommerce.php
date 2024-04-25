@@ -202,6 +202,7 @@ class LknIntegrationRedeForWoocommerce
 			return;
 		}	
 		
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcMaxipagoBlocks );
 		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeBlocks );
 	}
 	
