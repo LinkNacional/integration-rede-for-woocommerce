@@ -307,4 +307,27 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 		return true;
 	}
+
+	public function generate_meta_table( $order, $meta_keys, $title) {
+		?>
+		<h3><?php esc_attr_e( $title, 'integration-rede-for-woocommerce' ); ?></h3>
+		<table>
+			<tbody>
+				<?php
+				array_map( function( $meta_key, $label ) use ( $order ) {
+					$meta_value = $order->get_meta( $meta_key );
+					if ( ! empty( $meta_value ) ) :
+				?>
+					<tr>
+						<td><?php echo esc_attr( $label ); ?></td>
+						<td><?php echo esc_attr( $meta_value ); ?></td>
+					</tr>
+				<?php
+					endif;
+				}, array_keys( $meta_keys ), $meta_keys );
+				?>
+			</tbody>
+		</table>
+	<?php
+	}
 }

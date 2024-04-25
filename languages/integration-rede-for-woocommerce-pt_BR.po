@@ -29,55 +29,55 @@ msgstr "Ativa e configura pagamentos com Rede"
 msgid "Rede"
 msgstr "Rede"
 
-#: Includes/class-wc-rede-credit.php:128 Includes/class-wc-rede-credit.php:228
+#: Includes/class-wc-rede-credit.php:128 Includes/class-wc-rede-credit.php:56
 msgid "Environment"
 msgstr "Ambiente"
 
-#: Includes/class-wc-rede-credit.php:133
+#: Includes/class-wc-rede-credit.php:57
 msgid "Return Code"
 msgstr "Código de retorno"
 
-#: Includes/class-wc-rede-credit.php:138
+#: Includes/class-wc-rede-credit.php:58
 msgid "Return Message"
 msgstr "Mensagem de retorno"
 
-#: Includes/class-wc-rede-credit.php:144
+#: Includes/class-wc-rede-credit.php:59
 msgid "Transaction ID"
 msgstr "ID da transação"
 
-#: Includes/class-wc-rede-credit.php:151
+#: Includes/class-wc-rede-credit.php:60
 msgid "Refund ID"
 msgstr "ID do reembolso"
 
-#: Includes/class-wc-rede-credit.php:158
+#: Includes/class-wc-rede-credit.php:61
 msgid "Cancellation ID"
 msgstr "ID de cancelamento"
 
-#: Includes/class-wc-rede-credit.php:165
+#: Includes/class-wc-rede-credit.php:62
 msgid "Nsu"
 msgstr "Nsu"
 
-#: Includes/class-wc-rede-credit.php:172
+#: Includes/class-wc-rede-credit.php:63
 msgid "Authorization Code"
 msgstr "Código de autorização"
 
-#: Includes/class-wc-rede-credit.php:178
+#: Includes/class-wc-rede-credit.php:64
 msgid "Bin"
 msgstr "Bin"
 
-#: Includes/class-wc-rede-credit.php:183
+#: Includes/class-wc-rede-credit.php:65
 msgid "Last 4"
 msgstr "4 últimos dígitos"
 
-#: Includes/class-wc-rede-credit.php:188
+#: Includes/class-wc-rede-credit.php:66
 msgid "Installments"
 msgstr "Parcelas"
 
-#: Includes/class-wc-rede-credit.php:194
+#: Includes/class-wc-rede-credit.php:67
 msgid "Cardholder"
 msgstr "Titular do cartão"
 
-#: Includes/class-wc-rede-credit.php:199
+#: Includes/class-wc-rede-credit.php:68
 msgid "Card Expiration"
 msgstr "Validade do cartão"
 
@@ -250,7 +250,7 @@ msgstr "página de detalhes do pedido"
 
 #: Includes/class-wc-rede-abstract.php:166
 msgid "Please enter a valid credit card number"
-msgstr "Digite um número de cartão de crédito válido"
+msgstr "Por favor, insira um número de cartão de crédito válido"
 
 #: Includes/class-wc-rede-abstract.php:176
 msgid "Please enter cardholder name"
@@ -291,6 +291,22 @@ msgstr "Número de parcelas inválido"
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "Merchant ID or Merchant Key is invalid!"
 msgstr "Merchant ID ou Merchant Key estão inválidos!"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
+msgid "District"
+msgstr "Bairro"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
+msgid "Seller Company Name"
+msgstr "Nome da empresa vendedora"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:68
+msgid "Reference Number"
+msgstr "Número de Referência"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:68
+msgid "Please enter a valid cpf number"
+msgstr "Por favor, insira um número de cpf válido"
 
 #: templates/credit-card/rede-payment-form.php:8
 msgid "Pay for your purchase with a credit card through "

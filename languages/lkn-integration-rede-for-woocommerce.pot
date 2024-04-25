@@ -46,6 +46,9 @@ msgstr ""
 msgid "Card Expiration"
 msgstr ""
 
+msgid "Reference Number"
+msgstr ""
+
 msgid "Enable/Disable"
 msgstr ""
 
@@ -194,6 +197,9 @@ msgid "Invalid number of installments"
 msgstr ""
 
 msgid "Merchant ID or Merchant Key is invalid!"
+msgstr ""
+
+msgid "District"
 msgstr ""
 
 msgid "Pay for your purchase with a credit card through "

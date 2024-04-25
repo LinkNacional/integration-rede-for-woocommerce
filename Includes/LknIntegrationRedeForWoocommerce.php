@@ -154,6 +154,7 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_credit_class, 'check_return'); 
 		$this->loader->add_filter('woocommerce_get_order_item_totals', $this->wc_rede_credit_class,'order_items_payment_details', 10, 2);
 		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_credit_class,'display_meta', 10, 1);	
+		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class,'display_meta', 10, 1);	
 		
 	}
 
@@ -178,6 +179,7 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_class, 'register_scripts');
 		
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
+		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'add_district_field_to_checkout');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkout_scripts');
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
