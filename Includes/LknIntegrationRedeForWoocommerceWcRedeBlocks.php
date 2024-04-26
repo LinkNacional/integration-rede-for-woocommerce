@@ -46,7 +46,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPayment
         $nonce = wp_create_nonce( 'redeCardNonce' );
 
         // Imprimindo o nonce como uma variável global
-        echo '<script>window.myScriptNonce = "' . esc_attr($nonce) . '";</script>';
+        echo '<script>window.redeNonce = "' . esc_attr($nonce) . '";</script>';
         
 		return [
 			'title' => $this->gateway->title,

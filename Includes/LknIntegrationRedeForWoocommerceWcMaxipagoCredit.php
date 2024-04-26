@@ -31,22 +31,25 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
     }
 
-    function add_district_field_to_checkout( $fields ) {
-        $fields['billing']['billing_district'] = array(
-            'placeholder' => __('District', 'integration-rede-for-woocommerce'),
-            'required'    => true,
-            'class'       => array('form-row-wide'),
-            'clear'       => true,
-        );
-    
-        // Obtém a posição do campo de endereço
-        $address_position = array_search( 'billing_address_1', array_keys( $fields['billing'] ) );
-    
-        // Insere o campo de bairro após o campo de endereço
-        $fields['billing'] = array_slice( $fields['billing'], 0, $address_position + 1, true ) +
-                             array('billing_district' => $fields['billing']['billing_district']) +
-                             array_slice( $fields['billing'], $address_position + 1, NULL, true );
-    
+    function add_neighborhood_field_to_checkout( $fields ) {
+        if (!is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
+            && $this->is_available()) {
+            $fields['billing']['billing_neighborhood'] = array(
+                'label'       => __('District', 'integration-rede-for-woocommerce'),
+                'placeholder' => __('District', 'integration-rede-for-woocommerce'),
+                'required'    => true,
+                'class'       => array('form-row-wide'),
+                'clear'       => true,
+            );
+        
+            // Obtém a posição do campo de endereço
+            $address_position = array_search( 'billing_address_1', array_keys( $fields['billing'] ) );
+        
+            // Insere o campo de bairro após o campo de endereço
+            $fields['billing'] = array_slice( $fields['billing'], 0, $address_position + 2, true ) +
+                                 array('billing_neighborhood' => $fields['billing']['billing_neighborhood']) +
+                                 array_slice( $fields['billing'], $address_position + 2, NULL, true );
+        }
         return $fields;
     }
 
@@ -215,10 +218,10 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 			}	
             
             $client_data = array(
-                'billing_cpf'   => sanitize_text_field( $_POST['maxipago_credit_cpf'] ),
+                'billing_cpf'   => sanitize_text_field( $_POST['billing_cpf'] ),
                 'billing_name'          => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
                 'billing_address_1'     => sanitize_text_field( $_POST['billing_address_1'] ),
-                'billing_district'      => sanitize_text_field( $_POST['billing_district'] ),
+                'billing_district'      => sanitize_text_field( $_POST['billing_neighborhood'] ),
                 'billing_city'          => sanitize_text_field( $_POST['billing_city'] ),
                 'billing_state'         => sanitize_text_field( $_POST['billing_state'] ),
                 'billing_postcode'      => sanitize_text_field( $_POST['billing_postcode'] ),
@@ -256,13 +259,17 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 if(!$this->validate_cpf($client_data['billing_cpf'])){
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
                 }
+
+                if(!$client_data['billing_district']){
+                    throw new Exception(__("Please fill in the district field to complete payment with Maxipago.", 'integration-rede-for-woocommerce'));
+                }
                 
                 if($environment === 'production'){
                     $api_url = 'https://api.maxipago.net/UniversalAPI/postXML';
                 }else{
                     $api_url = 'https://testapi.maxipago.net/UniversalAPI/postXML';
                 }
-
+                //TODO alterar processorID 1 para teste e 5 para e.REDE
                 $xml_data = "<?xml version='1.0' encoding='UTF-8'?>
                     <transaction-request>
                         <version>3.1.1.15</version>
@@ -434,5 +441,33 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
 			$this->generate_meta_table( $order, $meta_keys, 'Maxipago');
         }
+	}
+
+    public function checkout_scripts() {
+		
+		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
+		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		
+		
+		if ( ! is_checkout() ) {
+			return;
+		}
+
+		if ( ! $this->is_available() ) {
+			return;
+		}
+
+		wp_enqueue_style( 'wc-rede-checkout-webservice' );
+
+
+		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'assets/css/style-maxipago.css', array(), '1.0.0', 'all' );
+
+		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'assets/js/woo-maxipago.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-maxipago-js' ), '2.5.0', true );
+
+		wp_localize_script( 'woo-maxipago-js', 'wooMaxipago', [
+			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
+		]);
 	}
 }

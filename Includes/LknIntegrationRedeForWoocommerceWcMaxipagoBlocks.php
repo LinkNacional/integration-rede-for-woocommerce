@@ -43,10 +43,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoBlocks extends AbstractPay
     }
 
     public function get_payment_method_data() {
-        $nonce = wp_create_nonce( 'redeCardNonce' );
+        $nonce = wp_create_nonce( 'maxipagoCardNonce' );
 
         // Imprimindo o nonce como uma variável global
-        echo '<script>window.myScriptNonce = "' . esc_attr($nonce) . '";</script>';
+        echo '<script>window.maxipagoNonce = "' . esc_attr($nonce) . '";</script>';
         
 		return [
 			'title' => $this->gateway->title,

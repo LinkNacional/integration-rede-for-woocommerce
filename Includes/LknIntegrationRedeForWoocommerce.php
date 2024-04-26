@@ -146,7 +146,7 @@ class LknIntegrationRedeForWoocommerce
 		if ( ! $this->wc_rede_credit_class->auto_capture ) {
 			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'process_capture');
 		}
-
+		
 		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'process_refund');
 		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_credit_class, 'process_refund');
 		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'process_admin_options');
@@ -166,7 +166,13 @@ class LknIntegrationRedeForWoocommerce
 	 * @access   private
 	 */
 	private function define_public_hooks()
-	{
+	{	
+		
+		if($this->wc_maxipago_credit_class->is_available()){
+			$wcbcf_settings = get_option('wcbcf_settings'); // Obtém as configurações existentes
+			$wcbcf_settings['neighborhood_required'] = "1"; // Define o campo de bairro como obrigatório
+			update_option('wcbcf_settings', $wcbcf_settings);
+		}
 
 		$plugin_public = new LknIntegrationRedeForWoocommercePublic($this->get_plugin_name(), $this->get_version());
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
@@ -179,14 +185,16 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_class, 'register_scripts');
 		
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
-		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'add_district_field_to_checkout');
+		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'add_neighborhood_field_to_checkout');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkout_scripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->wc_maxipago_credit_class,'checkout_scripts');
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
 		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
 
 		$LknIntegrationRedeForWoocommerceEndPoints = new LknIntegrationRedeForWoocommerceEndPoints;
         $this->loader->add_action('rest_api_init', $LknIntegrationRedeForWoocommerceEndPoints, 'registerGetTransactionInstallment');
+
 	}
 
 	function wcEditorBlocksActive() { 

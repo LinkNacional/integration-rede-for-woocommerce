@@ -1,7 +1,7 @@
 const settings_maxipago = window.wc.wcSettings.getSetting('maxipago_credit_data', {});
 const label_maxipago = window.wp.htmlEntities.decodeEntities(settings_maxipago.title);
 // Obtendo o nonce da variável global
-const nonce_maxipago = window.myScriptNonce;
+const nonce_maxipago = window.maxipagoNonce;
 const Content_maxipago = props => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
@@ -72,7 +72,7 @@ const Content_maxipago = props => {
 
   // Requisição para obter o número máximo de parcelas e traduções
   window.wp.element.useEffect(() => {
-    fetch(`${window.location.origin}/wp-json/maxipagoForWoocommerce/getphpAttributes`).then(response => {
+    fetch(`${window.location.origin}/wp-json/redeForWoocommerce/getphpAttributes`).then(response => {
       return response.text();
     }).then(text => {
       const jsonStartIndex = text.indexOf('{'); // Encontra o índice do primeiro '{'
@@ -81,7 +81,7 @@ const Content_maxipago = props => {
 
       //Atribui traduções do backend
       setTranslations(jsonData.translations);
-      for (let index = 2; index <= jsonData.installments; index++) {
+      for (let index = 2; index <= jsonData.installments_maxipago; index++) {
         totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -109,7 +109,7 @@ const Content_maxipago = props => {
               maxipago_credit_expiry: creditObject.maxipago_credit_expiry,
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
-              maxipago_card_nonce: nonce
+              maxipago_card_nonce: nonce_maxipago
             }
           }
         };
@@ -125,8 +125,8 @@ const Content_maxipago = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {

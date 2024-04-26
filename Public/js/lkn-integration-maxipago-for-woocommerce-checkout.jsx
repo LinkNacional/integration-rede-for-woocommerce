@@ -1,9 +1,9 @@
-const settings = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
-const label = window.wp.htmlEntities.decodeEntities(settings.title)
+const settings_maxipago = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
+const label_maxipago = window.wp.htmlEntities.decodeEntities(settings_maxipago.title)
 // Obtendo o nonce da variável global
-const nonce = window.myScriptNonce;
+const nonce_maxipago = window.maxipagoNonce;
 
-const Content = (props) => {
+const Content_maxipago = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
@@ -72,7 +72,7 @@ const Content = (props) => {
 
   // Requisição para obter o número máximo de parcelas e traduções
   window.wp.element.useEffect(() => {
-    fetch(`${window.location.origin}/wp-json/maxipagoForWoocommerce/getphpAttributes`)
+    fetch(`${window.location.origin}/wp-json/redeForWoocommerce/getphpAttributes`)
       .then(response => {
         return response.text()
       }).then(text => {
@@ -83,7 +83,7 @@ const Content = (props) => {
         //Atribui traduções do backend
         setTranslations(jsonData.translations)
 
-        for (let index = 2; index <= jsonData.installments; index++) {
+        for (let index = 2; index <= jsonData.installments_maxipago; index++) {
           totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
@@ -115,7 +115,7 @@ const Content = (props) => {
               maxipago_credit_expiry: creditObject.maxipago_credit_expiry,
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
-              maxipago_card_nonce: nonce
+              maxipago_card_nonce: nonce_maxipago
             },
           },
         };
@@ -138,7 +138,7 @@ const Content = (props) => {
     translations, // Adicione translations como dependência
   ]);
 
-
+  // TODO Adicionar campos de CPF e Bairro
   return (
     <>
       <wcComponents.TextInput
@@ -201,16 +201,16 @@ const Content = (props) => {
   )
 }
 
-const Block_Gateway = {
+const Block_Gateway_maxipago = {
   name: 'maxipago_credit',
-  label,
-  content: window.wp.element.createElement(Content),
-  edit: window.wp.element.createElement(Content),
+  label: label_maxipago,
+  content: window.wp.element.createElement(Content_maxipago),
+  edit: window.wp.element.createElement(Content_maxipago),
   canMakePayment: () => true,
-  ariaLabel: label,
+  ariaLabel: label_maxipago,
   supports: {
-    features: settings.supports
+    features: settings_maxipago.supports
   }
 }
 
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway)
+window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_maxipago)

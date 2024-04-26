@@ -28,7 +28,7 @@ window.jQuery(function ($) {
 
         // maybe delete old card data
         $form.data('card', null)
-
+        
         // init animated card
         $form.card({
           container: '#maxipago-card-animation',
@@ -59,7 +59,7 @@ window.jQuery(function ($) {
           /**
            * Debug
            */
-          debug: !!window.wooRede.debug
+          debug: !!window.wooMaxipago.debug
         })
 
         // Workaround to maintain the card data rendered after checkout updates

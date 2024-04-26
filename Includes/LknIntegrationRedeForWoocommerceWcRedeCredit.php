@@ -251,16 +251,14 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'assets/css/style-maxipago.css', array(), '1.0.0', 'all' );
 		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style-rede.css', array(), '1.0.0', 'all' );
 
 		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'assets/js/woo-maxipago.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-rede-js', 'wooRede', [
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
-		] );
+		]);
 	}
 
 	public function process_payment( $order_id ) {
@@ -276,18 +274,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		$card_number = isset( $_POST['rede_credit_number'] ) ? 
 			sanitize_text_field( $_POST['rede_credit_number'] ) : '';
 		$valid       = true;
-	
-		if ( $valid ) {
-			$valid = $this->validate_card_number( $card_number );
-		}
-	
-		if ( $valid ) {
-			$valid = $this->validate_card_fields( $_POST );
-		}
-	
-		if ( $valid ) {
-			$valid = $this->validate_installments( $_POST, $order->get_total() );
-		}
 	
 		if ( $valid ) {
 			$installments = isset( $_POST['rede_credit_installments'] ) ? 
@@ -313,6 +299,19 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			);
 	
 			try {
+
+				if ( $valid ) {
+					$valid = $this->validate_card_number( $card_number );
+				}
+			
+				if ( $valid ) {
+					$valid = $this->validate_card_fields( $_POST );
+				}
+			
+				if ( $valid ) {
+					$valid = $this->validate_installments( $_POST, $order->get_total() );
+				}
+
 				$order_id    = $order->get_id();
 				$amount      = $order->get_total();
 				$transaction = $this->api->do_transaction_request( $order_id + time(), $amount, $installments, $card_data );

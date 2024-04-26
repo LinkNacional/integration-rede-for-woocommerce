@@ -1,9 +1,9 @@
-const settings = window.wc.wcSettings.getSetting('rede_credit_data', {})
-const label = window.wp.htmlEntities.decodeEntities(settings.title)
+const settings_rede = window.wc.wcSettings.getSetting('rede_credit_data', {})
+const label_rede = window.wp.htmlEntities.decodeEntities(settings_rede.title)
 // Obtendo o nonce da variável global
-const nonce = window.myScriptNonce;
+const nonce_rede = window.redeNonce;
 
-const Content = (props) => {
+const Content_rede = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
@@ -83,7 +83,7 @@ const Content = (props) => {
         //Atribui traduções do backend
         setTranslations(jsonData.translations)
 
-        for (let index = 2; index <= jsonData.installments; index++) {
+        for (let index = 2; index <= jsonData.installments_rede; index++) {
           totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
@@ -115,7 +115,7 @@ const Content = (props) => {
               rede_credit_expiry: creditObject.rede_credit_expiry,
               rede_credit_cvc: creditObject.rede_credit_cvc,
               rede_credit_holder_name: creditObject.rede_credit_holder_name,
-              rede_card_nonce: nonce
+              rede_card_nonce: nonce_rede
             },
           },
         };
@@ -201,16 +201,16 @@ const Content = (props) => {
   )
 }
 
-const Block_Gateway = {
+const Block_Gateway_rede = {
   name: 'rede_credit',
-  label,
-  content: window.wp.element.createElement(Content),
-  edit: window.wp.element.createElement(Content),
+  label: label_rede,
+  content: window.wp.element.createElement(Content_rede),
+  edit: window.wp.element.createElement(Content_rede),
   canMakePayment: () => true,
-  ariaLabel: label,
+  ariaLabel: label_rede,
   supports: {
-    features: settings.supports
+    features: settings_rede.supports
   }
 }
 
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway)
+window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede)
