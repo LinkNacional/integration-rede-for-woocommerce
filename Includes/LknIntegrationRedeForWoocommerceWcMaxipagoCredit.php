@@ -260,10 +260,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
                 }
 
-                if(!$client_data['billing_district']){
-                    throw new Exception(__("Please fill in the district field to complete payment with Maxipago.", 'integration-rede-for-woocommerce'));
-                }
-                
                 if($environment === 'production'){
                     $api_url = 'https://api.maxipago.net/UniversalAPI/postXML';
                 }else{
@@ -337,7 +333,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 //Reconstruindo o $xml para facilitar o uso da variavel
                 $xml_encode = json_encode($xml);
                 $xml_decode = json_decode($xml_encode, true);
-
+                
                 if($xml_decode['processorMessage'] == "APPROVED"){
 
                     $order->update_meta_data( '_wc_maxipago_transaction_return_message', $xml_decode['processorMessage'] );
@@ -351,8 +347,8 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $card_data['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $credit_expiry );
-                    $order->update_status( 'completed', esc_attr_e( 'Payment approved', 'integration-rede-for-woocommerce'));
-
+                    $order->payment_complete();
+                    
                 }
                 if($xml_decode['responseMessage']  == "INVALID REQUEST"){
                     throw new Exception($xml_decode['errorMessage']);             
@@ -370,7 +366,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 				$valid = false;
 			}
 		}
-	
+                
 		if ( $valid ) {
 			return array(
 				'result'   => 'success',

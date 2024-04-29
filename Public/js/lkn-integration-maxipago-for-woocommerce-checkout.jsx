@@ -1,5 +1,27 @@
 const settings_maxipago = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
 const label_maxipago = window.wp.htmlEntities.decodeEntities(settings_maxipago.title)
+
+//TODO Adicionar campo de endereço manualmente aos campos de endereço
+/* setTimeout(() => {
+  var addressFormWrapper = document.querySelector('.wc-block-components-address-form-wrapper');
+  
+  // Verifica se a div foi encontrada
+  if (addressFormWrapper) {
+    // Cria o novo componente NovoCampoTextInput
+    const novoCampo = <NovoCampoTextInput
+                        id="novo_input_id"
+                        label="Novo Label"
+                        value={valorDoNovoInput}
+                        onChange={(event) => {
+                          setValorDoNovoInput(event.target.value);
+                        }}
+                      />;
+    
+    // Renderiza o novo componente dentro da div addressFormWrapper
+    ReactDOM.render(novoCampo, addressFormWrapper);
+  }
+}, 500); */
+
 // Obtendo o nonce da variável global
 const nonce_maxipago = window.maxipagoNonce;
 
@@ -17,6 +39,7 @@ const Content_maxipago = (props) => {
     maxipago_credit_expiry: '',
     maxipago_credit_cvc: '',
     maxipago_credit_holder_name: '',
+    maxipago_credit_cpf: ''
   })
 
   const [options, setOptions] = window.wp.element.useState([
@@ -69,6 +92,15 @@ const Content_maxipago = (props) => {
       [key]: value
     })
   }
+  
+  const formatarCPF = (cpf) => {
+    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+    cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os primeiros 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os segundos 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
+    return cpf;
+  }
 
   // Requisição para obter o número máximo de parcelas e traduções
   window.wp.element.useEffect(() => {
@@ -115,7 +147,8 @@ const Content_maxipago = (props) => {
               maxipago_credit_expiry: creditObject.maxipago_credit_expiry,
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
-              maxipago_card_nonce: nonce_maxipago
+              maxipago_card_nonce: nonce_maxipago,
+              billing_cpf: creditObject.maxipago_credit_cpf
             },
           },
         };
@@ -195,6 +228,15 @@ const Content_maxipago = (props) => {
         value={creditObject.maxipago_credit_holder_name}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_holder_name', value)
+        }}
+      />
+
+      <wcComponents.TextInput
+        id="maxipago_credit_cpf"
+        label="CPF"
+        value={formatarCPF(creditObject.maxipago_credit_cpf)}
+        onChange={(value) => {
+          updateCreditObject('maxipago_credit_cpf', formatarCPF(value))
         }}
       />
     </>

@@ -157,7 +157,7 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class,'display_meta', 10, 1);	
 		
 	}
-
+	
 	/**
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
@@ -167,13 +167,6 @@ class LknIntegrationRedeForWoocommerce
 	 */
 	private function define_public_hooks()
 	{	
-		
-		if($this->wc_maxipago_credit_class->is_available()){
-			$wcbcf_settings = get_option('wcbcf_settings'); // Obtém as configurações existentes
-			$wcbcf_settings['neighborhood_required'] = "1"; // Define o campo de bairro como obrigatório
-			update_option('wcbcf_settings', $wcbcf_settings);
-		}
-
 		$plugin_public = new LknIntegrationRedeForWoocommercePublic($this->get_plugin_name(), $this->get_version());
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');

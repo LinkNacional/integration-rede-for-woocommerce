@@ -86,6 +86,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<input id="maxipago-card-holder-name"
 							name="maxipago_credit_holder_name" class="input-text"
 							type="text"
+							placeholder=<?php esc_attr_e( 'Name', 'integration-maxipago-for-woocommerce' ); ?>
 							maxlength="22" autocomplete="off"
 							style="font-size: 1.5em; padding: 8px 45px;"/>						
 					</div>
@@ -93,7 +94,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 										
 						<div class="form-row form-row-wide maxipago-card">
 							<label id="labels-with-icons" for="maxipago-card-cpf">
-								<?php esc_attr_e( 'CPF', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
+								<?php echo esc_attr('CPF'); ?><span class="required">*</span>
 								<div class="icon-maxipago-input">
 									<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
 										<g>
@@ -106,6 +107,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<input id="maxipago-card-cpf"
 								name="billing_cpf" class="input-text"
 								type="text"
+								placeholder="<?php echo esc_attr('123.456.789-12'); ?>"
 								maxlength="22" autocomplete="off"
 								style="font-size: 1.5em; padding: 8px 45px;"/>						
 						</div>

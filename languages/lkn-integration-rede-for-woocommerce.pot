@@ -214,6 +214,9 @@ msgstr ""
 msgid "Name on Card"
 msgstr ""
 
+msgid "Name on Card"
+msgstr "Name"
+
 msgid "Card Expiring Date"
 msgstr ""
 

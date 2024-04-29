@@ -304,10 +304,6 @@ msgstr "Nome da empresa vendedora"
 msgid "Reference Number"
 msgstr "Número de Referência"
 
-#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:261
-msgid "Please fill in the district field to complete payment with Maxipago."
-msgstr "Por favor, preencha o campo do bairro para concluir o pagamento com Maxipago."
-
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:257
 msgid "Please enter a valid cpf number"
 msgstr "Por favor, insira um número de cpf válido"
@@ -327,6 +323,10 @@ msgstr "Parcelas "
 #: templates/credit-card/rede-payment-form.php:61
 msgid "Name on Card"
 msgstr "Nome impresso no cartão"
+
+#: templates/credit-card/rede-payment-form.php:93
+msgid "Name"
+msgstr "Nome"
 
 #: templates/credit-card/rede-payment-form.php:79
 msgid "Card Expiring Date"
