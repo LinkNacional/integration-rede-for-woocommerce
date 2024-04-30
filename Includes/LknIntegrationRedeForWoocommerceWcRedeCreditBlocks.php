@@ -2,16 +2,16 @@
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoCredit;
+use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeCredit;
 
-final class LknIntegrationRedeForWoocommerceWcMaxipagoBlocks extends AbstractPaymentMethodType {
+final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractPaymentMethodType {
 
     private $gateway;
-    protected $name = 'maxipago_credit';
+    protected $name = 'rede_credit';
 
     public function initialize() {
-        $this->settings = get_option( 'woocommerce_maxipago_credit_settings', [] );
-        $this->gateway = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
+        $this->settings = get_option( 'woocommerce_rede_credit_settings', [] );
+        $this->gateway = new LknIntegrationRedeForWoocommerceWcRedeCredit();
         
     }
 
@@ -22,8 +22,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoBlocks extends AbstractPay
     public function get_payment_method_script_handles() {
 
         wp_register_script(
-            'maxipago_credit-blocks-integration',
-            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/lknIntegrationMaxipagoForWoocommerceCheckout.js',
+            'rede_credit-blocks-integration',
+            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/lknIntegrationRedeForWoocommerceCheckout.js',
             [
                 'wc-blocks-registry',
                 'wc-settings',
@@ -35,18 +35,18 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoBlocks extends AbstractPay
             true
         );
         if( function_exists( 'wp_set_script_translations' ) ) {            
-            wp_set_script_translations( 'maxipago_credit-blocks-integration');
+            wp_set_script_translations( 'rede_credit-blocks-integration');
             
         }
 
-        return [ 'maxipago_credit-blocks-integration' ];       
+        return [ 'rede_credit-blocks-integration' ];       
     }
 
     public function get_payment_method_data() {
-        $nonce = wp_create_nonce( 'maxipagoCardNonce' );
+        $nonce = wp_create_nonce( 'redeCardNonce' );
 
         // Imprimindo o nonce como uma variável global
-        echo '<script>window.maxipagoNonce = "' . esc_attr($nonce) . '";</script>';
+        echo '<script>window.redeNonce = "' . esc_attr($nonce) . '";</script>';
         
 		return [
 			'title' => $this->gateway->title,

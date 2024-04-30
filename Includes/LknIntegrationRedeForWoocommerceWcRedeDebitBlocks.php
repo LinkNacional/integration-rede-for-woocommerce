@@ -2,16 +2,16 @@
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeCredit;
+use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit;
 
-final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPaymentMethodType {
+final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPaymentMethodType {
 
     private $gateway;
-    protected $name = 'rede_credit';
+    protected $name = 'rede_debit';
 
     public function initialize() {
-        $this->settings = get_option( 'woocommerce_rede_credit_settings', [] );
-        $this->gateway = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+        $this->settings = get_option( 'woocommerce_rede_debit_settings', [] );
+        $this->gateway = new LknIntegrationRedeForWoocommerceWcRedeDebit();
         
     }
 
@@ -22,8 +22,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPayment
     public function get_payment_method_script_handles() {
 
         wp_register_script(
-            'rede_credit-blocks-integration',
-            plugin_dir_url( __FILE__ ) . '../Public/js/lkn-integration-rede-for-woocommerce-checkout.js',
+            'rede_debit-blocks-integration',
+            plugin_dir_url( __FILE__ ) . '../Public/js/debitCard/lknIntegrationRedeForWoocommerceCheckout.js',
             [
                 'wc-blocks-registry',
                 'wc-settings',
@@ -35,11 +35,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeBlocks extends AbstractPayment
             true
         );
         if( function_exists( 'wp_set_script_translations' ) ) {            
-            wp_set_script_translations( 'rede_credit-blocks-integration');
+            wp_set_script_translations( 'rede_debit-blocks-integration');
             
         }
 
-        return [ 'rede_credit-blocks-integration' ];       
+        return [ 'rede_debit-blocks-integration' ];       
     }
 
     public function get_payment_method_data() {

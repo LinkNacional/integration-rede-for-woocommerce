@@ -15,10 +15,7 @@ class LknIntegrationRedeForWoocommerceWcRede {
 		$this->upgrade();		
 	}
 
-	public function register_scripts() {
-	}
-
-	public function get_instance() {
+	public function getInstance() {
 		if ( null == self::$instance ) {
 			self::$instance = new self();
 		}
@@ -26,19 +23,21 @@ class LknIntegrationRedeForWoocommerceWcRede {
 		return self::$instance;
 	}
 
-	public static function get_templates_path() {
+	public static function getTemplatesPath() {
 		return plugin_dir_path( __FILE__ ) . 'templates/';
 	}
 
-	public function load_plugin_textdomain() {
+	public function loadPluginTextdomain() {
 		load_plugin_textdomain( 'integration-rede-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
-	public function add_gateway( $methods ) {
+	public function addGateway( $methods ) {
 		$wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+		$wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
 		$wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
 		
 		array_push( $methods, $wc_rede_credit_class);
+		array_push( $methods, $wc_rede_debit_class);
 		array_push( $methods, $wc_maxipago_credit_class);
 
 		return $methods;
@@ -75,11 +74,11 @@ class LknIntegrationRedeForWoocommerceWcRede {
 		}
 	}
 
-	public function woocommerce_missing_notice() {
+	public function woocommerceMissingNotice() {
 		include_once dirname( __FILE__ ) . '/views/notices/html-notice-woocommerce-missing.php';
 	}
 
-	public function plugin_action_links( $links ) {
+	public function pluginActionLinks( $links ) {
 		$plugin_links = array();
 
 		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '>=' ) ) {
@@ -91,7 +90,7 @@ class LknIntegrationRedeForWoocommerceWcRede {
 		return array_merge( $plugin_links, $links );
 	}
 
-	public function update_rede_orders() {
+	public function updateRedeOrders() {
 		$orders = new WP_Query(
 			array(
 				'post_type'   => 'shop_order',

@@ -1,6 +1,7 @@
 <?php
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
+use Exception;
 use Rede\Environment;
 use Rede\Store;
 use Rede\Transaction;
@@ -42,7 +43,7 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 	 * @param array $credit_card_data
 	 * @return Transaction|StdClass
 	 */
-	public function do_transaction_request(
+	public function doTransactionCreditRequest(
 		$id,
 		$amount,
 		$installments = 1,
@@ -68,6 +69,39 @@ class LknIntegrationRedeForWoocommerceWcRedeAPI {
 			$transaction->additional( $this->partner_gateway, $this->partner_module );
 		}
 
+		$transaction = ( new eRede( $this->store, $this->get_logger() ) )->create( $transaction );
+
+		return $transaction;
+	}
+
+	/**
+	 * @param $id
+	 * @param $amount
+	 * @param int $installments
+	 * @param array $credit_card_data
+	 * @return Transaction|StdClass
+	 */
+	public function doTransactionDebitRequest(
+		$id,
+		$amount,
+		$credit_card_data = array()
+	) {
+		$transaction = ( new Transaction( $amount, $id ) )->debitCard(
+			$credit_card_data['card_number'],
+			$credit_card_data['card_cvv'],
+			$credit_card_data['card_expiration_month'],
+			$credit_card_data['card_expiration_year'],
+			$credit_card_data['card_holder']
+		)->capture( $this->capture );
+
+		if ( ! empty( $this->soft_descriptor ) ) {
+			$transaction->setSoftDescriptor( $this->soft_descriptor );
+		}
+
+		if ( ! empty( $this->partner_module ) && ! empty( $this->partner_gateway ) ) {
+			$transaction->additional( $this->partner_gateway, $this->partner_module );
+		}
+		
 		$transaction = ( new eRede( $this->store, $this->get_logger() ) )->create( $transaction );
 
 		return $transaction;

@@ -88,18 +88,20 @@ class LknIntegrationRedeForWoocommerce
 
 	public $wc_rede_class;
 	public $wc_rede_credit_class;
+	public $wc_rede_debit_class;
 	public $wc_maxipago_credit_class;
 
 	//Define os hooks somente quando woocommerce está ativo
 	public function define_hooks(){
 		$this->wc_rede_class = new LknIntegrationRedeForWoocommerceWcRede();			
 		$this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+		$this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
 		$this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
 		if (class_exists('WC_Payment_Gateway')) {
 			$this->define_admin_hooks();
 			$this->define_public_hooks();
 		}else{
-			$this->loader->add_action('admin_notices', $this->wc_rede_class, 'woocommerce_missing_notice');
+			$this->loader->add_action('admin_notices', $this->wc_rede_class, 'woocommerceMissingNotice');
 		}
 		$this->run();
 	}
@@ -140,21 +142,32 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		
-		$this->loader->add_filter('plugin_action_links_' . plugin_basename( __FILE__ ), $this->wc_rede_class, 'plugin_action_links');
+		$this->loader->add_filter('pluginActionLinks_' . plugin_basename( __FILE__ ), $this->wc_rede_class, 'pluginActionLinks');
 		
 		
 		if ( ! $this->wc_rede_credit_class->auto_capture ) {
-			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'process_capture');
+			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'processCapture');
+		}
+		if ( ! $this->wc_rede_debit_class->auto_capture ) {
+			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_debit_class, 'processCapture');
 		}
 		
-		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'process_refund');
-		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_credit_class, 'process_refund');
+		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'processRefund');
+		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_credit_class, 'processRefund');
 		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'process_admin_options');
-		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_credit_class->id, $this->wc_maxipago_credit_class, 'process_admin_options');
 		$this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_credit_class, 'check_return'); 
 		$this->loader->add_filter('woocommerce_get_order_item_totals', $this->wc_rede_credit_class,'order_items_payment_details', 10, 2);
-		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_credit_class,'display_meta', 10, 1);	
-		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class,'display_meta', 10, 1);	
+		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_credit_class,'displayMeta', 10, 1);
+		
+		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_debit_class, 'processRefund');
+		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_debit_class, 'processRefund');
+		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_debit_class->id, $this->wc_rede_debit_class, 'process_admin_options');
+		$this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_debit_class, 'check_return'); 
+		$this->loader->add_filter('woocommerce_get_order_item_totals', $this->wc_rede_debit_class,'order_items_payment_details', 10, 2);
+		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_debit_class,'displayMeta', 10, 1);
+
+		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_credit_class->id, $this->wc_maxipago_credit_class, 'process_admin_options');
+		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class,'displayMeta', 10, 1);	
 		
 	}
 	
@@ -170,17 +183,18 @@ class LknIntegrationRedeForWoocommerce
 		$plugin_public = new LknIntegrationRedeForWoocommercePublic($this->get_plugin_name(), $this->get_version());
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
-		$this->wc_rede_class->get_instance();
-		$this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'update_rede_orders');
-		$this->loader->add_action('init', $this->wc_rede_class, 'load_plugin_textdomain');
+		$this->wc_rede_class->getInstance();
+		$this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'updateRedeOrders');
+		$this->loader->add_action('init', $this->wc_rede_class, 'loadPluginTextdomain');
 		$this->loader->add_action('woocommerce_order_status_on-hold_to_processing', $this->wc_rede_class, 'capture_payment');
-		$this->loader->add_filter('woocommerce_payment_gateways', $this->wc_rede_class, 'add_gateway');
-		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_class, 'register_scripts');
+		$this->loader->add_filter('woocommerce_payment_gateways', $this->wc_rede_class, 'addGateway');
 		
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
-		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'add_neighborhood_field_to_checkout');
-		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkout_scripts');
-		$this->loader->add_action('wp_enqueue_scripts', $this->wc_maxipago_credit_class,'checkout_scripts');
+		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_debit_class->id, $this->wc_rede_debit_class, 'thankyou_page');
+		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'addNeighborhoodFieldToCheckout');
+		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkoutScripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_debit_class,'checkoutScripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->wc_maxipago_credit_class,'checkoutScripts');
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
 		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
@@ -204,7 +218,8 @@ class LknIntegrationRedeForWoocommerce
 		}	
 		
 		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcMaxipagoBlocks );
-		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeBlocks );
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeCreditBlocks );
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeDebitBlocks );
 	}
 	
 	/**

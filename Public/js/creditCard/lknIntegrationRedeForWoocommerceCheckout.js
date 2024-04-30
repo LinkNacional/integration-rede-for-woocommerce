@@ -1,8 +1,8 @@
-const settings_rede = window.wc.wcSettings.getSetting('rede_credit_data', {});
-const label_rede = window.wp.htmlEntities.decodeEntities(settings_rede.title);
+const settings_rede_credit = window.wc.wcSettings.getSetting('rede_credit_data', {});
+const label_rede_credit = window.wp.htmlEntities.decodeEntities(settings_rede_credit.title);
 // Obtendo o nonce da variável global
-const nonce_rede = window.redeNonce;
-const Content_rede = props => {
+const nonce_rede_credit = window.redeNonce;
+const Content_rede_credit = props => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'));
@@ -109,7 +109,7 @@ const Content_rede = props => {
               rede_credit_expiry: creditObject.rede_credit_expiry,
               rede_credit_cvc: creditObject.rede_credit_cvc,
               rede_credit_holder_name: creditObject.rede_credit_holder_name,
-              rede_card_nonce: nonce_rede
+              rede_card_nonce: nonce_rede_credit
             }
           }
         };
@@ -176,15 +176,15 @@ const Content_rede = props => {
     }
   }));
 };
-const Block_Gateway_rede = {
+const Block_Gateway_rede_credit = {
   name: 'rede_credit',
-  label: label_rede,
-  content: window.wp.element.createElement(Content_rede),
-  edit: window.wp.element.createElement(Content_rede),
+  label: label_rede_credit,
+  content: window.wp.element.createElement(Content_rede_credit),
+  edit: window.wp.element.createElement(Content_rede_credit),
   canMakePayment: () => true,
-  ariaLabel: label_rede,
+  ariaLabel: label_rede_credit,
   supports: {
-    features: settings_rede.supports
+    features: settings_rede_credit.supports
   }
 };
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede);
+window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede_credit);

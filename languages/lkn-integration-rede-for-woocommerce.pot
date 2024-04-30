@@ -1,4 +1,7 @@
-msgid "Pay with the Rede"
+msgid "Pay with the Rede Credit"
+msgstr ""
+
+msgid "Pay with the Rede Debit"
 msgstr ""
 
 msgid "Enables and configures payments with Rede"
@@ -86,6 +89,9 @@ msgid "Soft Descriptor"
 msgstr ""
 
 msgid "Credit Card Settings"
+msgstr ""
+
+msgid "Debit Card Settings"
 msgstr ""
 
 msgid "Authorization and Capture"
@@ -203,6 +209,9 @@ msgid "District"
 msgstr ""
 
 msgid "Pay for your purchase with a credit card through "
+msgstr ""
+
+msgid "Pay for your purchase with a debit card through "
 msgstr ""
 
 msgid "Card Number"

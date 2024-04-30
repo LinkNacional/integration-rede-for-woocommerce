@@ -88,10 +88,10 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 		//wp_enqueue_script( 'wc-credit-card-form' );
 
-		$this->get_checkout_form( $this->get_order_total() );
+		$this->getCheckoutForm( $this->get_order_total() );
 	}
 
-	abstract protected function get_checkout_form( $order_total = 0);
+	abstract protected function getCheckoutForm( $order_total = 0);
 
 	public function get_order_total() {
 		global $woocommerce;
@@ -308,7 +308,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 		return true;
 	}
 
-	public function generate_meta_table( $order, $meta_keys, $title) {
+	public function generateMetaTable( $order, $meta_keys, $title) {
 		?>
 		<h3><?php esc_attr_e( $title, 'integration-rede-for-woocommerce' ); ?></h3>
 		<table>

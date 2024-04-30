@@ -15,7 +15,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         $this->has_fields         = true;
 
         // Define os campos de configuração
-        $this->init_form_fields();
+        $this->initFormFields();
         $this->init_settings();
 
         // Define as propriedades dos campos de configuração
@@ -31,7 +31,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
     }
 
-    function add_neighborhood_field_to_checkout( $fields ) {
+    function addNeighborhoodFieldToCheckout( $fields ) {
         if (!is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
             && $this->is_available()) {
             $fields['billing']['billing_neighborhood'] = array(
@@ -53,7 +53,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         return $fields;
     }
 
-    public function init_form_fields() {
+    public function initFormFields() {
         $this->form_fields = array(
             'enabled'       => array(
                 'title'   => __('Enable/Disable', 'integration-rede-for-woocommerce'),
@@ -139,18 +139,18 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         );
     }
 
-    protected function get_checkout_form($order_total = 0) {
+    protected function getCheckoutForm($order_total = 0) {
         wc_get_template(
             'credit-card/maxipago-payment-form.php',
             array(
-                'installments' => $this->get_installments($order_total),
+                'installments' => $this->getInstallments($order_total),
             ),
             'woocommerce/maxipago/',
-            LknIntegrationRedeForWoocommerceWcRede::get_templates_path()
+            LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()
         );
     }
     
-    public function get_installments( $order_total = 0 ) {
+    public function getInstallments( $order_total = 0 ) {
 		$installments = [];
 		$defaults     = array(
 			'min_value'   => $this->min_parcels_value,
@@ -256,16 +256,17 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                     $valid = $this->validate_installments( $_POST, $order->get_total() );
                 }
 
-                if(!$this->validate_cpf($client_data['billing_cpf'])){
+                if(!$this->validateCpf($client_data['billing_cpf'])){
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
                 }
 
                 if($environment === 'production'){
                     $api_url = 'https://api.maxipago.net/UniversalAPI/postXML';
+                    $processorID = '1';
                 }else{
                     $api_url = 'https://testapi.maxipago.net/UniversalAPI/postXML';
+                    $processorID = '5';
                 }
-                //TODO alterar processorID 1 para teste e 5 para e.REDE
                 $xml_data = "<?xml version='1.0' encoding='UTF-8'?>
                     <transaction-request>
                         <version>3.1.1.15</version>
@@ -275,7 +276,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                         </verification>
                         <order>
                             <sale>
-                                <processorID>1</processorID>
+                                <processorID>$processorID</processorID>
                                 <referenceNum>$reference_num</referenceNum>
                                 <fraudCheck>N</fraudCheck>
                                 <customerIdExt>".$client_data['billing_cpf']."</customerIdExt>
@@ -338,7 +339,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
                     $order->update_meta_data( '_wc_maxipago_transaction_return_message', $xml_decode['processorMessage'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_installments', $installments );
-                    $order->update_meta_data( '_wc_maxipago_transaction_id', $xml_decode['orderID']); //TODO lembrar de mudar de transition_id para order_id e adicionar tabela para mostrar detales do cartão na edição de pedido
+                    $order->update_meta_data( '_wc_maxipago_transaction_id', $xml_decode['orderID']);
                     $order->update_meta_data( '_wc_maxipago_transaction_bin', $xml_decode['creditCardBin']);
                     $order->update_meta_data( '_wc_maxipago_transaction_last4', $xml_decode['creditCardLast4']);
                     $order->update_meta_data( '_wc_maxipago_transaction_nsu', $xml_decode['transactionID']);
@@ -381,7 +382,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         
     }
 
-    function validate_cpf($cpf) {
+    function validateCpf($cpf) {
         // Remove caracteres não numéricos
         $cpf = preg_replace('/[^0-9]/', '', $cpf);
         
@@ -419,7 +420,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         }
     }    
 
-    public function display_meta( $order ) {
+    public function displayMeta( $order ) {
 		if ( $order->get_payment_method() === 'maxipago_credit' ) {
 			$meta_keys = array(
 				'_wc_maxipago_transaction_environment' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
@@ -435,11 +436,11 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 				'_wc_maxipago_transaction_reference_num' => esc_attr__( 'Reference Number', 'integration-rede-for-woocommerce' )
 			);
 
-			$this->generate_meta_table( $order, $meta_keys, 'Maxipago');
+			$this->generateMetaTable( $order, $meta_keys, 'Maxipago');
         }
 	}
 
-    public function checkout_scripts() {
+    public function checkoutScripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
 		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );

@@ -17,175 +17,183 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "X-Loco-Version: 2.4.2; wp-5.5"
 
-#: Includes/class-wc-rede-credit.php:11
-msgid "Pay with the Rede"
-msgstr "Pague com a Rede"
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:17
+msgid "Pay with the Rede Credit"
+msgstr "Pague com a Rede Crédito"
 
-#: Includes/class-wc-rede-credit.php:12
-msgid "Enables and configures payments with Rede"
-msgstr "Ativa e configura pagamentos com Rede"
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeDebit.php:17
+msgid "Pay with the Rede Debit"
+msgstr "Pague com a Rede Débito"
 
-#: Includes/class-wc-rede-credit.php:124
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:18
+msgid "Enables and configures payments with Rede Credit"
+msgstr "Ativa e configura pagamentos com Rede Crédito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeDebit.php:18
+msgid "Enables and configures payments with Rede Debit"
+msgstr "Ativa e configura pagamentos com Rede Débito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:124
 msgid "Rede"
 msgstr "Rede"
 
-#: Includes/class-wc-rede-credit.php:128 Includes/class-wc-rede-credit.php:56
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:128 Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:56
 msgid "Environment"
 msgstr "Ambiente"
 
-#: Includes/class-wc-rede-credit.php:57
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:57
 msgid "Return Code"
 msgstr "Código de retorno"
 
-#: Includes/class-wc-rede-credit.php:58
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:58
 msgid "Return Message"
 msgstr "Mensagem de retorno"
 
-#: Includes/class-wc-rede-credit.php:59
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:59
 msgid "Transaction ID"
 msgstr "ID da transação"
 
-#: Includes/class-wc-rede-credit.php:60
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:60
 msgid "Refund ID"
 msgstr "ID do reembolso"
 
-#: Includes/class-wc-rede-credit.php:61
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:61
 msgid "Cancellation ID"
 msgstr "ID de cancelamento"
 
-#: Includes/class-wc-rede-credit.php:62
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:62
 msgid "Nsu"
 msgstr "Nsu"
 
-#: Includes/class-wc-rede-credit.php:63
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:63
 msgid "Authorization Code"
 msgstr "Código de autorização"
 
-#: Includes/class-wc-rede-credit.php:64
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:64
 msgid "Bin"
 msgstr "Bin"
 
-#: Includes/class-wc-rede-credit.php:65
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:65
 msgid "Last 4"
 msgstr "4 últimos dígitos"
 
-#: Includes/class-wc-rede-credit.php:66
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:66
 msgid "Installments"
 msgstr "Parcelas"
 
-#: Includes/class-wc-rede-credit.php:67
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:67
 msgid "Cardholder"
 msgstr "Titular do cartão"
 
-#: Includes/class-wc-rede-credit.php:68
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:68
 msgid "Card Expiration"
 msgstr "Validade do cartão"
 
-#: Includes/class-wc-rede-credit.php:212
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:212
 msgid "Enable/Disable"
 msgstr "Habilitar/Desabilitar"
 
-#: Includes/class-wc-rede-credit.php:214
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:214
 msgid "Enables payment with Rede"
 msgstr "Permite pagamento com Rede"
 
-#: Includes/class-wc-rede-credit.php:218
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:218
 msgid "Title"
 msgstr "Título"
 
-#: Includes/class-wc-rede-credit.php:220
-msgid "Pay with Rede"
-msgstr "Pague com a Rede"
-
-#: Includes/class-wc-rede-credit.php:224
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:224
 msgid "General configuration"
 msgstr "Configuração geral"
 
-#: Includes/class-wc-rede-credit.php:230
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:230
 msgid "Choose the environment"
 msgstr "Escolha o ambiente"
 
-#: Includes/class-wc-rede-credit.php:233
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:233
 msgid "test"
 msgstr "teste"
 
-#: Includes/class-wc-rede-credit.php:235
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:235
 msgid "Tests"
 msgstr "Testes"
 
-#: Includes/class-wc-rede-credit.php:236
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:236
 msgid "Production"
 msgstr "Produção"
 
-#: Includes/class-wc-rede-credit.php:240
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:240
 msgid "PV"
 msgstr "PV"
 
-#: Includes/class-wc-rede-credit.php:245
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:245
 msgid "Token"
 msgstr "Token"
 
-#: Includes/class-wc-rede-credit.php:251
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:251
 msgid "Soft Descriptor"
 msgstr "Soft Descriptor"
 
-#: Includes/class-wc-rede-credit.php:257
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:257
 msgid "Credit Card Settings"
 msgstr "Configurações do cartão de crédito"
 
-#: Includes/class-wc-rede-credit.php:262
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:257
+msgid "Debit Card Settings"
+msgstr "Configurações do cartão de débito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:262
 msgid "Authorization and Capture"
 msgstr "Autorização e captura"
 
-#: Includes/class-wc-rede-credit.php:267
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:267
 msgid "Authorize and capture automatically"
 msgstr "Autorize e capture automaticamente"
 
-#: Includes/class-wc-rede-credit.php:268
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:268
 msgid "Just authorize"
 msgstr "Apenas autorize"
 
-#: Includes/class-wc-rede-credit.php:272
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:272
 msgid "Value of the smallest installment"
 msgstr "Valor da menor parcela"
 
-#: Includes/class-wc-rede-credit.php:277
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:277
 msgid "Max installments"
 msgstr "Máximo de parcelas"
 
-#: Includes/class-wc-rede-credit.php:298
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:298
 msgid "Partner Settings"
 msgstr "Configurações do parceiro"
 
-#: Includes/class-wc-rede-credit.php:302
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:302
 msgid "Module ID"
 msgstr "ID do módulo"
 
-#: Includes/class-wc-rede-credit.php:307
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:307
 msgid "Gateway ID"
 msgstr "ID do gateway"
 
-#: Includes/class-wc-rede-credit.php:313
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:313
 msgid "Developer Settings"
 msgstr "Configurações do desenvolvedor"
 
-#: Includes/class-wc-rede-credit.php:318
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:318
 msgid "Debug"
 msgstr "Depurar"
 
-#: Includes/class-wc-rede-credit.php:320
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:320
 msgid "Enable debug logs"
 msgstr "Ativar logs de depuração"
 
-#: Includes/class-wc-rede-credit.php:321
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:321
 msgid "no"
 msgstr "não"
 
-#: Includes/class-wc-rede-credit.php:497
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:497
 msgid "Refunded:"
 msgstr "Reembolsado:"
 
-#: Includes/class-wc-rede-credit.php:525
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:525
 msgid "Captured"
 msgstr "Capturado"
 
@@ -308,39 +316,43 @@ msgstr "Número de Referência"
 msgid "Please enter a valid cpf number"
 msgstr "Por favor, insira um número de cpf válido"
 
-#: templates/credit-card/rede-payment-form.php:8
+#: templates/credit-card/rede-payment-credit-form.php:8
 msgid "Pay for your purchase with a credit card through "
 msgstr "Pague sua compra com cartão de crédito através da "
 
-#: templates/credit-card/rede-payment-form.php:22
+#: templates/credit-card/rede-payment-debit-form.php:8
+msgid "Pay for your purchase with a debit card through "
+msgstr "Pague sua compra com cartão de débito através da "
+
+#: templates/credit-card/rede-payment-credit-form.php:22
 msgid "Card Number"
 msgstr "Número do cartão"
 
-#: templates/credit-card/rede-payment-form.php:46
+#: templates/credit-card/rede-payment-credit-form.php:46
 msgid "Installments "
 msgstr "Parcelas "
 
-#: templates/credit-card/rede-payment-form.php:61
+#: templates/credit-card/rede-payment-credit-form.php:61
 msgid "Name on Card"
 msgstr "Nome impresso no cartão"
 
-#: templates/credit-card/rede-payment-form.php:93
+#: templates/credit-card/rede-payment-credit-form.php:93
 msgid "Name"
 msgstr "Nome"
 
-#: templates/credit-card/rede-payment-form.php:79
+#: templates/credit-card/rede-payment-credit-form.php:79
 msgid "Card Expiring Date"
 msgstr "Validade do cartão"
 
-#: templates/credit-card/rede-payment-form.php:86
+#: templates/credit-card/rede-payment-credit-form.php:86
 msgid "MM / YEAR"
 msgstr "MÊS / ANO"
 
-#: templates/credit-card/rede-payment-form.php:102
+#: templates/credit-card/rede-payment-credit-form.php:102
 msgid "CVC"
 msgstr "CVC"
 
-#: templates/credit-card/rede-payment-form.php:108
+#: templates/credit-card/rede-payment-credit-form.php:108
 msgid "Security Code"
 msgstr "Código de segurança"
 

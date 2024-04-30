@@ -6,16 +6,16 @@ use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceW
 use WC_Order;
 use WP_Error;
 
-class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeForWoocommerceWcRedeAbstract {
+class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForWoocommerceWcRedeAbstract {
 
 
 	public $api = null;
 
 	public function __construct() {
-		$this->id = 'rede_credit';
+		$this->id = 'rede_debit';
 		$this->has_fields = true;
-		$this->method_title = esc_attr__( 'Pay with the Rede Credit', 'integration-rede-for-woocommerce' );
-		$this->method_description = esc_attr__( 'Enables and configures payments with Rede Credit', 'integration-rede-for-woocommerce' );
+		$this->method_title = esc_attr__( 'Pay with the Rede Debit', 'integration-rede-for-woocommerce' );
+		$this->method_description = esc_attr__( 'Enables and configures payments with Rede Debit', 'integration-rede-for-woocommerce' );
 		$this->supports = array(
 			'products',
 			'refunds',
@@ -51,7 +51,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function displayMeta( $order ) {
-		if ( $order->get_payment_method() === 'rede_credit' ) {
+		if ( $order->get_payment_method() === 'rede_debit' ) {
 			$meta_keys = array(
 				'_wc_rede_transaction_environment' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_return_code' => esc_attr__( 'Return Code', 'integration-rede-for-woocommerce' ),
@@ -63,7 +63,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'_wc_rede_transaction_authorization_code' => esc_attr__( 'Authorization Code', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_bin' => esc_attr__( 'Bin', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_last4' => esc_attr__( 'Last 4', 'integration-rede-for-woocommerce' ),
-				'_wc_rede_transaction_installments' => esc_attr__( 'Installments', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'integration-rede-for-woocommerce' )
 			);
@@ -85,7 +84,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			'title' => array(
 				'title'   => esc_attr__( 'Title', 'integration-rede-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => esc_attr__( 'Pay with the Rede Credit', 'integration-rede-for-woocommerce' ),
+				'default' => esc_attr__( 'Pay with the Rede Debit', 'integration-rede-for-woocommerce' ),
 			),
 
 			'rede' => array(
@@ -121,8 +120,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'default' => '',
 			),
 
-			'credit_options' => array(
-				'title' => esc_attr__( 'Credit Card Settings', 'integration-rede-for-woocommerce' ),
+			'debit_options' => array(
+				'title' => esc_attr__( 'Debit Card Settings', 'integration-rede-for-woocommerce' ),
 				'type'  => 'title',
 			),
 
@@ -134,31 +133,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'options' => array(
 					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
 					'0' => esc_attr__( 'Just authorize', 'integration-rede-for-woocommerce' ),
-				),
-			),
-			'min_parcels_value' => array(
-				'title'   => esc_attr__( 'Value of the smallest installment', 'integration-rede-for-woocommerce' ),
-				'type'    => 'text',
-				'default' => '0',
-			),
-			'max_parcels_number' => array(
-				'title'   => esc_attr__( 'Max installments', 'integration-rede-for-woocommerce' ),
-				'type'    => 'select',
-				'class'   => 'wc-enhanced-select',
-				'default' => '12',
-				'options' => array(
-					'1'  => '1x',
-					'2'  => '2x',
-					'3'  => '3x',
-					'4'  => '4x',
-					'5'  => '5x',
-					'6'  => '6x',
-					'7'  => '7x',
-					'8'  => '8x',
-					'9'  => '9x',
-					'10' => '10x',
-					'11' => '11x',
-					'12' => '12x',
 				),
 			),
 
@@ -191,48 +165,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		);
 	}
 
-	public function get_installment_text( $quantity, $order_total ) {
-		$installments = $this->getInstallments( $order_total );
-
-		if ( isset( $installments[ $quantity - 1 ] ) ) {
-			return $installments[ $quantity - 1 ]['label'];
-		}
-
-		if ( isset( $installments[ $quantity ] ) ) {
-			return $installments[ $quantity ]['label'];
-		}
-
-		return $quantity;
-	}
-
-	public function getInstallments( $order_total = 0 ) {
-		$installments = [];
-		$defaults     = array(
-			'min_value'   => $this->min_parcels_value,
-			'max_parcels' => $this->max_parcels_number,
-		);
-
-		$installments_result = wp_parse_args( apply_filters( 'integration_rede_installments', $defaults ), $defaults );
-
-		$min_value   = (float) $installments_result['min_value'];
-		$max_parcels = (int) $installments_result['max_parcels'];
-
-		for ( $i = 1; $i <= $max_parcels; ++$i ) {
-			if ( ( $order_total / $i ) < $min_value ) break;
-
-			$label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
-
-			if ( $i === 1 ) $label .= ' (à vista)';
-
-			$installments[] = array(
-				'num'   => $i,
-				'label' => $label,
-			);
-		}
-
-		return $installments;
-	}
-
 	public function checkoutScripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
@@ -251,9 +183,9 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style-rede-credit.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-rede-debit-style', $plugin_url . 'assets/css/style-rede-debit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede-credit.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-debit-js', $plugin_url . 'assets/js/woo-rede-debit.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-rede-js', 'wooRede', [
@@ -271,31 +203,29 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		}
 		
 		$order       = wc_get_order( $order_id );
-		$card_number = isset( $_POST['rede_credit_number'] ) ? 
-			sanitize_text_field( $_POST['rede_credit_number'] ) : '';
+		$card_number = isset( $_POST['rede_debit_number'] ) ? 
+			sanitize_text_field( $_POST['rede_debit_number'] ) : '';
 		$valid       = true;
 	
 		if ( $valid ) {
-			$installments = isset( $_POST['rede_credit_installments'] ) ? 
-				absint( sanitize_text_field($_POST['rede_credit_installments']) ) : 1;
 			
-			$credit_expiry = sanitize_text_field($_POST['rede_credit_expiry']);
+			$debit_expiry = sanitize_text_field($_POST['rede_debit_expiry']);
 			
-			if (strpos($credit_expiry, '/') !== false) {
-				$expiration   = explode( '/', $credit_expiry );
+			if (strpos($debit_expiry, '/') !== false) {
+				$expiration   = explode( '/', $debit_expiry );
 			} else {
 				$expiration = [
-					substr($credit_expiry, 0, 2),
-					substr($credit_expiry, -2, 2),
+					substr($debit_expiry, 0, 2),
+					substr($debit_expiry, -2, 2),
 				];
 			}			
-	
+			
 			$card_data = array(
-				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
+				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_debit_number'] ) ),
 				'card_expiration_month' => sanitize_text_field( $expiration[0] ),
 				'card_expiration_year'  => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-				'card_cvv'              => sanitize_text_field( $_POST['rede_credit_cvc'] ),
-				'card_holder'           => sanitize_text_field( $_POST['rede_credit_holder_name'] ),
+				'card_cvv'              => sanitize_text_field( $_POST['rede_debit_cvc'] ),
+				'card_holder'           => sanitize_text_field( $_POST['rede_debit_holder_name'] ),
 			);
 	
 			try {
@@ -307,18 +237,15 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				if ( $valid ) {
 					$valid = $this->validate_card_fields( $_POST );
 				}
-			
-				if ( $valid ) {
-					$valid = $this->validate_installments( $_POST, $order->get_total() );
-				}
 
 				$order_id    = $order->get_id();
 				$amount      = $order->get_total();
-				$transaction = $this->api->doTransactionCreditRequest( $order_id + time(), $amount, $installments, $card_data );
+
+				$transaction = $this->api->doTransactionDebitRequest( $order_id + time(), $amount, $card_data );
+				
 				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
 				$order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
-				$order->update_meta_data( '_wc_rede_transaction_installments', $installments );
 				$order->update_meta_data( '_wc_rede_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
 				$order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
@@ -433,10 +360,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		}
 
 		$wc_get_template(
-			'credit-card/rede-payment-credit-form.php',
-			array(
-				'installments' => $this->getInstallments( $order_total ),
-			),
+			'debit-card/rede-payment-debit-form.php',
+			array(),
 			'woocommerce/rede/',
 			LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()
 		);

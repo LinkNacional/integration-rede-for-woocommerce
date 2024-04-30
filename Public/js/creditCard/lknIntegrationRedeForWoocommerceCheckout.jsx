@@ -1,9 +1,9 @@
-const settings_rede = window.wc.wcSettings.getSetting('rede_credit_data', {})
-const label_rede = window.wp.htmlEntities.decodeEntities(settings_rede.title)
+const settings_rede_debit = window.wc.wcSettings.getSetting('rede_credit_data', {})
+const label_rede_debit = window.wp.htmlEntities.decodeEntities(settings_rede_debit.title)
 // Obtendo o nonce da variável global
-const nonce_rede = window.redeNonce;
+const nonce_rede_debit = window.redeNonce;
 
-const Content_rede = (props) => {
+const Content_rede_debit = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
@@ -115,7 +115,7 @@ const Content_rede = (props) => {
               rede_credit_expiry: creditObject.rede_credit_expiry,
               rede_credit_cvc: creditObject.rede_credit_cvc,
               rede_credit_holder_name: creditObject.rede_credit_holder_name,
-              rede_card_nonce: nonce_rede
+              rede_card_nonce: nonce_rede_debit
             },
           },
         };
@@ -201,16 +201,16 @@ const Content_rede = (props) => {
   )
 }
 
-const Block_Gateway_rede = {
+const Block_Gateway_rede_debit = {
   name: 'rede_credit',
-  label: label_rede,
-  content: window.wp.element.createElement(Content_rede),
-  edit: window.wp.element.createElement(Content_rede),
+  label: label_rede_debit,
+  content: window.wp.element.createElement(Content_rede_debit),
+  edit: window.wp.element.createElement(Content_rede_debit),
   canMakePayment: () => true,
-  ariaLabel: label_rede,
+  ariaLabel: label_rede_debit,
   supports: {
-    features: settings_rede.supports
+    features: settings_rede_debit.supports
   }
 }
 
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede)
+window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede_debit)
