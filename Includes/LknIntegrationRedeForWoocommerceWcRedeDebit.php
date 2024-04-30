@@ -186,9 +186,9 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		wp_enqueue_style( 'woo-rede-debit-style', $plugin_url . 'assets/css/style-rede-debit.css', array(), '1.0.0', 'all' );
 
 		wp_enqueue_script( 'woo-rede-debit-js', $plugin_url . 'assets/js/woo-rede-debit.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-debit-js' ), '2.5.0', true );
 
-		wp_localize_script( 'woo-rede-js', 'wooRede', [
+		wp_localize_script( 'woo-rede-debit-js', 'wooRede', [
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
 		]);
 	}

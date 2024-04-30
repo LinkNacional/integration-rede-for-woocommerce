@@ -4,6 +4,12 @@ msgstr ""
 msgid "Pay with the Rede Debit"
 msgstr ""
 
+msgid "Pay with the Maxipago Credit"
+msgstr ""
+
+msgid "Pay with the Maxipago Debit"
+msgstr ""
+
 msgid "Enables and configures payments with Rede"
 msgstr ""
 

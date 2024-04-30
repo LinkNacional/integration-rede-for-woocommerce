@@ -90,6 +90,7 @@ class LknIntegrationRedeForWoocommerce
 	public $wc_rede_credit_class;
 	public $wc_rede_debit_class;
 	public $wc_maxipago_credit_class;
+	public $wc_maxipago_debit_class;
 
 	//Define os hooks somente quando woocommerce está ativo
 	public function define_hooks(){
@@ -97,6 +98,7 @@ class LknIntegrationRedeForWoocommerce
 		$this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
 		$this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
 		$this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
+		$this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
 		if (class_exists('WC_Payment_Gateway')) {
 			$this->define_admin_hooks();
 			$this->define_public_hooks();
@@ -168,6 +170,9 @@ class LknIntegrationRedeForWoocommerce
 
 		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_credit_class->id, $this->wc_maxipago_credit_class, 'process_admin_options');
 		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class,'displayMeta', 10, 1);	
+
+		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_debit_class->id, $this->wc_maxipago_debit_class, 'process_admin_options');
+		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_debit_class,'displayMeta', 10, 1);	
 		
 	}
 	
@@ -192,9 +197,11 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_debit_class->id, $this->wc_rede_debit_class, 'thankyou_page');
 		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_credit_class, 'addNeighborhoodFieldToCheckout');
+		$this->loader->add_action('woocommerce_checkout_fields', $this->wc_maxipago_debit_class, 'addNeighborhoodFieldToCheckout');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_credit_class,'checkoutScripts');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_rede_debit_class,'checkoutScripts');
 		$this->loader->add_action('wp_enqueue_scripts', $this->wc_maxipago_credit_class,'checkoutScripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->wc_maxipago_debit_class,'checkoutScripts');
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
 		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );

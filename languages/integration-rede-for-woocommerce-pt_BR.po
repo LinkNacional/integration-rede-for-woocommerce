@@ -296,6 +296,14 @@ msgstr "Escolha o número de parcelas"
 msgid "Invalid number of installments"
 msgstr "Número de parcelas inválido"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:12
+msgid "Pay with the Maxipago Credit"
+msgstr "Pague com a Maxipago Crédito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:12
+msgid "Pay with the Maxipago Debit"
+msgstr "Pague com a Maxipago Débito"
+
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "Merchant ID or Merchant Key is invalid!"
 msgstr "Merchant ID ou Merchant Key estão inválidos!"
