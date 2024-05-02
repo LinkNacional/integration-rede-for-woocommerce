@@ -4,17 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?>
-<fieldset id="maxipago-credit-payment-form" class="maxipago-payment-form">
-	<div class="payment-method-description">
-		<p><?php esc_html_e( 'Pay for your purchase with a credit card through', 'integration-maxipago-for-woocommerce' ); ?></p>
-		<img id="logo-maxipago" src="<?php echo plugins_url( '../../Public/images/maxipago.png', plugin_dir_path(__FILE__) ); ?>" alt="Logo Maxipago"> 
+<fieldset id="maxipagoDebitPaymentForm"  >
+	<div class="paymentMethodDescription">
+		<p><?php esc_html_e( 'Pay for your purchase with a debit card through', 'integration-maxipago-for-woocommerce' ); ?></p>
+		<img id="logoMaxipago" src="<?php echo plugins_url( '../../Public/images/maxipago.png', plugin_dir_path(__FILE__) ); ?>" alt="Logo Maxipago"> 
 	</div>
-	<div class="maxipago-credit-fields-wrapper">
-		<div id="maxipago-card-animation" class="card-wrapper card-animation"></div>
-		<div class="wc-payment-maxipago-form-fields">
+	<div class="maxipagoDebitFieldsWrapper">
+		<div id="maxipagoDebitCardAnimation" class="card-wrapper card-animation"></div>
+		<div>
 			<div id="doble-input-div">				
 				<div class="form-row form-row-wide maxipago-card">
-					<label id="labels-with-icons" for="maxipago-card-number">
+					<label id="labels-with-icons" for="maxipagoDebitCardNumber">
 						<?php esc_attr_e( 'Card Number', 'integration-maxipago-for-woocommerce' ); ?>
 						<span class="required">*</span>
 						<div class="icon-maxipago-input">
@@ -28,25 +28,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</div>
 					</label>
 					<input 
-						id ="maxipago-card-number"
-						name="maxipago_credit_number"
+						id ="maxipagoDebitCardNumber"
+						name="maxipagoDebitCardNumber"
 						class="input-text jp-card-invalid wc-credit-card-form-card-number"
 						type="tel"
 						maxlength="22" autocomplete="off"
 						placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;"
 						style="font-size: 1.5em; padding: 8px 45px;"/>
 					<input
-						id="maxipago-card-nonce"
-						name="maxipago_card_nonce"
+						name="maxipagoDebitCardNonce"
 						type="hidden"
-						value="<?php echo esc_attr(wp_create_nonce('maxipagoCardNonce'))?>"
+						value="<?php echo esc_attr(wp_create_nonce('maxipagoDebitCardNonce'))?>"
 					>
 				</div>
 
 					
 					
 				<div class="form-row form-row-wide maxipago-card">
-					<label id="labels-with-icons" for="maxipago-card-holder-name">
+					<label id="labels-with-icons" for="maxipagoDebitCardHolderName">
 						<?php esc_attr_e( 'Name on Card', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
 						<div class="icon-maxipago-input">
 							<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -57,8 +56,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</svg>
 						</div>
 					</label>
-					<input id="maxipago-card-holder-name"
-						name="maxipago_credit_holder_name" class="input-text"
+					<input id="maxipagoDebitCardHolderName"
+						name="maxipagoDebitCardHolderName" class="input-text"
 						type="text"
 						placeholder=<?php esc_attr_e( 'Name', 'integration-maxipago-for-woocommerce' ); ?>
 						maxlength="22" autocomplete="off"
@@ -70,7 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php if (!is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')) {	?>
 										
 						<div class="form-row form-row-wide maxipago-card">
-							<label id="labels-with-icons" for="maxipago-card-cpf">
+							<label id="labels-with-icons" for="maxipagoDebitCardCpf">
 								<?php echo esc_attr('CPF'); ?><span class="required">*</span>
 								<div class="icon-maxipago-input">
 									<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -81,8 +80,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 									</svg>
 								</div>
 							</label>
-							<input id="maxipago-card-cpf"
-								name="billing_cpf" class="input-text"
+							<input id="maxipagoDebitCardCpf"
+								name="maxipagoDebitCardCpf" class="input-text"
 								type="text"
 								placeholder="<?php echo esc_attr('123.456.789-12'); ?>"
 								maxlength="22" autocomplete="off"
@@ -92,7 +91,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div> 	
 			<div id="doble-input-div">
 				<div class="form-row form-row-first maxipago-card">
-					<label id="labels-with-icons" for="maxipago-card-expiry">
+					<label id="labels-with-icons" for="maxipagoDebitCardExpiry">
 						<?php esc_attr_e( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
 						<div class="icon-maxipago-input">
 							<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -100,8 +99,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</svg>
 						</div>
 					</label>
-					<input id="maxipago-card-expiry"
-						name="maxipago_credit_expiry"
+					<input id="maxipagoDebitCardExpiry"
+						name="maxipagoDebitCardExpiry"
 						class="input-text wc-credit-card-form-card-expiry"
 						type="tel"
 						autocomplete="off"
@@ -109,14 +108,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						style="font-size: 1.5em; padding: 8px 30px 8px 35px;"/>						
 				</div>
 				<div class="form-row form-row-last maxipago-card">
-					<label id="labels-with-icons" for="maxipago-card-cvc"><?php esc_attr_e('Security Code', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
+					<label id="labels-with-icons" for="maxipagoDebitCardCvc"><?php esc_attr_e('Security Code', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
 						<div class="icon-maxipago-input">
 							<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="3px" width="24px" height="17px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve"><path class="svg" d="M152.646,70.067c-1.521-1.521-3.367-2.281-5.541-2.281H144.5V52.142c0-9.994-3.585-18.575-10.754-25.745c-7.17-7.17-15.751-10.755-25.746-10.755s-18.577,3.585-25.746,10.755C75.084,33.567,71.5,42.148,71.5,52.142v15.644h-2.607c-2.172,0-4.019,0.76-5.54,2.281c-1.521,1.52-2.281,3.367-2.281,5.541v46.929c0,2.172,0.76,4.019,2.281,5.54c1.521,1.52,3.368,2.281,5.54,2.281h78.214c2.174,0,4.02-0.76,5.541-2.281c1.52-1.521,2.281-3.368,2.281-5.54V75.607C154.93,73.435,154.168,71.588,152.646,70.067z M128.857,67.786H87.143V52.142c0-5.757,2.037-10.673,6.111-14.746c4.074-4.074,8.989-6.11,14.747-6.11s10.673,2.036,14.746,6.11c4.073,4.073,6.11,8.989,6.11,14.746V67.786z" style="fill: rgb(21, 140, 186);"></path>
 							</svg>
 						</div>
 					</label>
-					<input id="maxipago-card-cvc"
-						name="maxipago_credit_cvc"
+					<input id="maxipagoDebitCardCvc"
+						name="maxipagoDebitCardCvc"
 						class="input-text wc-credit-card-form-card-cvc"
 						type="tel"
 						autocomplete="off"

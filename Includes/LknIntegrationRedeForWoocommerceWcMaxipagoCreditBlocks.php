@@ -4,7 +4,7 @@ namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoCredit;
 
-final class LknIntegrationRedeForWoocommerceWcMaxipagoBlocks extends AbstractPaymentMethodType {
+final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends AbstractPaymentMethodType {
 
     private $gateway;
     protected $name = 'maxipago_credit';

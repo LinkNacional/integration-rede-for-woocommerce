@@ -93,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php if (!is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')) {	?>
 										
 						<div class="form-row form-row-wide maxipago-card">
-							<label id="labels-with-icons" for="maxipago-card-cpf">
+							<label id="labels-with-icons" for="maxipagoCreditCardCpf">
 								<?php echo esc_attr('CPF'); ?><span class="required">*</span>
 								<div class="icon-maxipago-input">
 									<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -104,8 +104,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 									</svg>
 								</div>
 							</label>
-							<input id="maxipago-card-cpf"
-								name="billing_cpf" class="input-text"
+							<input id="maxipagoCreditCardCpf"
+								name="maxipagoCreditCardCpf" class="input-text"
 								type="text"
 								placeholder="<?php echo esc_attr('123.456.789-12'); ?>"
 								maxlength="22" autocomplete="off"

@@ -130,8 +130,18 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 
     public function process_payment($order_id) {
+        
+        $_POST['maxipagoDebitCardNumber']     = $_POST['maxipagodebitcardnumber'] ? $_POST['maxipagodebitcardnumber']     : $_POST['maxipagoDebitCardNumber'];
+        $_POST['maxipagoDebitCardExpiry']     = $_POST['maxipagodebitcardexpiry'] ? $_POST['maxipagodebitcardexpiry']     : $_POST['maxipagoDebitCardExpiry'];
+        $_POST['maxipagoDebitCardCvc']        = $_POST['maxipagodebitcardcvc']        ? $_POST['maxipagodebitcardcvc']            : $_POST['maxipagoDebitCardCvc'];
+        $_POST['maxipagoDebitCardHolderName'] = $_POST['maxipagodebitcardholdername'] ? $_POST['maxipagodebitcardholdername']     : $_POST['maxipagoDebitCardHolderName'];
+        $_POST['maxipagoDebitCardNonce']      = $_POST['maxipagodebitcardnonce']  ? $_POST['maxipagodebitcardnonce']      : $_POST['maxipagoDebitCardNonce'];
+        $_POST['maxipagoDebitCardCpf']        = $_POST['maxipagodebitcardcpf']    ? $_POST['maxipagodebitcardcpf']        : $_POST['maxipagoDebitCardCpf'];
+        $_POST['billingNeighborhood']         = $_POST['billingneighborhood']     ? $_POST['billingneighborhood']         : $_POST['billingNeighborhood'];        
+        
+        //throw new Exception(json_encode($_POST['maxipagoDebitCardNonce']));
 
-        if(!wp_verify_nonce($_POST['maxipago_card_nonce'], 'maxipagoCardNonce')){
+        if(!wp_verify_nonce($_POST['maxipagoDebitCardNonce'], 'maxipagoDebitCardNonce')){
 			return array(
 				'result'   => 'fail',
 				'redirect' => '',
@@ -150,10 +160,12 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
         $merchant_key = sanitize_text_field($this->get_option('merchant_key'));
         $reference_num = uniqid('order_', true);
 		$valid       = true;
+
+        
         
 		if ( $valid ) {
 			
-			$credit_expiry = sanitize_text_field($_POST['maxipago_debit_expiry']);
+			$credit_expiry = sanitize_text_field($_POST['maxipagoDebitCardExpiry']);
             
             
 			
@@ -165,12 +177,15 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 					substr($credit_expiry, -2, 2),
 				];
 			}	
-            
+
+            if($_POST['maxipagoDebitCardCpf']){
+                $_POST['billing_cpf'] = $_POST['maxipagoDebitCardCpf'];
+            }
             $client_data = array(
                 'billing_cpf'   => sanitize_text_field( $_POST['billing_cpf'] ),
                 'billing_name'          => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
                 'billing_address_1'     => sanitize_text_field( $_POST['billing_address_1'] ),
-                'billing_district'      => sanitize_text_field( $_POST['billing_neighborhood'] ),
+                'billing_district'      => sanitize_text_field( $_POST['billingNeighborhood'] ),
                 'billing_city'          => sanitize_text_field( $_POST['billing_city'] ),
                 'billing_state'         => sanitize_text_field( $_POST['billing_state'] ),
                 'billing_postcode'      => sanitize_text_field( $_POST['billing_postcode'] ),
@@ -181,24 +196,26 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
             );
 	
 			$card_data = array(
-				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipago_debit_number'] ) ),
+				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipagoDebitCardNumber'] ) ),
 				'card_expiration_month' => sanitize_text_field( $expiration[0] ),
 				'card_expiration_year'  => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-				'card_cvv'              => sanitize_text_field( $_POST['maxipago_debit_cvc'] ),
-				'card_holder'           => sanitize_text_field( $_POST['maxipago_debit_holder_name'] ),
+				'card_cvv'              => sanitize_text_field( $_POST['maxipagoDebitCardCvc'] ),
+				'card_holder'           => sanitize_text_field( $_POST['maxipagoDebitCardHolderName'] ),
 			);
             
             
 			try {
+                //throw new Exception(json_encode($card_data['card_holder']));
+
                 $environment = $this->get_option('environment');
                 
                 if ( $valid ) { 
                     $valid = $this->validate_card_number( $card_data['card_number'] );
                 }
             
-                if ( $valid ) {
+                /* if ( $valid ) { //TODO alterar padrão para CamelCase
                     $valid = $this->validate_card_fields( $_POST );
-                }
+                } */
             
                 if(!$this->validateCpf($client_data['billing_cpf'])){
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
@@ -211,6 +228,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                     $api_url = 'https://testapi.maxipago.net/UniversalAPI/postXML';
                     $processorID = '5';
                 }
+
                 $xml_data = "<?xml version='1.0' encoding='UTF-8'?>
                     <transaction-request>
                         <version>3.1.1.15</version>
@@ -222,7 +240,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                             <sale>
                                 <processorID>$processorID</processorID>
                                 <referenceNum>$reference_num</referenceNum>
-                                <fraudCheck>N</fraudCheck>
                                 <customerIdExt>".$client_data['billing_cpf']."</customerIdExt>
                                 <billing>
                                     <name>".$client_data['billing_name']."</name>
@@ -237,12 +254,12 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                                 </billing>
                                 <transactionDetail>
                                     <payType>
-                                        <creditCard>
+                                        <debitCard>
                                             <number>".$card_data['card_number']."</number>
                                             <expMonth>".$card_data['card_expiration_month']."</expMonth>
                                             <expYear>".$card_data['card_expiration_year']."</expYear>
                                             <cvvNumber>".$card_data['card_cvv']."</cvvNumber>
-                                        </creditCard>
+                                        </debitCard>
                                     </payType>
                                 </transactionDetail>
                                 <payment>
@@ -396,9 +413,9 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-maxipago-debit-style', $plugin_url . 'assets/css/style-maxipago.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-maxipago-debit-style', $plugin_url . 'assets/css/styleMaxipagoDebit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-maxipago-debit-js', $plugin_url . 'assets/js/woo-maxipago.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-maxipago-debit-js', $plugin_url . 'assets/js/wooMaxipagoDebit.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-maxipago-debit-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-maxipago-debit-js', 'wooMaxipago', [

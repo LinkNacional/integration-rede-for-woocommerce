@@ -216,7 +216,9 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 					substr($credit_expiry, -2, 2),
 				];
 			}	
-            
+            if($_POST['maxipagoCreditCardCpf']){
+                $_POST['billing_cpf'] = $_POST['maxipagoCreditCardCpf'];
+            }
             $client_data = array(
                 'billing_cpf'   => sanitize_text_field( $_POST['billing_cpf'] ),
                 'billing_name'          => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
@@ -278,7 +280,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                             <sale>
                                 <processorID>$processorID</processorID>
                                 <referenceNum>$reference_num</referenceNum>
-                                <fraudCheck>N</fraudCheck>
                                 <customerIdExt>".$client_data['billing_cpf']."</customerIdExt>
                                 <billing>
                                     <name>".$client_data['billing_name']."</name>
@@ -458,9 +459,9 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
 
 		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'assets/css/style-maxipago.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'assets/css/styleMaxipagoCredit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'assets/js/woo-maxipago.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'assets/js/wooMaxipagoCredit.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-maxipago-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-maxipago-js', 'wooMaxipago', [

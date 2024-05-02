@@ -224,7 +224,8 @@ class LknIntegrationRedeForWoocommerce
 			return;
 		}	
 		
-		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcMaxipagoBlocks );
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks );
+		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks );
 		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeCreditBlocks );
 		$payment_method_registry->register( new LknIntegrationRedeForWoocommerceWcRedeDebitBlocks );
 	}
