@@ -18,6 +18,9 @@ require_once __DIR__ . '/vendor/autoload.php';
  */
 define('LknIntegrationRedeForWoocommerce_VERSION', '1.0.0');
 
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE', __DIR__ . '/lkn-integration-rede-for-woocommerce.php');
+}
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
