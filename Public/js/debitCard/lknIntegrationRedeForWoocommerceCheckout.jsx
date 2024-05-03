@@ -1,7 +1,8 @@
 const settingsRedeDebit = window.wc.wcSettings.getSetting('rede_debit_data', {})
 const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.title)
 // Obtendo o nonce da variável global
-const nonceRedeDebit = window.redeNonce;
+const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
+const translationsRedeDebit = settingsRedeDebit.translations
 
 const ContentRedeDebit = (props) => {
   // Atribui o valor total da compra e transforma para float
@@ -19,7 +20,6 @@ const ContentRedeDebit = (props) => {
     rede_debit_holder_name: '',
   })
 
-  const [translations, setTranslations] = window.wp.element.useState({})
 
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number
@@ -55,7 +55,7 @@ const ContentRedeDebit = (props) => {
         }
         return
       case 'rede_debit_cvc':
-        if (value.length > 4) return
+        if (!/^\d+$/.test(value) || value.length > 4) return
         break
       default:
         break
@@ -89,7 +89,7 @@ const ContentRedeDebit = (props) => {
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translations.fieldsNotFilled,
+        message: translationsRedeDebit.fieldsNotFilled,
       };
     });
 
@@ -102,7 +102,7 @@ const ContentRedeDebit = (props) => {
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translations, // Adicione translations como dependência
+    translationsRedeDebit, // Adicione translationsRedeDebit como dependência
   ]);
 
 
@@ -110,7 +110,7 @@ const ContentRedeDebit = (props) => {
     <>
       <wcComponents.TextInput
         id="rede_debit_number"
-        label="Seu número de cartão"
+        label={translationsRedeDebit.cardNumber}
         value={formatDebitCardNumber(debitObject.rede_debit_number)}
         onChange={(value) => {
           updateDebitObject('rede_debit_number', formatDebitCardNumber(value))
@@ -119,7 +119,7 @@ const ContentRedeDebit = (props) => {
 
       <wcComponents.TextInput
         id="rede_debit_expiry"
-        label="Validade do cartão"
+        label={translationsRedeDebit.cardExpiringDate}
         value={debitObject.rede_debit_expiry}
         onChange={(value) => {
           updateDebitObject('rede_debit_expiry', value)
@@ -128,7 +128,7 @@ const ContentRedeDebit = (props) => {
 
       <wcComponents.TextInput
         id="rede_debit_cvc"
-        label="CVC"
+        label={translationsRedeDebit.securityCode}
         value={debitObject.rede_debit_cvc}
         onChange={(value) => {
           updateDebitObject('rede_debit_cvc', value)
@@ -137,7 +137,7 @@ const ContentRedeDebit = (props) => {
 
       <wcComponents.TextInput
         id="rede_debit_holder_name"
-        label="Nome impresso no cartão"
+        label={translationsRedeDebit.nameOnCard}
         value={debitObject.rede_debit_holder_name}
         onChange={(value) => {
           updateDebitObject('rede_debit_holder_name', value)

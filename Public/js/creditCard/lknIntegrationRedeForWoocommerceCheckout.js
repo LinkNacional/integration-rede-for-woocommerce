@@ -1,8 +1,9 @@
-const settings_rede_credit = window.wc.wcSettings.getSetting('rede_credit_data', {});
-const label_rede_credit = window.wp.htmlEntities.decodeEntities(settings_rede_credit.title);
+const settingsRedeCredit = window.wc.wcSettings.getSetting('rede_credit_data', {});
+const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit.title);
 // Obtendo o nonce da variável global
-const nonce_rede_credit = window.redeNonce;
-const Content_rede_credit = props => {
+const nonceRedeCredit = window.nonceRedeCredit;
+const translationsRedeCredit = settingsRedeCredit.translations;
+const ContentRedeCredit = props => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'));
@@ -21,11 +22,20 @@ const Content_rede_credit = props => {
     rede_credit_cvc: '',
     rede_credit_holder_name: ''
   });
-  const [options, setOptions] = window.wp.element.useState([{
+  let options = [{
     key: '1',
     label: `1x de R$ ${totalAmountString} (à vista)`
-  }]);
-  const [translations, setTranslations] = window.wp.element.useState({});
+  }];
+  for (let index = 2; index <= labelRedeCredit.installments_maxipago; index++) {
+    totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    options.push({
+      key: index,
+      label: `${index}x de R$ ${totalAmount}`
+    });
+  }
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.rede_credit_number;
     // Remove caracteres não numéricos
@@ -59,7 +69,7 @@ const Content_rede_credit = props => {
         }
         return;
       case 'rede_credit_cvc':
-        if (value.length > 4) return;
+        if (!/^\d+$/.test(value) || value.length > 4) return;
         break;
       default:
         break;
@@ -69,32 +79,6 @@ const Content_rede_credit = props => {
       [key]: value
     });
   };
-
-  // Requisição para obter o número máximo de parcelas e traduções
-  window.wp.element.useEffect(() => {
-    fetch(`${window.location.origin}/wp-json/redeForWoocommerce/getphpAttributes`).then(response => {
-      return response.text();
-    }).then(text => {
-      const jsonStartIndex = text.indexOf('{'); // Encontra o índice do primeiro '{'
-      const jsonString = text.slice(jsonStartIndex); // Pega o texto a partir desse índice
-      const jsonData = JSON.parse(jsonString); // Analisa o JSON
-
-      //Atribui traduções do backend
-      setTranslations(jsonData.translations);
-      for (let index = 2; index <= jsonData.installments_rede; index++) {
-        totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-        setOptions(prevOptions => [...prevOptions, {
-          key: index,
-          label: `${index}x de R$ ${totalAmount}`
-        }]);
-      }
-    }).catch(error => {
-      console.log('Ocorreu um erro:', error);
-    });
-  }, []);
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
@@ -109,14 +93,14 @@ const Content_rede_credit = props => {
               rede_credit_expiry: creditObject.rede_credit_expiry,
               rede_credit_cvc: creditObject.rede_credit_cvc,
               rede_credit_holder_name: creditObject.rede_credit_holder_name,
-              rede_card_nonce: nonce_rede_credit
+              rede_card_nonce: nonceRedeCredit
             }
           }
         };
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translations.fieldsNotFilled
+        message: translationsRedeCredit.fieldsNotFilled
       };
     });
 
@@ -125,13 +109,13 @@ const Content_rede_credit = props => {
       unsubscribe();
     };
   }, [creditObject,
-  // Adiciona creditObject como dependência
-  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translations // Adicione translations como dependência
+    // Adiciona creditObject como dependência
+    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeCredit // Adicione translationsRedeCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_number",
-    label: "Seu n\xFAmero de cart\xE3o",
+    label: translationsRedeCredit.cardNumber,
     value: formatCreditCardNumber(creditObject.rede_credit_number),
     onChange: value => {
       updateCreditObject('rede_credit_number', formatCreditCardNumber(value));
@@ -143,7 +127,7 @@ const Content_rede_credit = props => {
   }, /*#__PURE__*/React.createElement("label", {
     htmlFor: "rede_credit_installments",
     id: "select-label"
-  }, "N\xFAmero de Parcelas:"), /*#__PURE__*/React.createElement("select", {
+  }, translationsRedeCredit.installments), /*#__PURE__*/React.createElement("select", {
     id: "rede_credit_installments",
     value: creditObject.rede_credit_installments,
     onChange: event => {
@@ -155,21 +139,21 @@ const Content_rede_credit = props => {
     value: option.key
   }, option.label))))), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_expiry",
-    label: "Validade do cart\xE3o",
+    label: translationsRedeCredit.cardExpiringDate,
     value: creditObject.rede_credit_expiry,
     onChange: value => {
       updateCreditObject('rede_credit_expiry', value);
     }
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_cvc",
-    label: "CVC",
+    label: translationsRedeCredit.securityCode,
     value: creditObject.rede_credit_cvc,
     onChange: value => {
       updateCreditObject('rede_credit_cvc', value);
     }
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_holder_name",
-    label: "Nome impresso no cart\xE3o",
+    label: translationsRedeCredit.nameOnCard,
     value: creditObject.rede_credit_holder_name,
     onChange: value => {
       updateCreditObject('rede_credit_holder_name', value);
@@ -178,13 +162,13 @@ const Content_rede_credit = props => {
 };
 const Block_Gateway_rede_credit = {
   name: 'rede_credit',
-  label: label_rede_credit,
-  content: window.wp.element.createElement(Content_rede_credit),
-  edit: window.wp.element.createElement(Content_rede_credit),
+  label: labelRedeCredit,
+  content: window.wp.element.createElement(ContentRedeCredit),
+  edit: window.wp.element.createElement(ContentRedeCredit),
   canMakePayment: () => true,
-  ariaLabel: label_rede_credit,
+  ariaLabel: labelRedeCredit,
   supports: {
-    features: settings_rede_credit.supports
+    features: settingsRedeCredit.supports
   }
 };
 window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_rede_credit);

@@ -130,7 +130,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 
     public function process_payment($order_id) {
-        //throw new Exception( json_encode($_POST));
         //TODO corrigir nonce nos dois checkout
         if(!wp_verify_nonce($_POST['maxipago_debit_nonce'], 'maxipago_debit_nonce')){
 			return array(

@@ -43,14 +43,19 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
     }
 
     public function get_payment_method_data() {
-        $nonce = wp_create_nonce( 'redeCardNonce' );
-
-        // Imprimindo o nonce como uma variável global
-        echo '<script>window.redeNonce = "' . esc_attr($nonce) . '";</script>';
-        
-		return [
+        return [
 			'title' => $this->gateway->title,
 			'description' => $this->gateway->description,
+			'nonceRedeCredit' => wp_create_nonce( 'redeCardNonce' ),
+            'installments_rede' => get_option('woocommerce_rede_credit_settings')['max_parcels_number'],
+            'translations' => [
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
+                'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
+                'cardExpiringDate' => __( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ),
+                'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
+                'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
+                'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
+            ]
 		];
 	}
 

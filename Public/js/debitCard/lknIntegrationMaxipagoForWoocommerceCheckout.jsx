@@ -1,30 +1,12 @@
-const settings_maxipago_debit = window.wc.wcSettings.getSetting('maxipago_debit_data', {})
-const label_maxipago_debit = window.wp.htmlEntities.decodeEntities(settings_maxipago_debit.title)
-
-//TODO Adicionar campo de endereço manualmente aos campos de endereço
-/* setTimeout(() => {
-  var addressFormWrapper = document.querySelector('.wc-block-components-address-form-wrapper');
-  
-  // Verifica se a div foi encontrada
-  if (addressFormWrapper) {
-    // Cria o novo componente NovoCampoTextInput
-    const novoCampo = <NovoCampoTextInput
-                        id="novo_input_id"
-                        label="Novo Label"
-                        value={valorDoNovoInput}
-                        onChange={(event) => {
-                          setValorDoNovoInput(event.target.value);
-                        }}
-                      />;
-    
-    // Renderiza o novo componente dentro da div addressFormWrapper
-    ReactDOM.render(novoCampo, addressFormWrapper);
-  }
-}, 500); */
+const settingsMaxipagoDebit = window.wc.wcSettings.getSetting('maxipago_debit_data', {})
+const labelMaxipagoDebit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoDebit.title)
 
 // Obtendo o nonce da variável global
-const nonce_maxipago_debit = settings_maxipago_debit.nonce;
-const Content_maxipago_Debit = (props) => {
+const nonceMaxipagoDebit = settingsMaxipagoDebit.nonceMaxipagoDebit;
+const translationsMaxipagoDebit = settingsMaxipagoDebit.translations
+
+
+const ContentMaxipagoDebit = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
@@ -40,12 +22,6 @@ const Content_maxipago_Debit = (props) => {
     maxipago_debit_cpf: '270.265.250-69',
     maxipago_debit_neighborhood: 'Teste bairro',
   })
-
-  const [options, setOptions] = window.wp.element.useState([
-    { key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }
-  ])
-
-  const [translations, setTranslations] = window.wp.element.useState({})
 
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_debit_card_number
@@ -81,7 +57,7 @@ const Content_maxipago_Debit = (props) => {
         }
         return
       case 'maxipago_debit_cvc':
-        if (value.length > 4) return
+        if (!/^\d+$/.test(value) || value.length > 4) return
         break
       default:
         break
@@ -116,7 +92,7 @@ const Content_maxipago_Debit = (props) => {
               maxipago_debit_expiry: creditObject.maxipago_debit_card_expiry,
               maxipago_debit_cvc: creditObject.maxipago_debit_cvc,
               maxipago_debit_holder_name: creditObject.maxipago_debit_card_holder_name,
-              maxipago_debit_nonce: nonce_maxipago_debit,
+              maxipago_debit_nonce: nonceMaxipagoDebit,
               maxipago_debit_cpf: creditObject.maxipago_debit_cpf,
               billingNeighborhood: creditObject.maxipago_debit_neighborhood
             },
@@ -125,7 +101,7 @@ const Content_maxipago_Debit = (props) => {
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translations.fieldsNotFilled,
+        message: translationsMaxipagoDebit.fieldsNotFilled,
       };
     });
 
@@ -138,7 +114,7 @@ const Content_maxipago_Debit = (props) => {
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translations, // Adicione translations como dependência
+    translationsMaxipagoDebit, // Adicione translations como dependência
   ]);
 
   // TODO Adicionar campos de CPF e Bairro
@@ -146,7 +122,7 @@ const Content_maxipago_Debit = (props) => {
     <>
       <wcComponents.TextInput
         id="maxipago_debit_card_number"
-        label="Seu número de cartão"
+        label={translationsMaxipagoDebit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_debit_card_number)}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value))
@@ -155,7 +131,7 @@ const Content_maxipago_Debit = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_debit_card_expiry"
-        label="Validade do cartão"
+        label={translationsMaxipagoDebit.cardExpiringDate}
         value={creditObject.maxipago_debit_card_expiry}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_card_expiry', value)
@@ -164,7 +140,7 @@ const Content_maxipago_Debit = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_debit_cvc"
-        label="CVC"
+        label={translationsMaxipagoDebit.securityCode}
         value={creditObject.maxipago_debit_cvc}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_cvc', value)
@@ -173,7 +149,7 @@ const Content_maxipago_Debit = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_debit_card_holder_name"
-        label="Nome impresso no cartão"
+        label={translationsMaxipagoDebit.nameOnCard}
         value={creditObject.maxipago_debit_card_holder_name}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_card_holder_name', value)
@@ -182,7 +158,7 @@ const Content_maxipago_Debit = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_debit_neighborhood"
-        label="Bairro"
+        label={translationsMaxipagoDebit.district}
         value={creditObject.maxipago_debit_neighborhood}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_neighborhood', value)
@@ -203,13 +179,13 @@ const Content_maxipago_Debit = (props) => {
 
 const Block_Gateway_maxipago_Debit = {
   name: 'maxipago_debit',
-  label: label_maxipago_debit,
-  content: window.wp.element.createElement(Content_maxipago_Debit),
-  edit: window.wp.element.createElement(Content_maxipago_Debit),
+  label: labelMaxipagoDebit,
+  content: window.wp.element.createElement(ContentMaxipagoDebit),
+  edit: window.wp.element.createElement(ContentMaxipagoDebit),
   canMakePayment: () => true,
-  ariaLabel: label_maxipago_debit,
+  ariaLabel: labelMaxipagoDebit,
   supports: {
-    features: settings_maxipago_debit.supports
+    features: settingsMaxipagoDebit.supports
   }
 }
 

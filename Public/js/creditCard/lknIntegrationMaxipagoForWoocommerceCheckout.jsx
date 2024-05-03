@@ -1,5 +1,5 @@
-const settings_maxipago = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
-const label_maxipago = window.wp.htmlEntities.decodeEntities(settings_maxipago.title)
+const settingsMaxipagoCredit = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
+const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoCredit.title)
 
 //TODO Adicionar campo de endereço manualmente aos campos de endereço
 /* setTimeout(() => {
@@ -23,9 +23,10 @@ const label_maxipago = window.wp.htmlEntities.decodeEntities(settings_maxipago.t
 }, 500); */
 
 // Obtendo o nonce da variável global
-const nonce_maxipago = window.maxipagoNonce;
+const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
+const translationsMaxipagoCredit = settingsMaxipagoCredit.translations
 
-const Content_maxipago = (props) => {
+const ContentMaxipagoCredit = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
@@ -43,11 +44,17 @@ const Content_maxipago = (props) => {
     maxipago_credit_neighborhood: '',
   })
 
-  const [options, setOptions] = window.wp.element.useState([
-    { key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }
-  ])
+  let options = [{ key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }];
 
-  const [translations, setTranslations] = window.wp.element.useState({})
+  for (let index = 2; index <= settingsMaxipagoCredit.installmentsMaxipago; index++) {
+    totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+  }
+
 
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number
@@ -83,7 +90,7 @@ const Content_maxipago = (props) => {
         }
         return
       case 'maxipago_credit_cvc':
-        if (value.length > 4) return
+        if (!/^\d+$/.test(value) || value.length > 4) return
         break
       default:
         break
@@ -103,34 +110,7 @@ const Content_maxipago = (props) => {
     return cpf;
   }
 
-  // Requisição para obter o número máximo de parcelas e traduções
-  window.wp.element.useEffect(() => {
-    fetch(`${window.location.origin}/wp-json/redeForWoocommerce/getphpAttributes`)
-      .then(response => {
-        return response.text()
-      }).then(text => {
-        const jsonStartIndex = text.indexOf('{') // Encontra o índice do primeiro '{'
-        const jsonString = text.slice(jsonStartIndex) // Pega o texto a partir desse índice
-        const jsonData = JSON.parse(jsonString) // Analisa o JSON
 
-        //Atribui traduções do backend
-        setTranslations(jsonData.translations)
-
-        for (let index = 2; index <= jsonData.installments_maxipago; index++) {
-          totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })
-
-          setOptions(prevOptions => [
-            ...prevOptions,
-            { key: index, label: `${index}x de R$ ${totalAmount}` }
-          ])
-        }
-      }).catch(error => {
-        console.log('Ocorreu um erro:', error)
-      })
-  }, [])
 
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
@@ -148,7 +128,7 @@ const Content_maxipago = (props) => {
               maxipago_credit_expiry: creditObject.maxipago_credit_expiry,
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
-              maxipago_card_nonce: nonce_maxipago,
+              maxipago_card_nonce: nonceMaxipagoCredit,
               billing_cpf: creditObject.maxipago_credit_cpf,
               billing_neighborhood: creditObject.maxipago_credit_neighborhood
             },
@@ -157,7 +137,7 @@ const Content_maxipago = (props) => {
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translations.fieldsNotFilled,
+        message: translationsMaxipagoCredit.fieldsNotFilled,
       };
     });
 
@@ -170,7 +150,7 @@ const Content_maxipago = (props) => {
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translations, // Adicione translations como dependência
+    translationsMaxipagoCredit, // Adicione translationsMaxipagoCredit como dependência
   ]);
 
   // TODO Adicionar campos de CPF e Bairro
@@ -178,7 +158,7 @@ const Content_maxipago = (props) => {
     <>
       <wcComponents.TextInput
         id="maxipago_credit_number"
-        label="Seu número de cartão"
+        label={translationsMaxipagoCredit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_credit_number)}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
@@ -187,7 +167,7 @@ const Content_maxipago = (props) => {
 
       <div class="wc-block-components-text-input is-active">
         <div className="select-wrapper">
-          <label htmlFor="maxipago_credit_installments" id="select-label">Número de Parcelas:</label>
+          <label htmlFor="maxipago_credit_installments" id="select-label">{translationsMaxipagoCredit.installments}</label>
           <select
             id="maxipago_credit_installments"
             value={creditObject.maxipago_credit_installments}
@@ -208,7 +188,7 @@ const Content_maxipago = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_credit_expiry"
-        label="Validade do cartão"
+        label={translationsMaxipagoCredit.cardExpiringDate}
         value={creditObject.maxipago_credit_expiry}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_expiry', value)
@@ -217,7 +197,7 @@ const Content_maxipago = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_credit_cvc"
-        label="CVC"
+        label={translationsMaxipagoCredit.securityCode}
         value={creditObject.maxipago_credit_cvc}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_cvc', value)
@@ -226,7 +206,7 @@ const Content_maxipago = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_credit_holder_name"
-        label="Nome impresso no cartão"
+        label={translationsMaxipagoCredit.nameOnCard}
         value={creditObject.maxipago_credit_holder_name}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_holder_name', value)
@@ -235,7 +215,7 @@ const Content_maxipago = (props) => {
 
       <wcComponents.TextInput
         id="maxipago_credit_neighborhood"
-        label="Bairro"
+        label={translationsMaxipagoCredit.district}
         value={creditObject.maxipago_credit_neighborhood}
         onChange={(value) => {
           updateCreditObject('maxipago_credit_neighborhood', value)
@@ -256,13 +236,13 @@ const Content_maxipago = (props) => {
 
 const Block_Gateway_maxipago = {
   name: 'maxipago_credit',
-  label: label_maxipago,
-  content: window.wp.element.createElement(Content_maxipago),
-  edit: window.wp.element.createElement(Content_maxipago),
+  label: labelMaxipagoCredit,
+  content: window.wp.element.createElement(ContentMaxipagoCredit),
+  edit: window.wp.element.createElement(ContentMaxipagoCredit),
   canMakePayment: () => true,
-  ariaLabel: label_maxipago,
+  ariaLabel: labelMaxipagoCredit,
   supports: {
-    features: settings_maxipago.supports
+    features: settingsMaxipagoCredit.supports
   }
 }
 
