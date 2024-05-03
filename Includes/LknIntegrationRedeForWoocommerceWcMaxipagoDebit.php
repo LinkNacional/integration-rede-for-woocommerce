@@ -130,18 +130,9 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 
     public function process_payment($order_id) {
-        
-        $_POST['maxipagoDebitCardNumber']     = $_POST['maxipagodebitcardnumber'] ? $_POST['maxipagodebitcardnumber']     : $_POST['maxipagoDebitCardNumber'];
-        $_POST['maxipagoDebitCardExpiry']     = $_POST['maxipagodebitcardexpiry'] ? $_POST['maxipagodebitcardexpiry']     : $_POST['maxipagoDebitCardExpiry'];
-        $_POST['maxipagoDebitCardCvc']        = $_POST['maxipagodebitcardcvc']        ? $_POST['maxipagodebitcardcvc']            : $_POST['maxipagoDebitCardCvc'];
-        $_POST['maxipagoDebitCardHolderName'] = $_POST['maxipagodebitcardholdername'] ? $_POST['maxipagodebitcardholdername']     : $_POST['maxipagoDebitCardHolderName'];
-        $_POST['maxipagoDebitCardNonce']      = $_POST['maxipagodebitcardnonce']  ? $_POST['maxipagodebitcardnonce']      : $_POST['maxipagoDebitCardNonce'];
-        $_POST['maxipagoDebitCardCpf']        = $_POST['maxipagodebitcardcpf']    ? $_POST['maxipagodebitcardcpf']        : $_POST['maxipagoDebitCardCpf'];
-        $_POST['billingNeighborhood']         = $_POST['billingneighborhood']     ? $_POST['billingneighborhood']         : $_POST['billingNeighborhood'];        
-        
-        //throw new Exception(json_encode($_POST['maxipagoDebitCardNonce']));
-
-        if(!wp_verify_nonce($_POST['maxipagoDebitCardNonce'], 'maxipagoDebitCardNonce')){
+        //throw new Exception( json_encode($_POST));
+        //TODO corrigir nonce nos dois checkout
+        if(!wp_verify_nonce($_POST['maxipago_debit_nonce'], 'maxipago_debit_nonce')){
 			return array(
 				'result'   => 'fail',
 				'redirect' => '',
@@ -150,38 +141,38 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 		$order       = wc_get_order( $order_id );
 
-        $woocommerce_country = get_option('woocommerce_default_country');
+        $woocommerceCountry = get_option('woocommerce_default_country');
         // Extraindo somente o país da string
-        $country_parts = explode(':', $woocommerce_country);
-        $country_code = $country_parts[0];
+        $countryParts = explode(':', $woocommerceCountry);
+        $countryCode = $countryParts[0];
             
-        $merchant_id = sanitize_text_field($this->get_option('merchant_id'));
-        $company_name = sanitize_text_field($this->get_option('company_name'));
-        $merchant_key = sanitize_text_field($this->get_option('merchant_key'));
-        $reference_num = uniqid('order_', true);
+        $merchantId = sanitize_text_field($this->get_option('merchant_id'));
+        $companyName = sanitize_text_field($this->get_option('company_name'));
+        $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
+        $referenceNum = uniqid('order_', true);
 		$valid       = true;
 
         
         
 		if ( $valid ) {
 			
-			$credit_expiry = sanitize_text_field($_POST['maxipagoDebitCardExpiry']);
+			$creditExpiry = sanitize_text_field($_POST['maxipago_debit_expiry']);
             
             
 			
-			if (strpos($credit_expiry, '/') !== false) {
-				$expiration   = explode( '/', $credit_expiry );
+			if (strpos($creditExpiry, '/') !== false) {
+				$expiration   = explode( '/', $creditExpiry );
 			} else {
 				$expiration = [
-					substr($credit_expiry, 0, 2),
-					substr($credit_expiry, -2, 2),
+					substr($creditExpiry, 0, 2),
+					substr($creditExpiry, -2, 2),
 				];
 			}	
 
-            if($_POST['maxipagoDebitCardCpf']){
-                $_POST['billing_cpf'] = $_POST['maxipagoDebitCardCpf'];
+            if($_POST['maxipago_debit_cpf']){
+                $_POST['billing_cpf'] = $_POST['maxipago_debit_cpf'];
             }
-            $client_data = array(
+            $clientData = array(
                 'billing_cpf'   => sanitize_text_field( $_POST['billing_cpf'] ),
                 'billing_name'          => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
                 'billing_address_1'     => sanitize_text_field( $_POST['billing_address_1'] ),
@@ -192,93 +183,92 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                 'billing_phone'         => sanitize_text_field( $_POST['billing_phone'] ),
                 'billing_email'         => sanitize_text_field( $_POST['billing_email'] ),
                 'currency_code'         => get_option('woocommerce_currency'),
-                'country'               => $country_code,                
+                'country'               => $countryCode,                
             );
 	
-			$card_data = array(
-				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipagoDebitCardNumber'] ) ),
+			$cardData = array(
+				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipago_debit_number'] ) ),
 				'card_expiration_month' => sanitize_text_field( $expiration[0] ),
 				'card_expiration_year'  => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-				'card_cvv'              => sanitize_text_field( $_POST['maxipagoDebitCardCvc'] ),
-				'card_holder'           => sanitize_text_field( $_POST['maxipagoDebitCardHolderName'] ),
+				'card_cvv'              => sanitize_text_field( $_POST['maxipago_debit_cvc'] ),
+				'card_holder'           => sanitize_text_field( $_POST['maxipago_debit_holder_name'] ),
 			);
             
             
 			try {
-                //throw new Exception(json_encode($card_data['card_holder']));
 
                 $environment = $this->get_option('environment');
                 
                 if ( $valid ) { 
-                    $valid = $this->validate_card_number( $card_data['card_number'] );
+                    $valid = $this->validate_card_number( $cardData['card_number'] );
                 }
             
-                /* if ( $valid ) { //TODO alterar padrão para CamelCase
+                if ( $valid ) {
                     $valid = $this->validate_card_fields( $_POST );
-                } */
+                }
             
-                if(!$this->validateCpf($client_data['billing_cpf'])){
+                if(!$this->validateCpf($clientData['billing_cpf'])){
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
                 }
 
                 if($environment === 'production'){
-                    $api_url = 'https://api.maxipago.net/UniversalAPI/postXML';
+                    $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
                     $processorID = '1';
                 }else{
-                    $api_url = 'https://testapi.maxipago.net/UniversalAPI/postXML';
+                    $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
                     $processorID = '5';
                 }
 
-                $xml_data = "<?xml version='1.0' encoding='UTF-8'?>
+                $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
                     <transaction-request>
                         <version>3.1.1.15</version>
                         <verification>
-                            <merchantId>$merchant_id</merchantId>
-                            <merchantKey>$merchant_key</merchantKey>
+                            <merchantId>$merchantId</merchantId>
+                            <merchantKey>$merchantKey</merchantKey>
                         </verification>
                         <order>
                             <sale>
                                 <processorID>$processorID</processorID>
-                                <referenceNum>$reference_num</referenceNum>
-                                <customerIdExt>".$client_data['billing_cpf']."</customerIdExt>
+                                <referenceNum>$referenceNum</referenceNum>
+                                <customerIdExt>".$clientData['billing_cpf']."</customerIdExt>
                                 <billing>
-                                    <name>".$client_data['billing_name']."</name>
-                                    <address>".$client_data['billing_address_1']."</address>
-                                    <district>".$client_data['billing_district']."</district>
-                                    <city>".$client_data['billing_city']."</city>
-                                    <state>".$client_data['billing_state']."</state>
-                                    <postalcode>".$client_data['billing_postcode']."</postalcode>
-                                    <country>".$client_data['country']."</country>
-                                    <phone>".$client_data['billing_phone']."</phone>
-                                    <companyName>$company_name</companyName>
+                                    <name>".$clientData['billing_name']."</name>
+                                    <address>".$clientData['billing_address_1']."</address>
+                                    <district>".$clientData['billing_district']."</district>
+                                    <city>".$clientData['billing_city']."</city>
+                                    <state>".$clientData['billing_state']."</state>
+                                    <postalcode>".$clientData['billing_postcode']."</postalcode>
+                                    <country>".$clientData['country']."</country>
+                                    <phone>".$clientData['billing_phone']."</phone>
+                                    <companyName>$companyName</companyName>
                                 </billing>
                                 <transactionDetail>
                                     <payType>
                                         <debitCard>
-                                            <number>".$card_data['card_number']."</number>
-                                            <expMonth>".$card_data['card_expiration_month']."</expMonth>
-                                            <expYear>".$card_data['card_expiration_year']."</expYear>
-                                            <cvvNumber>".$card_data['card_cvv']."</cvvNumber>
+                                            <number>".$cardData['card_number']."</number>
+                                            <expMonth>".$cardData['card_expiration_month']."</expMonth>
+                                            <expYear>".$cardData['card_expiration_year']."</expYear>
+                                            <cvvNumber>".$cardData['card_cvv']."</cvvNumber>
                                         </debitCard>
                                     </payType>
                                 </transactionDetail>
                                 <payment>
                                     <chargeTotal>".$order->get_total()."</chargeTotal>
-                                    <currencyCode>".$client_data['currency_code']."</currencyCode> 
+                                    <currencyCode>".$clientData['currency_code']."</currencyCode> 
                                 </payment>
                             </sale>
                         </order>
                     </transaction-request>";
 
                 $args = array(
-                    'body'        => $xml_data,
+                    'body'        => $xmlData,
                     'headers'     => array(
                         'Content-Type' => 'application/xml'
                     ),
                     'sslverify' => false // Desativa a verificação do certificado SSL
                 );
 
-                $response = wp_remote_post($api_url, $args);
+                $response = wp_remote_post($apiUrl, $args);
 
                 if (is_wp_error($response)) {
                     $error_message = $response->get_error_message();
@@ -299,11 +289,11 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                     $order->update_meta_data( '_wc_maxipago_transaction_bin', $xml_decode['creditCardBin']);
                     $order->update_meta_data( '_wc_maxipago_transaction_last4', $xml_decode['creditCardLast4']);
                     $order->update_meta_data( '_wc_maxipago_transaction_nsu', $xml_decode['transactionID']);
-                    $order->update_meta_data( '_wc_maxipago_transaction_reference_num', $reference_num);
+                    $order->update_meta_data( '_wc_maxipago_transaction_reference_num', $referenceNum);
                     $order->update_meta_data( '_wc_maxipago_transaction_authorization_code', $xml_decode['authCode']);
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
-                    $order->update_meta_data( '_wc_maxipago_transaction_holder', $card_data['card_holder'] );
-                    $order->update_meta_data( '_wc_maxipago_transaction_expiration', $credit_expiry );
+                    $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
+                    $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
                     $order->payment_complete();
                     
                 }
@@ -378,7 +368,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
     public function displayMeta( $order ) {
 		if ( $order->get_payment_method() === 'maxipago_debit' ) {
-			$meta_keys = array(
+			$metaKeys = array(
 				'_wc_maxipago_transaction_environment' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
 				'_wc_maxipago_transaction_return_message' => esc_attr__( 'Return Message', 'integration-rede-for-woocommerce' ),
 				'_wc_maxipago_transaction_id' => esc_attr__( 'Transaction ID', 'integration-rede-for-woocommerce' ),
@@ -391,7 +381,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 				'_wc_maxipago_transaction_reference_num' => esc_attr__( 'Reference Number', 'integration-rede-for-woocommerce' )
 			);
 
-			$this->generateMetaTable( $order, $meta_keys, 'Maxipago');
+			$this->generateMetaTable( $order, $metaKeys, 'Maxipago');
         }
 	}
 

@@ -105,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</div>
 							</label>
 							<input id="maxipagoCreditCardCpf"
-								name="maxipagoCreditCardCpf" class="input-text"
+								name="maxipago_credit_card_cpf" class="input-text"
 								type="text"
 								placeholder="<?php echo esc_attr('123.456.789-12'); ?>"
 								maxlength="22" autocomplete="off"

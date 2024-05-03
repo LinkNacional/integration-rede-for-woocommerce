@@ -24,7 +24,6 @@ const label_maxipago_debit = window.wp.htmlEntities.decodeEntities(settings_maxi
 
 // Obtendo o nonce da variável global
 const nonce_maxipago_debit = settings_maxipago_debit.nonce;
-
 const Content_maxipago_Debit = (props) => {
   // Atribui o valor total da compra e transforma para float
   totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
@@ -34,10 +33,10 @@ const Content_maxipago_Debit = (props) => {
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
   const [creditObject, setCreditObject] = window.wp.element.useState({
-    maxipago_debit_number: '378282246310005',
-    maxipago_debit_expiry: '01/35',
+    maxipago_debit_card_number: '378282246310005',
+    maxipago_debit_card_expiry: '01/35',
     maxipago_debit_cvc: '123',
-    maxipago_debit_holder_name: 'Teste',
+    maxipago_debit_card_holder_name: 'Teste',
     maxipago_debit_cpf: '270.265.250-69',
     maxipago_debit_neighborhood: 'Teste bairro',
   })
@@ -49,7 +48,7 @@ const Content_maxipago_Debit = (props) => {
   const [translations, setTranslations] = window.wp.element.useState({})
 
   const formatCreditCardNumber = value => {
-    if (value?.length > 19) return creditObject.maxipago_debit_number
+    if (value?.length > 19) return creditObject.maxipago_debit_card_number
     // Remove caracteres não numéricos
     const cleanedValue = value?.replace(/\D/g, '')
     // Adiciona espaços a cada quatro dígitos
@@ -59,7 +58,7 @@ const Content_maxipago_Debit = (props) => {
 
   const updateCreditObject = (key, value) => {
     switch (key) {
-      case 'maxipago_debit_expiry':
+      case 'maxipago_debit_card_expiry':
         if (value.length > 7) return
 
         // Verifica se o valor é uma data válida (MM/YY)
@@ -113,12 +112,12 @@ const Content_maxipago_Debit = (props) => {
           type: emitResponse.responseTypes.SUCCESS,
           meta: {
             paymentMethodData: {
-              maxipagoDebitCardNumber: creditObject.maxipago_debit_number,
-              maxipagoDebitCardExpiry: creditObject.maxipago_debit_expiry,
-              maxipagoDebitCardCvc: creditObject.maxipago_debit_cvc,
-              maxipagoDebitCardHolderName: creditObject.maxipago_debit_holder_name,
-              maxipagoDebitCardNonce: nonce_maxipago_debit,
-              maxipagoDebitCardCpf: creditObject.maxipago_debit_cpf,
+              maxipago_debit_number: creditObject.maxipago_debit_card_number,
+              maxipago_debit_expiry: creditObject.maxipago_debit_card_expiry,
+              maxipago_debit_cvc: creditObject.maxipago_debit_cvc,
+              maxipago_debit_holder_name: creditObject.maxipago_debit_card_holder_name,
+              maxipago_debit_nonce: nonce_maxipago_debit,
+              maxipago_debit_cpf: creditObject.maxipago_debit_cpf,
               billingNeighborhood: creditObject.maxipago_debit_neighborhood
             },
           },
@@ -146,20 +145,20 @@ const Content_maxipago_Debit = (props) => {
   return (
     <>
       <wcComponents.TextInput
-        id="maxipago_debit_number"
+        id="maxipago_debit_card_number"
         label="Seu número de cartão"
-        value={formatCreditCardNumber(creditObject.maxipago_debit_number)}
+        value={formatCreditCardNumber(creditObject.maxipago_debit_card_number)}
         onChange={(value) => {
-          updateCreditObject('maxipago_debit_number', formatCreditCardNumber(value))
+          updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value))
         }}
       />
 
       <wcComponents.TextInput
-        id="maxipago_debit_expiry"
+        id="maxipago_debit_card_expiry"
         label="Validade do cartão"
-        value={creditObject.maxipago_debit_expiry}
+        value={creditObject.maxipago_debit_card_expiry}
         onChange={(value) => {
-          updateCreditObject('maxipago_debit_expiry', value)
+          updateCreditObject('maxipago_debit_card_expiry', value)
         }}
       />
 
@@ -173,11 +172,11 @@ const Content_maxipago_Debit = (props) => {
       />
 
       <wcComponents.TextInput
-        id="maxipago_debit_holder_name"
+        id="maxipago_debit_card_holder_name"
         label="Nome impresso no cartão"
-        value={creditObject.maxipago_debit_holder_name}
+        value={creditObject.maxipago_debit_card_holder_name}
         onChange={(value) => {
-          updateCreditObject('maxipago_debit_holder_name', value)
+          updateCreditObject('maxipago_debit_card_holder_name', value)
         }}
       />
 

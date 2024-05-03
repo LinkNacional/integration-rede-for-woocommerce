@@ -97,7 +97,7 @@ select:focus {
 	padding: 0 !important;
 }
 
-#maxipagoDebitCardHolderName {
+#maxipago_debit_card_holder_name {
 	text-transform: uppercase;
 }
 

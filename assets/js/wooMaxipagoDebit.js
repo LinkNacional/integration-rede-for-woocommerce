@@ -10,22 +10,22 @@ window.jQuery(function ($) {
         cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
         return cpf;
       }
-  
-  
-      $('#maxipagoDebitCardCpf').on('input', function () {
+
+
+      $('#maxipago_debit_card_cpf').on('input', function () {
         var input = $(this);
         var cpf = input.val();
         cpf = formatarCPF(cpf);
         input.val(cpf);
       });
-      
+
       if (xhr.status === 200 && settings.url === '/?wc-ajax=update_order_review') {
         const $form = $('.woocommerce .woocommerce-checkout')
         const inputSelectors = {
-          numberInput: '#maxipagoDebitCardNumber',
-          nameInput: '#maxipagoDebitCardHolderName',
-          expiryInput: '#maxipagoDebitCardExpiry',
-          cvcInput: '#maxipagoDebitCardCvc'
+          numberInput: '#maxipago_debit_card_number',
+          nameInput: '#maxipago_debit_card_holder_name',
+          expiryInput: '#maxipago_debit_card_expiry',
+          cvcInput: '#maxipago_debit_card_cvc'
         }
 
         // maybe delete old card data

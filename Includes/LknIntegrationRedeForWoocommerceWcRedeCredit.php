@@ -52,7 +52,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 	public function displayMeta( $order ) {
 		if ( $order->get_payment_method() === 'rede_credit' ) {
-			$meta_keys = array(
+			$metaKeys = array(
 				'_wc_rede_transaction_environment' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_return_code' => esc_attr__( 'Return Code', 'integration-rede-for-woocommerce' ),
 				'_wc_rede_transaction_return_message' => esc_attr__( 'Return Message', 'integration-rede-for-woocommerce' ),
@@ -68,7 +68,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'integration-rede-for-woocommerce' )
 			);
 		
-			$this->generateMetaTable( $order, $meta_keys, 'Rede');
+			$this->generateMetaTable( $order, $metaKeys, 'Rede');
 		
 		}
 	}
@@ -271,7 +271,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		}
 		
 		$order       = wc_get_order( $order_id );
-		$card_number = isset( $_POST['rede_credit_number'] ) ? 
+		$cardNumber = isset( $_POST['rede_credit_number'] ) ? 
 			sanitize_text_field( $_POST['rede_credit_number'] ) : '';
 		$valid       = true;
 	
@@ -279,18 +279,18 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			$installments = isset( $_POST['rede_credit_installments'] ) ? 
 				absint( sanitize_text_field($_POST['rede_credit_installments']) ) : 1;
 			
-			$credit_expiry = sanitize_text_field($_POST['rede_credit_expiry']);
+			$creditExpiry = sanitize_text_field($_POST['rede_credit_expiry']);
 			
-			if (strpos($credit_expiry, '/') !== false) {
-				$expiration   = explode( '/', $credit_expiry );
+			if (strpos($creditExpiry, '/') !== false) {
+				$expiration   = explode( '/', $creditExpiry );
 			} else {
 				$expiration = [
-					substr($credit_expiry, 0, 2),
-					substr($credit_expiry, -2, 2),
+					substr($creditExpiry, 0, 2),
+					substr($creditExpiry, -2, 2),
 				];
 			}			
 	
-			$card_data = array(
+			$cardData = array(
 				'card_number'           => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
 				'card_expiration_month' => sanitize_text_field( $expiration[0] ),
 				'card_expiration_year'  => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
@@ -301,7 +301,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			try {
 
 				if ( $valid ) {
-					$valid = $this->validate_card_number( $card_number );
+					$valid = $this->validate_card_number( $cardNumber );
 				}
 			
 				if ( $valid ) {
@@ -314,7 +314,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 				$order_id    = $order->get_id();
 				$amount      = $order->get_total();
-				$transaction = $this->api->doTransactionCreditRequest( $order_id + time(), $amount, $installments, $card_data );
+				$transaction = $this->api->doTransactionCreditRequest( $order_id + time(), $amount, $installments, $cardData );
 				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
 				$order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );

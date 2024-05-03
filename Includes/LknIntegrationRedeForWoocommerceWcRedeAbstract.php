@@ -166,13 +166,13 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 	}
 
-	protected function validate_card_number( $card_number ) {
-		$card_number_checksum = '';
-		foreach ( str_split( strrev( preg_replace( '/[^\d]/', '', $card_number ) ) ) as $i => $d ) {
-			$card_number_checksum .= $i % 2 !== 0 ? $d * 2 : $d;
+	protected function validate_card_number( $cardNumber ) {
+		$cardNumber_checksum = '';
+		foreach ( str_split( strrev( preg_replace( '/[^\d]/', '', $cardNumber ) ) ) as $i => $d ) {
+			$cardNumber_checksum .= $i % 2 !== 0 ? $d * 2 : $d;
 		}
 
-		if ( array_sum( str_split( $card_number_checksum ) ) % 10 !== 0 ) {
+		if ( array_sum( str_split( $cardNumber_checksum ) ) % 10 !== 0 ) {
 			throw new Exception( esc_attr__( 'Please enter a valid credit card number', 'integration-rede-for-woocommerce' ) );
 		}
 
@@ -180,52 +180,45 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 	}
 
 	protected function validate_card_fields( $posted ) {
-		try {
-
-			if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
-				throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
-			}
-
-			if ( preg_replace(
-				'/[^a-zA-Z\s]/',
-				'',
-				$posted[ $this->id . '_holder_name' ]
-			) != $posted[ $this->id . '_holder_name' ] ) {
-				throw new Exception( esc_attr__( 'Cardholder name can only contain letters', 'integration-rede-for-woocommerce' ) );
-			}
-
-			if ( ! isset( $posted[ $this->id . '_expiry' ] ) || '' === $posted[ $this->id . '_expiry' ] ) {
-				throw new Exception( esc_attr__( 'Please enter card expiration date', 'integration-rede-for-woocommerce' ) );
-			}
-
-			//if user filled expiry date with 3 digits,
-			// throw an exception and let him/her/they know.
-			if ( isset( $posted[ $this->id . '_expiry' ][2] ) && ! isset( $posted[ $this->id . '_expiry' ][3] ) ) {
-				throw new Exception( esc_attr__( 'Expiration date must contain 2 or 4 digits', 'integration-rede-for-woocommerce' ) );
-			}
-
-			if ( strtotime(
-				preg_replace(
-					'/(\d{2})\s*\/\s*(\d{4})/',
-					'$2-$1-01',
-					$this->normalize_expiration_date( $posted[ $this->id . '_expiry' ] )
-				)
-			) < strtotime( gmdate( 'Y-m' ) . '-01' ) ) {
-				throw new Exception( esc_attr__( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
-			}
-
-			if ( ! isset( $posted[ $this->id . '_cvc' ] ) || '' === $posted[ $this->id . '_cvc' ] ) {
-				throw new Exception( esc_attr__( 'Please enter card security code', 'integration-rede-for-woocommerce' ) );
-			}
-
-			if ( preg_replace( '/[^0-9]/', '', $posted[ $this->id . '_cvc' ] ) != $posted[ $this->id . '_cvc' ] ) {
-				throw new Exception( esc_attr__( 'Security code must contain only numbers', 'integration-rede-for-woocommerce' ) );
-			}
-		} catch ( Exception $e ) {
-			$this->add_error( $e->getMessage() );
-			
-			return false;
+		if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
+			throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
 		}
+		
+		if ( preg_replace(
+			'/[^a-zA-Z\s]/',
+			'',
+			$posted[ $this->id . '_holder_name' ]
+		) != $posted[ $this->id . '_holder_name' ] ) {
+			throw new Exception( esc_attr__( 'Cardholder name can only contain letters', 'integration-rede-for-woocommerce' ) );
+		}
+
+		if ( ! isset( $posted[ $this->id . '_expiry' ] ) || '' === $posted[ $this->id . '_expiry' ] ) {
+			throw new Exception( esc_attr__( 'Please enter card expiration date', 'integration-rede-for-woocommerce' ) );
+		}
+
+		//if user filled expiry date with 3 digits,
+		// throw an exception and let him/her/they know.
+		if ( isset( $posted[ $this->id . '_expiry' ][2] ) && ! isset( $posted[ $this->id . '_expiry' ][3] ) ) {
+			throw new Exception( esc_attr__( 'Expiration date must contain 2 or 4 digits', 'integration-rede-for-woocommerce' ) );
+		}
+		if ( strtotime(
+			preg_replace(
+				'/(\d{2})\s*\/\s*(\d{4})/',
+				'$2-$1-01',
+				$this->normalize_expiration_date( $posted[ $this->id . '_expiry' ] )
+			)
+		) < strtotime( gmdate( 'Y-m' ) . '-01' ) ) {
+			throw new Exception( esc_attr__( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
+		}
+
+		if ( ! isset( $posted[ $this->id . '_cvc' ] ) || '' === $posted[ $this->id . '_cvc' ] ) {
+			throw new Exception( esc_attr__( 'Please enter card security code', 'integration-rede-for-woocommerce' ) );
+		}
+
+		if ( preg_replace( '/[^0-9]/', '', $posted[ $this->id . '_cvc' ] ) != $posted[ $this->id . '_cvc' ] ) {
+			throw new Exception( esc_attr__( 'Security code must contain only numbers', 'integration-rede-for-woocommerce' ) );
+		}
+
 
 		return true;
 	}
@@ -286,29 +279,24 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 		if ( $posted['rede_credit_installments'] == 1 ) {
 			return true;
 		}
-
-		try {
-			if ( ! isset( $posted['rede_credit_installments'] ) || '' === $posted['rede_credit_installments'] ) {
-				throw new Exception( esc_attr__( 'Please enter the number of installments', 'integration-rede-for-woocommerce' ) );
-			}
-
-			$installments = absint( $posted['rede_credit_installments'] );
-			$min_value = $this->get_option( 'min_parcels_value' );
-			$max_parcels = $this->get_option( 'max_parcels_number' );
-
-			if ( $installments > $max_parcels || ( ( $min_value != 0 ) && ( ( $order_total / $installments ) < $min_value ) ) ) {
-				throw new Exception( esc_attr__( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
-			}
-		} catch ( Exception $e ) {
-			$this->add_error( $e->getMessage() );
-
-			return false;
+		
+		if ( ! isset( $posted['rede_credit_installments'] ) || '' === $posted['rede_credit_installments'] ) {
+			throw new Exception( esc_attr__( 'Please enter the number of installments', 'integration-rede-for-woocommerce' ) );
 		}
+
+		$installments = absint( $posted['rede_credit_installments'] );
+		$min_value = $this->get_option( 'min_parcels_value' );
+		$max_parcels = $this->get_option( 'max_parcels_number' );
+
+		if ( $installments > $max_parcels || ( ( $min_value != 0 ) && ( ( $order_total / $installments ) < $min_value ) ) ) {
+			throw new Exception( esc_attr__( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
+		}
+
 
 		return true;
 	}
 
-	public function generateMetaTable( $order, $meta_keys, $title) {
+	public function generateMetaTable( $order, $metaKeys, $title) {
 		?>
 		<h3><?php esc_attr_e( $title, 'integration-rede-for-woocommerce' ); ?></h3>
 		<table>
@@ -324,7 +312,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 					</tr>
 				<?php
 					endif;
-				}, array_keys( $meta_keys ), $meta_keys );
+				}, array_keys( $metaKeys ), $metaKeys );
 				?>
 			</tbody>
 		</table>

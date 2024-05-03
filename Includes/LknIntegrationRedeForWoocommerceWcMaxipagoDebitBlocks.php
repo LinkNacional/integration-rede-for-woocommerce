@@ -43,7 +43,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
     }
 
     public function get_payment_method_data() {
-        $nonce = wp_create_nonce( 'maxipagoDebitCardNonce' );
+        $nonce = wp_create_nonce( 'maxipago_debit_nonce' );
 
 		return [
 			'title' => $this->gateway->title,
