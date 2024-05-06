@@ -1,27 +1,5 @@
 const settingsMaxipagoCredit = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
 const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoCredit.title)
-
-//TODO Adicionar campo de endereço manualmente aos campos de endereço
-/* setTimeout(() => {
-  var addressFormWrapper = document.querySelector('.wc-block-components-address-form-wrapper');
-  
-  // Verifica se a div foi encontrada
-  if (addressFormWrapper) {
-    // Cria o novo componente NovoCampoTextInput
-    const novoCampo = <NovoCampoTextInput
-                        id="novo_input_id"
-                        label="Novo Label"
-                        value={valorDoNovoInput}
-                        onChange={(event) => {
-                          setValorDoNovoInput(event.target.value);
-                        }}
-                      />;
-    
-    // Renderiza o novo componente dentro da div addressFormWrapper
-    ReactDOM.render(novoCampo, addressFormWrapper);
-  }
-}, 500); */
-
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations
@@ -46,13 +24,15 @@ const ContentMaxipagoCredit = (props) => {
 
   let options = [{ key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }];
 
-  for (let index = 2; index <= settingsMaxipagoCredit.installmentsMaxipago; index++) {
+  for (let index = 2; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
     totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
+    if (totalAmount >= settingsMaxipagoCredit.minInstallmentsMaxipago) {
 
-    options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+      options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+    }
   }
 
 
@@ -153,7 +133,6 @@ const ContentMaxipagoCredit = (props) => {
     translationsMaxipagoCredit, // Adicione translationsMaxipagoCredit como dependência
   ]);
 
-  // TODO Adicionar campos de CPF e Bairro
   return (
     <>
       <wcComponents.TextInput
@@ -164,27 +143,29 @@ const ContentMaxipagoCredit = (props) => {
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
         }}
       />
-
-      <div class="wc-block-components-text-input is-active">
-        <div className="select-wrapper">
-          <label htmlFor="maxipago_credit_installments" id="select-label">{translationsMaxipagoCredit.installments}</label>
-          <select
-            id="maxipago_credit_installments"
-            value={creditObject.maxipago_credit_installments}
-            onChange={(event) => {
-              updateCreditObject('maxipago_credit_installments', event.target.value)
-            }}
-            className="wc-blocks-select" // Adicione uma classe personalizada ao select
-          >
-            {/* Mapeie sobre as opções para renderizá-las */}
-            {options.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+      
+      {options.length > 1 && (
+        <div class="wc-block-components-text-input is-active">
+          <div className="select-wrapper">
+            <label htmlFor="maxipago_credit_installments" id="select-label">{translationsMaxipagoCredit.installments}</label>
+            <select
+              id="maxipago_credit_installments"
+              value={creditObject.maxipago_credit_installments}
+              onChange={(event) => {
+                updateCreditObject('maxipago_credit_installments', event.target.value)
+              }}
+              className="wc-blocks-select" // Adicione uma classe personalizada ao select
+            >
+              {/* Mapeie sobre as opções para renderizá-las */}
+              {options.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
       <wcComponents.TextInput
         id="maxipago_credit_expiry"

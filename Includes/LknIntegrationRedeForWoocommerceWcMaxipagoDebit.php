@@ -130,7 +130,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
 
     public function process_payment($order_id) {
-        //TODO corrigir nonce nos dois checkout
         if(!wp_verify_nonce($_POST['maxipago_debit_nonce'], 'maxipago_debit_nonce')){
 			return array(
 				'result'   => 'fail',
@@ -293,7 +292,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
-                    $order->update_status( 'completed' );
+                    $order->payment_complete();
                     
                 }
                 if($xml_decode['responseMessage']  == "INVALID REQUEST"){

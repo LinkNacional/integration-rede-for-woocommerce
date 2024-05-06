@@ -262,7 +262,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function process_payment( $order_id ) {
-		
 		if(!wp_verify_nonce($_POST['rede_card_nonce'], 'redeCardNonce')){
 			return array(
 				'result'   => 'fail',

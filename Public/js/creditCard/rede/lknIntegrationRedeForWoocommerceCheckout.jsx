@@ -3,12 +3,10 @@ const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit
 // Obtendo o nonce da variável global
 const nonceRedeCredit = settingsRedeCredit.nonceRedeCredit;
 const translationsRedeCredit = settingsRedeCredit.translations
-
 const ContentRedeCredit = (props) => {
   // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
+  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML //FIXME corrigir quando é o metodo padrão, o innerHTML fica undefined em todos métodos
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
-
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -22,13 +20,14 @@ const ContentRedeCredit = (props) => {
 
   let options = [{ key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }];
 
-  for (let index = 2; index <= labelRedeCredit.installments_maxipago; index++) {
+  for (let index = 2; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
     totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
-
-    options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+    if (totalAmount >= settingsRedeCredit.minInstallmentsRede) {
+      options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+    }
   }
 
   const formatCreditCardNumber = value => {
@@ -126,26 +125,28 @@ const ContentRedeCredit = (props) => {
         }}
       />
 
-      <div class="wc-block-components-text-input is-active">
-        <div className="select-wrapper">
-          <label htmlFor="rede_credit_installments" id="select-label">{translationsRedeCredit.installments}</label>
-          <select
-            id="rede_credit_installments"
-            value={creditObject.rede_credit_installments}
-            onChange={(event) => {
-              updateCreditObject('rede_credit_installments', event.target.value)
-            }}
-            className="wc-blocks-select" // Adicione uma classe personalizada ao select
-          >
-            {/* Mapeie sobre as opções para renderizá-las */}
-            {options.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+      {options.length > 1 && (
+        <div class="wc-block-components-text-input is-active">
+          <div className="select-wrapper">
+            <label htmlFor="rede_credit_installments" id="select-label">{translationsRedeCredit.installments}</label>
+            <select
+              id="rede_credit_installments"
+              value={creditObject.rede_credit_installments}
+              onChange={(event) => {
+                updateCreditObject('rede_credit_installments', event.target.value)
+              }}
+              className="wc-blocks-select" // Adicione uma classe personalizada ao select
+            >
+              {/* Mapeie sobre as opções para renderizá-las */}
+              {options.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
       <wcComponents.TextInput
         id="rede_credit_expiry"

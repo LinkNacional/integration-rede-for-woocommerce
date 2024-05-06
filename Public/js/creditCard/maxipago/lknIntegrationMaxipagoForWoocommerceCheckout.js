@@ -1,27 +1,5 @@
 const settingsMaxipagoCredit = window.wc.wcSettings.getSetting('maxipago_credit_data', {});
 const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoCredit.title);
-
-//TODO Adicionar campo de endereço manualmente aos campos de endereço
-/* setTimeout(() => {
-  var addressFormWrapper = document.querySelector('.wc-block-components-address-form-wrapper');
-  
-  // Verifica se a div foi encontrada
-  if (addressFormWrapper) {
-    // Cria o novo componente NovoCampoTextInput
-    const novoCampo = <NovoCampoTextInput
-                        id="novo_input_id"
-                        label="Novo Label"
-                        value={valorDoNovoInput}
-                        onChange={(event) => {
-                          setValorDoNovoInput(event.target.value);
-                        }}
-                      />;
-    
-    // Renderiza o novo componente dentro da div addressFormWrapper
-    ReactDOM.render(novoCampo, addressFormWrapper);
-  }
-}, 500); */
-
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations;
@@ -50,15 +28,17 @@ const ContentMaxipagoCredit = props => {
     key: '1',
     label: `1x de R$ ${totalAmountString} (à vista)`
   }];
-  for (let index = 2; index <= settingsMaxipagoCredit.installmentsMaxipago; index++) {
+  for (let index = 2; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
     totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
-    options.push({
-      key: index,
-      label: `${index}x de R$ ${totalAmount}`
-    });
+    if (totalAmount >= settingsMaxipagoCredit.minInstallmentsMaxipago) {
+      options.push({
+        key: index,
+        label: `${index}x de R$ ${totalAmount}`
+      });
+    }
   }
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number;
@@ -147,7 +127,6 @@ const ContentMaxipagoCredit = props => {
     emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
 
-  // TODO Adicionar campos de CPF e Bairro
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_number",
     label: translationsMaxipagoCredit.cardNumber,
@@ -155,7 +134,7 @@ const ContentMaxipagoCredit = props => {
     onChange: value => {
       updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value));
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), options.length > 1 && /*#__PURE__*/React.createElement("div", {
     class: "wc-block-components-text-input is-active"
   }, /*#__PURE__*/React.createElement("div", {
     className: "select-wrapper"

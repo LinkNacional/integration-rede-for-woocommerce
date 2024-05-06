@@ -28,6 +28,8 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         
         // Carrega os valores dos campos de configuração
         $this->enabled = $this->get_option('enabled');
+        
+        $this->configs = $this->getConfigsMaxipagoCredit();
 
     }
 
@@ -51,6 +53,21 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                                  array_slice( $fields['billing'], $address_position + 2, NULL, true );
         }
         return $fields;
+    }
+
+    /**
+     * This function centralizes the data in one spot for ease mannagment
+     *
+     * @return array
+     */
+    public function getConfigsMaxipagoCredit() {
+        $configs = array();
+
+        $configs['basePath'] = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/logs/';
+        $configs['base'] = $configs['basePath'] . gmdate('d.m.Y-H.i.s') . '.maxipagoCredit.log';
+        $configs['debug'] = $this->get_option('debug');
+
+        return $configs;
     }
 
     public function initFormFields() {
@@ -116,6 +133,11 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 'desc_tip'    => true,
                 'required'    => true,
             ),
+            'min_parcels_value' => array(
+				'title'   => esc_attr__( 'Value of the smallest installment', 'integration-rede-for-woocommerce' ),
+				'type'    => 'text',
+				'default' => '0',
+			),
             'max_parcels_number' => array(
 				'title'   => esc_attr__( 'Max installments', 'integration-rede-for-woocommerce' ),
 				'type'    => 'select',
@@ -134,8 +156,20 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 					'10' => '10x',
 					'11' => '11x',
 					'12' => '12x',
-				),
+				),            
 			),
+            
+            'developers' => array(
+                'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
+                'type'  => 'title',
+            ),
+
+            'debug' => array(
+                'title'   => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
+                'type'    => 'checkbox',
+                'label'   => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
+                'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
+            )
         );
     }
 
@@ -153,7 +187,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
     public function getInstallments( $order_total = 0 ) {
 		$installments = [];
 		$defaults     = array(
-			'min_value'   => $this->min_parcels_value,
+			'min_value'   => $this->get_option( 'min_parcels_value' ),
 			'max_parcels' => $this->get_option( 'max_parcels_number' ),
 		);
 
@@ -179,7 +213,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 	}
 
     public function process_payment($order_id) {
-
         if(!wp_verify_nonce($_POST['maxipago_card_nonce'], 'maxipagoCardNonce')){
 			return array(
 				'result'   => 'fail',
@@ -306,14 +339,14 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                                     <chargeTotal>".$order->get_total()."</chargeTotal>
                                     <currencyCode>".$clientData['currency_code']."</currencyCode> 
                                     <creditInstallment>
-                                        <numberOfInstallments>".$cardData['card_installments']."</numberOfInstallments>
+                                        <numberOfInstallments>".$installments."</numberOfInstallments>
                                         <chargeInterest>N</chargeInterest>
                                     </creditInstallment>
                                 </payment>
                             </sale>
                         </order>
                     </transaction-request>";
-
+                
                 $args = array(
                     'body'        => $xmlData,
                     'headers'     => array(
@@ -323,7 +356,12 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 );
 
                 $response = wp_remote_post($apiUrl, $args);
-
+                
+                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
+                    'xmlData' => json_encode($xmlData),
+                    'response' => json_encode($response),
+                ), $this->configs);
+                
                 if (is_wp_error($response)) {
                     $error_message = $response->get_error_message();
                     echo "Ocorreu um erro: $error_message";

@@ -110,7 +110,6 @@ const ContentMaxipagoDebit = props => {
     emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoDebit // Adicione translations como dependência
   ]);
 
-  // TODO Adicionar campos de CPF e Bairro
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_debit_card_number",
     label: translationsMaxipagoDebit.cardNumber,

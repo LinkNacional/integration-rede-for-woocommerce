@@ -48,7 +48,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
 			'title' => $this->gateway->title,
 			'description' => $this->gateway->description,
 			'nonceMaxipagoCredit' => wp_create_nonce( 'maxipagoCardNonce' ),
-            'installmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'],
+            'minInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['min_parcels_value'],
+            'maxInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'],
             'translations' => [
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
                 'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),

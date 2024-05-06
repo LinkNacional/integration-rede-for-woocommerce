@@ -117,7 +117,6 @@ const ContentMaxipagoDebit = (props) => {
     translationsMaxipagoDebit, // Adicione translations como dependência
   ]);
 
-  // TODO Adicionar campos de CPF e Bairro
   return (
     <>
       <wcComponents.TextInput

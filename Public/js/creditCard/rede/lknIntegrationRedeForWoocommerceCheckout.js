@@ -5,7 +5,7 @@ const nonceRedeCredit = settingsRedeCredit.nonceRedeCredit;
 const translationsRedeCredit = settingsRedeCredit.translations;
 const ContentRedeCredit = props => {
   // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
+  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML; //FIXME corrigir quando é o metodo padrão, o innerHTML fica undefined em todos métodos
   totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'));
   const {
     eventRegistration,
@@ -26,15 +26,17 @@ const ContentRedeCredit = props => {
     key: '1',
     label: `1x de R$ ${totalAmountString} (à vista)`
   }];
-  for (let index = 2; index <= labelRedeCredit.installments_maxipago; index++) {
+  for (let index = 2; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
     totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
-    options.push({
-      key: index,
-      label: `${index}x de R$ ${totalAmount}`
-    });
+    if (totalAmount >= settingsRedeCredit.minInstallmentsRede) {
+      options.push({
+        key: index,
+        label: `${index}x de R$ ${totalAmount}`
+      });
+    }
   }
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.rede_credit_number;
@@ -120,7 +122,7 @@ const ContentRedeCredit = props => {
     onChange: value => {
       updateCreditObject('rede_credit_number', formatCreditCardNumber(value));
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), options.length > 1 && /*#__PURE__*/React.createElement("div", {
     class: "wc-block-components-text-input is-active"
   }, /*#__PURE__*/React.createElement("div", {
     className: "select-wrapper"

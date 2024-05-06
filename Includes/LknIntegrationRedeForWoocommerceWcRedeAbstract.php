@@ -12,6 +12,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 	public $auto_capture       = true;
 	public $min_parcels_value  = 0;
 	public $max_parcels_number = 12;
+	public $configs = [];
 
 	public function get_valid_value( $value ) {
 		return preg_replace( '/[^\d\.]+/', '', str_replace( ',', '.', $value ) );
