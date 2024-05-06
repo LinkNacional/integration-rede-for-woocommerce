@@ -1,7 +1,7 @@
 const settingsRedeCredit = window.wc.wcSettings.getSetting('rede_credit_data', {});
 const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit.title);
 // Obtendo o nonce da variável global
-const nonceRedeCredit = window.nonceRedeCredit;
+const nonceRedeCredit = settingsRedeCredit.nonceRedeCredit;
 const translationsRedeCredit = settingsRedeCredit.translations;
 const ContentRedeCredit = props => {
   // Atribui o valor total da compra e transforma para float
@@ -109,8 +109,8 @@ const ContentRedeCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeCredit // Adicione translationsRedeCredit como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeCredit // Adicione translationsRedeCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {

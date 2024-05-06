@@ -1,7 +1,7 @@
 const settingsRedeCredit = window.wc.wcSettings.getSetting('rede_credit_data', {})
 const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit.title)
 // Obtendo o nonce da variável global
-const nonceRedeCredit = window.nonceRedeCredit;
+const nonceRedeCredit = settingsRedeCredit.nonceRedeCredit;
 const translationsRedeCredit = settingsRedeCredit.translations
 
 const ContentRedeCredit = (props) => {
