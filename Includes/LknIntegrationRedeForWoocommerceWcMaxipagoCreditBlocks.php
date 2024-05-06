@@ -23,7 +23,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
 
         wp_register_script(
             'maxipago_credit-blocks-integration',
-            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/lknIntegrationMaxipagoForWoocommerceCheckout.js',
+            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',
             [
                 'wc-blocks-registry',
                 'wc-settings',

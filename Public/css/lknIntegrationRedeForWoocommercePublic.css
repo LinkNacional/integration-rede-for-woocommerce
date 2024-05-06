@@ -13,6 +13,7 @@
     color: var(--wc-subtext);
 }
 
+
 /* Estilos personalizados para o select */
 .wc-blocks-select {
     --wp--preset--font-size--normal: 16px;

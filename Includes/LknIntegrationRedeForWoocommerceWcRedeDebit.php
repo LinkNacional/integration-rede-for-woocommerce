@@ -168,7 +168,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 	public function checkoutScripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
-		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
 		
 		
 		if ( ! is_checkout() ) {
@@ -182,13 +182,13 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
 
-		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-rede-debit-style', $plugin_url . 'assets/css/style-rede-debit.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-rede-debit-js', $plugin_url . 'assets/js/woo-rede-debit.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-debit-js' ), '2.5.0', true );
+		wp_enqueue_script( 'wooRedeDebit-js', $plugin_url . 'Public/js/debitCard/rede/wooRedeDebit.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array( 'jquery', 'wooRedeDebit-js' ), '2.5.0', true );
 
-		wp_localize_script( 'woo-rede-debit-js', 'wooRede', [
+		wp_localize_script( 'wooRedeDebit-js', 'wooRede', [
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
 		]);
 	}
@@ -360,7 +360,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		}
 
 		$wc_get_template(
-			'debit-card/rede-payment-debit-form.php',
+			'debitCard/redePaymentDebitForm.php',
 			array(),
 			'woocommerce/rede/',
 			LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()

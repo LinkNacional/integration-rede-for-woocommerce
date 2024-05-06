@@ -23,7 +23,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
 
         wp_register_script(
             'rede_credit-blocks-integration',
-            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/lknIntegrationRedeForWoocommerceCheckout.js',
+            plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/rede/lknIntegrationRedeForWoocommerceCheckout.js',
             [
                 'wc-blocks-registry',
                 'wc-settings',

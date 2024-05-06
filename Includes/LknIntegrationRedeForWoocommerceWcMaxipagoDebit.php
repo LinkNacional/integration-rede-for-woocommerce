@@ -121,7 +121,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 
     protected function getCheckoutForm($order_total = 0) {
         wc_get_template(
-            'debit-card/maxipago-payment-debit-form.php',
+            'debitCard/maxipagoPaymentDebitForm.php',
             array(),
             'woocommerce/maxipago/',
             LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()
@@ -387,7 +387,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
     public function checkoutScripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
-		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
 		
 		
 		if ( ! is_checkout() ) {
@@ -401,11 +401,11 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
 
-		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-maxipago-debit-style', $plugin_url . 'assets/css/styleMaxipagoDebit.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-maxipago-debit-style', $plugin_url . 'Public/css/maxipago/styleMaxipagoDebit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-maxipago-debit-js', $plugin_url . 'assets/js/wooMaxipagoDebit.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-maxipago-debit-js' ), '2.5.0', true );
+		wp_enqueue_script( 'woo-maxipago-debit-js', $plugin_url . 'Public/js/debitCard/maxipago/wooMaxipagoDebit.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array( 'jquery', 'woo-maxipago-debit-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-maxipago-debit-js', 'wooMaxipago', [
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,

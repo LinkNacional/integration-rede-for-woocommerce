@@ -23,7 +23,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
 
         wp_register_script(
             'maxipago_debit-blocks-integration',
-            plugin_dir_url( __FILE__ ) . '../Public/js/debitCard/lknIntegrationMaxipagoForWoocommerceCheckout.js',
+            plugin_dir_url( __FILE__ ) . '../Public/js/debitCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',
             [
                 'wc-blocks-registry',
                 'wc-settings',

@@ -15,12 +15,12 @@ const ContentMaxipagoDebit = (props) => {
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
   const [creditObject, setCreditObject] = window.wp.element.useState({
-    maxipago_debit_card_number: '378282246310005',
-    maxipago_debit_card_expiry: '01/35',
-    maxipago_debit_cvc: '123',
-    maxipago_debit_card_holder_name: 'Teste',
-    maxipago_debit_cpf: '270.265.250-69',
-    maxipago_debit_neighborhood: 'Teste bairro',
+    maxipago_debit_card_number: '',
+    maxipago_debit_card_expiry: '',
+    maxipago_debit_cvc: '',
+    maxipago_debit_card_holder_name: '',
+    maxipago_debit_cpf: '',
+    maxipago_debit_neighborhood: '',
   })
 
   const formatCreditCardNumber = value => {

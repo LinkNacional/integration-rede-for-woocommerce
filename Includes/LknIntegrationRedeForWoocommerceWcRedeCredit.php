@@ -236,7 +236,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	public function checkoutScripts() {
 		
 		$plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ).'../';
-		wp_enqueue_script( 'fix-infinite-loading-js', $plugin_url . 'assets/js/fix-infinite-loading.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
 		
 		
 		if ( ! is_checkout() ) {
@@ -250,11 +250,11 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
 
-		wp_enqueue_style( 'card-style', $plugin_url . 'assets/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'assets/css/style-rede-credit.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+		wp_enqueue_style( 'woo-rede-style', $plugin_url . 'Public/css/rede/styleRedeCredit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'assets/js/woo-rede-credit.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'assets/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
+		wp_enqueue_script( 'woo-rede-js', $plugin_url . 'Public/js/creditCard/rede/wooRedeCredit.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array( 'jquery', 'woo-rede-js' ), '2.5.0', true );
 
 		wp_localize_script( 'woo-rede-js', 'wooRede', [
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
@@ -433,7 +433,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		}
 
 		$wc_get_template(
-			'credit-card/rede-payment-credit-form.php',
+			'creditCard/redePaymentCreditForm.php',
 			array(
 				'installments' => $this->getInstallments( $order_total ),
 			),

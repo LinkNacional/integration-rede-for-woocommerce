@@ -80,18 +80,6 @@ class LknIntegrationRedeForWoocommerceWcRede {
 		include_once dirname( __FILE__ ) . '/views/notices/html-notice-woocommerce-missing.php';
 	}
 
-	public function pluginActionLinks( $links ) {
-		$plugin_links = array();
-
-		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '>=' ) ) {
-			$plugin_links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=rede_credit' ) ) . '">Configurações</a>';
-		} else {
-			$plugin_links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_rede_credit' ) ) . '">Configurações</a>';
-		}
-
-		return array_merge( $plugin_links, $links );
-	}
-
 	public function updateRedeOrders() {
 		$orders = new WP_Query(
 			array(

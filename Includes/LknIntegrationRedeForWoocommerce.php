@@ -145,10 +145,8 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		
-		$this->loader->add_filter('pluginActionLinks_' . plugin_basename( __FILE__ ), $this->wc_rede_class, 'pluginActionLinks');
-		
-        $this->loader->add_action('wp_loaded', $this, 'lkn_integration_rede_for_woocommerce_updater');
-		
+		$this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
+	
 		if ( ! $this->wc_rede_credit_class->auto_capture ) {
 			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'processCapture');
 		}
@@ -276,11 +274,14 @@ class LknIntegrationRedeForWoocommerce
 		return $this->version;
 	}
 
-	public function lkn_integration_rede_for_woocommerce_updater() {
-        return new Lkn_Puc_Plugin_UpdateChecker(
-            'https://api.linknacional.com.br/v2/u/?slug=woo-rede',
-            INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE,//(caso o plugin não precise de compatibilidade com ioncube utilize: __FILE__), //Full path to the main plugin file or functions.php.
-            'woo-rede'
+    public function addSettings($plugin_meta) {
+        $new_meta_links['setting'] = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            admin_url('admin.php?page=wc-settings&tab=checkout'),
+            'Configurações'
         );
+		
+        return array_merge($plugin_meta, $new_meta_links);
     }
+
 }

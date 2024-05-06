@@ -324,43 +324,43 @@ msgstr "Número de Referência"
 msgid "Please enter a valid cpf number"
 msgstr "Por favor, insira um número de cpf válido"
 
-#: templates/credit-card/rede-payment-credit-form.php:8
+#: templates/credit-card/redePaymentCreditForm.php:8
 msgid "Pay for your purchase with a credit card through "
 msgstr "Pague sua compra com cartão de crédito através da "
 
-#: templates/credit-card/rede-payment-debit-form.php:8
+#: templates/credit-card/redePaymentDebitForm.php:8
 msgid "Pay for your purchase with a debit card through "
 msgstr "Pague sua compra com cartão de débito através da "
 
-#: templates/credit-card/rede-payment-credit-form.php:22
+#: templates/credit-card/redePaymentCreditForm.php:22
 msgid "Card Number"
 msgstr "Número do cartão"
 
-#: templates/credit-card/rede-payment-credit-form.php:46
+#: templates/credit-card/redePaymentCreditForm.php:46
 msgid "Installments "
 msgstr "Parcelas "
 
-#: templates/credit-card/rede-payment-credit-form.php:61
+#: templates/credit-card/redePaymentCreditForm.php:61
 msgid "Name on Card"
 msgstr "Nome impresso no cartão"
 
-#: templates/credit-card/rede-payment-credit-form.php:93
+#: templates/credit-card/redePaymentCreditForm.php:93
 msgid "Name"
 msgstr "Nome"
 
-#: templates/credit-card/rede-payment-credit-form.php:79
+#: templates/credit-card/redePaymentCreditForm.php:79
 msgid "Card Expiring Date"
 msgstr "Validade do cartão"
 
-#: templates/credit-card/rede-payment-credit-form.php:86
+#: templates/credit-card/redePaymentCreditForm.php:86
 msgid "MM / YEAR"
 msgstr "MÊS / ANO"
 
-#: templates/credit-card/rede-payment-credit-form.php:102
+#: templates/credit-card/redePaymentCreditForm.php:102
 msgid "CVC"
 msgstr "CVC"
 
-#: templates/credit-card/rede-payment-credit-form.php:108
+#: templates/credit-card/redePaymentCreditForm.php:108
 msgid "Security Code"
 msgstr "Código de segurança"
 
