@@ -47,9 +47,21 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			$this->log = $this->get_logger();
 		}
 		
+		$this->configs = $this->getConfigsRedeCredit();
+		
 		$this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
 	}
 
+	public function getConfigsRedeCredit() {
+        $configs = array();
+
+        $configs['basePath'] = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/logs/';
+        $configs['base'] = $configs['basePath'] . gmdate('d.m.Y-H.i.s') . '.RedeCredit.log';
+        $configs['debug'] = $this->get_option('debug');
+
+        return $configs;
+    }
+	
 	public function displayMeta( $order ) {
 		if ( $order->get_payment_method() === 'rede_credit' ) {
 			$metaKeys = array(
@@ -74,7 +86,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 	
 
-	public function initFormFields() {
+	public function initFormFields() { //TODO Remover tudo sobre auto_capture para deixar o pagamento sempre capture true, essa será uma função PRO
 		$this->form_fields = array(
 			'enabled' => array(
 				'title'   => esc_attr__( 'Enable/Disable', 'integration-rede-for-woocommerce' ),
@@ -127,9 +139,9 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			),
 
 			'auto_capture' => array(
-				'title'   => esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ),
-				'type'    => 'select',
-				'class'   => 'wc-enhanced-select',
+				'title'   => ''/* esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ) */,
+				'type'    => 'hidden',
+				'class'   => 'wc-enhanced-hidden',
 				'default' => '2',
 				'options' => array(
 					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
@@ -296,8 +308,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'card_cvv'              => sanitize_text_field( $_POST['rede_credit_cvc'] ),
 				'card_holder'           => sanitize_text_field( $_POST['rede_credit_holder_name'] ),
 			);
-	
 			try {
+				
 
 				if ( $valid ) {
 					$valid = $this->validate_card_number( $cardNumber );
@@ -311,10 +323,11 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 					$valid = $this->validate_installments( $_POST, $order->get_total() );
 				}
 
-				$order_id    = $order->get_id();
+
+				$orderId    = $order->get_id();
 				$amount      = $order->get_total();
 				
-				$transaction = $this->api->doTransactionCreditRequest( $order_id + time(), $amount, $installments, $cardData );
+				$transaction = $this->api->doTransactionCreditRequest( $orderId + time(), $amount, $installments, $cardData );
 				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
 				$order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
@@ -326,28 +339,39 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				$order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
 				$order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
 				$order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
-	
+				$order->update_meta_data( '_wc_rede_captured', $transaction->getCapture() );
+				
 				$authorization = $transaction->getAuthorization();
-	
+				
 				if ( ! is_null( $authorization ) ) {
 					$order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
 				}
-	
+				
 				$order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
 				$order->update_meta_data( '_wc_rede_transaction_expiration', sprintf( '%02d/%d', $expiration[0], intval($expiration[1]) ) );
-	
+				
 				$order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
-	
+				
 				$authorization = $transaction->getAuthorization();
-	
+				
 				if ( ! is_null( $authorization ) ) {
 					$order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
 				}
-								
+				
 				$order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
 				
 				$this->process_order_status( $order, $transaction, '' );
+				
 				$order->save();
+
+				LknIntegrationRedeForWoocommerceHelper::reg_log(array(
+					'transaction' => $transaction,
+					'order' => [
+								'orderId' => $orderId,
+								'amount' => $amount,
+								'status' => $order->get_status()
+							],
+                ), $this->configs);
 			} catch ( Exception $e ) {
 				$this->add_error( $e->getMessage() );
 				$valid = false;
@@ -398,20 +422,17 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 
 	public function processCapture( $order_id ) {
+		
 		$order = new WC_Order( $order_id );
 
 		if ( ! $order || ! $order->get_transaction_id() ) {
 			return false;
 		}
+		add_option('_wc_rede_captured add teste', json_encode($order->get_meta( '_wc_rede_captured' )));
 
-		if ( empty( $order->get_meta( '_wc_rede_captured' ) ) ) {
-			$tid    = $order->get_transaction_id();
-			$amount = $order->get_total();
+		if (  $order->get_meta( '_wc_rede_captured' ) == "true" ) {
 
 			try {
-				$transaction = $this->api->do_transaction_capture( $tid, $amount );
-
-				update_post_meta( $order_id, '_wc_rede_transaction_nsu', $transaction->getNsu() );
 				update_post_meta( $order_id, '_wc_rede_captured', true );
 
 				$order->add_order_note( esc_attr_e( 'Captured', 'integration-rede-for-woocommerce' ) );

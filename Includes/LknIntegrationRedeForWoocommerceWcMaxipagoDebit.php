@@ -28,6 +28,8 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
         
         // Carrega os valores dos campos de configuração
         $this->enabled = $this->get_option('enabled');
+        $this->configs = $this->getConfigsMaxipagoDebit();
+
 
     }
 
@@ -51,6 +53,21 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                                  array_slice( $fields['billing'], $address_position + 2, NULL, true );
         }
         return $fields;
+    }
+
+    /**
+     * This function centralizes the data in one spot for ease mannagment
+     *
+     * @return array
+     */
+    public function getConfigsMaxipagoDebit() {
+        $configs = array();
+
+        $configs['basePath'] = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/logs/';
+        $configs['base'] = $configs['basePath'] . gmdate('d.m.Y-H.i.s') . '.maxipagoDebit.log';
+        $configs['debug'] = $this->get_option('debug');
+
+        return $configs;
     }
 
     public function initFormFields() {
@@ -115,6 +132,18 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                 'default'     => '',
                 'desc_tip'    => true,
                 'required'    => true,
+            ),
+            
+            'developers' => array(
+                'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
+                'type'  => 'title',
+            ),
+
+            'debug' => array(
+                'title'   => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
+                'type'    => 'checkbox',
+                'label'   => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
+                'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             )
         );
     }
@@ -129,7 +158,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
     }
 
 
-    public function process_payment($order_id) {
+    public function process_payment($orderId) {
         if(!wp_verify_nonce($_POST['maxipago_debit_nonce'], 'maxipago_debit_nonce')){
 			return array(
 				'result'   => 'fail',
@@ -137,7 +166,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
 			);
 		}
 
-		$order       = wc_get_order( $order_id );
+		$order       = wc_get_order( $orderId );
 
         $woocommerceCountry = get_option('woocommerce_default_country');
         // Extraindo somente o país da string
@@ -292,9 +321,20 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrationRede
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
-                    $order->update_status( 'completed' );
+                    $order->update_status('processing');
                     
                 }
+
+                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
+					'transaction' => $xml,
+                    'order' => [
+                        'orderId' => $orderId,
+                        'amount' => $order->get_total(),
+                        'status' => $order->get_status()
+                    ],
+					
+                ), $this->configs);
+                
                 if($xml_decode['responseMessage']  == "INVALID REQUEST"){
                     throw new Exception($xml_decode['errorMessage']);             
                     

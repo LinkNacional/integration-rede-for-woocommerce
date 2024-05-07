@@ -16,13 +16,15 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
      *
      * @return void
      */
-    final public static function reg_log($log, $configs): void { //TODO verificar o porque da função não criar os arquivos logs
-        if ($configs['debug']) {            
-
+    final public static function reg_log($log, $configs): void {
+        if ($configs['debug'] == 'yes') {
+            $logDirectory = dirname($configs['base']);
+            if (!file_exists($logDirectory)) {
+                mkdir($logDirectory, 0777, true);
+            }    
             $jsonLog = json_encode($log, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
             error_log($jsonLog, 3, $configs['base']);
             chmod($configs['base'], 0666);
-
         }
     }
 

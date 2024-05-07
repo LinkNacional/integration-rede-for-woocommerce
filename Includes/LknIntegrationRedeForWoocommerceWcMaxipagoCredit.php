@@ -216,7 +216,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 		return $installments;
 	}
 
-    public function process_payment($order_id) {
+    public function process_payment($orderId) {
         if(!wp_verify_nonce($_POST['maxipago_card_nonce'], 'maxipagoCardNonce')){
 			return array(
 				'result'   => 'fail',
@@ -224,7 +224,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 			);
 		}
 
-		$order       = wc_get_order( $order_id );
+		$order       = wc_get_order( $orderId );
 
         $woocommerceCountry = get_option('woocommerce_default_country');
         // Extraindo somente o país da string
@@ -359,11 +359,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 );
 
                 $response = wp_remote_post($apiUrl, $args);
-                
-                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'TesteLog' => 'teste',
-                ), $this->configs);
-                
+
                 if (is_wp_error($response)) {
                     $error_message = $response->get_error_message();
                     echo "Ocorreu um erro: $error_message";
@@ -389,9 +385,20 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
-                    $order->update_status( 'completed' );
+                    $order->update_status('processing');
                     
                 }
+
+                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
+					'transaction' => $xml,
+                    'order' => [
+                        'orderId' => $orderId,
+                        'amount' => $order->get_total(),
+                        'status' => $order->get_status()
+                    ],
+					
+                ), $this->configs);
+                
                 if($xml_decode['responseMessage']  == "INVALID REQUEST"){
                     throw new Exception($xml_decode['errorMessage']);             
                     
@@ -403,6 +410,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
 
                 $order->save();
+
 			} catch ( Exception $e ) {
 				$this->add_error( $e->getMessage() );
 				$valid = false;

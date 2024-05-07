@@ -48,6 +48,8 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		}
 		
 		$this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
+        $this->configs = $this->getConfigsRedeDebit();
+
 	}
 
 	public function displayMeta( $order ) {
@@ -71,6 +73,21 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		
 		}
 	}
+
+	/**
+     * This function centralizes the data in one spot for ease mannagment
+     *
+     * @return array
+     */
+    public function getConfigsRedeDebit() {
+        $configs = array();
+
+        $configs['basePath'] = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/logs/';
+        $configs['base'] = $configs['basePath'] . gmdate('d.m.Y-H.i.s') . '.RedeDebit.log';
+        $configs['debug'] = $this->get_option('debug');
+
+        return $configs;
+    }
 	
 
 	public function initFormFields() {
@@ -238,10 +255,10 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 					$valid = $this->validate_card_fields( $_POST );
 				}
 
-				$order_id    = $order->get_id();
+				$orderId    = $order->get_id();
 				$amount      = $order->get_total();
 				
-				$transaction = $this->api->doTransactionDebitRequest( $order_id + time(), $amount, $cardData );
+				$transaction = $this->api->doTransactionDebitRequest( $orderId + time(), $amount, $cardData );
 				
 				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
@@ -274,7 +291,17 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 				$order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
 				
 				$this->process_order_status( $order, $transaction, '' );
+				
 				$order->save();
+
+				LknIntegrationRedeForWoocommerceHelper::reg_log(array(
+					'transaction' => $transaction,
+					'order' => [
+								'orderId' => $orderId,
+								'amount' => $amount,
+								'status' => $order->get_status()
+							],
+                ), $this->configs);
 			} catch ( Exception $e ) {
 				$this->add_error( $e->getMessage() );
 				$valid = false;
