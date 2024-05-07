@@ -43,6 +43,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     }
 
     public function get_payment_method_data() {
+        $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
         
 		return [
 			'title' => $this->gateway->title,
@@ -50,6 +51,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
 			'nonceMaxipagoCredit' => wp_create_nonce( 'maxipagoCardNonce' ),
             'minInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['min_parcels_value'],
             'maxInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'],
+            'cartTotal' => $cart_total,
             'translations' => [
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
                 'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),

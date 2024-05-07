@@ -208,7 +208,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	public function getInstallments( $order_total = 0 ) {
 		$installments = [];
 		$defaults     = array(
-			'min_value'   => $this->min_parcels_value,
+			'min_value'   => str_replace(',', '.', $this->min_parcels_value),
 			'max_parcels' => $this->max_parcels_number,
 		);
 
@@ -313,6 +313,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 				$order_id    = $order->get_id();
 				$amount      = $order->get_total();
+				
 				$transaction = $this->api->doTransactionCreditRequest( $order_id + time(), $amount, $installments, $cardData );
 				$order->update_meta_data( '_transaction_id', $transaction->getTid() );
 				$order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );

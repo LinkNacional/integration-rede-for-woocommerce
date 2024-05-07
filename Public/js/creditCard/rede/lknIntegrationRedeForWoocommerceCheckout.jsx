@@ -3,10 +3,10 @@ const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit
 // Obtendo o nonce da variável global
 const nonceRedeCredit = settingsRedeCredit.nonceRedeCredit;
 const translationsRedeCredit = settingsRedeCredit.translations
+const minInstallmentsRede = settingsRedeCredit.minInstallmentsRede.replace(',', '.');
 const ContentRedeCredit = (props) => {
-  // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML //FIXME corrigir quando é o metodo padrão, o innerHTML fica undefined em todos métodos
-  totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
+  totalAmountFloat = settingsRedeCredit.cartTotal
+
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -18,15 +18,17 @@ const ContentRedeCredit = (props) => {
     rede_credit_holder_name: '',
   })
 
-  let options = [{ key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }];
+  let options = [];
 
-  for (let index = 2; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
-    totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    if (totalAmount >= settingsRedeCredit.minInstallmentsRede) {
-      options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+  for (let index = 1; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
+    totalInstallment = totalAmountFloat / index
+
+    if (totalInstallment >= minInstallmentsRede) {
+      totalAmountString = totalInstallment.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
     }
   }
 

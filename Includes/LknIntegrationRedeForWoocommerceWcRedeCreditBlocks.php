@@ -43,12 +43,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
     }
 
     public function get_payment_method_data() {
+        $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
+
         return [
 			'title' => $this->gateway->title,
 			'description' => $this->gateway->description,
 			'nonceRedeCredit' => wp_create_nonce( 'redeCardNonce' ),
             'minInstallmentsRede' => get_option('woocommerce_rede_credit_settings')['min_parcels_value'],
             'maxInstallmentsRede' => get_option('woocommerce_rede_credit_settings')['max_parcels_number'],
+            'cartTotal' => $cart_total,
             'translations' => [
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
                 'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),

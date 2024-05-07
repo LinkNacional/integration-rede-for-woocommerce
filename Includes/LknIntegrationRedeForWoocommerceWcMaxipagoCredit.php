@@ -133,6 +133,10 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 'desc_tip'    => true,
                 'required'    => true,
             ),
+            'credit_options' => array(
+				'title' => esc_attr__( 'Credit Card Settings', 'integration-rede-for-woocommerce' ),
+				'type'  => 'title',
+			),
             'min_parcels_value' => array(
 				'title'   => esc_attr__( 'Value of the smallest installment', 'integration-rede-for-woocommerce' ),
 				'type'    => 'text',
@@ -187,10 +191,10 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
     public function getInstallments( $order_total = 0 ) {
 		$installments = [];
 		$defaults     = array(
-			'min_value'   => $this->get_option( 'min_parcels_value' ),
+			'min_value'   => str_replace(',', '.', $this->get_option( 'min_parcels_value' )),
 			'max_parcels' => $this->get_option( 'max_parcels_number' ),
 		);
-
+        
 		$installments_result = wp_parse_args( apply_filters( 'integration_rede_installments', $defaults ), $defaults );
 
 		$min_value   = (float) $installments_result['min_value'];
@@ -294,7 +298,6 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 if(!$this->validateCpf($clientData['billing_cpf'])){
                     throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
                 }
-
                 if($environment === 'production'){
                     $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
                     $processorID = '1';
@@ -358,8 +361,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 $response = wp_remote_post($apiUrl, $args);
                 
                 LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'xmlData' => json_encode($xmlData),
-                    'response' => json_encode($response),
+                    'TesteLog' => 'teste',
                 ), $this->configs);
                 
                 if (is_wp_error($response)) {

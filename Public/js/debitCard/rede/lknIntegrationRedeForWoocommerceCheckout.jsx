@@ -5,9 +5,6 @@ const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
 const translationsRedeDebit = settingsRedeDebit.translations
 
 const ContentRedeDebit = (props) => {
-  // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
-  totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
 
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration

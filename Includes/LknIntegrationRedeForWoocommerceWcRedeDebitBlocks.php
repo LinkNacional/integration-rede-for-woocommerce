@@ -41,12 +41,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
 
         return [ 'rede_debit-blocks-integration' ];       
     }
-
+    
     public function get_payment_method_data() {
+        $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
+        
 		return [
 			'title' => $this->gateway->title,
 			'description' => $this->gateway->description,
 			'nonceRedeDebit' => wp_create_nonce( 'redeCardNonce' ),
+            'cartTotal' => $cart_total,
             'translations' => [
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
                 'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),

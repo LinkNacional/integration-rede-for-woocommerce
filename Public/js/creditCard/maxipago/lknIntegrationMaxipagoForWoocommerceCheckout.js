@@ -3,10 +3,9 @@ const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipa
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations;
+const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
 const ContentMaxipagoCredit = props => {
-  // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML;
-  totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'));
+  totalAmountFloat = settingsMaxipagoCredit.cartTotal;
   const {
     eventRegistration,
     emitResponse
@@ -24,19 +23,17 @@ const ContentMaxipagoCredit = props => {
     maxipago_credit_cpf: '',
     maxipago_credit_neighborhood: ''
   });
-  let options = [{
-    key: '1',
-    label: `1x de R$ ${totalAmountString} (à vista)`
-  }];
-  for (let index = 2; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    if (totalAmount >= settingsMaxipagoCredit.minInstallmentsMaxipago) {
+  let options = [];
+  for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
+    totalInstallment = totalAmountFloat / index;
+    if (totalInstallment >= minInstallmentsMaxipago) {
+      totalAmountString = totalInstallment.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
       options.push({
         key: index,
-        label: `${index}x de R$ ${totalAmount}`
+        label: `${index}x de R$ ${totalAmountString}`
       });
     }
   }
@@ -123,8 +120,8 @@ const ContentMaxipagoCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {

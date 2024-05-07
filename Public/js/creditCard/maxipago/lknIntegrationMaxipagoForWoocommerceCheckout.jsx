@@ -3,11 +3,9 @@ const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipa
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations
-
+const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
 const ContentMaxipagoCredit = (props) => {
-  // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
-  totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
+  totalAmountFloat = settingsMaxipagoCredit.cartTotal
 
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
@@ -22,16 +20,17 @@ const ContentMaxipagoCredit = (props) => {
     maxipago_credit_neighborhood: '',
   })
 
-  let options = [{ key: '1', label: `1x de R$ ${totalAmountString} (à vista)` }];
+  let options = [];
 
-  for (let index = 2; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    totalAmount = (totalAmountFloat / index).toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    if (totalAmount >= settingsMaxipagoCredit.minInstallmentsMaxipago) {
+  for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
+    totalInstallment = totalAmountFloat / index
 
-      options.push({ key: index, label: `${index}x de R$ ${totalAmount}` })
+    if (totalInstallment >= minInstallmentsMaxipago) {
+      totalAmountString = totalInstallment.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
     }
   }
 
@@ -143,7 +142,7 @@ const ContentMaxipagoCredit = (props) => {
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
         }}
       />
-      
+
       {options.length > 1 && (
         <div class="wc-block-components-text-input is-active">
           <div className="select-wrapper">

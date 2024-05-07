@@ -7,10 +7,7 @@ const translationsMaxipagoDebit = settingsMaxipagoDebit.translations
 
 
 const ContentMaxipagoDebit = (props) => {
-  // Atribui o valor total da compra e transforma para float
-  totalAmountString = document.querySelectorAll('.wc-block-formatted-money-amount')[1].innerHTML
-  totalAmountFloat = parseFloat(totalAmountString.replace('R$ ', '').replace(',', '.'))
-
+  
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
