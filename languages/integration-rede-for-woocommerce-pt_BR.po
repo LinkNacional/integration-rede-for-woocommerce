@@ -300,9 +300,9 @@ msgstr "Número de parcelas inválido"
 msgid "Pay with the Maxipago Credit"
 msgstr "Pague com a Maxipago Crédito"
 
-#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:13
-msgid "Enables and configures payments with Maxipago Debit"
-msgstr "Ativa e configura pagamentos com Maxipago Débito"
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:12
+msgid "Description"
+msgstr "Descrição"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:13
 msgid "Enables and configures payments with Maxipago Credit"
@@ -312,13 +312,17 @@ msgstr "Ativa e configura pagamentos com Maxipago Crédito"
 msgid "Enables payment with Maxipago"
 msgstr "Permite pagamento com Maxipago"
 
-#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:12
-msgid "Pay with the Maxipago Debit"
-msgstr "Pague com a Maxipago Débito"
-
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "Merchant ID or Merchant Key is invalid!"
 msgstr "Merchant ID ou Merchant Key estão inválidos!"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:121
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:129
+msgid "Merchant Key"
+msgstr "Merchant Key"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "District"
@@ -335,6 +339,14 @@ msgstr "Número de Referência"
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:257
 msgid "Please enter a valid cpf number"
 msgstr "Por favor, insira um número de cpf válido"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:13
+msgid "Enables and configures payments with Maxipago Debit"
+msgstr "Ativa e configura pagamentos com Maxipago Débito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:12
+msgid "Pay with the Maxipago Debit"
+msgstr "Pague com a Maxipago Débito"
 
 #: templates/credit-card/redePaymentCreditForm.php:8
 msgid "Pay for your purchase with a credit card through "

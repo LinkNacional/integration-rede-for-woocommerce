@@ -9,13 +9,13 @@
 			'rede_debit',
 		]
 		if (adminPage && pluginPages.includes(adminPage)) {
-			let wcForm = document.getElementsByClassName('form-table')
+			let wcForm = document.getElementById('mainform')
 			//Pega sempre o ultimo form-table para mostraro link
-			wcForm = wcForm[wcForm.length - 1]
-			const noticeDiv = document.createElement('div')
-			noticeDiv.setAttribute('style', 'padding: 10px 5px;background-color: #fcf9e8;color: #646970;border: solid 1px lightgrey;border-left-color: #dba617;border-left-width: 4px;font-size: 14px;min-width: 625px;margin-top: 10px;')
 
-			noticeDiv.innerHTML = '| <a href="https://www.linknacional.com.br/wordpress/woocommerce/cielo/" target="_blank">Hospedagem WooCommerce grátis por 12 meses</a>'
+			const noticeDiv = document.createElement('div')
+			noticeDiv.setAttribute('style', 'background-color: #fcf9e8;color: #646970;border: solid 1px #d3d3d3;border-left: 4px #dba617 solid;font-size: 16px;margin-top: 10px;')
+
+			noticeDiv.innerHTML = '<a  href="https://cliente.linknacional.com.br/solicitar/wordpress-woo-gratis/" target="_blank" style="text-decoration:none; display: block;padding: 10px;">Parabéns! Você ganhou uma hospedagem WooCommerce grátis por 12 meses. Solicite agora!</a>'
 
 			wcForm.append(noticeDiv)
 		}
