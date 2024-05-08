@@ -60,7 +60,7 @@ class LknIntegrationRedeForWoocommerceWcRede {
 						'pv'                 => $options['pv'],
 
 						'soft_descriptor'    => $options['soft_descriptor'],
-						'auto_capture'       => 1 /* $options['authorization']*/, //TODO Função PRO
+						'auto_capture'       => 1,
 
 						'min_parcels_value'  => $options['smallest_installment'],
 						'max_parcels_number' => $options['installments'],

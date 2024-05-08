@@ -34,7 +34,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 
 		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
 
-		$this->auto_capture = 1 /* $this->get_option( 'auto_capture' ) */; //TODO Função PRO
+		$this->auto_capture = 1;
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
 		$this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -141,18 +141,6 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 				'title' => esc_attr__( 'Debit Card Settings', 'integration-rede-for-woocommerce' ),
 				'type'  => 'title',
 			),
-
-			/* 'auto_capture' => array(
-				'title'   => esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ),
-				'type'    => 'select',
-				'class'   => 'wc-enhanced-select',
-				'default' => '2',
-				'options' => array(
-					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
-					'0' => esc_attr__( 'Just authorize', 'integration-rede-for-woocommerce' ),
-				),
-			), */ //TODO Função PRO, porem débito sempre é capturado pela API
-
 			'partners' => array(
 				'title' => esc_attr__( 'Partner Settings', 'integration-rede-for-woocommerce' ),
 				'type'  => 'title',
@@ -343,34 +331,6 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 				$order->add_order_note( esc_attr_e( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
 			} catch ( Exception $e ) {
 				return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function processCapture( $order_id ) {
-		$order = new WC_Order( $order_id );
-
-		if ( ! $order || ! $order->get_transaction_id() ) {
-			return false;
-		}
-
-		if ( empty( $order->get_meta( '_wc_rede_captured' ) ) ) {
-			$tid    = $order->get_transaction_id();
-			$amount = $order->get_total();
-
-			try {
-				$transaction = $this->api->do_transaction_capture( $tid, $amount );
-
-				update_post_meta( $order_id, '_wc_rede_transaction_nsu', $transaction->getNsu() );
-				update_post_meta( $order_id, '_wc_rede_captured', true );
-
-				$order->add_order_note( esc_attr_e( 'Captured', 'integration-rede-for-woocommerce' ) );
-			} catch ( Exception $e ) {
-				return new WP_Error( 'rede_capture_error', sanitize_text_field( $e->getMessage() ) );
 			}
 
 			return true;

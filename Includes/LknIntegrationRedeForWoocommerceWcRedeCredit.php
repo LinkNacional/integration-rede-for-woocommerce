@@ -34,7 +34,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
 
-		$this->auto_capture = 1 /* $this->get_option( 'auto_capture' ) */; //TODO Função PRO
+		$this->auto_capture = 1;
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
 		$this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -86,7 +86,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 	}
 	
 
-	public function initFormFields() { //TODO Remover tudo sobre auto_capture para deixar o pagamento sempre capture true, essa será uma função PRO
+	public function initFormFields() {
 		$this->form_fields = array(
 			'enabled' => array(
 				'title'   => esc_attr__( 'Enable/Disable', 'integration-rede-for-woocommerce' ),
@@ -137,17 +137,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'title' => esc_attr__( 'Credit Card Settings', 'integration-rede-for-woocommerce' ),
 				'type'  => 'title',
 			),
-
-			/* 'auto_capture' => array(
-				'title'   => esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ),
-				'type'    => 'hidden',
-				'class'   => 'wc-enhanced-hidden',
-				'default' => '2',
-				'options' => array(
-					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
-					'0' => esc_attr__( 'Just authorize', 'integration-rede-for-woocommerce' ),
-				),
-			), */ //TODO Função PRO
 			'min_parcels_value' => array(
 				'title'   => esc_attr__( 'Value of the smallest installment', 'integration-rede-for-woocommerce' ),
 				'type'    => 'text',
@@ -413,31 +402,6 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				$order->add_order_note( esc_attr_e( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
 			} catch ( Exception $e ) {
 				return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function processCapture( $order_id ) {
-		
-		$order = new WC_Order( $order_id );
-
-		if ( ! $order || ! $order->get_transaction_id() ) {
-			return false;
-		}
-		add_option('_wc_rede_captured add teste', json_encode($order->get_meta( '_wc_rede_captured' )));
-
-		if (  $order->get_meta( '_wc_rede_captured' ) == "true" ) {
-
-			try {
-				update_post_meta( $order_id, '_wc_rede_captured', true );
-
-				$order->add_order_note( esc_attr_e( 'Captured', 'integration-rede-for-woocommerce' ) );
-			} catch ( Exception $e ) {
-				return new WP_Error( 'rede_capture_error', sanitize_text_field( $e->getMessage() ) );
 			}
 
 			return true;

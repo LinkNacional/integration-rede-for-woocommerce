@@ -146,13 +146,6 @@ class LknIntegrationRedeForWoocommerce
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		
 		$this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
-	
-		/* if ( ! $this->wc_rede_credit_class->auto_capture ) {
-			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'processCapture');
-		}
-		if ( ! $this->wc_rede_debit_class->auto_capture ) {
-			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_debit_class, 'processCapture');
-		} */ //TODO Função PRO
 		
 		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'processRefund');
 		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_credit_class, 'processRefund');
