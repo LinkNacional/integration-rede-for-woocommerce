@@ -362,14 +362,14 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
                 if (is_wp_error($response)) {
                     $error_message = $response->get_error_message();
-                    echo "Ocorreu um erro: $error_message";
+                    throw new Exception(esc_attr($error_message));
                 } else {
                     $response_body = wp_remote_retrieve_body($response);
                     $xml = simplexml_load_string($response_body);
                 }
                 
                 //Reconstruindo o $xml para facilitar o uso da variavel
-                $xml_encode = json_encode($xml);
+                $xml_encode = wp_json_encode($xml);
                 $xml_decode = json_decode($xml_encode, true);
                 
                 if($xml_decode['processorMessage'] == "APPROVED"){

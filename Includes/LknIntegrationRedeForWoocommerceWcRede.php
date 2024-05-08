@@ -77,6 +77,7 @@ class LknIntegrationRedeForWoocommerceWcRede {
 	}
 
 	public function woocommerceMissingNotice() {
+		deactivate_plugins( plugin_basename( INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE ) );
 		include_once dirname( __FILE__ ) . '/views/notices/html-notice-woocommerce-missing.php';
 	}
 

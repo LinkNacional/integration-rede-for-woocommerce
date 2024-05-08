@@ -96,11 +96,11 @@ class LknIntegrationRedeForWoocommerce
 	//Define os hooks somente quando woocommerce está ativo
 	public function define_hooks(){
 		$this->wc_rede_class = new LknIntegrationRedeForWoocommerceWcRede();			
-		$this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
-		$this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
-		$this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
-		$this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
 		if (class_exists('WC_Payment_Gateway')) {
+			$this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
+			$this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
+			$this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
+			$this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
 			$this->define_admin_hooks();
 			$this->define_public_hooks();
 		}else{

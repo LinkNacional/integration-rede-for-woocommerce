@@ -84,13 +84,12 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 	public function payment_fields() {
 		if ( $description = $this->get_description() ) {
-			echo wpautop( esc_html( wp_kses_post($description) ) );
+			echo wp_kses_post( wpautop( $description ) );
 		}
-
-		//wp_enqueue_script( 'wc-credit-card-form' );
-
+	
 		$this->getCheckoutForm( $this->get_order_total() );
 	}
+	
 
 	abstract protected function getCheckoutForm( $order_total = 0);
 
@@ -266,7 +265,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
 		if ( function_exists( 'wc_add_notice' ) ) {
 			$message = wp_kses( $message, array() );
-			throw new Exception( "{$title} {$message}" );
+			throw new Exception(wp_kses_post("{$title} {$message}"));
 		} else {
 			$woocommerce->add_error( $title . $message );
 		}
