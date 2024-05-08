@@ -1,114 +1,108 @@
-=== Plugin Name ===
-Contributors: marcosalexandre, linknacional
-Donate link: https://linknacional.com.br/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+=== Integration Rede for WooCommerce ===
+Contributors: linknacional
+Donate link: https://www.linknacional.com/wordpress/plugins/
+Tags: rede, e-rede, redecard, woocommerce
+Requires at least: 5.0
+Tested up to: 5.5.3
+Stable tag: 2.1.0
+Requires PHP: 7.2
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://opensource.org/licenses/MIT
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Rede API integration for WooCommerce
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Integrate Rede or Maxipago into your WooCommerce store and enable your customers to pay by credit or debit card
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
 
-A few notes about the sections above:
+O [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede) is part of the Rede Group, provides a secure and efficient payment gateway platform for businesses to accept major credit and debit cards in Brazil. With advanced security and fraud prevention, it ensures transaction safety and customer trust, offering seamless integration and support for businesses of all sizes.
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+**Dependencies**
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Integration Rede for WooCommerce installation.
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+**User instructions**
+
+1. Search the WordPress sidebar for 'Integration Rede for WooCommerce'.
+   
+2. In the WooCommerce options, navigate to 'Payments' and then proceed to the settings for 'Rede' or 'Maxipago' as your preferred choice.
+
+3. Configure the required credentials for your selected payment gateway, such as PV and Token for Rede or Merchant ID and Merchant Key for Maxipago.
+
+4. Save your settings.
+
+You have successfully configured Integration Rede for WooCommerce and enabled your customers to pay by credit or debit card.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+1. Look in the sidebar for the WordPress plugins area;
 
-e.g.
+2. In installed plugins look for the 'add new' option in the header;
 
-1. Upload `lkn-integration-rede-for-woocommerce.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+3. Click on the 'submit plugin' option in the page title and upload the integration-rede-for-woocommerce-master.zip plugin;
+
+4. Click on the 'install now' button and then activate the installed plugin;
+
+The Integration Rede for WooCommerce plugin is now live and working.
+
+== Usage ==
+
+= Payments Settings =
+
+1. After installing the plugin, access the WordPress admin dashboard and navigate to the WooCommerce settings.
+2. In the sidebar menu, click on "WooCommerce" and then on "Settings".
+3. In the "Payments" tab, you'll see a list of available payment methods.
+4. Locate "Rede" or "Maxipago" in the list of payment methods and go to settings.
+5. Enter the required configuration information for each payment method, such as PV and Token for Rede or or Merchant ID and Merchant Key for Maxipago.
+6. After configuring the payment methods, make sure to activate each one by toggling the switch.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= What is the license of the plugin? =
 
-An answer to that question.
+* This plugin is released under a GPL license.
 
-= What about foo bar? =
+= What do I need to use this plugin? =
 
-Answer to foo bar dilemma.
-
-== Screenshots ==
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+* Have installed the WooCommerce plugin.
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
+= 3.0.0 - 2024/05/08 =
 
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+- Refatoração completa do plugin para orientação a objetos
+- Adição de opção de débito para o método de pagamento Rede
+- Adição do Maxipago para os método de pagamento
+
+= 2.1.0 - 2020/12/05 =
+
+- Update compatibility information
+- Correction of the order id
+- Implementation of installment filter
+- Implementation of a filter to display the Network data on the order page only if this is the payment method used.
+- Improvements to the card layout on the checkout page.
+
+= 2.0.2 - 2020/05/23 =
+
+- Update compatibility information
+- Correction of the order id
+
+= 2.0.1 - 2020/05/04 =
+
+- Update compatibility information
+- Correction of the internationalization of error messages on the checkout page
+
+= 2.0.0 - 2019/11/02 =
+
+- Correction of the number of installments display
+- Year placeholder adjustment at card expiration
+- Plugin internationalization and translation for pt_BR
+- Inclusion of credit card banners icons
+- Expiration date now accepts 2 or 4 digits for year as well
+- Sanitize inputs fields
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+Corrected the display of the installments, changed the card validity field to accept 2 or 4 digits, made the internationalization and translation process for pt_BR, and implemented WordPress Coding Standards. Also added the icons of the card flags.

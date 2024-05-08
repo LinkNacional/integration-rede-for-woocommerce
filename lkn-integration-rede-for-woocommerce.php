@@ -14,11 +14,10 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Integration Rede for WooCommerce
- * Plugin URI:        https://https://github.com/marcos-alexandre82/integration-rede-for-woocommerce
  * Description:       Rede API integration for WooCommerce
  * Version:           1.0.0
  * Author:            Link Nacional
- * Author URI:        https://linknacional.com.br/
+ * Author URI:        https://linknacional.com.br/wordpress
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       integration-rede-for-woocommerce
