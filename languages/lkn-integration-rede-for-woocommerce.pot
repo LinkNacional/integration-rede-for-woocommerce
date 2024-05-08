@@ -10,7 +10,16 @@ msgstr ""
 msgid "Pay with the Maxipago Debit"
 msgstr ""
 
-msgid "Enables and configures payments with Rede"
+msgid "Enables and configures payments with Rede Credit"
+msgstr ""
+
+msgid "Enables and configures payments with Rede Debit"
+msgstr ""
+
+msgid "Enables and configures payments with Maxipago Credit"
+msgstr ""
+
+msgid "Enables and configures payments with Maxipago Debit"
 msgstr ""
 
 msgid "Rede"
@@ -62,6 +71,9 @@ msgid "Enable/Disable"
 msgstr ""
 
 msgid "Enables payment with Rede"
+msgstr ""
+
+msgid "Enables payment with Maxipago"
 msgstr ""
 
 msgid "Title"
@@ -269,4 +281,7 @@ msgid "MarcosAlexandre"
 msgstr ""
 
 msgid "https://marcosalexandre.dev/"
+msgstr ""
+
+msgid "Seller Company Name"
 msgstr ""

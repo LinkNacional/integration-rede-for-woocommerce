@@ -10,7 +10,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 
         $this->id                 = 'maxipago_credit';
         $this->method_title       = esc_attr__( 'Pay with the Maxipago Credit', 'integration-rede-for-woocommerce' );
-        $this->method_description = esc_attr__( 'Enables and configures payments with Maxipago', 'integration-rede-for-woocommerce' );
+        $this->method_description = esc_attr__( 'Enables and configures payments with Maxipago Credit', 'integration-rede-for-woocommerce' );
         $this->title              = 'Maxipago';
         $this->has_fields         = true;
 
@@ -75,7 +75,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
             'enabled'       => array(
                 'title'   => __('Enable/Disable', 'integration-rede-for-woocommerce'),
                 'type'    => 'checkbox',
-                'label'   => __('Enable Maxipago', 'integration-rede-for-woocommerce'),
+                'label'   => __('Enables payment with Maxipago', 'integration-rede-for-woocommerce'),
                 'default' => 'no'
             ),
             'title'         => array(

@@ -300,6 +300,18 @@ msgstr "Número de parcelas inválido"
 msgid "Pay with the Maxipago Credit"
 msgstr "Pague com a Maxipago Crédito"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:13
+msgid "Enables and configures payments with Maxipago Debit"
+msgstr "Ativa e configura pagamentos com Maxipago Débito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:13
+msgid "Enables and configures payments with Maxipago Credit"
+msgstr "Ativa e configura pagamentos com Maxipago Crédito"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:78
+msgid "Enables payment with Maxipago"
+msgstr "Permite pagamento com Maxipago"
+
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoDebit.php:12
 msgid "Pay with the Maxipago Debit"
 msgstr "Pague com a Maxipago Débito"

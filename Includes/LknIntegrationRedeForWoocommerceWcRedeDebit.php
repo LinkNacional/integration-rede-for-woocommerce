@@ -34,7 +34,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 
 		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
 
-		$this->auto_capture = $this->get_option( 'auto_capture' );
+		$this->auto_capture = 1 /* $this->get_option( 'auto_capture' ) */; //TODO Função PRO
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
 		$this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -142,7 +142,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 				'type'  => 'title',
 			),
 
-			'auto_capture' => array(
+			/* 'auto_capture' => array(
 				'title'   => esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ),
 				'type'    => 'select',
 				'class'   => 'wc-enhanced-select',
@@ -151,7 +151,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
 					'0' => esc_attr__( 'Just authorize', 'integration-rede-for-woocommerce' ),
 				),
-			),
+			), */ //TODO Função PRO, porem débito sempre é capturado pela API
 
 			'partners' => array(
 				'title' => esc_attr__( 'Partner Settings', 'integration-rede-for-woocommerce' ),

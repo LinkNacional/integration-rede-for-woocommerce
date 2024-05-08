@@ -34,7 +34,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 
 		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
 
-		$this->auto_capture = $this->get_option( 'auto_capture' );
+		$this->auto_capture = 1 /* $this->get_option( 'auto_capture' ) */; //TODO Função PRO
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
 		$this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -138,8 +138,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'type'  => 'title',
 			),
 
-			'auto_capture' => array(
-				'title'   => ''/* esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ) */,
+			/* 'auto_capture' => array(
+				'title'   => esc_attr__( 'Authorization and Capture', 'integration-rede-for-woocommerce' ),
 				'type'    => 'hidden',
 				'class'   => 'wc-enhanced-hidden',
 				'default' => '2',
@@ -147,7 +147,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 					'1' => esc_attr__( 'Authorize and capture automatically', 'integration-rede-for-woocommerce' ),
 					'0' => esc_attr__( 'Just authorize', 'integration-rede-for-woocommerce' ),
 				),
-			),
+			), */ //TODO Função PRO
 			'min_parcels_value' => array(
 				'title'   => esc_attr__( 'Value of the smallest installment', 'integration-rede-for-woocommerce' ),
 				'type'    => 'text',

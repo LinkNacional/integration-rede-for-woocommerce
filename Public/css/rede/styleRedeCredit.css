@@ -12,6 +12,10 @@
 	padding: 0 1rem;
 }
 
+.woocommerce-input-wrapper {
+	display: flex !important;
+}
+
 #rede-credit-payment-form .payment-method-description #logo-rede {
 	width: 60px;
 	margin-left: 10px;

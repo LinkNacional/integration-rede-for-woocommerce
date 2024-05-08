@@ -147,12 +147,12 @@ class LknIntegrationRedeForWoocommerce
 		
 		$this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
 	
-		if ( ! $this->wc_rede_credit_class->auto_capture ) {
+		/* if ( ! $this->wc_rede_credit_class->auto_capture ) {
 			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_credit_class, 'processCapture');
 		}
 		if ( ! $this->wc_rede_debit_class->auto_capture ) {
 			$this->loader->add_action('woocommerce_order_status_completed', $this->wc_rede_debit_class, 'processCapture');
-		}
+		} */ //TODO Função PRO
 		
 		$this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'processRefund');
 		$this->loader->add_action('woocommerce_order_status_refunded', $this->wc_rede_credit_class, 'processRefund');
@@ -205,9 +205,6 @@ class LknIntegrationRedeForWoocommerce
 		
 		$this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');		
 		$this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod' );
-
-		$LknIntegrationRedeForWoocommerceEndPoints = new LknIntegrationRedeForWoocommerceEndPoints;
-        $this->loader->add_action('rest_api_init', $LknIntegrationRedeForWoocommerceEndPoints, 'registerGetTransactionInstallment');
 
 	}
 
