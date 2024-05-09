@@ -29,13 +29,17 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
     }
 
     public static function getCartTotal() {
-        $cart_items = WC()->cart->get_cart();
-        $total = 0;
-        foreach ($cart_items as $cart_item_key => $cart_item) {
-            $product = $cart_item['data'];
-            $total += $product->get_price() * $cart_item['quantity'];
+        if (is_cart() || is_checkout()) {
+            $cart_items = WC()->cart->get_cart();
+            $total = 0;
+            foreach ($cart_items as $cart_item_key => $cart_item) {
+                $product = $cart_item['data'];
+                $total += $product->get_price() * $cart_item['quantity'];
+            }
+            return $total;
+        } else {
+            return 0;
         }
-        return $total;
     }
 
 }

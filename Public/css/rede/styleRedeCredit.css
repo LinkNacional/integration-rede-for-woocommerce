@@ -173,6 +173,10 @@ div.form-row {
 	display: flex;
 }
 
+.form-row.form-row-wide.rede-card {
+	width: 100%;
+}
+
 @media screen and (max-width: 700px) {
 	#doble-input-div {
 		flex-direction: column;
@@ -180,6 +184,10 @@ div.form-row {
 
 	div.form-row {
 		max-width: 100%;
+	}
+
+	.form-row.form-row-wide.rede-card {
+		width: 90%;
 	}
 
 }
