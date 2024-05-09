@@ -285,3 +285,6 @@ msgstr ""
 
 msgid "Seller Company Name"
 msgstr ""
+
+msgid "Payment"
+msgstr ""

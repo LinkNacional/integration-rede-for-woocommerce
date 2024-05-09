@@ -32,7 +32,7 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 		$this->pv = $this->get_option( 'pv' );
 		$this->token = $this->get_option( 'token' );
 
-		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
+		$this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
 
 		$this->auto_capture = 1;
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
@@ -134,7 +134,10 @@ class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForW
 			'soft_descriptor' => array(
 				'title'   => esc_attr__( 'Soft Descriptor', 'integration-rede-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => '',
+				'default' => esc_attr__( 'Payment', 'integration-rede-for-woocommerce' ),
+				'custom_attributes' => array(
+					'maxlength' => 20,
+				),
 			),
 
 			'debit_options' => array(

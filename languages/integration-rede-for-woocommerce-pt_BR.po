@@ -37,6 +37,10 @@ msgstr "Ativa e configura pagamentos com Rede Débito"
 msgid "Rede"
 msgstr "Rede"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:138
+msgid "Payment"
+msgstr "Pagamento"
+
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:128 Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:56
 msgid "Environment"
 msgstr "Ambiente"
