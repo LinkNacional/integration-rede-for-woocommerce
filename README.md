@@ -6,6 +6,7 @@ Plugin at WordPress marketplace
 https://wordpress.org/plugins/woo-rede/
 
 ## Dependencies
+
 Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Integration Rede for WooCommerce installation.
 
 ## Installation
@@ -29,3 +30,7 @@ Integration Rede for WooCommerce is now active and ready to use.
 3) Enter required configuration information such as PV and Token for Rede or Merchant ID and Merchant Key for Maxipago.
 
 4) Activate each payment method after configuration.
+
+## Development notes
+
+This version of the **Integration Rede for WooCommerce** plugin was developed without any encouragement from Rede. This means that none of the developers of this plugin have any bonds with the Rede and we count on your help to improve the code and operation of this plugin.
