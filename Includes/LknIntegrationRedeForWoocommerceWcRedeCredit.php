@@ -33,8 +33,8 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 		$this->token = $this->get_option( 'token' );
 
 		$this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));		
-
-		$this->auto_capture = 1;
+		
+		$this->auto_capture = $this->get_option( 'auto_capture' ) == 'yes' ? true : false;
 		$this->max_parcels_number = $this->get_option( 'max_parcels_number' );
 		$this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -118,12 +118,12 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			),
 			'pv' => array(
 				'title'   => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
-				'type'    => 'text',
+				'type'    => 'password',
 				'default' => '',
 			),
 			'token' => array(
 				'title'   => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
-				'type'    => 'text',
+				'type'    => 'password',
 				'default' => '',
 			),
 
@@ -193,6 +193,12 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 				'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
 			),
 		);
+
+		$customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->id);
+		
+        if ( ! empty($customConfigs)) {
+            $this->form_fields = array_merge($this->form_fields, $customConfigs);
+        }
 	}
 
 	public function get_installment_text( $quantity, $order_total ) {
