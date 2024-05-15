@@ -175,6 +175,15 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                 'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             )
         );
+
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', array(
+            'merchantId' => sanitize_text_field($this->get_option('merchant_id')),
+            'merchantKey' => sanitize_text_field($this->get_option('merchant_key'))
+        )); 
+		
+        if ( ! empty($customConfigs)) {
+            $this->form_fields = array_merge($this->form_fields, $customConfigs);
+        }
     }
 
     protected function getCheckoutForm($order_total = 0) {
@@ -234,6 +243,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
         $companyName = sanitize_text_field($this->get_option('company_name'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
+        $capture = sanitize_text_field($this->get_option('auto_capture')) == 'yes' ? 'sale' : 'auth';;
         $referenceNum = uniqid('order_', true);
 		$valid       = true;
         
@@ -313,7 +323,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                             <merchantKey>$merchantKey</merchantKey>
                         </verification>
                         <order>
-                            <sale>
+                            <$capture>
                                 <processorID>$processorID</processorID>
                                 <referenceNum>$referenceNum</referenceNum>
                                 <customerIdExt>".$clientData['billing_cpf']."</customerIdExt>
@@ -346,7 +356,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                                         <chargeInterest>N</chargeInterest>
                                     </creditInstallment>
                                 </payment>
-                            </sale>
+                            </$capture>
                         </order>
                     </transaction-request>";
                 
@@ -385,7 +395,14 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
-                    $order->update_status('processing');
+                    if($capture == 'sale'){
+                        $order->update_meta_data( '_wc_rede_captured', true );
+                        $order->update_status('processing');
+                    }
+                    if($capture == 'auth'){
+                        $order->update_meta_data( '_wc_rede_captured', false );
+                        $order->update_status('on-hold');
+                    }
                     
                 }
 
@@ -516,4 +533,12 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
 			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
 		]);
 	}
+
+    public function getMerchantAuth(){
+        return array(
+            'merchantId' => $this->get_option('merchant_id'),
+            'merchantKey' => $this->get_option('merchant_key'),
+            'environment' => $this->get_option('environment')
+        );
+    }
 }

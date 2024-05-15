@@ -64,11 +64,11 @@ window.jQuery(function ($) {
 
     // Workaround to maintain the card data rendered after checkout updates
     Object.values(inputSelectors).reverse().forEach(function (selector) {
-      $(selector)[0].dispatchEvent(new CustomEvent('change'))
+      $(selector)[0]?.dispatchEvent(new CustomEvent('change'))
     })
 
-    $(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('focus'))
-    $(inputSelectors.numberInput)[0].dispatchEvent(new CustomEvent('blur'))
+    $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
+    $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
 
   }
 })

@@ -194,7 +194,7 @@ class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeFor
 			),
 		);
 
-		$customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->id);
+		$customConfigs = apply_filters('integrationRedeGetCustomConfigs', '');
 		
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
