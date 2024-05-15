@@ -29,7 +29,7 @@ jobs:
 
     # Add plugin files to a root directory
     - name: Make plugin root directory
-      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public ./vendor *.txt *.php *.json &&  find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
+      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public *.txt *.php *.json && cp -r ./vendor ./${{env.DIR_NAME}}/vendor && find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
 
     # Compact plugin as .zip
     - name: Archive Release
