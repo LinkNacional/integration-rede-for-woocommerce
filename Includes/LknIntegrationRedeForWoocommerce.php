@@ -88,6 +88,7 @@ class LknIntegrationRedeForWoocommerce
 	}
 
 	public $wc_rede_class;
+	public $wc_rede_api_class;
 	public $wc_rede_credit_class;
 	public $wc_rede_debit_class;
 	public $wc_maxipago_credit_class;
@@ -101,6 +102,7 @@ class LknIntegrationRedeForWoocommerce
 			$this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
 			$this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
 			$this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
+			$this->wc_rede_api_class = $this->wc_rede_credit_class->api;		
 			$this->define_admin_hooks();
 			$this->define_public_hooks();
 		}else{
@@ -166,6 +168,7 @@ class LknIntegrationRedeForWoocommerce
 
 		$this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_debit_class->id, $this->wc_maxipago_debit_class, 'process_admin_options');
 		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_debit_class,'displayMeta', 10, 1);	
+		$this->loader->add_filter('lknRedeAPIOrderCapture',  $this->wc_rede_api_class, 'do_transaction_capture');
 		
 	}
 	
@@ -184,7 +187,6 @@ class LknIntegrationRedeForWoocommerce
 		$this->wc_rede_class->getInstance();
 		$this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'updateRedeOrders');
 		$this->loader->add_action('init', $this->wc_rede_class, 'loadPluginTextdomain');
-		$this->loader->add_action('woocommerce_order_status_on-hold_to_processing', $this->wc_rede_class, 'capture_payment');
 		$this->loader->add_filter('woocommerce_payment_gateways', $this->wc_rede_class, 'addGateway');
 		
 		$this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
