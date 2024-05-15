@@ -1,10 +1,10 @@
 === Integration Rede for WooCommerce ===
-Contributors: linknacional
+Contributors: linknacional,MarcosAlexandre
 Donate link: https://www.linknacional.com/wordpress/plugins/
-Tags: rede, e-rede, redecard, woocommerce
+Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
-Tested up to: 5.5.3
-Stable tag: 2.1.0
+Tested up to: 6.5
+Stable tag: 3.0.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -97,3 +97,12 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Inclusion of credit card banners icons;
 * Expiration date now accepts 2 or 4 digits for year as well;
 * Sanitize inputs fields.
+
+== Screenshots ==
+
+1. Nothing yet.
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+* Plugin launch.
