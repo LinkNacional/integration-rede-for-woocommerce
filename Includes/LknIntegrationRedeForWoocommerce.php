@@ -265,13 +265,13 @@ class LknIntegrationRedeForWoocommerce
 	}
 
     public function addSettings($plugin_meta) {
-        $new_meta_links['setting'] = sprintf(
+        $plugin_meta['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
             'Configurações'
         );
 		
-        return array_merge($plugin_meta, $new_meta_links);
+        return $plugin_meta;
     }
 
 }
