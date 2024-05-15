@@ -1,0 +1,290 @@
+msgid "Pay with the Rede Credit"
+msgstr ""
+
+msgid "Pay with the Rede Debit"
+msgstr ""
+
+msgid "Pay with the Maxipago Credit"
+msgstr ""
+
+msgid "Pay with the Maxipago Debit"
+msgstr ""
+
+msgid "Enables and configures payments with Rede Credit"
+msgstr ""
+
+msgid "Enables and configures payments with Rede Debit"
+msgstr ""
+
+msgid "Enables and configures payments with Maxipago Credit"
+msgstr ""
+
+msgid "Enables and configures payments with Maxipago Debit"
+msgstr ""
+
+msgid "Rede"
+msgstr ""
+
+msgid "Environment"
+msgstr "Ambiente"
+
+msgid "Return Code"
+msgstr ""
+
+msgid "Return Message"
+msgstr ""
+
+msgid "Transaction ID"
+msgstr ""
+
+msgid "Refund ID"
+msgstr ""
+
+msgid "Cancellation ID"
+msgstr ""
+
+msgid "Nsu"
+msgstr ""
+
+msgid "Authorization Code"
+msgstr ""
+
+msgid "Bin"
+msgstr ""
+
+msgid "Last 4"
+msgstr ""
+
+msgid "Installments"
+msgstr ""
+
+msgid "Cardholder"
+msgstr ""
+
+msgid "Card Expiration"
+msgstr ""
+
+msgid "Reference Number"
+msgstr ""
+
+msgid "Enable/Disable"
+msgstr ""
+
+msgid "Enables payment with Rede"
+msgstr ""
+
+msgid "Enables payment with Maxipago"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Pay with Rede"
+msgstr ""
+
+msgid "General configuration"
+msgstr ""
+
+msgid "Choose the environment"
+msgstr ""
+
+msgid "test"
+msgstr ""
+
+msgid "Tests"
+msgstr ""
+
+msgid "Production"
+msgstr ""
+
+msgid "PV"
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "Soft Descriptor"
+msgstr ""
+
+msgid "Credit Card Settings"
+msgstr ""
+
+msgid "Debit Card Settings"
+msgstr ""
+
+msgid "Authorization and Capture"
+msgstr ""
+
+msgid "Authorize and capture automatically"
+msgstr ""
+
+msgid "Just authorize"
+msgstr ""
+
+msgid "Value of the smallest installment"
+msgstr ""
+
+msgid "Max installments"
+msgstr ""
+
+msgid "Partner Settings"
+msgstr ""
+
+msgid "Module ID"
+msgstr ""
+
+msgid "Gateway ID"
+msgstr ""
+
+msgid "Developer Settings"
+msgstr ""
+
+msgid "Debug"
+msgstr ""
+
+msgid "Enable debug logs"
+msgstr ""
+
+msgid "no"
+msgstr ""
+
+msgid "Refunded:"
+msgstr ""
+
+msgid "Captured"
+msgstr ""
+
+msgid "Payment:"
+msgstr ""
+
+msgid "<strong>Autorization Code</strong>: %s"
+msgstr ""
+
+msgid "automatic check"
+msgstr ""
+
+msgid "on-hold"
+msgstr ""
+
+msgid "failed"
+msgstr ""
+
+msgid "cancelled"
+msgstr ""
+
+msgid "processing"
+msgstr ""
+
+msgid "completed"
+msgstr ""
+
+msgid "Your order is already being processed. For more information "
+msgstr ""
+
+msgid "see order details"
+msgstr ""
+
+msgid "For more details on your order, please visit "
+msgstr ""
+
+msgid "order details page"
+msgstr "página de detalhes do pedido"
+
+msgid "Please enter a valid credit card number"
+msgstr ""
+
+msgid "Please enter cardholder name"
+msgstr ""
+
+msgid "Cardholder name can only contain letters"
+msgstr ""
+
+msgid "Please enter card expiration date"
+msgstr ""
+
+msgid "Expiration date must contain 2 or 4 digits"
+msgstr ""
+
+msgid "Card expiration date must be future."
+msgstr ""
+
+msgid "Please enter card security code"
+msgstr ""
+
+msgid "Security code must contain only numbers"
+msgstr ""
+
+msgid "Please enter the number of installments"
+msgstr ""
+
+msgid "Invalid number of installments"
+msgstr ""
+
+msgid "Merchant ID or Merchant Key is invalid!"
+msgstr ""
+
+msgid "District"
+msgstr ""
+
+msgid "Pay for your purchase with a credit card through "
+msgstr ""
+
+msgid "Pay for your purchase with a debit card through "
+msgstr ""
+
+msgid "Card Number"
+msgstr ""
+
+msgid "Installments "
+msgstr ""
+
+msgid "Name on Card"
+msgstr ""
+
+msgid "Name on Card"
+msgstr "Name"
+
+msgid "Card Expiring Date"
+msgstr ""
+
+msgid "MM / YEAR"
+msgstr ""
+
+msgid "CVC"
+msgstr ""
+
+msgid "Security Code"
+msgstr ""
+
+msgid "Integration Rede for WooCommerce Disabled"
+msgstr ""
+
+msgid "This plugin depends on the last version of %s to work!"
+msgstr ""
+
+msgid "WooCommerce"
+msgstr ""
+
+msgid "Please fill in all fields correctly"
+msgstr ""
+
+msgid "Integration Rede for WooCommerce"
+msgstr ""
+
+msgid "Rede API integration for WooCommerce"
+msgstr ""
+
+msgid "https://github.com/marcos-alexandre82/integration-rede-for-woocommerce"
+msgstr ""
+
+msgid "MarcosAlexandre"
+msgstr ""
+
+msgid "https://marcosalexandre.dev/"
+msgstr ""
+
+msgid "Seller Company Name"
+msgstr ""
+
+msgid "Payment"
+msgstr ""

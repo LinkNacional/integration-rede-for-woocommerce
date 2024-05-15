@@ -1,0 +1,61 @@
+name: Generate new release for plugin
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ master ]
+
+env:
+  PLUGIN_NAME: lkn-integration-rede-for-woocommerce
+  DIR_NAME: woo-rede
+  PHP_VERSION: "7.4"
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run composer install
+      uses: php-actions/composer@v6
+      with:
+        php_version: ${{ env.PHP_VERSION }}
+        working_dir: "."
+        args: --ignore-platform-reqs
+        command: install
+        dev: no
+
+    # Add plugin files to a root directory
+    - name: Make plugin root directory
+      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public ./vendor *.txt *.php *.json &&  find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
+
+    # Compact plugin as .zip
+    - name: Archive Release
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: '${{ env.DIR_NAME }}'
+        directory: '.'
+        filename: '${{ env.DIR_NAME }}.zip'
+        exclusions: '*.git* /*node_modules/* .editorconfig'
+
+    # Update version tag
+    - name: Bump version and push tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        custom_tag: "3.0.0"
+
+    # Generate new release
+    - name: Generate new Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "${{ env.DIR_NAME }}.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit: "main"
+        draft: true
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        name: Release ${{ steps.tag_version.outputs.new_tag }}

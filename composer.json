@@ -1,0 +1,31 @@
+{
+    "name": "lkn/integration-rede-for-woocommerce",
+    "type": "project",
+    "license": "Proprietary",
+    "autoload": {
+        "psr-4": {
+            "Lkn\\IntegrationRedeForWoocommerce\\Includes\\": "Includes/",
+            "Lkn\\IntegrationRedeForWoocommerce\\Admin\\": "Admin/",
+            "Lkn\\IntegrationRedeForWoocommerce\\PublicView\\": "Public/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Link Nacional",
+            "email": "ticket@linknacional.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phan/phan": "5.4.1"
+    },
+    "require": {
+        "developersrede/erede-php": "4.2.1",
+        "monolog/monolog": "2.9.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
+}

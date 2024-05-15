@@ -1,0 +1,55 @@
+/* Estilos personalizados para o wrapper do select */
+.select-wrapper {
+    position: relative;
+    margin-bottom: var(--wp--preset--spacing--20);
+}
+
+/* Estilos para a label do select */
+.select-label {
+    position: absolute;
+    top: -1.5em;
+    left: 0;
+    font-size: 0.9rem;
+    color: var(--wc-subtext);
+}
+
+
+/* Estilos personalizados para o select */
+.wc-blocks-select {
+    --wp--preset--font-size--normal: 16px;
+    /* Defina o tamanho da fonte */
+    --wp--preset--spacing--20: min(1.5rem, 2vw);
+    /* Defina o espaçamento */
+    --wp--preset--color--contrast-2: #2B2D2F;
+    /* Defina a cor do texto */
+    --wp--preset--color--base: #f9f9f9;
+    /* Defina a cor de fundo */
+    --wp--preset--color--contrast: #111111;
+    /* Defina a cor do contorno */
+    --wp--preset--border-width--focus: 1px;
+    /* Defina a largura da borda em foco */
+
+    white-space: nowrap;
+    background-color: var(--wp--preset--color--base);
+    border: var(--wp--preset--border-width--focus) solid #414141;
+    /* Largura de 1px e cor #414141 */
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: var(--wp--preset--color--contrast-2);
+    font-size: var(--wp--preset--font-size--normal);
+    line-height: 1em;
+    margin: 0;
+    min-height: 0;
+    width: 100%;
+    padding: var(--wp--preset--spacing--20) 0.3em 0.5em;
+    height: 3.5rem;
+    padding-top: 1.5rem;
+}
+
+/* Estilos para as opções dentro do select */
+.wc-blocks-select option {
+    padding: var(--wp--preset--spacing--20);
+    font-size: var(--wp--preset--font-size--normal);
+    background-color: var(--wp--preset--color--base);
+    color: var(--wp--preset--color--contrast-2);
+}

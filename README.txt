@@ -1,106 +1,68 @@
 === Integration Rede for WooCommerce ===
-Contributors: MarcosAlexandre
-Tags: rede, e-rede, redecard, woocommerce
+Contributors: linknacional,MarcosAlexandre
+Donate link: https://www.linknacional.com/wordpress/plugins/
+Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
-Tested up to: 5.5.3
-WC requires at least: 3.0.0
-WC tested up to: 4.7.1
-Stable tag: 2.1.0
+Tested up to: 6.5
+Stable tag: 3.0.0
 Requires PHP: 7.2
-License: MIT
+License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
 
 Rede API integration for WooCommerce
 
 == Description ==
 
-Use Rede API integration for WooCommerce in your WooCommerce store and allow your customers to pay by credit card.
+Integrate Rede or Maxipago into your WooCommerce store and enable your customers to pay by credit or debit card
 
 A [Rede](https://www.userede.com.br/) is part of the Itaú Unibanco group and is a acquiring company, being responsible for the capture, transmission and financial settlement of Visa, Mastercard, Elo, American Express, Hipercard, Hyper, Diners Club International, Cabal credit card transactions. Discover, China Union Pay, Aura, Sorocred, Coopercred, Sicredi, More !, Calcard, Banescard, Avista! in the Brazilian territory.
 
-== Example Filter Usage ==
+O [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede) is part of the Rede Group, provides a secure and efficient payment gateway platform for businesses to accept major credit and debit cards in Brazil. With advanced security and fraud prevention, it ensures transaction safety and customer trust, offering seamless integration and support for businesses of all sizes.
 
-    function rede_card_installments_filter($installments) {
-        $installments['min_value'] = 40;
-        $installments['max_parcels'] = 3;
-        return $installments;
-    }
-    add_filter('integration_rede_installments', 'rede_card_installments_filter');
+**Dependencies**
 
+Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Integration Rede for WooCommerce installation.
 
-== Development ==
+**User instructions**
 
-This version of the **Integration Rede for WooCommerce** plugin was developed without any encouragement from Rede. This means that none of the developers of this plugin have any bonds with the Rede and we count on your help to improve the code and operation of this plugin.
+1. Search the WordPress sidebar for 'Integration Rede for WooCommerce'.
+   
+2. In the WooCommerce options, navigate to 'Payments' and then proceed to the settings for 'Rede' or 'Maxipago' as your preferred choice.
 
-= Compatibility =
+3. Configure the required credentials for your selected payment gateway, such as PV and Token for Rede or Merchant ID and Merchant Key for Maxipago.
 
-Compatible since version 3.0.x of WooCommerce.
+4. Save your settings.
 
-Works with the plugin:
-* [WooCommerce](https://wordpress.org/plugins/woocommerce/)
+You have successfully configured Integration Rede for WooCommerce and enabled your customers to pay by credit or debit card.
 
 == Installation ==
 
-Download the plugin
-Upload the plugin to the wp-content/plugins directory,
-Go to “plugins” in your WordPress admin, then click activate.
+1. Look in the sidebar for the WordPress plugins area;
 
-= Requirements: =
+2. In installed plugins look for the 'add new' option in the header;
 
-* Have a website ready with WordPress and WooCommerce installed.
-* Use SSL certificate (2048 bit recommended).
-* Have registration on [Rede](https://www.userede.com.br/new/e-rede#telefone)
+3. Click on the 'submit plugin' option in the page title and upload the integration-rede-for-woocommerce-master.zip plugin;
 
-= Plugin Settings: =
+4. Click on the 'install now' button and then activate the installed plugin;
 
-You can access the plugin settings screen from the WordPress admin page under `WooCommerce -> Settings -> Payments -> Pay with the Rede`.
+The Integration Rede for WooCommerce plugin is now live and working.
 
-The plugin works with the **Test** and **Production** environments, where you must use the **Test** environment to test the integration before using it in the **Production** environment. Once it is tested and validated, you can use the **Production** environment where you can sign in with the **PV** and the **Token** of ecommerce affiliation with the Rede.
+== Usage ==
 
-#### Notes on the test environment ####
+= Payments Settings =
 
-In the **Test environment** you can use some test cards available in the [Rede Integration Guide](https://www.userede.com.br/desenvolvedores/pt/produto/e-Rede#tutorial) by accessing the `Playground Tutorial -> How to use the playground`, just do the [Register](https://www.userede.com.br/desenvolvedores/pt/cadastro).
-
-== Doubts? ==
-
-You can ask questions by:  
-
-* Using our [forum on Github](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
-* Creating a topic in the [WordPress help forum](https://wordpress.org/support/plugin/integration-rede-for-woocommerce).
-
-= Credits =
-
-This plugin is a fork that fixes some bugs and implements new features to the plugin developed in:
-
-* [DevelopersRede](https://github.com/DevelopersRede/woocommerce).
-
-Credcards icons have been forkled from Storefront in:
-
-* [Storefront](https://github.com/woocommerce/storefront/tree/master/assets/images/credit-cards).
-
-Banner:
-
-* [Freepik](https://br.freepik.com/vetores-gratis/conjunto-de-banner-de-pagamento_4378405.htm#page=3&query=cartao+de+credito+banner&position=33).
-
-Icon:
-
-* [Freepik](https://br.freepik.com/vetores-gratis/icones-economia_794700.htm#page=1&query=cartao%20de%20credito&position=20).
-
-= Contributors =
-
-You can contribute source code on our page at [GitHub](https://github.com/marcos-alexandre82/integration-rede-for-woocommerce/issues).
-
-= Special Thanks =
-
-* [Kaoe](https://github.com/kaoecoito/) Implementation of the installment filter and data display on the order page.
-
-* [Luiz "Bills"](https://github.com/luizbills/) Help in implementing the new card layout.
+1. After installing the plugin, access the WordPress admin dashboard and navigate to the WooCommerce settings.
+2. In the sidebar menu, click on "WooCommerce" and then on "Settings".
+3. In the "Payments" tab, you'll see a list of available payment methods.
+4. Locate "Rede" or "Maxipago" in the list of payment methods and go to settings.
+5. Enter the required configuration information for each payment method, such as PV and Token for Rede or or Merchant ID and Merchant Key for Maxipago.
+6. After configuring the payment methods, make sure to activate each one by toggling the switch.
 
 == Frequently Asked Questions ==
 
 = What is the license of the plugin? =
 
-* This plugin is licensed as MIT.
+* This plugin is released under a GPL license.
 
 = What do I need to use this plugin? =
 
@@ -108,33 +70,39 @@ You can contribute source code on our page at [GitHub](https://github.com/marcos
 
 == Changelog ==
 
-= 2.1.0 - 2020/12/05 =
+= 3.0.0 = *2024/05/08*
+* Complete refactoring of the plugin to object-oriented architecture;
+* Addition of debit option for payments with Rede;
+* Addition of Maxipago for payment methods.
 
-- Update compatibility information
-- Correction of the order id
-- Implementation of installment filter
-- Implementation of a filter to display the Network data on the order page only if this is the payment method used.
-- Improvements to the card layout on the checkout page.
+= 2.1.0 = *2020/12/05*
+* Update compatibility information;
+* Correction of the order id;
+* Implementation of installment filter;
+* Implementation of a filter to display the Network data on the order page only if this is the payment method used;
+* Improvements to the card layout on the checkout page.
 
-= 2.0.2 - 2020/05/23 =
+= 2.0.2 = *2020/05/23*
+* Update compatibility information;
+* Correction of the order id.
 
-- Update compatibility information
-- Correction of the order id
+= 2.0.1 = *2020/05/04*
+* Update compatibility information;
+* Correction of the internationalization of error messages on the checkout page.
 
-= 2.0.1 - 2020/05/04 =
+= 2.0.0 = *2019/11/02*
+* Correction of the number of installments display;
+* Year placeholder adjustment at card expiration;
+* Plugin internationalization and translation for pt_BR;
+* Inclusion of credit card banners icons;
+* Expiration date now accepts 2 or 4 digits for year as well;
+* Sanitize inputs fields.
 
-- Update compatibility information
-- Correction of the internationalization of error messages on the checkout page
+== Screenshots ==
 
-= 2.0.0 - 2019/11/02 =
-
-- Correction of the number of installments display
-- Year placeholder adjustment at card expiration
-- Plugin internationalization and translation for pt_BR
-- Inclusion of credit card banners icons
-- Expiration date now accepts 2 or 4 digits for year as well
-- Sanitize inputs fields
+1. Nothing yet.
 
 == Upgrade Notice ==
 
-Corrected the display of the installments, changed the card validity field to accept 2 or 4 digits, made the internationalization and translation process for pt_BR, and implemented WordPress Coding Standards. Also added the icons of the card flags.
+= 1.0.0 =
+* Plugin launch.
