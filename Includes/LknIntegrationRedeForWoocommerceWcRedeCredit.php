@@ -83,12 +83,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     }	
 
     public function initFormFields(): void {
+        $options = get_option('woocommerce_rede_credit', array());
+
         $this->form_fields = array(
             'enabled' => array(
                 'title' => esc_attr__( 'Enable/Disable', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enables payment with Rede', 'integration-rede-for-woocommerce' ),
-                'default' => 'no',
+                'default' => $options['enabled'] ?? 'no',
             ),
             'title' => array(
                 'title' => esc_attr__( 'Title', 'integration-rede-for-woocommerce' ),
@@ -115,12 +117,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'pv' => array(
                 'title' => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
                 'type' => 'password',
-                'default' => '',
+                'default' => $options['pv'] ?? '',
             ),
             'token' => array(
                 'title' => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
                 'type' => 'password',
-                'default' => '',
+                'default' => $options['token'] ?? '',
             ),
 
             'soft_descriptor' => array(
