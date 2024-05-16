@@ -26,6 +26,11 @@
  */
 
 // If uninstall not called from WordPress, then exit.
-if (!defined('WP_UNINSTALL_PLUGIN')) {
-	exit;
+if ( ! defined('WP_UNINSTALL_PLUGIN')) {
+    exit;
 }
+
+delete_option('woocommerce_rede_credit_settings');
+delete_option('woocommerce_rede_debit_settings');
+delete_option('woocommerce_maxipago_credit_settings');
+delete_option('woocommerce_maxipago_debit_settings');
