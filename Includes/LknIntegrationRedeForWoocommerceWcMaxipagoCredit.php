@@ -176,7 +176,7 @@ class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRed
             )
         );
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', array(
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'merchantId' => sanitize_text_field($this->get_option('merchant_id')),
             'merchantKey' => sanitize_text_field($this->get_option('merchant_key'))
         )); 

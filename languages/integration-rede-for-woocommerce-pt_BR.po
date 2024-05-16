@@ -328,6 +328,14 @@ msgstr "Merchant ID"
 msgid "Merchant Key"
 msgstr "Merchant Key"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:122
+msgid "Your Maxipago Merchant ID."
+msgstr "Seu Merchant ID do Maxipago."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:131
+msgid "Your Maxipago Merchant Key."
+msgstr "Sua Merchant Key do Maxipago."
+
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "District"
 msgstr "Bairro"

@@ -223,6 +223,18 @@ msgstr ""
 msgid "Merchant ID or Merchant Key is invalid!"
 msgstr ""
 
+msgid "Merchant ID"
+msgstr ""
+
+msgid "Merchant Key"
+msgstr ""
+
+msgid "Your Maxipago Merchant ID."
+msgstr ""
+
+msgid "Your Maxipago Merchant Key."
+msgstr ""
+
 msgid "District"
 msgstr ""
 
