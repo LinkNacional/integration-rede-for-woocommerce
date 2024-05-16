@@ -103,6 +103,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 1. Nothing yet.
 
 == Upgrade Notice ==
+= 3.0.0 =
+* Updating your plugin may cause your payment method to lose some settings;
+* This update adds compatibility with block based checkout.
 
 = 1.0.0 =
 * Plugin launch.
