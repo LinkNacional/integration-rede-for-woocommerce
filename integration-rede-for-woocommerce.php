@@ -25,8 +25,8 @@
  */
 
 // If this file is called directly, abort.
-if (!defined('WPINC')) {
-	die;
+if ( ! defined('WPINC')) {
+    die;
 }
 
 require_once 'lkn-integration-rede-for-woocommerce-file.php';

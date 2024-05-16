@@ -5,8 +5,8 @@ use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceA
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
 
 // If this file is called directly, abort.
-if (!defined('WPINC')) {
-	die;
+if ( ! defined('WPINC')) {
+    die;
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -34,23 +34,20 @@ if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME')) {
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
  */
-function activate_LknIntegrationRedeForWoocommerce()
-{
-	LknIntegrationRedeForWoocommerceActivator::activate();
+function activate_LknIntegrationRedeForWoocommerce(): void {
+    LknIntegrationRedeForWoocommerceActivator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceDeactivator.php
  */
-function deactivate_LknIntegrationRedeForWoocommerce()
-{
-	LknIntegrationRedeForWoocommerceDeactivator::deactivate();
+function deactivate_LknIntegrationRedeForWoocommerce(): void {
+    LknIntegrationRedeForWoocommerceDeactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_LknIntegrationRedeForWoocommerce');
 register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerce');
-
 
 /**
  * Begins execution of the plugin.
@@ -61,10 +58,8 @@ register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerc
  *
  * @since    1.0.0
  */
-function run_LknIntegrationRedeForWoocommerce()
-{
-
-	$plugin = new LknIntegrationRedeForWoocommerce();
-	$plugin->run();
+function run_LknIntegrationRedeForWoocommerce(): void {
+    $plugin = new LknIntegrationRedeForWoocommerce();
+    $plugin->run();
 }
 run_LknIntegrationRedeForWoocommerce();
