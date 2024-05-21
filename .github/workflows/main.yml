@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 env:
-  PLUGIN_NAME: lkn-integration-rede-for-woocommerce
+  PLUGIN_NAME: integration-rede-for-woocommerce
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
 
@@ -29,7 +29,7 @@ jobs:
 
     # Add plugin files to a root directory
     - name: Make plugin root directory
-      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public ./vendor *.txt *.php *.json &&  find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
+      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public *.txt *.php *.json && cp -r ./vendor ./${{env.DIR_NAME}}/vendor && find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
 
     # Compact plugin as .zip
     - name: Archive Release
@@ -47,7 +47,7 @@ jobs:
       uses: mathieudutour/github-tag-action@v6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        custom_tag: "3.0.0"
+        custom_tag: "3.0.1"
 
     # Generate new release
     - name: Generate new Release
@@ -55,7 +55,7 @@ jobs:
       with:
         artifacts: "${{ env.DIR_NAME }}.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit: "main"
+        commit: "master"
         draft: true
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}

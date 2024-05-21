@@ -2,6 +2,40 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
+$theme = wp_get_theme();
+
+// Obtém o nome do tema
+$theme_name = $theme->get('Name');
+
+$selectDivClass = 'select-input';
+$selectDivStyle = '';
+$selectSpanStyle = '';
+$selectStyle = '';
+/* switch ($theme_name) {
+	case 'Hello Elementor':
+		$selectDivClass = "
+			input-text 
+			jp-card-invalid 
+			wc-credit-card-form-card-number-select-input
+		";
+		$selectDivStyle="
+			padding: 0;
+			font-size: 0.8rem;
+		";
+	break;
+
+	case 'OceanWP':
+		$selectDivClass = "
+			input-text 
+			jp-card-invalid 
+			wc-credit-card-form-card-number-select-input
+		";
+		$selectStyle = "
+			font-size: 1.95rem
+		";
+	break;
+} */
+
 ?>
 <fieldset id="rede-credit-payment-form" class="rede-payment-form">
 	<div class="payment-method-description">
@@ -18,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="rede-card-animation" class="card-wrapper card-animation"></div>
 		<div class="wc-payment-rede-form-fields">
 			<div id="doble-input-div">				
-				<div class="form-row form-row-wide rede-card">
+				<div class="form-row form-row-first rede-card">
 					<label id="labels-with-icons" for="rede-card-number">
 						<?php esc_attr_e( 'Card Number', 'integration-rede-for-woocommerce' ); ?>
 						<span class="required">*</span>
@@ -55,12 +89,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php esc_attr_e( 'Installments ', 'integration-rede-for-woocommerce' ); ?>
 							<span class="required">*</span>
 						</label>
-						<div class="select-input">
-							<span class="woocommerce-input-wrapper">
+						<div class="<?php echo esc_attr($selectDivClass)?>" style="<?php echo esc_attr($selectDivStyle) ?>">
+							<span class="woocommerce-input-wrapper" style="<?php echo esc_attr($selectSpanStyle) ?>">
 								<select 
 								id="rede-card-installments"
 								name="rede_credit_installments"
 								class="input-text wc-credit-card-form-card-cvc"
+								style="<?php echo esc_attr($selectStyle) ?>"
 								autocomplete="off">
 									<?php
 										foreach ( $installments as $installment ) {

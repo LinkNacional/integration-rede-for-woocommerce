@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="maxipagoDebitCardAnimation" class="card-wrapper card-animation"></div>
 		<div>
 			<div id="doble-input-div">				
-				<div class="form-row form-row-wide maxipago-card">
+				<div class="form-row form-row-first maxipago-card">
 					<label id="labels-with-icons" for="maxipago_debit_card_number">
 						<?php esc_attr_e( 'Card Number', 'integration-maxipago-for-woocommerce' ); ?>
 						<span class="required">*</span>

@@ -3,6 +3,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
 
+$theme = wp_get_theme();
+
+// Obtém o nome do tema
+$theme_name = $theme->get('Name');
+
+$selectDivClass = 'select-input';
+$selectDivStyle = '';
+$selectSpanStyle = '';
+$selectStyle = '';
+/* switch ($theme_name) {
+	case 'Hello Elementor':
+		$selectDivClass = "
+			input-text 
+			jp-card-invalid 
+			wc-credit-card-form-card-number-select-input
+		";
+		$selectDivStyle="
+			padding: 0;
+			font-size: 0.8rem;
+		";
+	break;
+
+	case 'OceanWP':
+		$selectDivClass = "
+			input-text 
+			jp-card-invalid 
+			wc-credit-card-form-card-number-select-input
+		";
+		$selectSpanStyle = "
+			height: 148%;
+		";
+		$selectStyle = "
+			font-size: 1.95rem
+		";
+	break;
+} */
+
 ?>
 <fieldset id="maxipago-credit-payment-form" class="maxipago-payment-form">
 	<div class="payment-method-description">
@@ -13,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="maxipago-card-animation" class="card-wrapper card-animation"></div>
 		<div class="wc-payment-maxipago-form-fields">
 			<div id="doble-input-div">				
-				<div class="form-row form-row-wide maxipago-card">
+				<div class="form-row form-row-first maxipago-card">
 					<label id="labels-with-icons" for="maxipago-card-number">
 						<?php esc_attr_e( 'Card Number', 'integration-maxipago-for-woocommerce' ); ?>
 						<span class="required">*</span>
@@ -50,12 +87,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php esc_attr_e( 'Installments ', 'integration-maxipago-for-woocommerce' ); ?>
 								<span class="required">*</span>
 							</label>
-							<div class="select-input">
-								<span class="woocommerce-input-wrapper">
+							<div class="<?php echo esc_attr($selectDivClass)?>" style="<?php echo esc_attr($selectDivStyle) ?>">
+								<span class="woocommerce-input-wrapper" style="<?php echo esc_attr($selectSpanStyle) ?>">
 									<select 
 									id="maxipago-card-installments"
 									name="maxipago_credit_installments"
 									class="input-text wc-credit-card-form-card-cvc"
+									style="<?php echo esc_attr($selectStyle) ?>"
 									autocomplete="off">
 										<?php
 											foreach ( $installments as $installment ) {
@@ -91,7 +129,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php if ( is_array( $installments ) && count( $installments ) > 1 ) { ?>
 				<div id="doble-input-div">
-					<div class="form-row form-row-wide maxipago-card">
+					<div class="form-row form-row-first maxipago-card">
 						<label id="labels-with-icons" for="maxipago-card-holder-name">
 							<?php esc_attr_e( 'Name on Card', 'integration-maxipago-for-woocommerce' ); ?><span class="required">*</span>
 							<div class="icon-maxipago-input">

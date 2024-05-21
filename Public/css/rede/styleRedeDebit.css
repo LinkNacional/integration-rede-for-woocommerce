@@ -150,21 +150,6 @@ div.form-row {
 	max-width: 100%;
 }
 
-#rede-card-installments {
-	border-color: #c2b9ce !important;
-	border-top-color: #b5aac3 !important;
-	max-width: 100%;
-	max-height: 47%;
-}
-
-.select-input {
-	border: 2px solid #C2B9CE;
-	border-top-color: #67616F;
-	border-left-color: #67616F;
-	width: fit-content;
-	max-width: 100%;
-}
-
 #doble-input-div {
 	display: flex;
 }

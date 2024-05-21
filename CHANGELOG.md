@@ -1,3 +1,6 @@
+# 3.0.1 - 2024/05/21
+* Fix payment method errors at checkout.
+
 # 3.0.0 - 2024/05/09
 * Complete refactoring of the plugin to object-oriented architecture;
 * Addition of debit option for payments with Rede;

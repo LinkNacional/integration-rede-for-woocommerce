@@ -21,18 +21,15 @@ namespace Lkn\IntegrationRedeForWoocommerce\Includes;
  * @subpackage LknIntegrationRedeForWoocommerce/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknIntegrationRedeForWoocommerceDeactivator
-{
-
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function deactivate()
-	{
-		wp_clear_scheduled_hook( 'update_rede_orders' );
-	}
+final class LknIntegrationRedeForWoocommerceDeactivator {
+    /**
+     * Short Description. (use period)
+     *
+     * Long Description.
+     *
+     * @since    1.0.0
+     */
+    public static function deactivate(): void {
+        wp_clear_scheduled_hook( 'update_rede_orders' );
+    }
 }

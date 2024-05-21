@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="rede-debit-card-animation" class="card-wrapper card-animation"></div>
 		<div class="wc-payment-rede-form-fields">
 			<div id="doble-input-div">				
-				<div class="form-row form-row-wide rede-card">
+				<div class="form-row form-row-first rede-card">
 					<label id="labels-with-icons" for="rede-debit-card-number">
 						<?php esc_attr_e( 'Card Number', 'integration-rede-for-woocommerce' ); ?>
 						<span class="required">*</span>
