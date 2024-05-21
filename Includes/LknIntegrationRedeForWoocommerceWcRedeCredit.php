@@ -32,7 +32,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));		
 		
-        $this->auto_capture = $this->get_option( 'auto_capture' ) == 'yes' ? true : false;
+        $this->auto_capture = true;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
         $this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
