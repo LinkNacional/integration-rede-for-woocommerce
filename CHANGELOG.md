@@ -1,3 +1,6 @@
+# 3.0.2 - 22/05/2024
+* Correção de erros de layout de método de pagamento no checkout.
+
 # 3.0.1 - 21/05/2024
 * Correção de erros no método de pagamento no checkout.
 
