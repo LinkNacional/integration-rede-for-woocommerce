@@ -1,9 +1,9 @@
 window.jQuery(function ($) {
   if (!document.querySelector('.wc-block-checkout')) {
     // Cria o card somente quando a requisição for concluida
-    $(document).ajaxComplete(function (event, xhr, settings) {
-      if (xhr.status === 200 && settings.url === '/?wc-ajax=update_order_review') {
-
+    let verify = true
+    setInterval(() => {
+      if (verify) {
         let $form = $('.woocommerce .woocommerce-checkout')
         if ($form.length == 0) {
           $form = $('#order_review')
@@ -14,19 +14,19 @@ window.jQuery(function ($) {
           expiryInput: '#rede-card-expiry',
           cvcInput: '#rede-card-cvc'
         }
-    
+
         // maybe delete old card data
         $form.data('card', null)
-    
+
         // init animated card
         $form.card({
           container: '#rede-card-animation',
-    
+
           /**
            * Selectors
            */
           formSelectors: inputSelectors,
-    
+
           /**
            * Placeholders
            */
@@ -36,7 +36,7 @@ window.jQuery(function ($) {
             expiry: 'MM/ANO',
             cvc: 'CVC'
           },
-    
+
           /**
            * Translation Brazilian Portuguese
            */
@@ -44,21 +44,22 @@ window.jQuery(function ($) {
             validDate: 'VALIDADE',
             monthYear: ''
           },
-    
+
           /**
            * Debug
            */
           debug: !!window.wooRede.debug
         })
-    
+
         // Workaround to maintain the card data rendered after checkout updates
         Object.values(inputSelectors).reverse().forEach(function (selector) {
           $(selector)[0]?.dispatchEvent(new CustomEvent('change'))
         })
-    
+
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
+        verify = false
       }
-    })
+    }, 1000);
   }
 })

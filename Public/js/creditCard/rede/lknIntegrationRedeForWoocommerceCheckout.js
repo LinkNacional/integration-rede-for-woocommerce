@@ -6,6 +6,11 @@ const translationsRedeCredit = settingsRedeCredit.translations;
 const minInstallmentsRede = settingsRedeCredit.minInstallmentsRede.replace(',', '.');
 const ContentRedeCredit = props => {
   totalAmountFloat = settingsRedeCredit.cartTotal;
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+  const handleSortChange = event => {
+    setSelectedValue(event.target.value);
+    updateCreditObject('rede_credit_installments', event.target.value);
+  };
   const {
     eventRegistration,
     emitResponse
@@ -108,35 +113,25 @@ const ContentRedeCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeCredit // Adicione translationsRedeCredit como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeCredit // Adicione translationsRedeCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_credit_holder_name",
+    label: translationsRedeCredit.nameOnCard,
+    value: creditObject.rede_credit_holder_name,
+    onChange: value => {
+      updateCreditObject('rede_credit_holder_name', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_number",
     label: translationsRedeCredit.cardNumber,
     value: formatCreditCardNumber(creditObject.rede_credit_number),
     onChange: value => {
       updateCreditObject('rede_credit_number', formatCreditCardNumber(value));
     }
-  }), options.length > 1 && /*#__PURE__*/React.createElement("div", {
-    class: "wc-block-components-text-input is-active"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "select-wrapper"
-  }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "rede_credit_installments",
-    id: "select-label"
-  }, translationsRedeCredit.installments), /*#__PURE__*/React.createElement("select", {
-    id: "rede_credit_installments",
-    value: creditObject.rede_credit_installments,
-    onChange: event => {
-      updateCreditObject('rede_credit_installments', event.target.value);
-    },
-    className: "wc-blocks-select" // Adicione uma classe personalizada ao select
-  }, options.map(option => /*#__PURE__*/React.createElement("option", {
-    key: option.key,
-    value: option.key
-  }, option.label))))), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_expiry",
     label: translationsRedeCredit.cardExpiringDate,
     value: creditObject.rede_credit_expiry,
@@ -150,13 +145,14 @@ const ContentRedeCredit = props => {
     onChange: value => {
       updateCreditObject('rede_credit_cvc', value);
     }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_credit_holder_name",
-    label: translationsRedeCredit.nameOnCard,
-    value: creditObject.rede_credit_holder_name,
-    onChange: value => {
-      updateCreditObject('rede_credit_holder_name', value);
-    }
+  }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
+    instanceId: 1,
+    className: "lknIntegrationRedeForWoocommerceSelectBlocks",
+    label: translationsRedeCredit.installments,
+    onChange: handleSortChange,
+    options: options,
+    value: selectedValue,
+    readOnly: false
   }));
 };
 const Block_Gateway_rede_credit = {

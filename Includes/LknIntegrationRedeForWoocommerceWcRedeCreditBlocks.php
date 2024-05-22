@@ -18,6 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
     }
 
     public function get_payment_method_script_handles() {
+        wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
         wp_register_script(
             'rede_credit-blocks-integration',
             plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/rede/lknIntegrationRedeForWoocommerceCheckout.js',

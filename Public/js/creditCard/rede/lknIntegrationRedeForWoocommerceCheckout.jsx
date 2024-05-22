@@ -7,6 +7,13 @@ const minInstallmentsRede = settingsRedeCredit.minInstallmentsRede.replace(',', 
 const ContentRedeCredit = (props) => {
   totalAmountFloat = settingsRedeCredit.cartTotal
 
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+
+  const handleSortChange = (event) => {
+    setSelectedValue(event.target.value);
+    updateCreditObject('rede_credit_installments', event.target.value)
+  };
+
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -118,6 +125,16 @@ const ContentRedeCredit = (props) => {
 
   return (
     <>
+
+      <wcComponents.TextInput
+        id="rede_credit_holder_name"
+        label={translationsRedeCredit.nameOnCard}
+        value={creditObject.rede_credit_holder_name}
+        onChange={(value) => {
+          updateCreditObject('rede_credit_holder_name', value)
+        }}
+      />
+
       <wcComponents.TextInput
         id="rede_credit_number"
         label={translationsRedeCredit.cardNumber}
@@ -126,29 +143,6 @@ const ContentRedeCredit = (props) => {
           updateCreditObject('rede_credit_number', formatCreditCardNumber(value))
         }}
       />
-
-      {options.length > 1 && (
-        <div class="wc-block-components-text-input is-active">
-          <div className="select-wrapper">
-            <label htmlFor="rede_credit_installments" id="select-label">{translationsRedeCredit.installments}</label>
-            <select
-              id="rede_credit_installments"
-              value={creditObject.rede_credit_installments}
-              onChange={(event) => {
-                updateCreditObject('rede_credit_installments', event.target.value)
-              }}
-              className="wc-blocks-select" // Adicione uma classe personalizada ao select
-            >
-              {/* Mapeie sobre as opções para renderizá-las */}
-              {options.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
 
       <wcComponents.TextInput
         id="rede_credit_expiry"
@@ -168,14 +162,18 @@ const ContentRedeCredit = (props) => {
         }}
       />
 
-      <wcComponents.TextInput
-        id="rede_credit_holder_name"
-        label={translationsRedeCredit.nameOnCard}
-        value={creditObject.rede_credit_holder_name}
-        onChange={(value) => {
-          updateCreditObject('rede_credit_holder_name', value)
-        }}
-      />
+      {options.length > 1 && (
+        <wcComponents.SortSelect
+          instanceId={1}
+          className="lknIntegrationRedeForWoocommerceSelectBlocks"
+          label={translationsRedeCredit.installments}
+          onChange={handleSortChange}
+          options={options}
+          value={selectedValue}
+          readOnly={false}
+        />
+      )}
+
     </>
   )
 }
