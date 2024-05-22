@@ -7,6 +7,13 @@ const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.r
 const ContentMaxipagoCredit = (props) => {
   totalAmountFloat = settingsMaxipagoCredit.cartTotal
 
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+
+  const handleSortChange = (event) => {
+    setSelectedValue(event.target.value);
+    updateCreditObject('maxipago_credit_installments', event.target.value)
+  };
+
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -135,6 +142,33 @@ const ContentMaxipagoCredit = (props) => {
   return (
     <>
       <wcComponents.TextInput
+        id="maxipago_credit_cpf"
+        label="CPF"
+        value={formatarCPF(creditObject.maxipago_credit_cpf)}
+        onChange={(value) => {
+          updateCreditObject('maxipago_credit_cpf', formatarCPF(value))
+        }}
+      />
+
+      <wcComponents.TextInput
+        id="maxipago_credit_neighborhood"
+        label={translationsMaxipagoCredit.district}
+        value={creditObject.maxipago_credit_neighborhood}
+        onChange={(value) => {
+          updateCreditObject('maxipago_credit_neighborhood', value)
+        }}
+      />
+
+      <wcComponents.TextInput
+        id="maxipago_credit_holder_name"
+        label={translationsMaxipagoCredit.nameOnCard}
+        value={creditObject.maxipago_credit_holder_name}
+        onChange={(value) => {
+          updateCreditObject('maxipago_credit_holder_name', value)
+        }}
+      />
+
+      <wcComponents.TextInput
         id="maxipago_credit_number"
         label={translationsMaxipagoCredit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_credit_number)}
@@ -142,29 +176,6 @@ const ContentMaxipagoCredit = (props) => {
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
         }}
       />
-
-      {options.length > 1 && (
-        <div class="wc-block-components-text-input is-active">
-          <div className="select-wrapper">
-            <label htmlFor="maxipago_credit_installments" id="select-label">{translationsMaxipagoCredit.installments}</label>
-            <select
-              id="maxipago_credit_installments"
-              value={creditObject.maxipago_credit_installments}
-              onChange={(event) => {
-                updateCreditObject('maxipago_credit_installments', event.target.value)
-              }}
-              className="wc-blocks-select" // Adicione uma classe personalizada ao select
-            >
-              {/* Mapeie sobre as opções para renderizá-las */}
-              {options.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
 
       <wcComponents.TextInput
         id="maxipago_credit_expiry"
@@ -184,32 +195,18 @@ const ContentMaxipagoCredit = (props) => {
         }}
       />
 
-      <wcComponents.TextInput
-        id="maxipago_credit_holder_name"
-        label={translationsMaxipagoCredit.nameOnCard}
-        value={creditObject.maxipago_credit_holder_name}
-        onChange={(value) => {
-          updateCreditObject('maxipago_credit_holder_name', value)
-        }}
-      />
+      {options.length > 1 && (
+        <wcComponents.SortSelect
+          instanceId={1}
+          className="lknIntegrationRedeForWoocommerceSelectBlocks"
+          label={translationsRedeCredit.installments}
+          onChange={handleSortChange}
+          options={options}
+          value={selectedValue}
+          readOnly={false}
+        />
+      )}
 
-      <wcComponents.TextInput
-        id="maxipago_credit_neighborhood"
-        label={translationsMaxipagoCredit.district}
-        value={creditObject.maxipago_credit_neighborhood}
-        onChange={(value) => {
-          updateCreditObject('maxipago_credit_neighborhood', value)
-        }}
-      />
-
-      <wcComponents.TextInput
-        id="maxipago_credit_cpf"
-        label="CPF"
-        value={formatarCPF(creditObject.maxipago_credit_cpf)}
-        onChange={(value) => {
-          updateCreditObject('maxipago_credit_cpf', formatarCPF(value))
-        }}
-      />
     </>
   )
 }
