@@ -1,3 +1,6 @@
+# 3.0.3 - 23/05/2024
+* Correção de erros em função para salvar o total da compra.
+
 # 3.0.2 - 22/05/2024
 * Correção de erros de layout de método de pagamento no checkout.
 
