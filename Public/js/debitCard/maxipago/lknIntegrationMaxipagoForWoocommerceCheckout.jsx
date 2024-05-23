@@ -7,7 +7,7 @@ const translationsMaxipagoDebit = settingsMaxipagoDebit.translations
 
 
 const ContentMaxipagoDebit = (props) => {
-  
+
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -117,6 +117,33 @@ const ContentMaxipagoDebit = (props) => {
   return (
     <>
       <wcComponents.TextInput
+        id="maxipago_debit_cpf"
+        label="CPF"
+        value={formatarCPF(creditObject.maxipago_debit_cpf)}
+        onChange={(value) => {
+          updateCreditObject('maxipago_debit_cpf', formatarCPF(value))
+        }}
+      />
+
+      <wcComponents.TextInput
+        id="maxipago_debit_neighborhood"
+        label={translationsMaxipagoDebit.district}
+        value={creditObject.maxipago_debit_neighborhood}
+        onChange={(value) => {
+          updateCreditObject('maxipago_debit_neighborhood', value)
+        }}
+      />
+
+      <wcComponents.TextInput
+        id="maxipago_debit_card_holder_name"
+        label={translationsMaxipagoDebit.nameOnCard}
+        value={creditObject.maxipago_debit_card_holder_name}
+        onChange={(value) => {
+          updateCreditObject('maxipago_debit_card_holder_name', value)
+        }}
+      />
+
+      <wcComponents.TextInput
         id="maxipago_debit_card_number"
         label={translationsMaxipagoDebit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_debit_card_number)}
@@ -140,33 +167,6 @@ const ContentMaxipagoDebit = (props) => {
         value={creditObject.maxipago_debit_cvc}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_cvc', value)
-        }}
-      />
-
-      <wcComponents.TextInput
-        id="maxipago_debit_card_holder_name"
-        label={translationsMaxipagoDebit.nameOnCard}
-        value={creditObject.maxipago_debit_card_holder_name}
-        onChange={(value) => {
-          updateCreditObject('maxipago_debit_card_holder_name', value)
-        }}
-      />
-
-      <wcComponents.TextInput
-        id="maxipago_debit_neighborhood"
-        label={translationsMaxipagoDebit.district}
-        value={creditObject.maxipago_debit_neighborhood}
-        onChange={(value) => {
-          updateCreditObject('maxipago_debit_neighborhood', value)
-        }}
-      />
-
-      <wcComponents.TextInput
-        id="maxipago_debit_cpf"
-        label="CPF"
-        value={formatarCPF(creditObject.maxipago_debit_cpf)}
-        onChange={(value) => {
-          updateCreditObject('maxipago_debit_cpf', formatarCPF(value))
         }}
       />
     </>

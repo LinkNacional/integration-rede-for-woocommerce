@@ -97,6 +97,13 @@ const ContentRedeDebit = props => {
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_debit_holder_name",
+    label: translationsRedeDebit.nameOnCard,
+    value: debitObject.rede_debit_holder_name,
+    onChange: value => {
+      updateDebitObject('rede_debit_holder_name', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_debit_number",
     label: translationsRedeDebit.cardNumber,
     value: formatDebitCardNumber(debitObject.rede_debit_number),
@@ -116,13 +123,6 @@ const ContentRedeDebit = props => {
     value: debitObject.rede_debit_cvc,
     onChange: value => {
       updateDebitObject('rede_debit_cvc', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_holder_name",
-    label: translationsRedeDebit.nameOnCard,
-    value: debitObject.rede_debit_holder_name,
-    onChange: value => {
-      updateDebitObject('rede_debit_holder_name', value);
     }
   }));
 };

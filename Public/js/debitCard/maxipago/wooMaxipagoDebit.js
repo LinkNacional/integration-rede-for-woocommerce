@@ -1,8 +1,9 @@
 window.jQuery(function ($) {
   if (!document.querySelector('.wc-block-checkout')) {
     // Cria o card somente quando a requisição for concluida
-    $(document).ajaxComplete(function (event, xhr, settings) {
-      if (xhr.status === 200 && settings.url === '/?wc-ajax=update_order_review') {
+    let verify = true
+    setInterval(() => {
+      if (verify) {
         function formatarCPF(cpf) {
           cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
           cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
@@ -79,4 +80,3 @@ window.jQuery(function ($) {
     })
   }
 })
-

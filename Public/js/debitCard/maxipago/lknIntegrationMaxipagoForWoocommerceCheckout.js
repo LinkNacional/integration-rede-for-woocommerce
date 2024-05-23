@@ -103,11 +103,32 @@ const ContentMaxipagoDebit = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoDebit // Adicione translations como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoDebit // Adicione translations como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_cpf",
+    label: "CPF",
+    value: formatarCPF(creditObject.maxipago_debit_cpf),
+    onChange: value => {
+      updateCreditObject('maxipago_debit_cpf', formatarCPF(value));
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_neighborhood",
+    label: translationsMaxipagoDebit.district,
+    value: creditObject.maxipago_debit_neighborhood,
+    onChange: value => {
+      updateCreditObject('maxipago_debit_neighborhood', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_card_holder_name",
+    label: translationsMaxipagoDebit.nameOnCard,
+    value: creditObject.maxipago_debit_card_holder_name,
+    onChange: value => {
+      updateCreditObject('maxipago_debit_card_holder_name', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_debit_card_number",
     label: translationsMaxipagoDebit.cardNumber,
     value: formatCreditCardNumber(creditObject.maxipago_debit_card_number),
@@ -127,27 +148,6 @@ const ContentMaxipagoDebit = props => {
     value: creditObject.maxipago_debit_cvc,
     onChange: value => {
       updateCreditObject('maxipago_debit_cvc', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_debit_card_holder_name",
-    label: translationsMaxipagoDebit.nameOnCard,
-    value: creditObject.maxipago_debit_card_holder_name,
-    onChange: value => {
-      updateCreditObject('maxipago_debit_card_holder_name', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_debit_neighborhood",
-    label: translationsMaxipagoDebit.district,
-    value: creditObject.maxipago_debit_neighborhood,
-    onChange: value => {
-      updateCreditObject('maxipago_debit_neighborhood', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_debit_cpf",
-    label: "CPF",
-    value: formatarCPF(creditObject.maxipago_debit_cpf),
-    onChange: value => {
-      updateCreditObject('maxipago_debit_cpf', formatarCPF(value));
     }
   }));
 };

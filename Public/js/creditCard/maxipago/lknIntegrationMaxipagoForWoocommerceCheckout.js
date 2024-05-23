@@ -6,6 +6,11 @@ const translationsMaxipagoCredit = settingsMaxipagoCredit.translations;
 const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
 const ContentMaxipagoCredit = props => {
   totalAmountFloat = settingsMaxipagoCredit.cartTotal;
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+  const handleSortChange = event => {
+    setSelectedValue(event.target.value);
+    updateCreditObject('maxipago_credit_installments', event.target.value);
+  };
   const {
     eventRegistration,
     emitResponse
@@ -120,35 +125,39 @@ const ContentMaxipagoCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-  // Adiciona creditObject como dependência
-  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+    // Adiciona creditObject como dependência
+    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_credit_cpf",
+    label: "CPF",
+    value: formatarCPF(creditObject.maxipago_credit_cpf),
+    onChange: value => {
+      updateCreditObject('maxipago_credit_cpf', formatarCPF(value));
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_credit_neighborhood",
+    label: translationsMaxipagoCredit.district,
+    value: creditObject.maxipago_credit_neighborhood,
+    onChange: value => {
+      updateCreditObject('maxipago_credit_neighborhood', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_credit_holder_name",
+    label: translationsMaxipagoCredit.nameOnCard,
+    value: creditObject.maxipago_credit_holder_name,
+    onChange: value => {
+      updateCreditObject('maxipago_credit_holder_name', value);
+    }
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_number",
     label: translationsMaxipagoCredit.cardNumber,
     value: formatCreditCardNumber(creditObject.maxipago_credit_number),
     onChange: value => {
       updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value));
     }
-  }), options.length > 1 && /*#__PURE__*/React.createElement("div", {
-    class: "wc-block-components-text-input is-active"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "select-wrapper"
-  }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "maxipago_credit_installments",
-    id: "select-label"
-  }, translationsMaxipagoCredit.installments), /*#__PURE__*/React.createElement("select", {
-    id: "maxipago_credit_installments",
-    value: creditObject.maxipago_credit_installments,
-    onChange: event => {
-      updateCreditObject('maxipago_credit_installments', event.target.value);
-    },
-    className: "wc-blocks-select" // Adicione uma classe personalizada ao select
-  }, options.map(option => /*#__PURE__*/React.createElement("option", {
-    key: option.key,
-    value: option.key
-  }, option.label))))), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_expiry",
     label: translationsMaxipagoCredit.cardExpiringDate,
     value: creditObject.maxipago_credit_expiry,
@@ -162,27 +171,14 @@ const ContentMaxipagoCredit = props => {
     onChange: value => {
       updateCreditObject('maxipago_credit_cvc', value);
     }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_credit_holder_name",
-    label: translationsMaxipagoCredit.nameOnCard,
-    value: creditObject.maxipago_credit_holder_name,
-    onChange: value => {
-      updateCreditObject('maxipago_credit_holder_name', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_credit_neighborhood",
-    label: translationsMaxipagoCredit.district,
-    value: creditObject.maxipago_credit_neighborhood,
-    onChange: value => {
-      updateCreditObject('maxipago_credit_neighborhood', value);
-    }
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "maxipago_credit_cpf",
-    label: "CPF",
-    value: formatarCPF(creditObject.maxipago_credit_cpf),
-    onChange: value => {
-      updateCreditObject('maxipago_credit_cpf', formatarCPF(value));
-    }
+  }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
+    instanceId: 1,
+    className: "lknIntegrationRedeForWoocommerceSelectBlocks",
+    label: translationsMaxipagoCredit.installments,
+    onChange: handleSortChange,
+    options: options,
+    value: selectedValue,
+    readOnly: false
   }));
 };
 const Block_Gateway_maxipago = {

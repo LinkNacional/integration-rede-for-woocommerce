@@ -1,8 +1,9 @@
 window.jQuery(function ($) {
   if (!document.querySelector('.wc-block-checkout')) {
     // Cria o card somente quando a requisição for concluida
-    $(document).ajaxComplete(function (event, xhr, settings) {
-      if (xhr.status === 200 && settings.url === '/?wc-ajax=update_order_review') {
+    let verify = true
+    setInterval(() => {
+      if (verify) {
         let $form = $('.woocommerce .woocommerce-checkout')
         if ($form.length == 0) {
           $form = $('#order_review')
@@ -61,4 +62,3 @@ window.jQuery(function ($) {
     })
   }
 })
-
