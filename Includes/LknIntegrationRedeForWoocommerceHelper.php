@@ -1,10 +1,8 @@
 <?php
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
-
 abstract class LknIntegrationRedeForWoocommerceHelper {
-
-     /**
+    /**
      * Makes a .log file for each donation.
      *
      * @since 1.0.0
@@ -17,9 +15,9 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
      * @return void
      */
     final public static function reg_log($log, $configs): void {
-        if ($configs['debug'] == 'yes') {
+        if ('yes' == $configs['debug']) {
             $logDirectory = dirname($configs['base']);
-            if (!file_exists($logDirectory)) {
+            if ( ! file_exists($logDirectory)) {
                 mkdir($logDirectory, 0777, true);
             }    
             $jsonLog = wp_json_encode($log, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
@@ -42,5 +40,4 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
         }
         return $total;
     }
-
 }
