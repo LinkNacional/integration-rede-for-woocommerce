@@ -55,7 +55,7 @@ jobs:
       with:
         artifacts: "${{ env.DIR_NAME }}.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit: "master"
+        commit: "main"
         draft: true
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
