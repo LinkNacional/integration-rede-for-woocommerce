@@ -3,7 +3,7 @@ name: Generate new release for plugin
 on:
   pull_request:
     types: [ closed ]
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   PLUGIN_NAME: integration-rede-for-woocommerce
