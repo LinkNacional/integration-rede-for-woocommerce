@@ -211,10 +211,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 break;
             }
 
-            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
+            $interest = round((float) $this->get_option( $i . 'x_parcel' ), 2);
 
             if ( 1 === $i ) {
+                $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( (($order_total / $i) ))));
                 $label .= ' (à vista)';
+            }else{
+                $total = $order_total + ($order_total * ($interest * 0.01));
+                $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( (($total / $i) ))));
+                $label .= " (juros de $interest%) total $total";
             }
 
             $installments[] = array(
