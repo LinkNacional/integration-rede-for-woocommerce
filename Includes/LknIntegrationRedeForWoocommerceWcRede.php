@@ -7,7 +7,7 @@ use WP_Query;
 final class LknIntegrationRedeForWoocommerceWcRede {
     public const FILE = __FILE__;
 
-    public const VERSION = '3.0.3';
+    public const VERSION = '3.0.4';
     protected static $instance = null;
 
     public function __construct() {

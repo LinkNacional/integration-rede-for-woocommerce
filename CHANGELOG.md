@@ -1,3 +1,6 @@
+# 3.0.4 - 24/05/2024
+* Correção de looping para criar animação de cartão.
+
 # 3.0.3 - 23/05/2024
 * Correção de erros em função para salvar o total da compra.
 
