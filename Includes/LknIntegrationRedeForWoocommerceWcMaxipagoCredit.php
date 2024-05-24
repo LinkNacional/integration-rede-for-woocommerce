@@ -174,8 +174,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         );
 
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
-            'merchantId' => sanitize_text_field($this->get_option('merchant_id')),
-            'merchantKey' => sanitize_text_field($this->get_option('merchant_key'))
+            'installment_interest' => $this->get_option('installment_interest'),
+            'max_parcels_number' => $this->get_option('max_parcels_number'),
         )); 
 		
         if ( ! empty($customConfigs)) {
@@ -211,15 +211,18 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 break;
             }
 
-            $interest = round((float) $this->get_option( $i . 'x_parcel' ), 2);
-
-            if ( 1 === $i ) {
-                $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( (($order_total / $i) ))));
-                $label .= ' (à vista)';
-            }else{
-                $total = $order_total + ($order_total * ($interest * 0.01));
-                $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( (($total / $i) ))));
-                $label .= " (juros de $interest%) total $total";
+            
+            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );            
+            
+            $interest = round((float) $this->get_option( $i . 'x' ), 2);
+            $customLabel = apply_filters('integrationRedeGetInterest', $interest, $order_total, $i, 'label');
+            
+            if ($customLabel) {
+                if($interest >= 1){
+                    $label = $customLabel;
+                }else{
+                    $label .= $customLabel;
+                }
             }
 
             $installments[] = array(
@@ -240,7 +243,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         $order = wc_get_order( $orderId );
-
+        $order_total = $order->get_total();
         $woocommerceCountry = get_option('woocommerce_default_country');
         // Extraindo somente o país da string
         $countryParts = explode(':', $woocommerceCountry);
@@ -256,7 +259,13 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         if ( $valid ) {
             $installments = isset( $_POST['maxipago_credit_installments'] ) ? 
             absint( sanitize_text_field($_POST['maxipago_credit_installments']) ) : 1;
-			
+
+            $interest = round((float) $this->get_option( $installments . 'x' ), 2);
+            $total = apply_filters('integrationRedeGetInterest', $interest, $order_total, $interest, 'total');
+            if(!$total){
+                $total = $order_total;
+            }
+
             $creditExpiry = sanitize_text_field($_POST['maxipago_credit_expiry']);
             
             if (strpos($creditExpiry, '/') !== false) {
@@ -352,7 +361,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                                     </payType>
                                 </transactionDetail>
                                 <payment>
-                                    <chargeTotal>" . $order->get_total() . "</chargeTotal>
+                                    <chargeTotal>" . $total . "</chargeTotal>
                                     <currencyCode>" . $clientData['currency_code'] . "</currencyCode> 
                                     <creditInstallment>
                                         <numberOfInstallments>" . $installments . "</numberOfInstallments>
@@ -412,7 +421,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     'transaction' => $xml,
                     'order' => array(
                         'orderId' => $orderId,
-                        'amount' => $order->get_total(),
+                        'amount' => $total,
                         'status' => $order->get_status()
                     ),
                     'installments' => $installments

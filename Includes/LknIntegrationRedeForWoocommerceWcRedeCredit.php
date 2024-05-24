@@ -192,7 +192,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ),
         );
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, $this->id);
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
+            'installment_interest' => $this->get_option('installment_interest'),
+            'max_parcels_number' => $this->get_option('max_parcels_number'),
+        )); 
 		
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
@@ -230,10 +233,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 break;
             }
 
-            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
-
-            if ( 1 === $i ) {
-                $label .= ' (à vista)';
+            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );            
+            
+            $interest = round((float) $this->get_option( $i . 'x' ), 2);
+            $customLabel = apply_filters('integrationRedeGetInterest', $interest, $order_total, $i, 'label');
+            
+            if ($customLabel) {
+                if($interest >= 1){
+                    $label = $customLabel;
+                }else{
+                    $label .= $customLabel;
+                }
             }
 
             $installments[] = array(
