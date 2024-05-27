@@ -215,9 +215,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );            
             
             $interest = round((float) $this->get_option( $i . 'x' ), 2);
-            $customLabel = apply_filters('integrationRedeGetInterest', $interest, $order_total, $i, 'label');
+            if($this->get_option('installment_interest') == 'yes'){
+                $customLabel = apply_filters('integrationRedeGetInterest',  $order_total, $interest, $i, 'label');
+            }
             
-            if ($customLabel) {
+            if (gettype($customLabel) === 'string' && $customLabel) {
                 if($interest >= 1){
                     $label = $customLabel;
                 }else{
@@ -261,11 +263,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             absint( sanitize_text_field($_POST['maxipago_credit_installments']) ) : 1;
 
             $interest = round((float) $this->get_option( $installments . 'x' ), 2);
-            $total = apply_filters('integrationRedeGetInterest', $interest, $order_total, $interest, 'total');
-            if(!$total){
-                $total = $order_total;
+            if($this->get_option('installment_interest') == 'yes'){
+                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
             }
-
+            
             $creditExpiry = sanitize_text_field($_POST['maxipago_credit_expiry']);
             
             if (strpos($creditExpiry, '/') !== false) {
@@ -361,7 +362,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                                     </payType>
                                 </transactionDetail>
                                 <payment>
-                                    <chargeTotal>" . $total . "</chargeTotal>
+                                    <chargeTotal>" . $order_total . "</chargeTotal>
                                     <currencyCode>" . $clientData['currency_code'] . "</currencyCode> 
                                     <creditInstallment>
                                         <numberOfInstallments>" . $installments . "</numberOfInstallments>
@@ -421,7 +422,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     'transaction' => $xml,
                     'order' => array(
                         'orderId' => $orderId,
-                        'amount' => $total,
+                        'amount' => $order_total,
                         'status' => $order->get_status()
                     ),
                     'installments' => $installments

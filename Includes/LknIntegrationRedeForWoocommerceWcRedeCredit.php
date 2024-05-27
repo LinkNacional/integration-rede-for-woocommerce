@@ -236,9 +236,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );            
             
             $interest = round((float) $this->get_option( $i . 'x' ), 2);
-            $customLabel = apply_filters('integrationRedeGetInterest', $interest, $order_total, $i, 'label');
+            if($this->get_option('installment_interest') == 'yes'){
+                $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest,  $i, 'label');
+            }
             
-            if ($customLabel) {
+            if (gettype($customLabel) === 'string' && $customLabel) {
                 if($interest >= 1){
                     $label = $customLabel;
                 }else{
@@ -330,9 +332,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 }
 
                 $orderId = $order->get_id();
-                $amount = $order->get_total();
-				
-                $transaction = $this->api->doTransactionCreditRequest( $orderId + time(), $amount, $installments, $cardData );
+                $interest = round((float) $this->get_option( $installments . 'x' ), 2);
+                $order_total = $order->get_total();
+                if($this->get_option('installment_interest') == 'yes'){
+                    $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');           
+                }
+
+                $transaction = $this->api->doTransactionCreditRequest( $orderId + time(), $order_total, $installments, $cardData );
                 $order->update_meta_data( '_transaction_id', $transaction->getTid() );
                 $order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
                 $order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
@@ -373,7 +379,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     'transaction' => $transaction,
                     'order' => array(
                         'orderId' => $orderId,
-                        'amount' => $amount,
+                        'amount' => $order_total,
                         'status' => $order->get_status()
                     ),
                 ), $this->configs);
