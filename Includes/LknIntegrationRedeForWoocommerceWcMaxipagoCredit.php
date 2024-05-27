@@ -528,13 +528,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
-        wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
-        wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
-        wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'Public/css/maxipago/styleMaxipagoCredit.css', array(), '1.0.0', 'all' );
+        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_short_code']?? false);
+        if($customCss === false){    
+            
+            wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+            wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
+            wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'Public/css/maxipago/styleMaxipagoCredit.css', array(), '1.0.0', 'all' );
+        }
 
-		wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
-		wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'Public/css/maxipago/styleMaxipagoCredit.css', array(), '1.0.0', 'all' );
-        wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
 		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'Public/js/creditCard/maxipago/wooMaxipagoCredit.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array( 'jquery', 'woo-maxipago-js' ), '2.5.0', true );
 

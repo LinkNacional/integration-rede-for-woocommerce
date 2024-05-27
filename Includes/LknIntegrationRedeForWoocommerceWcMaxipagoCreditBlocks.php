@@ -18,6 +18,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     }
 
     public function get_payment_method_script_handles() {
+        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor']?? false);
+        if($customCss === false){   
+            wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
+        }
         wp_register_script(
             'maxipago_credit-blocks-integration',
             plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',

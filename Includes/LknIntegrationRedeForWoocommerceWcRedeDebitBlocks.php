@@ -18,6 +18,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
     }
 
     public function get_payment_method_script_handles() {
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_block_editor']?? false);
+
         wp_register_script(
             'rede_debit-blocks-integration',
             plugin_dir_url( __FILE__ ) . '../Public/js/debitCard/rede/lknIntegrationRedeForWoocommerceCheckout.js',
