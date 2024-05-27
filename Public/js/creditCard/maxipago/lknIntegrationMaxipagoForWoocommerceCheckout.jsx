@@ -32,12 +32,20 @@ const ContentMaxipagoCredit = (props) => {
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
     totalInstallment = totalAmountFloat / index
 
+    if (settingsMaxipagoCredit[`${index}x`] && settingsMaxipagoCredit[`${index}x`] != 0) {
+      totalInstallment = totalInstallment + (totalInstallment * (settingsMaxipagoCredit[`${index}x`] * 0.01))
+    }
+
     if (totalInstallment >= minInstallmentsMaxipago) {
       totalAmountString = totalInstallment.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
-      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
+      if (settingsMaxipagoCredit[`${index}x`] != 0) {
+        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
+      } else {
+        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}` })
+      }
     }
   }
 

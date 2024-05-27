@@ -41,13 +41,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
 
     public function get_payment_method_data() {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-
-        return array(
+        $maxParcels = get_option('woocommerce_rede_credit_settings')['max_parcels_number'];
+        $phpArray =  array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceRedeCredit' => wp_create_nonce( 'redeCardNonce' ),
             'minInstallmentsRede' => get_option('woocommerce_rede_credit_settings')['min_parcels_value'],
-            'maxInstallmentsRede' => get_option('woocommerce_rede_credit_settings')['max_parcels_number'],
+            'maxInstallmentsRede' => $maxParcels,    
             'cartTotal' => $cart_total,
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
@@ -56,8 +56,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
                 'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
                 'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
                 'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
+                'interestFree' => __(' interest-free', 'integration-rede-for-woocommerce'),
             )
         );
+        if(get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes'){
+            for ($i = 1; $i <= $maxParcels; ++$i) {
+                $phpArray[$i . 'x'] = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
+            };
+        }
+        return $phpArray;
     }
 }
 ?>

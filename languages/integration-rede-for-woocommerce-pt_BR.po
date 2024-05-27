@@ -417,6 +417,10 @@ msgstr "WooCommerce"
 msgid "Please fill in all fields correctly."
 msgstr "Por favor, preencha todos os campos corretamente."
 
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks.php:59
+msgid " interest-free"
+msgstr " sem juros"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"
