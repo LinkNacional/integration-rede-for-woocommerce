@@ -41,9 +41,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $this->debug = $this->get_option( 'debug' );
 
-        if ( 'yes' == $this->debug ) {
-            $this->log = $this->get_logger();
-        }
+        $this->log = $this->get_logger();
 		
         $this->configs = $this->getConfigsRedeCredit();
 		
@@ -187,8 +185,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
-                'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enable debug logs. ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">'. __('See logs', 'integration-rede-for-woocommerce') .'</a>'),
+                'default' => 'no',
             ),
         );
 
@@ -377,15 +375,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 $this->process_order_status( $order, $transaction, '' );
 				
                 $order->save();
-
-                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'transaction' => $transaction,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order_total,
-                        'status' => $order->get_status()
-                    ),
-                ), $this->configs);
+                
+                if ( 'yes' == $this->debug ) {                    
+                    $this->log->log('info', $this->id, array(
+                        'transaction' => $transaction,
+                        'order' => array(
+                            'orderId' => $orderId,
+                            'amount' => $order_total,
+                            'status' => $order->get_status()
+                        ),
+                    ));
+                }
             } catch ( Exception $e ) {
                 $this->add_error( $e->getMessage() );
                 $valid = false;

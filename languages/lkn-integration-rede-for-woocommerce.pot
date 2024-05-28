@@ -142,7 +142,10 @@ msgstr ""
 msgid "Debug"
 msgstr ""
 
-msgid "Enable debug logs"
+msgid "Enable debug logs. "
+msgstr ""
+
+msgid "See logs"
 msgstr ""
 
 msgid "no"

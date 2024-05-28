@@ -26,6 +26,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         
         // Carrega os valores dos campos de configuração
         $this->enabled = $this->get_option('enabled');
+
+        $this->debug = $this->get_option( 'debug' );
+
+        $this->log = $this->get_logger();
         
         $this->configs = $this->getConfigsMaxipagoCredit();
     }
@@ -168,7 +172,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enable debug logs ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">'. __('See logs', 'integration-rede-for-woocommerce') .'</a>'),
                 'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             )
         );
@@ -417,17 +421,18 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     }
                     
                 }
+                if ( 'yes' == $this->debug ) {                     
+                    $this->log->log('info', $this->id, array(
+                        'transaction' => $xml,
+                        'order' => array(
+                            'orderId' => $orderId,
+                            'amount' => $order_total,
+                            'status' => $order->get_status()
+                        ),
+                        'installments' => $installments
+                    ));
+                }
 
-                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'transaction' => $xml,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order_total,
-                        'status' => $order->get_status()
-                    ),
-                    'installments' => $installments
-                ), $this->configs);
-                
                 if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
                     throw new Exception($xml_decode['errorMessage']);
                 }  

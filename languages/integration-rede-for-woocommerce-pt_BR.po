@@ -186,8 +186,12 @@ msgid "Debug"
 msgstr "Depurar"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:320
-msgid "Enable debug logs"
-msgstr "Ativar logs de depuração"
+msgid "Enable debug logs. "
+msgstr "Ativar logs de depuração. "
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:188
+msgid "See logs"
+msgstr "Ver logs"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:321
 msgid "no"

@@ -27,6 +27,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         // Carrega os valores dos campos de configuração
         $this->enabled = $this->get_option('enabled');
         $this->configs = $this->getConfigsMaxipagoDebit();
+
+        $this->debug = $this->get_option( 'debug' );
+
+        $this->log = $this->get_logger();
+        
     }
 
     public function addNeighborhoodFieldToCheckout( $fields ) {
@@ -138,7 +143,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enable debug logs. ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">'. __('See logs', 'integration-rede-for-woocommerce') .'</a>'),
                 'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             )
             
@@ -316,15 +321,16 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
                     $order->update_status('processing');
                 }
-
-                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'transaction' => $xml,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order->get_total(),
-                        'status' => $order->get_status()
-                    ),
-                ), $this->configs);
+                if ( 'yes' == $this->debug ) {                    
+                    $this->log->log('info', $this->id, array(
+                        'transaction' => $xml,
+                        'order' => array(
+                            'orderId' => $orderId,
+                            'amount' => $order->get_total(),
+                            'status' => $order->get_status()
+                        ),
+                    ));
+                }
                 
                 if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
                     throw new Exception($xml_decode['errorMessage']);
