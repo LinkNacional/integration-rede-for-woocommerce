@@ -134,8 +134,8 @@ msgid "Token"
 msgstr "Token"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:251
-msgid "Soft Descriptor"
-msgstr "Soft Descriptor"
+msgid "Payment Description"
+msgstr "Descrição do Pagamento"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:257
 msgid "Credit Card Settings"
@@ -339,6 +339,14 @@ msgstr "Seu Merchant ID do Maxipago."
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:131
 msgid "Your Maxipago Merchant Key."
 msgstr "Sua Merchant Key do Maxipago."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:118
+msgid "Your Rede PV (affiliation number)."
+msgstr "Seu PV (número de filiação) da Rede."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:125
+msgid "Your Rede Token."
+msgstr "Seu Token da Rede."
 
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "District"

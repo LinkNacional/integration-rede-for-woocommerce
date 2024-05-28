@@ -115,17 +115,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
             'pv' => array(
                 'title' => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
+                'type' => 'password',
+                'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'default' => $options['pv'] ?? '',
             ),
             'token' => array(
                 'title' => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
+                'type' => 'password',
+                'description' => esc_attr__( 'Your Rede Token.', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'default' => $options['token'] ?? '',
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__( 'Soft Descriptor', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Payment Description', 'integration-rede-for-woocommerce' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Payment', 'integration-rede-for-woocommerce' ),
                 'custom_attributes' => array(

@@ -31,8 +31,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->token = $this->get_option( 'token' );
 
         $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));		
-		
-        $this->auto_capture = true;
+        add_option('tgest $this->get_option(', json_encode($this->get_option('auto_capture')));
+        $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
         $this->min_parcels_value = $this->get_option( 'min_parcels_value' );
 
@@ -115,16 +115,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'pv' => array(
                 'title' => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
                 'type' => 'password',
+                'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
                 'default' => $options['pv'] ?? '',
             ),
             'token' => array(
                 'title' => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
                 'type' => 'password',
+                'description' => esc_attr__( 'Your Rede Token.', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
                 'default' => $options['token'] ?? '',
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__( 'Soft Descriptor', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Payment Description', 'integration-rede-for-woocommerce' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Payment', 'integration-rede-for-woocommerce' ),
                 'custom_attributes' => array(
@@ -216,6 +220,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function getInstallments( $order_total = 0 ) {
         $installments = array();
+        $customLabel = null;
         $defaults = array(
             'min_value' => str_replace(',', '.', $this->min_parcels_value),
             'max_parcels' => $this->max_parcels_number,

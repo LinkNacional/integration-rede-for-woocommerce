@@ -180,7 +180,6 @@ final class LknIntegrationRedeForWoocommerce {
         $this->wc_rede_class->getInstance();
         $this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'updateRedeOrders');
         $this->loader->add_action('init', $this->wc_rede_class, 'loadPluginTextdomain');
-        $this->loader->add_action('woocommerce_order_status_on-hold_to_processing', $this->wc_rede_class, 'capture_payment');
         $this->loader->add_filter('woocommerce_payment_gateways', $this->wc_rede_class, 'addGateway');
 		
         $this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');

@@ -103,7 +103,7 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-msgid "Soft Descriptor"
+msgid "Payment Description"
 msgstr ""
 
 msgid "Credit Card Settings"
@@ -143,6 +143,12 @@ msgid "Debug"
 msgstr ""
 
 msgid "Enable debug logs. "
+msgstr ""
+
+msgid "Your Rede PV (affiliation number)."
+msgstr ""
+
+msgid "Your Rede Token."
 msgstr ""
 
 msgid "See logs"

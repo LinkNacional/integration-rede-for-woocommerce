@@ -120,7 +120,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             ),
             'merchant_id' => array(
                 'title' => __('Merchant ID', 'integration-rede-for-woocommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'description' => __('Your Maxipago Merchant ID.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
@@ -128,7 +128,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             ),
             'merchant_key' => array(
                 'title' => __('Merchant Key', 'integration-rede-for-woocommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'description' => __('Your Maxipago Merchant Key.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
@@ -200,6 +200,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     
     public function getInstallments( $order_total = 0 ) {
         $installments = array();
+        $customLabel = null;
         $defaults = array(
             'min_value' => str_replace(',', '.', $this->get_option( 'min_parcels_value' )),
             'max_parcels' => $this->get_option( 'max_parcels_number' ),
@@ -258,7 +259,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
         $companyName = sanitize_text_field($this->get_option('company_name'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
-        $capture = sanitize_text_field($this->get_option('auto_capture')) == 'yes' ? 'sale' : 'auth';;
+        $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
         $referenceNum = uniqid('order_', true);
         $valid = true;
         
