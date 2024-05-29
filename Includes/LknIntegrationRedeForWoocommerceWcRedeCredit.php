@@ -386,7 +386,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
     }	
 
-    public function processRefund( $order_id, $amount = null, $reason = '' ) {
+    public function process_refund( $order_id, $amount = null, $reason = '' ) {
         $order = new WC_Order( $order_id );
 
         if ( ! $order || ! $order->get_transaction_id() ) {
@@ -404,7 +404,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 update_post_meta( $order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
                 update_post_meta( $order_id, '_wc_rede_transaction_canceled', true );
 
-                $order->add_order_note( esc_attr_e( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
+                $order->add_order_note( esc_attr__( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
             } catch ( Exception $e ) {
                 return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
             }
