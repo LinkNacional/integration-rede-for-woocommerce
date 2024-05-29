@@ -135,6 +135,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'required' => true,
             ),
             
+            'licence' => array(
+                'title' => esc_attr__( 'Licence', 'integration-rede-for-woocommerce' ),
+                'type' => 'password',
+                'description' => esc_attr__( 'License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'default' => '',
+            ),
+            
             'developers' => array(
                 'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
                 'type' => 'title',

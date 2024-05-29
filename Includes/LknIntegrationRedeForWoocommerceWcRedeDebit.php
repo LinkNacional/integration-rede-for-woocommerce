@@ -137,6 +137,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 ),
             ),
 
+            'licence' => array(
+                'title' => esc_attr__( 'Licence', 'integration-rede-for-woocommerce' ),
+                'type' => 'password',
+                'description' => esc_attr__( 'License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'default' => '',
+            ),
+
             'debit_options' => array(
                 'title' => esc_attr__( 'Debit Card Settings', 'integration-rede-for-woocommerce' ),
                 'type' => 'title',
