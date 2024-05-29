@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 3.0.4
+Stable tag: 3.0.5
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -70,6 +70,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
+= 3.0.5 = *2024/05/29*
+* Fix refund function.
+
 = 3.0.4 = *2024/05/24*
 * Fix card animation loop.
 
@@ -115,6 +118,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 1. Nothing yet.
 
 == Upgrade Notice ==
+= 3.0.5 =
+* Fix refund function.
+
 = 3.0.4 =
 * Fix card animation loop.
 
