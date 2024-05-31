@@ -117,6 +117,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'password',
                 'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'integration-rede-for-woocommerce' ),
                 'desc_tip' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
                 'default' => $options['pv'] ?? '',
             ),
             'token' => array(
@@ -124,6 +127,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'password',
                 'description' => esc_attr__( 'Your Rede Token.', 'integration-rede-for-woocommerce' ),
                 'desc_tip' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
                 'default' => $options['token'] ?? '',
             ),
 
@@ -134,14 +140,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
-            ),
-
-            'licence' => array(
-                'title' => esc_attr__( 'Licence', 'integration-rede-for-woocommerce' ),
-                'type' => 'password',
-                'description' => esc_attr__( 'License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce' ),
-                'desc_tip' => true,
-                'default' => '',
             ),
 
             'credit_options' => array(
@@ -205,7 +203,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
-        )); 
+        ), $this->id); 
 		
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);

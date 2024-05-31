@@ -11,6 +11,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $this->method_description = esc_attr__( 'Enables and configures payments with Maxipago Credit', 'integration-rede-for-woocommerce' );
         $this->title = 'Maxipago';
         $this->has_fields = true;
+        $this->supports = array(
+            'products',
+            'refunds',
+        );
 
         // Define os campos de configuração
         $this->initFormFields();
@@ -124,7 +128,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'description' => __('Your Maxipago Merchant ID.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
-                'required' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
             ),
             'merchant_key' => array(
                 'title' => __('Merchant Key', 'integration-rede-for-woocommerce'),
@@ -132,17 +138,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'description' => __('Your Maxipago Merchant Key.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
-                'required' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
             ),
-
-            'licence' => array(
-                'title' => esc_attr__( 'Licence', 'integration-rede-for-woocommerce' ),
-                'type' => 'password',
-                'description' => esc_attr__( 'License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce' ),
-                'desc_tip' => true,
-                'default' => '',
-            ),
-            
             'credit_options' => array(
                 'title' => esc_attr__( 'Credit Card Settings', 'integration-rede-for-woocommerce' ),
                 'type' => 'title',
@@ -189,7 +188,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
-        )); 
+        ), $this->id); 
 		
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);

@@ -11,6 +11,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $this->method_description = esc_attr__( 'Enables and configures payments with Maxipago Debit', 'integration-rede-for-woocommerce' );
         $this->title = 'Maxipago';
         $this->has_fields = true;
+        $this->supports = array(
+            'products',
+            'refunds',
+        );
 
         // Define os campos de configuração
         $this->initFormFields();
@@ -124,7 +128,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'description' => __('Your Maxipago Merchant ID.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
-                'required' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
             ),
             'merchant_key' => array(
                 'title' => __('Merchant Key', 'integration-rede-for-woocommerce'),
@@ -132,16 +138,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'description' => __('Your Maxipago Merchant Key.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
-                'required' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
             ),
             
-            'licence' => array(
-                'title' => esc_attr__( 'Licence', 'integration-rede-for-woocommerce' ),
-                'type' => 'password',
-                'description' => esc_attr__( 'License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce' ),
-                'desc_tip' => true,
-                'default' => '',
-            ),
             
             'developers' => array(
                 'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
@@ -157,7 +158,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             
         );
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields); 
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id); 
 		
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
