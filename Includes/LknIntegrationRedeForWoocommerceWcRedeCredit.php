@@ -347,7 +347,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 $interest = round((float) $this->get_option( $installments . 'x' ), 2);
                 $order_total = $order->get_total();
                 if($this->get_option('installment_interest') == 'yes'){
-                    $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');           
+                    $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, '', 'total');           
                 }
 
                 $transaction = $this->api->doTransactionCreditRequest( $orderId + time(), $order_total, $installments, $cardData );
@@ -363,6 +363,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 $order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
                 $order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
                 $order->update_meta_data( '_wc_rede_captured', $transaction->getCapture() );
+                $order->update_meta_data( '_wc_rede_total_amount', $order_total );
 				
                 $authorization = $transaction->getAuthorization();
 				
@@ -418,6 +419,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {
         $order = new WC_Order( $order_id );
+        $totalAmount = $order->get_meta('_wc_rede_total_amount');
 
         if ( ! $order || ! $order->get_transaction_id() ) {
             return false;
@@ -428,7 +430,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $amount = wc_format_decimal( $amount );
 
             try {
-                $transaction = $this->api->do_transaction_cancellation( $tid, $amount );
+                if($amount ==  $order->get_total()){
+                    $transaction = $this->api->do_transaction_cancellation( $tid, $totalAmount );
+                }else{                    
+                    $transaction = $this->api->do_transaction_cancellation( $tid, $amount );
+                }                
 
                 update_post_meta( $order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
                 update_post_meta( $order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );

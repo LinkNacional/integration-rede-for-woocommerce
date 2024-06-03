@@ -3,6 +3,7 @@ namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
 use Exception;
 use WC_Order;
+use WP_Error;
 
 final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrationRedeForWoocommerceWcRedeAbstract {
     public function __construct() {
@@ -420,6 +421,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $order->update_meta_data( '_wc_maxipago_transaction_environment', $environment );
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
+                    $order->update_meta_data( '_wc_maxipago_total_amount', $order_total );
                     if($capture == 'sale'){
                         $order->update_meta_data( '_wc_rede_captured', true );
                         $order->update_status('processing');
@@ -468,6 +470,104 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'redirect' => '',
             );
         }
+    }
+
+    public function process_refund( $order_id, $amount = null, $reason = '' ) {
+        $order = new WC_Order( $order_id );
+        $totalAmount = $order->get_meta('_wc_maxipago_total_amount');
+        $environment = $this->get_option('environment');
+        $orderId = $order->get_meta('_wc_maxipago_transaction_id');
+        $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
+
+
+        if ( empty( $order->get_meta( '_wc_maxipago_transaction_canceled' ) ) ) {
+            $amount = wc_format_decimal( $amount );
+
+            try {
+                if($amount ==  $order->get_total()){
+                    $amount = $totalAmount;
+                }
+
+                if ('production' === $environment) {
+                    $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
+                } else {
+                    $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
+                }
+                
+                $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+                    <transaction-request>
+                        <version>3.1.1.15</version>
+                        <verification>
+                            <merchantId>24187</merchantId>
+                            <merchantKey>r7wz16zltnpkf61i4ugo3wds</merchantKey>
+                        </verification>
+                        <order>
+                            <return>
+                                <orderID>$orderId</orderID>
+                                <referenceNum>$referenceNum</referenceNum>
+                                <payment>
+                                    <chargeTotal>$amount</chargeTotal>
+                                </payment>
+                            </return>
+                        </order>
+                    </transaction-request>
+                ";
+
+                $args = array(
+                    'body' => $xmlData,
+                    'headers' => array(
+                        'Content-Type' => 'application/xml'
+                    ),
+                    'sslverify' => false // Desativa a verificação do certificado SSL
+                );
+
+                $response = wp_remote_post($apiUrl, $args);
+
+                if (is_wp_error($response)) {
+                    $error_message = $response->get_error_message();
+                    throw new Exception(esc_attr($error_message));
+                } else {
+                    $response_body = wp_remote_retrieve_body($response);
+                    $xml = simplexml_load_string($response_body);
+                }
+                
+                //Reconstruindo o $xml para facilitar o uso da variavel
+                $xml_encode = wp_json_encode($xml);
+                $xml_decode = json_decode($xml_encode, true);
+                
+                if ("APPROVED" == $xml_decode['processorMessage']) {
+                    
+                    update_post_meta( $order_id, '_wc_maxipago_transaction_refund_id', $xml_decode['transactionID'] );
+                    update_post_meta( $order_id, '_wc_maxipago_transaction_cancel_id', $xml_decode['transactionID'] );
+                    update_post_meta( $order_id, '_wc_maxipago_transaction_canceled', true );
+                    $order->add_order_note( esc_attr__( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
+
+                }
+
+                if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
+                    throw new Exception($xml_decode['errorMessage']);
+                } 
+
+                $order->save();
+                
+                $this->log->log('info', $this->id, array(
+                    'order' => array(
+                        'amount' => $amount,
+                        'totalAmount' => $totalAmount,
+                        'totalOrder' => $order->get_total(),
+                    ),
+                ));               
+
+
+                
+            } catch ( Exception $e ) {
+                return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public function validateCpf($cpf) {

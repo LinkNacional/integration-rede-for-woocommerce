@@ -13,7 +13,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $this->has_fields = true;
         $this->supports = array(
             'products',
-            'refunds',
         );
 
         // Define os campos de configuração
