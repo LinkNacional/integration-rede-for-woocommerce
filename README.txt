@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 3.0.4
+Stable tag: 3.1.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
