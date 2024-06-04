@@ -18,6 +18,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     }
 
     public function get_payment_method_script_handles() {
+        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor']?? false);
+        if($customCss === false){   
+            wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
+        }
         wp_register_script(
             'maxipago_credit-blocks-integration',
             plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',
@@ -40,13 +44,13 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
 
     public function get_payment_method_data() {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        
-        return array(
+        $maxParcels = get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'];
+        $phpArray = array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceMaxipagoCredit' => wp_create_nonce( 'maxipagoCardNonce' ),
             'minInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['min_parcels_value'],
-            'maxInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'],
+            'maxInstallmentsMaxipago' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
@@ -56,8 +60,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
                 'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
                 'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
                 'district' => __('District', 'integration-rede-for-woocommerce'),
+                'interestFree' => __(' interest-free', 'integration-rede-for-woocommerce'),
             )
         );
+        if(get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes'){
+            for ($i = 1; $i <= $maxParcels; ++$i) {
+                $phpArray[$i . 'x'] = round((float) get_option('woocommerce_maxipago_credit_settings')[$i . 'x'], 2);
+            };
+        }
+        return $phpArray;
     }
 }
 ?>

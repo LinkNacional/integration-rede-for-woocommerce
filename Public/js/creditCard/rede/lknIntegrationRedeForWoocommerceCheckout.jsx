@@ -30,12 +30,20 @@ const ContentRedeCredit = (props) => {
   for (let index = 1; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
     totalInstallment = totalAmountFloat / index
 
+    if (settingsRedeCredit[`${index}x`] && settingsRedeCredit[`${index}x`] != 0) {
+      totalInstallment = totalInstallment + (totalInstallment * (settingsRedeCredit[`${index}x`] * 0.01))
+    }
+
     if (totalInstallment >= minInstallmentsRede) {
       totalAmountString = totalInstallment.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
-      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
+      if (settingsRedeCredit[`${index}x`] != 0) {
+        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
+      } else {
+        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsRedeCredit.interestFree}` })
+      }
     }
   }
 

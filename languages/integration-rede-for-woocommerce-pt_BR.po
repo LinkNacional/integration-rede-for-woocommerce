@@ -134,8 +134,8 @@ msgid "Token"
 msgstr "Token"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:251
-msgid "Soft Descriptor"
-msgstr "Soft Descriptor"
+msgid "Payment Description"
+msgstr "Descrição do Pagamento"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:257
 msgid "Credit Card Settings"
@@ -186,8 +186,12 @@ msgid "Debug"
 msgstr "Depurar"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:320
-msgid "Enable debug logs"
-msgstr "Ativar logs de depuração"
+msgid "Enable debug logs. "
+msgstr "Ativar logs de depuração. "
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:188
+msgid "See logs"
+msgstr "Ver logs"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:321
 msgid "no"
@@ -328,6 +332,22 @@ msgstr "Merchant ID"
 msgid "Merchant Key"
 msgstr "Merchant Key"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:122
+msgid "Your Maxipago Merchant ID."
+msgstr "Seu Merchant ID do Maxipago."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:131
+msgid "Your Maxipago Merchant Key."
+msgstr "Sua Merchant Key do Maxipago."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:118
+msgid "Your Rede PV (affiliation number)."
+msgstr "Seu PV (número de filiação) da Rede."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:125
+msgid "Your Rede Token."
+msgstr "Seu Token da Rede."
+
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCredit.php:302
 msgid "District"
 msgstr "Bairro"
@@ -408,6 +428,10 @@ msgstr "WooCommerce"
 #: Includes/views/notices/LknIntegrationRedeForWoocommerceEndPoints.php:23
 msgid "Please fill in all fields correctly."
 msgstr "Por favor, preencha todos os campos corretamente."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks.php:59
+msgid " interest-free"
+msgstr " sem juros"
 
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"

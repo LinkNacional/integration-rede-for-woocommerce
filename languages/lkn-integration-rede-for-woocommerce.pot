@@ -103,7 +103,7 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-msgid "Soft Descriptor"
+msgid "Payment Description"
 msgstr ""
 
 msgid "Credit Card Settings"
@@ -142,7 +142,16 @@ msgstr ""
 msgid "Debug"
 msgstr ""
 
-msgid "Enable debug logs"
+msgid "Enable debug logs. "
+msgstr ""
+
+msgid "Your Rede PV (affiliation number)."
+msgstr ""
+
+msgid "Your Rede Token."
+msgstr ""
+
+msgid "See logs"
 msgstr ""
 
 msgid "no"
@@ -221,6 +230,18 @@ msgid "Invalid number of installments"
 msgstr ""
 
 msgid "Merchant ID or Merchant Key is invalid!"
+msgstr ""
+
+msgid "Merchant ID"
+msgstr ""
+
+msgid "Merchant Key"
+msgstr ""
+
+msgid "Your Maxipago Merchant ID."
+msgstr ""
+
+msgid "Your Maxipago Merchant Key."
 msgstr ""
 
 msgid "District"

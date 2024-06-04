@@ -41,9 +41,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         $this->debug = $this->get_option( 'debug' );
 
-        if ( 'yes' == $this->debug ) {
-            $this->log = $this->get_logger();
-        }
+        $this->log = $this->get_logger();
 		
         $this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
         $this->configs = $this->getConfigsRedeDebit();
@@ -117,17 +115,27 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
             'pv' => array(
                 'title' => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
+                'type' => 'password',
+                'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
+                'default' => $options['pv'] ?? '',
             ),
             'token' => array(
                 'title' => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
+                'type' => 'password',
+                'description' => esc_attr__( 'Your Rede Token.', 'integration-rede-for-woocommerce' ),
+                'desc_tip' => true,
+                'custom_attributes' => array(
+                    'required' => 'required'
+                ),
+                'default' => $options['token'] ?? '',
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__( 'Soft Descriptor', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Payment Description', 'integration-rede-for-woocommerce' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Payment', 'integration-rede-for-woocommerce' ),
                 'custom_attributes' => array(
@@ -162,10 +170,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enable debug logs. ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">'. __('See logs', 'integration-rede-for-woocommerce') .'</a>'),
                 'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             ),
         );
+
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id); 
+		
+        if ( ! empty($customConfigs)) {
+            $this->form_fields = array_merge($this->form_fields, $customConfigs);
+        }
     }
 
     public function checkoutScripts(): void {
@@ -181,10 +195,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         wp_enqueue_style( 'wc-rede-checkout-webservice' );
-
-        wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
-        wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
-        wp_enqueue_style( 'wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all' );
+        
+        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_short_code']?? false);
+        if($customCss === false){             
+            wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+            wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
+            wp_enqueue_style( 'wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all' );
+        }
 
         wp_enqueue_script( 'wooRedeDebit-js', $plugin_url . 'Public/js/debitCard/rede/wooRedeDebit.js', array(), '1.0.0', true );
         wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'wooRedeDebit-js'), '2.5.0', true );
@@ -206,7 +223,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $cardNumber = isset( $_POST['rede_debit_number'] ) ? 
         	sanitize_text_field( $_POST['rede_debit_number'] ) : '';
         $valid = true;
-	
+
         if ( $valid ) {
             $debitExpiry = sanitize_text_field($_POST['rede_debit_expiry']);
 			
@@ -274,15 +291,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 $this->process_order_status( $order, $transaction, '' );
 				
                 $order->save();
-
-                LknIntegrationRedeForWoocommerceHelper::reg_log(array(
-                    'transaction' => $transaction,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $amount,
-                        'status' => $order->get_status()
-                    ),
-                ), $this->configs);
+                
+                if ( 'yes' == $this->debug ) {                    
+                    $this->log->log('info', $this->id, array(
+                        'transaction' => $transaction,
+                        'order' => array(
+                            'orderId' => $orderId,
+                            'amount' => $amount,
+                            'status' => $order->get_status()
+                        ),
+                    ));
+                }
             } catch ( Exception $e ) {
                 $this->add_error( $e->getMessage() );
                 $valid = false;

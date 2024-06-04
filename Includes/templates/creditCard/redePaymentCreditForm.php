@@ -11,30 +11,7 @@ $selectDivClass = 'select-input';
 $selectDivStyle = '';
 $selectSpanStyle = '';
 $selectStyle = '';
-/* switch ($theme_name) {
-	case 'Hello Elementor':
-		$selectDivClass = "
-			input-text 
-			jp-card-invalid 
-			wc-credit-card-form-card-number-select-input
-		";
-		$selectDivStyle="
-			padding: 0;
-			font-size: 0.8rem;
-		";
-	break;
 
-	case 'OceanWP':
-		$selectDivClass = "
-			input-text 
-			jp-card-invalid 
-			wc-credit-card-form-card-number-select-input
-		";
-		$selectStyle = "
-			font-size: 1.95rem
-		";
-	break;
-} */
 
 ?>
 <fieldset id="rede-credit-payment-form" class="rede-payment-form">

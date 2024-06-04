@@ -62,4 +62,3 @@ window.jQuery(function ($) {
     })
   }
 })
-
