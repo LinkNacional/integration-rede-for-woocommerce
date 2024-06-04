@@ -1,3 +1,15 @@
+# 3.1.0 - 04/06/2024
+* Adição de compatibilidade com o plugin PRO.
+
+# 3.0.5 - 29/05/2024
+* Correção de função para fazer o reembolso de pedidos.
+
+# 3.0.4 - 24/05/2024
+* Correção de looping para criar animação de cartão.
+
+# 3.0.3 - 23/05/2024
+* Correção de erros em função para salvar o total da compra.
+
 # 3.0.2 - 22/05/2024
 * Correção de erros de layout de método de pagamento no checkout.
 
