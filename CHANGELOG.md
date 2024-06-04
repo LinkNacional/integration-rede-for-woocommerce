@@ -1,3 +1,6 @@
+# 3.0.5 - 29/05/2024
+* Correção de função para fazer o reembolso de pedidos.
+
 # 3.0.4 - 24/05/2024
 * Correção de looping para criar animação de cartão.
 
