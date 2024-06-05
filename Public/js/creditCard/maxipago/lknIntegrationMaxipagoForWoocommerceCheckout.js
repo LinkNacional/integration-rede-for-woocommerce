@@ -31,15 +31,25 @@ const ContentMaxipagoCredit = props => {
   let options = [];
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
     totalInstallment = totalAmountFloat / index;
+    if (settingsMaxipagoCredit[`${index}x`] && settingsMaxipagoCredit[`${index}x`] != 0) {
+      totalInstallment = totalInstallment + totalInstallment * (settingsMaxipagoCredit[`${index}x`] * 0.01);
+    }
     if (totalInstallment >= minInstallmentsMaxipago) {
       totalAmountString = totalInstallment.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
-      options.push({
-        key: index,
-        label: `${index}x de R$ ${totalAmountString}`
-      });
+      if (settingsMaxipagoCredit[`${index}x`] != 0) {
+        options.push({
+          key: index,
+          label: `${index}x de R$ ${totalAmountString}`
+        });
+      } else {
+        options.push({
+          key: index,
+          label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}`
+        });
+      }
     }
   }
   const formatCreditCardNumber = value => {
@@ -125,8 +135,8 @@ const ContentMaxipagoCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-    // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+  // Adiciona creditObject como dependência
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(wcComponents.TextInput, {
@@ -174,7 +184,7 @@ const ContentMaxipagoCredit = props => {
   }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
     instanceId: 1,
     className: "lknIntegrationRedeForWoocommerceSelectBlocks",
-    label: translationsRedeCredit.installments,
+    label: translationsMaxipagoCredit.installments,
     onChange: handleSortChange,
     options: options,
     value: selectedValue,

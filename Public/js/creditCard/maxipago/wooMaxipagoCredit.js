@@ -73,9 +73,8 @@ window.jQuery(function ($) {
 
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
-        verify = false
+        verify = true
       }
     }, 1000)
   }
 })
-

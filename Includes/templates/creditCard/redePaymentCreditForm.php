@@ -11,35 +11,12 @@ $selectDivClass = 'select-input';
 $selectDivStyle = '';
 $selectSpanStyle = '';
 $selectStyle = '';
-/* switch ($theme_name) {
-	case 'Hello Elementor':
-		$selectDivClass = "
-			input-text 
-			jp-card-invalid 
-			wc-credit-card-form-card-number-select-input
-		";
-		$selectDivStyle="
-			padding: 0;
-			font-size: 0.8rem;
-		";
-	break;
 
-	case 'OceanWP':
-		$selectDivClass = "
-			input-text 
-			jp-card-invalid 
-			wc-credit-card-form-card-number-select-input
-		";
-		$selectStyle = "
-			font-size: 1.95rem
-		";
-	break;
-} */
 
 ?>
 <fieldset id="rede-credit-payment-form" class="rede-payment-form">
 	<div class="payment-method-description">
-		<p><?php esc_html_e( 'Pay for your purchase with a credit card through ', 'integration-rede-for-woocommerce' ); ?></p>
+		<p><?php esc_html_e( 'Pay for your purchase with a credit card through', 'integration-rede-for-woocommerce' ); ?></p>
 		<svg id="logo-rede" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480.72 156.96">
 			<defs>
 				<style>.cls-1{fill:#ff7800}</style>
@@ -138,7 +115,7 @@ $selectStyle = '';
 			<div class="form-row form-row">
 				<?php if ( is_array( $installments ) && count( $installments ) > 1 ) { ?>
 					<label for="rede-card-installments">
-						<?php esc_attr_e( 'Installments ', 'integration-rede-for-woocommerce' ); ?>
+						<?php esc_attr_e( 'Installments', 'integration-rede-for-woocommerce' ); ?>
 						<span class="required">*</span>
 					</label>
 					<select
