@@ -19,7 +19,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
 
     public function get_payment_method_script_handles() {
         $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor']?? false);
-        add_option('json code custo cs22s2 2222', $customCss);
         if($customCss != 1){   
             wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
         }
@@ -60,7 +59,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
                 'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
                 'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
                 'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
-                'interestFree' => __(' interest-free', 'integration-rede-for-woocommerce'),
+                'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
             )
         );
         if(get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes'){

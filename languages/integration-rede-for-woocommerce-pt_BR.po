@@ -186,8 +186,8 @@ msgid "Debug"
 msgstr "Depurar"
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:320
-msgid "Enable debug logs. "
-msgstr "Ativar logs de depuração. "
+msgid "Enable debug logs."
+msgstr "Ativar logs de depuração."
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:188
 msgid "See logs"
@@ -249,16 +249,16 @@ msgid "completed"
 msgstr "concluído"
 
 #: Includes/class-wc-rede-abstract.php:152
-msgid "Your order is already being processed. For more information "
-msgstr "Seu pedido já está sendo processado. Para maiores informações "
+msgid "Your order is already being processed. For more information"
+msgstr "Seu pedido já está sendo processado. Para maiores informações"
 
 #: Includes/class-wc-rede-abstract.php:152
 msgid "see order details"
 msgstr "ver detalhes do pedido"
 
 #: Includes/class-wc-rede-abstract.php:154
-msgid "For more details on your order, please visit "
-msgstr "Para mais detalhes sobre o seu pedido, visite "
+msgid "For more details on your order, please visit"
+msgstr "Para mais detalhes sobre o seu pedido, visite"
 
 #: Includes/class-wc-rede-abstract.php:154
 msgid "order details page"
@@ -373,20 +373,20 @@ msgid "Pay with the Maxipago Debit"
 msgstr "Pague com a Maxipago Débito"
 
 #: templates/credit-card/redePaymentCreditForm.php:8
-msgid "Pay for your purchase with a credit card through "
-msgstr "Pague sua compra com cartão de crédito através da "
+msgid "Pay for your purchase with a credit card through"
+msgstr "Pague sua compra com cartão de crédito através da"
 
 #: templates/credit-card/redePaymentDebitForm.php:8
-msgid "Pay for your purchase with a debit card through "
-msgstr "Pague sua compra com cartão de débito através da "
+msgid "Pay for your purchase with a debit card through"
+msgstr "Pague sua compra com cartão de débito através da"
 
 #: templates/credit-card/redePaymentCreditForm.php:22
 msgid "Card Number"
 msgstr "Número do cartão"
 
 #: templates/credit-card/redePaymentCreditForm.php:46
-msgid "Installments "
-msgstr "Parcelas "
+msgid "Installments"
+msgstr "Parcelas"
 
 #: templates/credit-card/redePaymentCreditForm.php:61
 msgid "Name on Card"
@@ -430,8 +430,8 @@ msgid "Please fill in all fields correctly."
 msgstr "Por favor, preencha todos os campos corretamente."
 
 #: Includes/LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks.php:59
-msgid " interest-free"
-msgstr " sem juros"
+msgid "interest-free"
+msgstr "sem juros"
 
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"

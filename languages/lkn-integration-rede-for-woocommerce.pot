@@ -142,7 +142,7 @@ msgstr ""
 msgid "Debug"
 msgstr ""
 
-msgid "Enable debug logs. "
+msgid "Enable debug logs."
 msgstr ""
 
 msgid "Your Rede PV (affiliation number)."
@@ -187,13 +187,13 @@ msgstr ""
 msgid "completed"
 msgstr ""
 
-msgid "Your order is already being processed. For more information "
+msgid "Your order is already being processed. For more information"
 msgstr ""
 
 msgid "see order details"
 msgstr ""
 
-msgid "For more details on your order, please visit "
+msgid "For more details on your order, please visit"
 msgstr ""
 
 msgid "order details page"
@@ -247,16 +247,19 @@ msgstr ""
 msgid "District"
 msgstr ""
 
-msgid "Pay for your purchase with a credit card through "
+msgid "Pay for your purchase with a credit card through"
 msgstr ""
 
-msgid "Pay for your purchase with a debit card through "
+msgid "Pay for your purchase with a debit card through"
 msgstr ""
 
 msgid "Card Number"
 msgstr ""
 
-msgid "Installments "
+msgid "Installments"
+msgstr ""
+
+msgid "interest-free"
 msgstr ""
 
 msgid "Name on Card"

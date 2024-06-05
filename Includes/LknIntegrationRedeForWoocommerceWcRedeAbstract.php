@@ -166,9 +166,9 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         if (	$order->get_status() == esc_attr__( 'on-hold', 'integration-rede-for-woocommerce' ) ||
         		$order->get_status() == esc_attr__( 'processing', 'integration-rede-for-woocommerce' ) ||
         		$order->get_status() == esc_attr__( 'completed', 'integration-rede-for-woocommerce' )) {
-            echo '<div class="woocommerce-message">' . esc_attr__( 'Your order is already being processed. For more information ', 'integration-rede-for-woocommerce' ) . '<a href="' . esc_url( $order_url ) . '" class="button" style="display: block !important; visibility: visible !important;">' . esc_attr__( 'see order details', 'integration-rede-for-woocommerce' ) . '</a><br /></div>';
+            echo '<div class="woocommerce-message">' . esc_attr__( 'Your order is already being processed. For more information', 'integration-rede-for-woocommerce' ). ' ' . '<a href="' . esc_url( $order_url ) . '" class="button" style="display: block !important; visibility: visible !important;">' . esc_attr__( 'see order details', 'integration-rede-for-woocommerce' ) . '</a><br /></div>';
         } else {
-            echo '<div class="woocommerce-info">' . esc_attr__( 'For more details on your order, please visit ', 'integration-rede-for-woocommerce' ) . '<a href="' . esc_url( $order_url ) . '">' . esc_attr__( 'order details page', 'integration-rede-for-woocommerce' ) . '</a></div>';
+            echo '<div class="woocommerce-info">' . esc_attr__( 'For more details on your order, please visit', 'integration-rede-for-woocommerce' ). ' ' . '<a href="' . esc_url( $order_url ) . '">' . esc_attr__( 'order details page', 'integration-rede-for-woocommerce' ) . '</a></div>';
         }
     }
 

@@ -160,7 +160,7 @@ $selectStyle = '';
 				<?php if ( is_array( $installments ) && count( $installments ) > 1 ) { ?>
 
 					<label for="installments">
-						<?php esc_attr_e( 'Installments ', 'integration-maxipago-for-woocommerce' ); ?>
+						<?php esc_attr_e( 'Installments', 'integration-maxipago-for-woocommerce' ); ?>
 						<span class="required">*</span>
 					</label>
 					<select 

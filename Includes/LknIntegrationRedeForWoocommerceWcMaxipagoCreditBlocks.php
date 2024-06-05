@@ -60,7 +60,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
                 'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
                 'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
                 'district' => __('District', 'integration-rede-for-woocommerce'),
-                'interestFree' => __(' interest-free', 'integration-rede-for-woocommerce'),
+                'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
             )
         );
         if(get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes'){
