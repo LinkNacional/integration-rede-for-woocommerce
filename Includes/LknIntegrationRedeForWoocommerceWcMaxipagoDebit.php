@@ -328,6 +328,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
                     $order->update_status('processing');
+                    apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
                 }
                 if ( 'yes' == $this->debug ) {                    
                     $this->log->log('info', $this->id, array(

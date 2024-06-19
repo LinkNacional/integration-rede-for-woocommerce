@@ -141,6 +141,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         if ( $transaction->getReturnCode() == '00' ) {
             if ( $transaction->getCapture() ) {
                 $order->update_status('processing');
+                apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
             } else {
                 $order->update_status( 'on-hold' );
                 wc_reduce_stock_levels( $order->get_id() );
