@@ -31,7 +31,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->token = $this->get_option( 'token' );
 
         $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));		
-        add_option('tgest $this->get_option(', json_encode($this->get_option('auto_capture')));
         $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
         $this->min_parcels_value = $this->get_option( 'min_parcels_value' );
