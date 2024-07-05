@@ -85,7 +85,7 @@ const ContentMaxipagoCredit = props => {
         }
         return;
       case 'maxipago_credit_cvc':
-        if (!/^\d+$/.test(value) || value.length > 4) return;
+        if ((!/^\d+$/.test(value) && value !== '')  || value.length > 4) return;
         break;
       default:
         break;
