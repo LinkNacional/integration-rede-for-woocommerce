@@ -141,6 +141,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ),
             ),
 
+            'partners' => array(
+                'title' => esc_attr__( 'Partner Settings', 'integration-rede-for-woocommerce' ),
+                'type' => 'title',
+            ),
+            'module' => array(
+                'title' => esc_attr__( 'Module ID', 'integration-rede-for-woocommerce' ),
+                'type' => 'text',
+                'default' => '',
+            ),
+            'gateway' => array(
+                'title' => esc_attr__( 'Gateway ID', 'integration-rede-for-woocommerce' ),
+                'type' => 'text',
+                'default' => '',
+            ),
+
             'credit_options' => array(
                 'title' => esc_attr__( 'Credit Card Settings', 'integration-rede-for-woocommerce' ),
                 'type' => 'title',
@@ -169,22 +184,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     '11' => '11x',
                     '12' => '12x',
                 ),
-            ),
-
-            'partners' => array(
-                'title' => esc_attr__( 'Partner Settings', 'integration-rede-for-woocommerce' ),
-                'type' => 'title',
-            ),
-            'module' => array(
-                'title' => esc_attr__( 'Module ID', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
-            ),
-            'gateway' => array(
-                'title' => esc_attr__( 'Gateway ID', 'integration-rede-for-woocommerce' ),
-                'type' => 'text',
-                'default' => '',
-            ),
+            ),              
 
             'developers' => array(
                 'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
@@ -279,12 +279,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         
         wp_enqueue_style( 'wc-rede-checkout-webservice' );
         
-        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code']?? false);
-        if($customCss === false){            
-            wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
-            wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
-            wp_enqueue_style( 'woo-rede-style', $plugin_url . 'Public/css/rede/styleRedeCredit.css', array(), '1.0.0', 'all' );
-        }
+        wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
+        wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
+        wp_enqueue_style( 'woo-rede-style', $plugin_url . 'Public/css/rede/styleRedeCredit.css', array(), '1.0.0', 'all' );
 
         wp_enqueue_script( 'woo-rede-js', $plugin_url . 'Public/js/creditCard/rede/wooRedeCredit.js', array(), '1.0.0', true );
         wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-rede-js'), '2.5.0', true );
@@ -292,6 +289,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         wp_localize_script( 'woo-rede-js', 'wooRede', array(
             'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
         ));
+
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code']?? false);
+
     }
 
     public function process_payment( $order_id ) {

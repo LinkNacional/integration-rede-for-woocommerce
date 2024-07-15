@@ -30,6 +30,13 @@ if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME', plugin_basename(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE));
 }
 
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME', plugin_basename(__DIR__ . '/integration-rede-for-woocommerce.php'));
+}
+
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
+}
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php

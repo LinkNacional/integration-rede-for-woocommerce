@@ -81,10 +81,6 @@ msgstr "Bin"
 msgid "Last 4"
 msgstr "4 últimos dígitos"
 
-#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:66
-msgid "Installments"
-msgstr "Parcelas"
-
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:67
 msgid "Cardholder"
 msgstr "Titular do cartão"
@@ -411,6 +407,42 @@ msgstr "CVC"
 #: templates/credit-card/redePaymentCreditForm.php:108
 msgid "Security Code"
 msgstr "Código de segurança"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:96
+msgid "Get new features with Rede Pro"
+msgstr "Obtenha novas funcionalidades com Rede Pro"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:97
+msgid "Manual capture of transaction/order"
+msgstr "Captura manual da transação/pedido"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:98
+msgid "Adjust interest rate based on installment"
+msgstr "Ajustes da taxa de juros de acordo com a parcela"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:99
+msgid "Custom CSS for payment forms"
+msgstr "CSS customizado para os formulários de pagamentos"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:100
+msgid "Enable payment with Pix"
+msgstr "Possibilita o pagamento com Pix"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:101
+msgid "Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!"
+msgstr "Parabéns! Você ganhou uma hospedagem WooCommerce grátis por 12 meses. Solicite agora!"
+
+#: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:102
+msgid "Discover and purchase the PRO plugin"
+msgstr "Conheça e compre o plugin PRO"
+
+#: Includes/LknIntegrationRedeForWoocommerce.php:176
+msgid "Settings"
+msgstr "Configuração"
+
+#: Includes/LknIntegrationRedeForWoocommerce.php:187
+msgid "Be pro"
+msgstr "Seja pro"
 
 #: Includes/views/notices/html-notice-woocommerce-missing.php:22
 msgid "Integration Rede for WooCommerce Disabled"

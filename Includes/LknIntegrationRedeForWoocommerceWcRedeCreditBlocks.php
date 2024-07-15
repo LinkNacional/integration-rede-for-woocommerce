@@ -18,10 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
     }
 
     public function get_payment_method_script_handles() {
-        $customCss = apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor']?? false);
-        if($customCss != 1){   
-            wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
-        }
+        wp_enqueue_style( 'select-style', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . '/Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
         wp_register_script(
             'rede_credit-blocks-integration',
             plugin_dir_url( __FILE__ ) . '../Public/js/creditCard/rede/lknIntegrationRedeForWoocommerceCheckout.js',
@@ -38,6 +35,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
         if ( function_exists( 'wp_set_script_translations' ) ) {
             wp_set_script_translations( 'rede_credit-blocks-integration');
         }
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor']?? false);
 
         return array('rede_credit-blocks-integration');
     }
@@ -62,10 +60,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
                 'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
             )
         );
-        if(get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes'){
-            for ($i = 1; $i <= $maxParcels; ++$i) {
-                $phpArray[$i . 'x'] = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
-            };
+        if(isset(get_option('woocommerce_rede_credit_settings')['installment_interest'])){
+            if(get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes'){
+                for ($i = 1; $i <= $maxParcels; ++$i) {
+                    $phpArray[$i . 'x'] = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
+                };
+            }
         }
         return $phpArray;
     }

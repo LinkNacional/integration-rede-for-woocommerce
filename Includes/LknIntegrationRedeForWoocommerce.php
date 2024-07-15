@@ -161,8 +161,41 @@ final class LknIntegrationRedeForWoocommerce {
 		$this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_debit_class,'displayMeta', 10, 1);	
 		$this->loader->add_filter('lknRedeAPIOrderCapture',  $this->wc_rede_api_class, 'do_transaction_capture');
 		$this->loader->add_filter('lknRedeGetMerchantAuth',  $this->wc_maxipago_credit_class, 'getMerchantAuth');
-		
-	}
+
+        $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMeta', 10, 2);
+        $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMetaPro', 10, 2);
+        
+    }
+
+    public static function lknIntegrationRedeForWoocommercePluginRowMeta($plugin_meta, $plugin_file) {
+
+
+        $new_meta_links['setting'] = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            admin_url('admin.php?page=wc-settings&tab=checkout'),
+            __('Settings', 'integration-maxipago-for-woocommerce')
+        );
+
+        return array_merge($plugin_meta, $new_meta_links);
+    }
+
+    public static function lknIntegrationRedeForWoocommercePluginRowMetaPro($plugin_meta, $plugin_file) {
+        // Defina o URL e o texto do link
+        $url = 'https://www.linknacional.com.br/wordpress/plugins/';
+        $link_text = sprintf(
+            '<span style="color: red; font-weight: bold;">%s</span>',
+            __('Be pro', 'integration-maxipago-for-woocommerce')
+        );
+
+        
+        // Crie o novo link de meta
+        $new_meta_link = sprintf('<a href="%1$s">%2$s</a>', $url, $link_text);
+        
+        // Adicione o novo link ao array de metadados do plugin
+        $plugin_meta[] = $new_meta_link;
+    
+        return $plugin_meta;
+    }
 	
     /**
      * Register all of the hooks related to the public-facing functionality

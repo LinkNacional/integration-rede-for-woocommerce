@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
     }
 
     public function get_payment_method_script_handles() {
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_debit_settings')['custom_css_block_editor']?? false);
+        
 
         wp_register_script(
             'maxipago_debit-blocks-integration',
@@ -36,6 +36,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
         if ( function_exists( 'wp_set_script_translations' ) ) {
             wp_set_script_translations( 'maxipago_debit-blocks-integration');
         }
+
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_debit_settings')['custom_css_block_editor']?? false);
 
         return array('maxipago_debit-blocks-integration');
     }
