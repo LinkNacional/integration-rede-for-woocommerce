@@ -90,5 +90,16 @@ final class LknIntegrationRedeForWoocommerceAdmin {
          * class.
          */
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
+        
+        // Localize the script with custom data
+        wp_localize_script($this->plugin_name, 'lknPhpTranslations', array(
+            'title' => __('Get new features with Rede Pro', 'integration-rede-for-woocommerce'),
+            'desc' => __('Discover and purchase the PRO plugin', 'integration-rede-for-woocommerce'),
+            'capture' => __('Manual capture of transaction/order', 'integration-rede-for-woocommerce'),
+            'tax' => __('Adjust interest rate based on installment', 'integration-rede-for-woocommerce'),
+            'css' => __('Custom CSS for payment forms', 'integration-rede-for-woocommerce'),
+            'pix' => __('Enable payment with Pix', 'integration-rede-for-woocommerce'),
+            'freeHost' => __('Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!', 'integration-rede-for-woocommerce')
+        ));
     }
 }

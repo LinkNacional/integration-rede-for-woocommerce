@@ -4,17 +4,17 @@
 *
 */
 #rede-credit-payment-form .payment-method-description {
-	display: inline-flex;
-	margin: 0 0 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 1rem;
+    display: inline-flex;
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
 }
 
 #rede-credit-payment-form .payment-method-description #logo-rede {
-	width: 60px;
-	margin-left: 10px;
+    width: 60px;
+    margin-left: 10px;
 }
 
 /*
@@ -23,42 +23,42 @@
 *
 */
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number {
-	background-repeat: no-repeat;
-	background-position: right 0.6180469716em center;
-	background-size: 31px 20px;
-	background-image: url("../../images/cards/unknown.svg");
+    background-repeat: no-repeat;
+    background-position: right 0.6180469716em center;
+    background-size: 31px 20px;
+    background-image: url("../../images/cards/unknown.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.visa {
-	background-image: url("../../images/cards/visa.svg");
+    background-image: url("../../images/cards/visa.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.mastercard {
-	background-image: url("../../images/cards/mastercard.svg");
+    background-image: url("../../images/cards/mastercard.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.laser {
-	background-image: url("../../images/cards/laser.svg");
+    background-image: url("../../images/cards/laser.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.dinersclub {
-	background-image: url("../../images/cards/diners.svg");
+    background-image: url("../../images/cards/diners.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.maestro {
-	background-image: url("../../images/cards/maestro.svg");
+    background-image: url("../../images/cards/maestro.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.jcb {
-	background-image: url("../../images/cards/jcb.svg");
+    background-image: url("../../images/cards/jcb.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.amex {
-	background-image: url("../../images/cards/amex.svg");
+    background-image: url("../../images/cards/amex.svg");
 }
 
 #payment .payment_methods li .payment_box .wc-credit-card-form-card-number.discover {
-	background-image: url("../../images/cards/discover.svg");
+    background-image: url("../../images/cards/discover.svg");
 }
 
 /*
@@ -67,21 +67,21 @@
 *
 */
 .rede-card {
-	display: inline-block;
-	position: relative;
+    display: inline-block;
+    position: relative;
 }
 
 .icon-rede-input {
-	display: flex;
-	align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 #labels-with-icons {
-	display: flex;
+    display: flex;
 }
 
 select:focus {
-	outline: none;
+    outline: none;
 }
 
 /*
@@ -90,53 +90,53 @@ select:focus {
 *
 */
 #rede-card-animation {
-	margin: 10px 0 25px;
+    margin: 10px 0 25px;
 }
 
 #rede-credit-payment-form {
-	padding: 0 !important;
+    padding: 0 !important;
 }
 
 #rede-card-holder-name {
-	text-transform: uppercase;
+    text-transform: uppercase;
 }
 
 #rede-card-animation .jp-card .jp-card-front .jp-card-shiny {
-	position: relative;
-	top: -35px;
+    position: relative;
+    top: -35px;
 }
 
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-number {
-	top: -30px;
-	position: relative;
-	margin-bottom: 0;
+    top: -30px;
+    position: relative;
+    margin-bottom: 0;
 }
 
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-name {
-	width: 275px;
-	top: 60px;
-	font-weight: 500;
+    width: 275px;
+    top: 60px;
+    font-weight: 500;
 }
 
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry {
-	top: 15px;
+    top: 15px;
 }
 
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry::after,
 #rede-card-animation .jp-card .jp-card-front .jp-card-lower .jp-card-expiry::before {
-	opacity: 1;
+    opacity: 1;
 }
 
 .jp-card .jp-card-front .jp-card-lower .jp-card-expiry::after {
-	top: 12px;
+    top: 12px;
 }
 
 #rede-card-animation .jp-card .jp-card-back,
 #rede-card-animation .jp-card .jp-card-front {
-	background: #C1C1C1;
+    background: #C1C1C1;
 }
 
 #rede-card-animation .jp-card .jp-card-back .jp-card-display,
 #rede-card-animation .jp-card .jp-card-front .jp-card-display {
-	opacity: 0.7;
+    opacity: 0.7;
 }

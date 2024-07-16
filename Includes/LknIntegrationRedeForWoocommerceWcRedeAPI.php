@@ -99,7 +99,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI {
         if ( ! empty( $this->partner_module ) && ! empty( $this->partner_gateway ) ) {
             $transaction->additional( $this->partner_gateway, $this->partner_module );
         }
-		
+        
         $transaction = ( new eRede( $this->store, $this->get_logger() ) )->create( $transaction );
 
         return $transaction;
@@ -123,9 +123,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI {
         return $transaction;
     }
 
-    public function do_transaction_capture( $tid, $amount ) {
-        $transaction = ( new eRede( $this->store, $this->get_logger() ) )->capture( ( new Transaction( $amount ) )->setTid( $tid ) );
+    public function do_transaction_capture( $params ) {
+        $tid = $params['tid'];        
+        $amount = $params['amount'];
 
-        return $transaction;
+        try {
+            $transaction = ( new eRede( $this->store, $this->get_logger() ) )->capture( ( new Transaction( $amount ) )->setTid( $tid ) );
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+        
+        return $transaction->getReturnMessage();
     }
 }

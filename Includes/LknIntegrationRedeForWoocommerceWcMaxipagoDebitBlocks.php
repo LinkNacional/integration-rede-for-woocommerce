@@ -35,6 +35,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
             wp_set_script_translations( 'maxipago_debit-blocks-integration');
         }
 
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_debit_settings')['custom_css_block_editor'] ?? false);
+
         return array('maxipago_debit-blocks-integration');
     }
 

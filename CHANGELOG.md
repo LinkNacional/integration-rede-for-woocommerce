@@ -1,3 +1,6 @@
+# 3.1.0 - 04/06/2024
+* Adição de compatibilidade com o plugin PRO.
+
 # 3.0.5 - 29/05/2024
 * Correção de função para fazer o reembolso de pedidos.
 

@@ -16,7 +16,9 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('LknIntegrationRedeForWoocommerce_VERSION', '1.0.0');
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.1.0');
+}
 
 if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE', __DIR__ . '/lkn-integration-rede-for-woocommerce.php');
@@ -30,6 +32,13 @@ if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME', plugin_basename(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE));
 }
 
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME', plugin_basename(__DIR__ . '/integration-rede-for-woocommerce.php'));
+}
+
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
+}
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
