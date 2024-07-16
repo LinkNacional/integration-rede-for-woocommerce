@@ -101,6 +101,5 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'pix' => __('Enable payment with Pix', 'integration-rede-for-woocommerce'),
             'freeHost' => __('Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!', 'integration-rede-for-woocommerce')
         ));
-        
     }
 }

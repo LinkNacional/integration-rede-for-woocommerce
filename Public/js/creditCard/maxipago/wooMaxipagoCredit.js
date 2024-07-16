@@ -4,23 +4,22 @@ window.jQuery(function ($) {
     let verify = true
     setInterval(() => {
       if (verify) {
-
-        function formatarCPF(cpf) {
-          cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
-          cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
-          cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os primeiros 3 dígitos
-          cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os segundos 3 dígitos
-          cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
-          return cpf;
+        function formatarCPF (cpf) {
+          cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
+          cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+          cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
+          cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os segundos 3 dígitos
+          cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Adiciona hífen após os últimos 3 dígitos
+          return cpf
         }
         $('#maxipagoCreditCardCpf').on('input', function () {
-          var input = $(this);
-          var cpf = input.val();
-          cpf = formatarCPF(cpf);
-          input.val(cpf);
-        });
+          const input = $(this)
+          let cpf = input.val()
+          cpf = formatarCPF(cpf)
+          input.val(cpf)
+        })
         let $form = $('.woocommerce .woocommerce-checkout')
-        if ($form.length == 0) {
+        if ($form.length === 0) {
           $form = $('#order_review')
         }
         const inputSelectors = {

@@ -16,7 +16,9 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('LknIntegrationRedeForWoocommerce_VERSION', '1.0.0');
+if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.1.0');
+}
 
 if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE', __DIR__ . '/lkn-integration-rede-for-woocommerce.php');

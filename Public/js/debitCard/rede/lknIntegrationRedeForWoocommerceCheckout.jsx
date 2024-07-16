@@ -1,11 +1,10 @@
 const settingsRedeDebit = window.wc.wcSettings.getSetting('rede_debit_data', {})
 const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.title)
 // Obtendo o nonce da variável global
-const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
+const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit
 const translationsRedeDebit = settingsRedeDebit.translations
 
 const ContentRedeDebit = (props) => {
-
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -14,9 +13,8 @@ const ContentRedeDebit = (props) => {
     rede_debit_installments: '1',
     rede_debit_expiry: '',
     rede_debit_cvc: '',
-    rede_debit_holder_name: '',
+    rede_debit_holder_name: ''
   })
-
 
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number
@@ -28,12 +26,14 @@ const ContentRedeDebit = (props) => {
   }
 
   const updateDebitObject = (key, value) => {
+    let isValidDate = false
+
     switch (key) {
       case 'rede_debit_expiry':
         if (value.length > 7) return
 
         // Verifica se o valor é uma data válida (MM/YY)
-        const isValidDate = /^\d{2}\/\d{2}$/.test(value)
+        isValidDate = /^\d{2}\/\d{2}$/.test(value)
         if (!isValidDate) {
           // Remove caracteres não numéricos
           const cleanedValue = value?.replace(/\D/g, '')
@@ -52,7 +52,7 @@ const ContentRedeDebit = (props) => {
         }
         return
       case 'rede_debit_cvc':
-        if ((!/^\d+$/.test(value) && value !== '')  || value.length > 4) return
+        if ((!/^\d+$/.test(value) && value !== '') || value.length > 4) return
         break
       default:
         break
@@ -66,10 +66,9 @@ const ContentRedeDebit = (props) => {
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do debitObject estão preenchidos
-      const allFieldsFilled = Object.values(debitObject).every((field) => field.trim() !== '');
+      const allFieldsFilled = Object.values(debitObject).every((field) => field.trim() !== '')
 
       if (allFieldsFilled) {
-
         return {
           type: emitResponse.responseTypes.SUCCESS,
           meta: {
@@ -80,28 +79,27 @@ const ContentRedeDebit = (props) => {
               rede_debit_cvc: debitObject.rede_debit_cvc,
               rede_debit_holder_name: debitObject.rede_debit_holder_name,
               rede_card_nonce: nonceRedeDebit
-            },
-          },
-        };
+            }
+          }
+        }
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translationsRedeDebit.fieldsNotFilled,
-      };
-    });
+        message: translationsRedeDebit.fieldsNotFilled
+      }
+    })
 
     // Cancela a inscrição quando este componente é desmontado.
     return () => {
-      unsubscribe();
-    };
+      unsubscribe()
+    }
   }, [
     debitObject, // Adiciona debitObject como dependência
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translationsRedeDebit, // Adicione translationsRedeDebit como dependência
-  ]);
-
+    translationsRedeDebit // Adicione translationsRedeDebit como dependência
+  ])
 
   return (
     <>

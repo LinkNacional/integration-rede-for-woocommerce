@@ -181,7 +181,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">'. __('See logs', 'integration-rede-for-woocommerce') .'</a>'),
+                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'integration-rede-for-woocommerce') . '</a>'),
                 'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
             )
         );
@@ -190,7 +190,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
         ), $this->id); 
-		
+        
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
         }
@@ -225,18 +225,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 break;
             }
 
-            
             $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );            
             
             $interest = round((float) $this->get_option( $i . 'x' ), 2);
-            if($this->get_option('installment_interest') == 'yes'){
-                $customLabel = apply_filters('integrationRedeGetInterest',  $order_total, $interest, $i, 'label');
+            if ($this->get_option('installment_interest') == 'yes') {
+                $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label');
             }
             
             if (gettype($customLabel) === 'string' && $customLabel) {
-                if($interest >= 1){
+                if ($interest >= 1) {
                     $label = $customLabel;
-                }else{
+                } else {
                     $label .= $customLabel;
                 }
             }
@@ -277,7 +276,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             absint( sanitize_text_field($_POST['maxipago_credit_installments']) ) : 1;
 
             $interest = round((float) $this->get_option( $installments . 'x' ), 2);
-            if($this->get_option('installment_interest') == 'yes'){
+            if ($this->get_option('installment_interest') == 'yes') {
                 $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
             }
             
@@ -290,7 +289,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     substr($creditExpiry, 0, 2),
                     substr($creditExpiry, -2, 2),
                 );
-            }	
+            }    
             if ($_POST['maxipago_credit_card_cpf']) {
                 $_POST['billing_cpf'] = $_POST['maxipago_credit_card_cpf'];
             }
@@ -307,7 +306,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'currency_code' => get_option('woocommerce_currency'),
                 'country' => $countryCode,
             );
-	
+    
             $cardData = array(
                 'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipago_credit_number'] ) ),
                 'card_expiration_month' => sanitize_text_field( $expiration[0] ),
@@ -422,18 +421,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                     $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
                     $order->update_meta_data( '_wc_maxipago_total_amount', $order_total );
-                    if($capture == 'sale'){
+                    if ('sale' == $capture) {
                         $order->update_meta_data( '_wc_rede_captured', true );
                         $order->update_status('processing');
                         apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
                     }
-                    if($capture == 'auth'){
+                    if ('auth' == $capture) {
                         $order->update_meta_data( '_wc_rede_captured', false );
                         $order->update_status('on-hold');
                     }
-                    
                 }
-                if ( 'yes' == $this->debug ) {                     
+                if ( 'yes' == $this->debug ) {
                     $this->log->log('info', $this->id, array(
                         'transaction' => $xml,
                         'order' => array(
@@ -480,12 +478,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $orderId = $order->get_meta('_wc_maxipago_transaction_id');
         $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
 
-
         if ( empty( $order->get_meta( '_wc_maxipago_transaction_canceled' ) ) ) {
             $amount = wc_format_decimal( $amount );
 
             try {
-                if($amount ==  $order->get_total()){
+                if ($order->get_total() == $amount) {
                     $amount = $totalAmount;
                 }
 
@@ -537,12 +534,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 $xml_decode = json_decode($xml_encode, true);
                 
                 if ("APPROVED" == $xml_decode['processorMessage']) {
-                    
                     update_post_meta( $order_id, '_wc_maxipago_transaction_refund_id', $xml_decode['transactionID'] );
                     update_post_meta( $order_id, '_wc_maxipago_transaction_cancel_id', $xml_decode['transactionID'] );
                     update_post_meta( $order_id, '_wc_maxipago_transaction_canceled', true );
                     $order->add_order_note( esc_attr__( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
-
                 }
 
                 if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
@@ -557,10 +552,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                         'totalAmount' => $totalAmount,
                         'totalOrder' => $order->get_total(),
                     ),
-                ));               
-
-
-                
+                ));
             } catch ( Exception $e ) {
                 return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
             }
@@ -632,7 +624,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function checkoutScripts(): void {
         $plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ) . '../';
         wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
-		
+        
         if ( ! is_checkout() ) {
             return;
         }
@@ -643,23 +635,23 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         wp_enqueue_style( 'wc-rede-checkout-webservice' );
 
-            
         wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
         wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
         wp_enqueue_style( 'woo-maxipago-style', $plugin_url . 'Public/css/maxipago/styleMaxipagoCredit.css', array(), '1.0.0', 'all' );
 
-		wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'Public/js/creditCard/maxipago/wooMaxipagoCredit.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array( 'jquery', 'woo-maxipago-js' ), '2.5.0', true );
+        wp_enqueue_script( 'woo-maxipago-js', $plugin_url . 'Public/js/creditCard/maxipago/wooMaxipagoCredit.js', array(), '1.0.0', true );
+        wp_enqueue_script( 'woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-maxipago-js'), '2.5.0', true );
 
-		wp_localize_script( 'woo-maxipago-js', 'wooMaxipago', [
-			'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
-		]);
+        wp_localize_script( 'woo-maxipago-js', 'wooMaxipago', array(
+            'debug' => defined( 'WP_DEBUG' ) && WP_DEBUG,
+        ));
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_short_code']?? false);
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_short_code'] ?? false);
+    }
 
-	}
+    public function getMerchantAuth() {
+        $plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ) . '../';
 
-    public function getMerchantAuth(){
         return array(
             'merchantId' => $this->get_option('merchant_id'),
             'merchantKey' => $this->get_option('merchant_key'),
@@ -673,4 +665,3 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         ));
     }
 }
-?>

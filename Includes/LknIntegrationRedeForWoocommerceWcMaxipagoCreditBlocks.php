@@ -36,7 +36,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             wp_set_script_translations( 'maxipago_credit-blocks-integration');
         }
         
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor']?? false);
+        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
         
         return array('maxipago_credit-blocks-integration');
     }
@@ -62,8 +62,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
                 'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
             )
         );
-        if(isset(get_option('woocommerce_maxipago_credit_settings')['installment_interest'])){
-            if(get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes'){
+        if (isset(get_option('woocommerce_maxipago_credit_settings')['installment_interest'])) {
+            if (get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes') {
                 for ($i = 1; $i <= $maxParcels; ++$i) {
                     $phpArray[$i . 'x'] = round((float) get_option('woocommerce_maxipago_credit_settings')[$i . 'x'], 2);
                 };

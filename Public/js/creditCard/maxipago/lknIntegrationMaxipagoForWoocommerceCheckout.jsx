@@ -1,18 +1,18 @@
 const settingsMaxipagoCredit = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
 const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoCredit.title)
 // Obtendo o nonce da variável global
-const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
+const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations
-const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
+const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.')
 const ContentMaxipagoCredit = (props) => {
-  totalAmountFloat = settingsMaxipagoCredit.cartTotal
+  const totalAmountFloat = settingsMaxipagoCredit.cartTotal
 
-  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('')
 
   const handleSortChange = (event) => {
-    setSelectedValue(event.target.value);
+    setSelectedValue(event.target.value)
     updateCreditObject('maxipago_credit_installments', event.target.value)
-  };
+  }
 
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
@@ -24,31 +24,30 @@ const ContentMaxipagoCredit = (props) => {
     maxipago_credit_cvc: '',
     maxipago_credit_holder_name: '',
     maxipago_credit_cpf: '',
-    maxipago_credit_neighborhood: '',
+    maxipago_credit_neighborhood: ''
   })
 
-  let options = [];
+  const options = []
 
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    totalInstallment = totalAmountFloat / index
+    let totalInstallment = totalAmountFloat / index
 
-    if (settingsMaxipagoCredit[`${index}x`] && settingsMaxipagoCredit[`${index}x`] != 0) {
+    if (settingsMaxipagoCredit[`${index}x`] && settingsMaxipagoCredit[`${index}x`] !== 0) {
       totalInstallment = totalInstallment + (totalInstallment * (settingsMaxipagoCredit[`${index}x`] * 0.01))
     }
 
     if (totalInstallment >= minInstallmentsMaxipago) {
-      totalAmountString = totalInstallment.toLocaleString('pt-BR', {
+      const totalAmountString = totalInstallment.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      });
-      if (settingsMaxipagoCredit[`${index}x`] != 0) {
+      })
+      if (settingsMaxipagoCredit[`${index}x`] !== 0) {
         options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
       } else {
         options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}` })
       }
     }
   }
-
 
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number
@@ -60,12 +59,14 @@ const ContentMaxipagoCredit = (props) => {
   }
 
   const updateCreditObject = (key, value) => {
+    let isValidDate = false
+
     switch (key) {
       case 'maxipago_credit_expiry':
         if (value.length > 7) return
 
         // Verifica se o valor é uma data válida (MM/YY)
-        const isValidDate = /^\d{2}\/\d{2}$/.test(value)
+        isValidDate = /^\d{2}\/\d{2}$/.test(value)
         if (!isValidDate) {
           // Remove caracteres não numéricos
           const cleanedValue = value?.replace(/\D/g, '')
@@ -84,7 +85,7 @@ const ContentMaxipagoCredit = (props) => {
         }
         return
       case 'maxipago_credit_cvc':
-        if ((!/^\d+$/.test(value) && value !== '')  || value.length > 4) return
+        if ((!/^\d+$/.test(value) && value !== '') || value.length > 4) return
         break
       default:
         break
@@ -96,23 +97,20 @@ const ContentMaxipagoCredit = (props) => {
   }
 
   const formatarCPF = (cpf) => {
-    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
-    cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os primeiros 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os segundos 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
-    return cpf;
+    cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
+    cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os segundos 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Adiciona hífen após os últimos 3 dígitos
+    return cpf
   }
-
-
 
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
-      const allFieldsFilled = Object.values(creditObject).every((field) => field.trim() !== '');
+      const allFieldsFilled = Object.values(creditObject).every((field) => field.trim() !== '')
 
       if (allFieldsFilled) {
-
         return {
           type: emitResponse.responseTypes.SUCCESS,
           meta: {
@@ -125,27 +123,27 @@ const ContentMaxipagoCredit = (props) => {
               maxipago_card_nonce: nonceMaxipagoCredit,
               billing_cpf: creditObject.maxipago_credit_cpf,
               billing_neighborhood: creditObject.maxipago_credit_neighborhood
-            },
-          },
-        };
+            }
+          }
+        }
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translationsMaxipagoCredit.fieldsNotFilled,
-      };
-    });
+        message: translationsMaxipagoCredit.fieldsNotFilled
+      }
+    })
 
     // Cancela a inscrição quando este componente é desmontado.
     return () => {
-      unsubscribe();
-    };
+      unsubscribe()
+    }
   }, [
     creditObject, // Adiciona creditObject como dependência
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translationsMaxipagoCredit, // Adicione translationsMaxipagoCredit como dependência
-  ]);
+    translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+  ])
 
   return (
     <>
@@ -219,7 +217,7 @@ const ContentMaxipagoCredit = (props) => {
   )
 }
 
-const Block_Gateway_maxipago = {
+const BlockGatewayMaxipago = {
   name: 'maxipago_credit',
   label: labelMaxipagoCredit,
   content: window.wp.element.createElement(ContentMaxipagoCredit),
@@ -231,4 +229,4 @@ const Block_Gateway_maxipago = {
   }
 }
 
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_maxipago)
+window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayMaxipago)

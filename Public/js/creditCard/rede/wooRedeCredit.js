@@ -5,7 +5,7 @@ window.jQuery(function ($) {
     setInterval(() => {
       if (verify) {
         let $form = $('.woocommerce .woocommerce-checkout')
-        if ($form.length == 0) {
+        if ($form.length === 0) {
           $form = $('#order_review')
         }
         const inputSelectors = {
@@ -60,6 +60,6 @@ window.jQuery(function ($) {
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
         verify = false
       }
-    }, 1000);
+    }, 1000)
   }
 })

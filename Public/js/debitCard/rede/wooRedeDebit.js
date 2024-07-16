@@ -1,11 +1,11 @@
 window.jQuery(function ($) {
   if (!document.querySelector('.wc-block-checkout')) {
     // Cria o card somente quando a requisição for concluida
-    let verify = true
+    const verify = true
     setInterval(() => {
       if (verify) {
         let $form = $('.woocommerce .woocommerce-checkout')
-        if ($form.length == 0) {
+        if ($form.length === 0) {
           $form = $('#order_review')
         }
         const inputSelectors = {
@@ -14,19 +14,19 @@ window.jQuery(function ($) {
           expiryInput: '#rede-debit-card-expiry',
           cvcInput: '#rede-debit-card-cvc'
         }
-    
+
         // maybe delete old card data
         $form.data('card', null)
-    
+
         // init animated card
         $form.card({
           container: '#rede-debit-card-animation',
-    
+
           /**
            * Selectors
            */
           formSelectors: inputSelectors,
-    
+
           /**
            * Placeholders
            */
@@ -36,7 +36,7 @@ window.jQuery(function ($) {
             expiry: 'MM/ANO',
             cvc: 'CVC'
           },
-    
+
           /**
            * Translation Brazilian Portuguese
            */
@@ -44,18 +44,18 @@ window.jQuery(function ($) {
             validDate: 'VALIDADE',
             monthYear: ''
           },
-    
+
           /**
            * Debug
            */
           debug: !!window.wooRede.debug
         })
-    
+
         // Workaround to maintain the card data rendered after checkout updates
         Object.values(inputSelectors).reverse().forEach(function (selector) {
           $(selector)[0]?.dispatchEvent(new CustomEvent('change'))
         })
-    
+
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
       }

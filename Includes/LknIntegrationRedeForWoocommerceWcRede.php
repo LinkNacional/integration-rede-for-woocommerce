@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
         if ( null == self::$instance ) {
             self::$instance = new self();
         }
-		
+        
         return self::$instance;
     }
 
@@ -35,7 +35,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
         $wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
         $wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
         $wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
-		
+        
         array_push( $methods, $wc_rede_credit_class);
         array_push( $methods, $wc_rede_debit_class);
         array_push( $methods, $wc_maxipago_credit_class);

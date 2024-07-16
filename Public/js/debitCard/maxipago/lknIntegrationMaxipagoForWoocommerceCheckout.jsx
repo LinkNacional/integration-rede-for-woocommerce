@@ -2,12 +2,10 @@ const settingsMaxipagoDebit = window.wc.wcSettings.getSetting('maxipago_debit_da
 const labelMaxipagoDebit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoDebit.title)
 
 // Obtendo o nonce da variável global
-const nonceMaxipagoDebit = settingsMaxipagoDebit.nonceMaxipagoDebit;
+const nonceMaxipagoDebit = settingsMaxipagoDebit.nonceMaxipagoDebit
 const translationsMaxipagoDebit = settingsMaxipagoDebit.translations
 
-
 const ContentMaxipagoDebit = (props) => {
-
   const { eventRegistration, emitResponse } = props
   const { onPaymentSetup } = eventRegistration
   const wcComponents = window.wc.blocksComponents
@@ -17,7 +15,7 @@ const ContentMaxipagoDebit = (props) => {
     maxipago_debit_cvc: '',
     maxipago_debit_card_holder_name: '',
     maxipago_debit_cpf: '',
-    maxipago_debit_neighborhood: '',
+    maxipago_debit_neighborhood: ''
   })
 
   const formatCreditCardNumber = value => {
@@ -30,12 +28,14 @@ const ContentMaxipagoDebit = (props) => {
   }
 
   const updateCreditObject = (key, value) => {
+    let isValidDate = false
+
     switch (key) {
       case 'maxipago_debit_card_expiry':
         if (value.length > 7) return
 
         // Verifica se o valor é uma data válida (MM/YY)
-        const isValidDate = /^\d{2}\/\d{2}$/.test(value)
+        isValidDate = /^\d{2}\/\d{2}$/.test(value)
         if (!isValidDate) {
           // Remove caracteres não numéricos
           const cleanedValue = value?.replace(/\D/g, '')
@@ -54,7 +54,7 @@ const ContentMaxipagoDebit = (props) => {
         }
         return
       case 'maxipago_debit_cvc':
-        if ((!/^\d+$/.test(value) && value !== '')  || value.length > 4) return
+        if ((!/^\d+$/.test(value) && value !== '') || value.length > 4) return
         break
       default:
         break
@@ -66,21 +66,20 @@ const ContentMaxipagoDebit = (props) => {
   }
 
   const formatarCPF = (cpf) => {
-    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
-    cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os primeiros 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os segundos 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
-    return cpf;
+    cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
+    cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os segundos 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Adiciona hífen após os últimos 3 dígitos
+    return cpf
   }
 
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
-      const allFieldsFilled = Object.values(creditObject).every((field) => field.trim() !== '');
+      const allFieldsFilled = Object.values(creditObject).every((field) => field.trim() !== '')
 
       if (allFieldsFilled) {
-
         return {
           type: emitResponse.responseTypes.SUCCESS,
           meta: {
@@ -92,27 +91,27 @@ const ContentMaxipagoDebit = (props) => {
               maxipago_debit_nonce: nonceMaxipagoDebit,
               maxipago_debit_cpf: creditObject.maxipago_debit_cpf,
               billingNeighborhood: creditObject.maxipago_debit_neighborhood
-            },
-          },
-        };
+            }
+          }
+        }
       }
       return {
         type: emitResponse.responseTypes.ERROR,
-        message: translationsMaxipagoDebit.fieldsNotFilled,
-      };
-    });
+        message: translationsMaxipagoDebit.fieldsNotFilled
+      }
+    })
 
     // Cancela a inscrição quando este componente é desmontado.
     return () => {
-      unsubscribe();
-    };
+      unsubscribe()
+    }
   }, [
     creditObject, // Adiciona creditObject como dependência
     emitResponse.responseTypes.ERROR,
     emitResponse.responseTypes.SUCCESS,
     onPaymentSetup,
-    translationsMaxipagoDebit, // Adicione translations como dependência
-  ]);
+    translationsMaxipagoDebit // Adicione translations como dependência
+  ])
 
   return (
     <>
@@ -173,7 +172,7 @@ const ContentMaxipagoDebit = (props) => {
   )
 }
 
-const Block_Gateway_maxipago_Debit = {
+const BlockGatewayMaxipagoDebit = {
   name: 'maxipago_debit',
   label: labelMaxipagoDebit,
   content: window.wp.element.createElement(ContentMaxipagoDebit),
@@ -185,4 +184,4 @@ const Block_Gateway_maxipago_Debit = {
   }
 }
 
-window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway_maxipago_Debit)
+window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayMaxipagoDebit)

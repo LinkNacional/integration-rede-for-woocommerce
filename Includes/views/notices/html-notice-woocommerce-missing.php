@@ -16,24 +16,24 @@ if ( current_user_can( 'install_plugins' ) ) {
 ?>
 
 <div class="error">
-	<p>
-		<strong>
-			<?php
-		esc_attr_e(
+    <p>
+        <strong>
+            <?php
+        esc_attr_e(
     'Integration Rede for WooCommerce Disabled',
     'integration-rede-for-woocommerce'
 );
 ?>
-		</strong>:
-		<?php
-		printf(
-		    // translators: %s is the name of the plugin required for this one to work.
-		    esc_attr__(
-		        'This plugin depends on the last version of %s to work!',
-		        'integration-rede-for-woocommerce'
-		    ),
+        </strong>:
+        <?php
+        printf(
+            // translators: %s is the name of the plugin required for this one to work.
+            esc_attr__(
+                'This plugin depends on the last version of %s to work!',
+                'integration-rede-for-woocommerce'
+            ),
     '<a href="' . esc_url( $url ) . '">' . esc_attr__( 'WooCommerce', 'integration-rede-for-woocommerce' ) . '</a>'
 );
 ?>
-	</p>
+    </p>
 </div>
