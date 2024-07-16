@@ -3,7 +3,7 @@ Contributors: linknacional,MarcosAlexandre
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
-Tested up to: 6.5
+Tested up to: 6.6
 Stable tag: 3.1.0
 Requires PHP: 7.2
 License: GPLv2 or later
@@ -70,8 +70,14 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
-= 3.1.0 = *2024/06/04*
-* Addition compatibility with the PRO plugin.
+= 3.1.0 = *2024/07/16*
+* Added compatibility with the PRO plugin.
+* Added compatibility option to load legacy CSS.
+* Added easier button to view transaction logs;
+* Issuer bug fix;
+* Refund bug fix;
+* Correction of transaction bug not being captured automatically;
+* Fixed field rendering bug on the checkout page.
 
 = 3.0.5 = *2024/05/29*
 * Fix refund function.
