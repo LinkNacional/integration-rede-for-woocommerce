@@ -1,12 +1,16 @@
 window.jQuery(function ($) {
   if (!document.querySelector('.wc-block-checkout')) {
     // Cria o card somente quando a requisição for concluida
-    const verify = true
+    let verify = true
     setInterval(() => {
       if (verify) {
         let $form = $('.woocommerce .woocommerce-checkout')
         if ($form.length === 0) {
           $form = $('#order_review')
+        }
+        const selectedPaymentMethod = $form.find('input[name="payment_method"]:checked')
+        if (selectedPaymentMethod && selectedPaymentMethod.val() !== 'rede_debit') {
+          return
         }
         const inputSelectors = {
           numberInput: '#rede-debit-card-number',
@@ -58,7 +62,8 @@ window.jQuery(function ($) {
 
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
+        verify = false
       }
-    })
+    }, 1000);
   }
 })
