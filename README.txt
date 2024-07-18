@@ -124,7 +124,14 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 == Screenshots ==
 
-1. Nothing yet.
+1. Payment methods list.
+2. Rede Credit settings page.
+3. Rede Credit front inputs page.
+4. Maxipago Credit front inputs page.
+5. Maxipago Credit summary page.
+6. Rede Credit front page legacy with installments.
+7. Rede Debit settings page.
+8. Rede and Maxipago payment list.
 
 == Upgrade Notice ==
 = 3.1.0 =
