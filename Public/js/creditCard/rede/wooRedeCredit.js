@@ -8,6 +8,10 @@ window.jQuery(function ($) {
         if ($form.length === 0) {
           $form = $('#order_review')
         }
+        const selectedPaymentMethod = $form.find('input[name="payment_method"]:checked')
+        if (selectedPaymentMethod && selectedPaymentMethod.val() !== 'rede_credit') {
+          return
+        }
         const inputSelectors = {
           numberInput: '#rede-card-number',
           nameInput: '#rede-card-holder-name',
@@ -60,6 +64,6 @@ window.jQuery(function ($) {
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
         verify = false
       }
-    }, 1000)
+    }, 1000);
   }
 })

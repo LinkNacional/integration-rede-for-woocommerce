@@ -1,5 +1,14 @@
-# 3.1.0 - 04/06/2024
+# 3.1.1 - 22/07/2024
+* Correção em scripts da animação do cartão.
+
+# 3.1.0 - 16/07/2024
 * Adição de compatibilidade com o plugin PRO.
+* Adicionada opção de compatibilidade para carregar CSS legado.
+* Adicionado botão facilitado para ver logs da transação;
+* Correção de bug de issuer;
+* Correção de bug de reembolso;
+* Correção de bug de transação não sendo capturada de forma automática;
+* Correção de bug de renderização de campos na página de finalização de compra;
 
 # 3.0.5 - 29/05/2024
 * Correção de função para fazer o reembolso de pedidos.

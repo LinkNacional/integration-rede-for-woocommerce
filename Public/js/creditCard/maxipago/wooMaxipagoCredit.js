@@ -22,6 +22,11 @@ window.jQuery(function ($) {
         if ($form.length === 0) {
           $form = $('#order_review')
         }
+        const selectedPaymentMethod = $form.find('input[name="payment_method"]:checked')
+        if (selectedPaymentMethod && selectedPaymentMethod.val() !== 'maxipago_credit') {
+          return
+        }
+        
         const inputSelectors = {
           numberInput: '#maxipago-card-number',
           nameInput: '#maxipago-card-holder-name',
@@ -72,7 +77,7 @@ window.jQuery(function ($) {
 
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
-        verify = true
+        verify = false
       }
     }, 1000)
   }
