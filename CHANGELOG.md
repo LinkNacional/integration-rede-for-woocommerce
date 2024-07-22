@@ -1,3 +1,6 @@
+# 3.1.1 - 22/07/2024
+* Correção em scripts da animação do cartão.
+
 # 3.1.0 - 16/07/2024
 * Adição de compatibilidade com o plugin PRO.
 * Adicionada opção de compatibilidade para carregar CSS legado.

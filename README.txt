@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -70,6 +70,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 == Changelog ==
 
+= 3.1.1 = *2024/07/22*
+* Fixed scripts for card animation.
+
 = 3.1.0 = *2024/07/16*
 * Added compatibility with the PRO plugin.
 * Added compatibility option to load legacy CSS.
@@ -134,6 +137,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 8. Rede and Maxipago payment list.
 
 == Upgrade Notice ==
+= 3.1.1 =
+* Fixed scripts for card animation.
+
 = 3.1.0 =
 * Addition compatibility with the PRO plugin.
 
