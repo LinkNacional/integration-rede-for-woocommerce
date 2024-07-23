@@ -42,7 +42,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $this->debug = $this->get_option( 'debug' );
 
         $this->log = $this->get_logger();
-        
+
         $this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
         $this->configs = $this->getConfigsRedeDebit();
     }
@@ -63,7 +63,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 '_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'integration-rede-for-woocommerce' ),
                 '_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'integration-rede-for-woocommerce' )
             );
-        
+
             $this->generateMetaTable( $order, $metaKeys, 'Rede');
         }
     }
@@ -81,7 +81,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $configs['debug'] = $this->get_option('debug');
 
         return $configs;
-    }    
+    }
 
     public function initFormFields(): void {
         $this->form_fields = array(
@@ -175,8 +175,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
         );
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id); 
-        
+        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);
+
         if ( ! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
         }
@@ -185,7 +185,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function checkoutScripts(): void {
         $plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ) . '../';
         wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
-        
+
         if ( ! is_checkout() ) {
             return;
         }
@@ -195,7 +195,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         wp_enqueue_style( 'wc-rede-checkout-webservice' );
-        
+
         wp_enqueue_style( 'card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all' );
         wp_enqueue_style( 'select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all' );
         wp_enqueue_style( 'wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all' );
@@ -217,108 +217,104 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'redirect' => '',
             );
         }
-        
+
         $order = wc_get_order( $order_id );
-        $cardNumber = isset( $_POST['rede_debit_number'] ) ? 
+        $cardNumber = isset( $_POST['rede_debit_number'] ) ?
             sanitize_text_field( $_POST['rede_debit_number'] ) : '';
-        $valid = true;
 
-        if ( $valid ) {
-            $debitExpiry = sanitize_text_field($_POST['rede_debit_expiry']);
-            
-            if (strpos($debitExpiry, '/') !== false) {
-                $expiration = explode( '/', $debitExpiry );
-            } else {
-                $expiration = array(
-                    substr($debitExpiry, 0, 2),
-                    substr($debitExpiry, -2, 2),
-                );
-            }            
-            
-            $cardData = array(
-                'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_debit_number'] ) ),
-                'card_expiration_month' => sanitize_text_field( $expiration[0] ),
-                'card_expiration_year' => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-                'card_cvv' => sanitize_text_field( $_POST['rede_debit_cvc'] ),
-                'card_holder' => sanitize_text_field( $_POST['rede_debit_holder_name'] ),
-            );
-    
-            try {
-                if ( $valid ) {
-                    $valid = $this->validate_card_number( $cardNumber );
-                }
-            
-                if ( $valid ) {
-                    $valid = $this->validate_card_fields( $_POST );
-                }
+        $debitExpiry = sanitize_text_field($_POST['rede_debit_expiry']);
 
-                $orderId = $order->get_id();
-                $amount = $order->get_total();
-                
-                $transaction = $this->api->doTransactionDebitRequest( $orderId + time(), $amount, $cardData );
-                
-                $order->update_meta_data( '_transaction_id', $transaction->getTid() );
-                $order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
-                $order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
-                $order->update_meta_data( '_wc_rede_transaction_id', $transaction->getTid() );
-                $order->update_meta_data( '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
-                $order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
-                $order->update_meta_data( '_wc_rede_transaction_bin', $transaction->getCardBin() );
-                $order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
-                $order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
-                $order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
-    
-                $authorization = $transaction->getAuthorization();
-    
-                if ( ! is_null( $authorization ) ) {
-                    $order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
-                }
-    
-                $order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
-                $order->update_meta_data( '_wc_rede_transaction_expiration', sprintf( '%02d/%d', $expiration[0], (int) ($expiration[1]) ) );
-    
-                $order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
-    
-                $authorization = $transaction->getAuthorization();
-    
-                if ( ! is_null( $authorization ) ) {
-                    $order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
-                }
-                                
-                $order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
-                
-                $this->process_order_status( $order, $transaction, '' );
-                
-                $order->save();
-                
-                if ( 'yes' == $this->debug ) {
-                    $this->log->log('info', $this->id, array(
-                        'transaction' => $transaction,
-                        'order' => array(
-                            'orderId' => $orderId,
-                            'amount' => $amount,
-                            'status' => $order->get_status()
-                        ),
-                    ));
-                }
-            } catch ( Exception $e ) {
-                $this->add_error( $e->getMessage() );
-                $valid = false;
-            }
-        }
-    
-        if ( $valid ) {
-            return array(
-                'result' => 'success',
-                'redirect' => $this->get_return_url( $order ),
-            );
+        if (strpos($debitExpiry, '/') !== false) {
+            $expiration = explode( '/', $debitExpiry );
         } else {
+            $expiration = array(
+                substr($debitExpiry, 0, 2),
+                substr($debitExpiry, -2, 2),
+            );
+        }
+
+        $cardData = array(
+            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_debit_number'] ) ),
+            'card_expiration_month' => sanitize_text_field( $expiration[0] ),
+            'card_expiration_year' => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
+            'card_cvv' => sanitize_text_field( $_POST['rede_debit_cvc'] ),
+            'card_holder' => sanitize_text_field( $_POST['rede_debit_holder_name'] ),
+        );
+
+        try {
+            $valid = $this->validate_card_number( $cardNumber );
+            if ( $valid ) {
+                throw new Exception( __( 'Please enter a valid debit card number', 'integration-rede-for-woocommerce' ) );
+            }
+
+            $valid = $this->validate_card_fields( $_POST );
+            if ( $valid ) {
+                throw new Exception(__('One or more invalid fields', 'integration-rede-for-woocommerce'), 500);
+            }
+
+            $orderId = $order->get_id();
+            $amount = $order->get_total();
+
+            $transaction = $this->api->doTransactionDebitRequest( $orderId + time(), $amount, $cardData );
+
+            $order->update_meta_data( '_transaction_id', $transaction->getTid() );
+            $order->update_meta_data( '_wc_rede_transaction_return_code', $transaction->getReturnCode() );
+            $order->update_meta_data( '_wc_rede_transaction_return_message', $transaction->getReturnMessage() );
+            $order->update_meta_data( '_wc_rede_transaction_id', $transaction->getTid() );
+            $order->update_meta_data( '_wc_rede_transaction_refund_id', $transaction->getRefundId() );
+            $order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
+            $order->update_meta_data( '_wc_rede_transaction_bin', $transaction->getCardBin() );
+            $order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
+            $order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
+            $order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
+
+            $authorization = $transaction->getAuthorization();
+
+            if ( ! is_null( $authorization ) ) {
+                $order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
+            }
+
+            $order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
+            $order->update_meta_data( '_wc_rede_transaction_expiration', sprintf( '%02d/%d', $expiration[0], (int) ($expiration[1]) ) );
+
+            $order->update_meta_data( '_wc_rede_transaction_holder', $transaction->getCardHolderName() );
+
+            $authorization = $transaction->getAuthorization();
+
+            if ( ! is_null( $authorization ) ) {
+                $order->update_meta_data( '_wc_rede_transaction_authorization_status', $authorization->getStatus() );
+            }
+
+            $order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
+
+            $this->process_order_status( $order, $transaction, '' );
+
+            $order->save();
+
+            if ( 'yes' == $this->debug ) {
+                $this->log->log('info', $this->id, array(
+                    'transaction' => $transaction,
+                    'order' => array(
+                        'orderId' => $orderId,
+                        'amount' => $amount,
+                        'status' => $order->get_status()
+                    ),
+                ));
+            }
+        } catch ( Exception $e ) {
+            $this->add_error( $e->getMessage() );
+
             return array(
                 'result' => 'fail',
                 'redirect' => '',
             );
         }
-    }    
+
+        return array(
+            'result' => 'success',
+            'redirect' => $this->get_return_url( $order ),
+        );
+    }
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {
         $order = new WC_Order( $order_id );
