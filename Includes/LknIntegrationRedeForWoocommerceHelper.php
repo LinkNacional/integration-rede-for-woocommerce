@@ -19,7 +19,7 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
             $logDirectory = dirname($configs['base']);
             if ( ! file_exists($logDirectory)) {
                 mkdir($logDirectory, 0777, true);
-            }    
+            }
             $jsonLog = wp_json_encode($log, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
             error_log($jsonLog, 3, $configs['base']);
             chmod($configs['base'], 0666);

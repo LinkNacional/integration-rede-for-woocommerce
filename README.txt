@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 3.1.1
+Stable tag: 3.1.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -26,7 +26,7 @@ Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, plea
 **User instructions**
 
 1. Search the WordPress sidebar for 'Integration Rede for WooCommerce'.
-   
+
 2. In the WooCommerce options, navigate to 'Payments' and then proceed to the settings for 'Rede' or 'Maxipago' as your preferred choice.
 
 3. Configure the required credentials for your selected payment gateway, such as PV and Token for Rede or Merchant ID and Merchant Key for Maxipago.
@@ -69,6 +69,12 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.1.2 = *2024/07/23*
+* Correction of unrecognized translations;
+* Correction of invalid order generation;
+* Adjustments to field validation;
+* Code optimization.
 
 = 3.1.1 = *2024/07/22*
 * Fixed scripts for card animation.
@@ -137,6 +143,12 @@ The Integration Rede for WooCommerce plugin is now live and working.
 8. Rede and Maxipago payment list.
 
 == Upgrade Notice ==
+= 3.1.2 =
+* Correction of unrecognized translations;
+* Correction of invalid order generation;
+* Adjustments to field validation;
+* Code optimization.
+
 = 3.1.1 =
 * Fixed scripts for card animation.
 

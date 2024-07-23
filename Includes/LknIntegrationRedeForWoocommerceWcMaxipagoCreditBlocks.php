@@ -35,9 +35,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
         if ( function_exists( 'wp_set_script_translations' ) ) {
             wp_set_script_translations( 'maxipago_credit-blocks-integration');
         }
-        
+
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
-        
+
         return array('maxipago_credit-blocks-integration');
     }
 
@@ -52,14 +52,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             'maxInstallmentsMaxipago' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
-                'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
-                'cardExpiringDate' => __( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ),
-                'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
-                'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
-                'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
-                'district' => __('District', 'integration-rede-for-woocommerce'),
-                'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
+                'cardNumber' => __('Card Number', 'woo-rede'),
+                'cardExpiringDate' => __( 'Card Expiring Date', 'woo-rede' ),
+                'securityCode' => __('Security Code', 'woo-rede' ),
+                'nameOnCard' => __( 'Name on Card', 'woo-rede' ),
+                'installments' => __( 'Installments', 'woo-rede' ),
+                'district' => __('District', 'woo-rede'),
+                'interestFree' => ' ' . __('interest-free', 'woo-rede'),
             )
         );
         if (isset(get_option('woocommerce_maxipago_credit_settings')['installment_interest'])) {

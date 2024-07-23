@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <fieldset id="maxipagoDebitPaymentForm">
 	<div class="paymentMethodDescription">
-		<p><?php esc_html_e( 'Pay for your purchase with a debit card through', 'integration-maxipago-for-woocommerce' ); ?>
+		<p><?php esc_html_e( 'Pay for your purchase with a debit card through', 'woo-rede' ); ?>
 		</p>
 		<img
 			id="logoMaxipago"
@@ -76,7 +76,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				id="labels-with-icons"
 				for="maxipago_debit_card_holder_name"
 			>
-				<?php esc_attr_e( 'Name on Card', 'integration-maxipago-for-woocommerce' ); ?><span
+				<?php esc_attr_e( 'Name on Card', 'woo-rede' ); ?><span
 					class="required"
 				>*</span>
 				<div class="icon-maxipago-input">
@@ -113,7 +113,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				name="maxipago_debit_holder_name"
 				class="input-text"
 				type="text"
-				placeholder=<?php esc_attr_e( 'Name', 'integration-maxipago-for-woocommerce' ); ?>
+				placeholder=<?php esc_attr_e( 'Name', 'woo-rede' ); ?>
 				maxlength="22" autocomplete="off"
 				style="font-size: 1.5em; padding: 8px 45px;"/>
 		</div>
@@ -123,7 +123,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				id="labels-with-icons"
 				for="maxipago_debit_card_number"
 			>
-				<?php esc_attr_e( 'Card Number', 'integration-maxipago-for-woocommerce' ); ?>
+				<?php esc_attr_e( 'Card Number', 'woo-rede' ); ?>
 				<span class="required">*</span>
 				<div class="icon-maxipago-input">
 					<svg
@@ -187,7 +187,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				id="labels-with-icons"
 				for="maxipago_debit_card_expiry"
 			>
-				<?php esc_attr_e( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ); ?><span
+				<?php esc_attr_e( 'Card Expiring Date', 'woo-rede' ); ?><span
 					class="required"
 				>*</span>
 				<div class="icon-maxipago-input">
@@ -218,7 +218,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				class="input-text wc-credit-card-form-card-expiry"
 				type="tel"
 				autocomplete="off"
-				placeholder="<?php esc_attr_e( 'MM / YEAR', 'integration-maxipago-for-woocommerce' ); ?>"
+				placeholder="<?php esc_attr_e( 'MM / YEAR', 'woo-rede' ); ?>"
 				style="font-size: 1.5em; padding: 8px 30px 8px 35px;"
 			/>
 		</div>
@@ -227,7 +227,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<label
 				id="labels-with-icons"
 				for="maxipago_debit_card_cvc"
-			><?php esc_attr_e('Security Code', 'integration-maxipago-for-woocommerce' ); ?><span
+			><?php esc_attr_e('Security Code', 'woo-rede' ); ?><span
 					class="required"
 				>*</span>
 				<div class="icon-maxipago-input">
@@ -258,7 +258,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				class="input-text wc-credit-card-form-card-cvc"
 				type="tel"
 				autocomplete="off"
-				placeholder="<?php esc_attr_e( 'CVC', 'integration-maxipago-for-woocommerce' ); ?>"
+				placeholder="<?php esc_attr_e( 'CVC', 'woo-rede' ); ?>"
 				style="font-size: 1.5em; padding: 8px 30px 8px 35px;"
 			/>
 		</div>

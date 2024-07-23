@@ -7,7 +7,7 @@ use WP_Query;
 final class LknIntegrationRedeForWoocommerceWcRede {
     public const FILE = __FILE__;
 
-    public const VERSION = '3.1.1';
+    public const VERSION = '3.1.2';
     protected static $instance = null;
 
     public function __construct() {
@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
         if ( null == self::$instance ) {
             self::$instance = new self();
         }
-        
+
         return self::$instance;
     }
 
@@ -27,7 +27,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
     }
 
     public function loadPluginTextdomain(): void {
-        load_plugin_textdomain( 'integration-rede-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+        load_plugin_textdomain( 'woo-rede', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
     }
 
     public function addGateway( $methods ) {
@@ -35,7 +35,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
         $wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
         $wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
         $wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
-        
+
         array_push( $methods, $wc_rede_credit_class);
         array_push( $methods, $wc_rede_debit_class);
         array_push( $methods, $wc_maxipago_credit_class);

@@ -42,19 +42,19 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
 
     public function get_payment_method_data() {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        
+
         return array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceMaxipagoDebit' => wp_create_nonce( 'maxipago_debit_nonce' ),
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
-                'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
-                'cardExpiringDate' => __( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ),
-                'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
-                'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
-                'district' => __('District', 'integration-rede-for-woocommerce'),
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
+                'cardNumber' => __('Card Number', 'woo-rede'),
+                'cardExpiringDate' => __( 'Card Expiring Date', 'woo-rede' ),
+                'securityCode' => __('Security Code', 'woo-rede' ),
+                'nameOnCard' => __( 'Name on Card', 'woo-rede' ),
+                'district' => __('District', 'woo-rede'),
             )
         );
     }
