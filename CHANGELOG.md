@@ -1,3 +1,9 @@
+# 3.1.2 - 23/07/2024
+* Correção de traduções não reconhecidas;
+* Correção de geração de pedidos inválidos;
+* Ajustes na validação de campos;
+* Otimização de código.
+
 # 3.1.1 - 22/07/2024
 * Correção em scripts da animação do cartão.
 
