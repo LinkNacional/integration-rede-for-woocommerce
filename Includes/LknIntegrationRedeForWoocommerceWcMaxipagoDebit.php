@@ -230,12 +230,12 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             $environment = $this->get_option('environment');
 
             $valid = $this->validate_card_number( $cardData['card_number'] );
-            if ( $valid ) {
+            if ( false === $valid ) {
                 throw new Exception( __( 'Please enter a valid debit card number', 'integration-rede-for-woocommerce' ) );
             }
 
             $valid = $this->validate_card_fields( $_POST );
-            if ( $valid ) {
+            if ( false === $valid ) {
                 throw new Exception(__('One or more invalid fields', 'integration-rede-for-woocommerce'), 500);
             }
 

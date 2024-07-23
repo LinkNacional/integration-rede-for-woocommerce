@@ -318,17 +318,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $environment = $this->get_option('environment');
 
             $valid = $this->validate_card_number( $cardData['card_number'] );
-            if ( $valid ) {
+            if ( false === $valid ) {
                 throw new Exception( __( 'Please enter a valid credit card number', 'integration-rede-for-woocommerce' ) );
             }
 
             $valid = $this->validate_card_fields( $_POST );
-            if ( $valid ) {
+            if ( false === $valid ) {
                 throw new Exception(__('One or more invalid fields', 'integration-rede-for-woocommerce'), 500);
             }
 
             $valid = $this->validate_installments( $_POST, $order->get_total() );
-            if ( $valid ) {
+            if ( false === $valid ) {
                 throw new Exception( __( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
             }
 
