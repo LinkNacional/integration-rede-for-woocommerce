@@ -12,8 +12,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function __construct() {
         $this->id = 'rede_debit';
         $this->has_fields = true;
-        $this->method_title = esc_attr__( 'Pay with the Rede Debit', 'integration-rede-for-woocommerce' );
-        $this->method_description = esc_attr__( 'Enables and configures payments with Rede Debit', 'integration-rede-for-woocommerce' );
+        $this->method_title = esc_attr__( 'Pay with the Rede Debit', 'woo-rede' );
+        $this->method_description = esc_attr__( 'Enables and configures payments with Rede Debit', 'woo-rede' );
         $this->supports = array(
             'products',
             'refunds',
@@ -50,18 +50,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function displayMeta( $order ): void {
         if ( $order->get_payment_method() === 'rede_debit' ) {
             $metaKeys = array(
-                '_wc_rede_transaction_environment' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_return_code' => esc_attr__( 'Return Code', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_return_message' => esc_attr__( 'Return Message', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_id' => esc_attr__( 'Transaction ID', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_refund_id' => esc_attr__( 'Refund ID', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_cancel_id' => esc_attr__( 'Cancellation ID', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_nsu' => esc_attr__( 'Nsu', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_authorization_code' => esc_attr__( 'Authorization Code', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_bin' => esc_attr__( 'Bin', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_last4' => esc_attr__( 'Last 4', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'integration-rede-for-woocommerce' ),
-                '_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'integration-rede-for-woocommerce' )
+                '_wc_rede_transaction_environment' => esc_attr__( 'Environment', 'woo-rede' ),
+                '_wc_rede_transaction_return_code' => esc_attr__( 'Return Code', 'woo-rede' ),
+                '_wc_rede_transaction_return_message' => esc_attr__( 'Return Message', 'woo-rede' ),
+                '_wc_rede_transaction_id' => esc_attr__( 'Transaction ID', 'woo-rede' ),
+                '_wc_rede_transaction_refund_id' => esc_attr__( 'Refund ID', 'woo-rede' ),
+                '_wc_rede_transaction_cancel_id' => esc_attr__( 'Cancellation ID', 'woo-rede' ),
+                '_wc_rede_transaction_nsu' => esc_attr__( 'Nsu', 'woo-rede' ),
+                '_wc_rede_transaction_authorization_code' => esc_attr__( 'Authorization Code', 'woo-rede' ),
+                '_wc_rede_transaction_bin' => esc_attr__( 'Bin', 'woo-rede' ),
+                '_wc_rede_transaction_last4' => esc_attr__( 'Last 4', 'woo-rede' ),
+                '_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'woo-rede' ),
+                '_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'woo-rede' )
             );
 
             $this->generateMetaTable( $order, $metaKeys, 'Rede');
@@ -86,37 +86,37 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function initFormFields(): void {
         $this->form_fields = array(
             'enabled' => array(
-                'title' => esc_attr__( 'Enable/Disable', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Enable/Disable', 'woo-rede' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enables payment with Rede', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enables payment with Rede', 'woo-rede' ),
                 'default' => 'no',
             ),
             'title' => array(
-                'title' => esc_attr__( 'Title', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Title', 'woo-rede' ),
                 'type' => 'text',
-                'default' => esc_attr__( 'Pay with the Rede Debit', 'integration-rede-for-woocommerce' ),
+                'default' => esc_attr__( 'Pay with the Rede Debit', 'woo-rede' ),
             ),
 
             'rede' => array(
-                'title' => esc_attr__( 'General configuration', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
                 'type' => 'title',
             ),
             'environment' => array(
-                'title' => esc_attr__( 'Environment', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Environment', 'woo-rede' ),
                 'type' => 'select',
-                'description' => esc_attr__( 'Choose the environment', 'integration-rede-for-woocommerce' ),
+                'description' => esc_attr__( 'Choose the environment', 'woo-rede' ),
                 'desc_tip' => true,
                 'class' => 'wc-enhanced-select',
-                'default' => esc_attr__( 'test', 'integration-rede-for-woocommerce' ),
+                'default' => esc_attr__( 'test', 'woo-rede' ),
                 'options' => array(
-                    'test' => esc_attr__( 'Tests', 'integration-rede-for-woocommerce' ),
-                    'production' => esc_attr__( 'Production', 'integration-rede-for-woocommerce' ),
+                    'test' => esc_attr__( 'Tests', 'woo-rede' ),
+                    'production' => esc_attr__( 'Production', 'woo-rede' ),
                 ),
             ),
             'pv' => array(
-                'title' => esc_attr__( 'PV', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'PV', 'woo-rede' ),
                 'type' => 'password',
-                'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'integration-rede-for-woocommerce' ),
+                'description' => esc_attr__( 'Your Rede PV (affiliation number).', 'woo-rede' ),
                 'desc_tip' => true,
                 'custom_attributes' => array(
                     'required' => 'required'
@@ -124,9 +124,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => $options['pv'] ?? '',
             ),
             'token' => array(
-                'title' => esc_attr__( 'Token', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Token', 'woo-rede' ),
                 'type' => 'password',
-                'description' => esc_attr__( 'Your Rede Token.', 'integration-rede-for-woocommerce' ),
+                'description' => esc_attr__( 'Your Rede Token.', 'woo-rede' ),
                 'desc_tip' => true,
                 'custom_attributes' => array(
                     'required' => 'required'
@@ -135,43 +135,43 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__( 'Payment Description', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
-                'default' => esc_attr__( 'Payment', 'integration-rede-for-woocommerce' ),
+                'default' => esc_attr__( 'Payment', 'woo-rede' ),
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
             ),
 
             'debit_options' => array(
-                'title' => esc_attr__( 'Debit Card Settings', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Debit Card Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
             'partners' => array(
-                'title' => esc_attr__( 'Partner Settings', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Partner Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
             'module' => array(
-                'title' => esc_attr__( 'Module ID', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Module ID', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '',
             ),
             'gateway' => array(
-                'title' => esc_attr__( 'Gateway ID', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Gateway ID', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '',
             ),
 
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
 
             'debug' => array(
-                'title' => esc_attr__( 'Debug', 'integration-rede-for-woocommerce' ),
+                'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'integration-rede-for-woocommerce' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'integration-rede-for-woocommerce') . '</a>'),
-                'default' => esc_attr__( 'no', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+                'default' => esc_attr__( 'no', 'woo-rede' ),
             ),
         );
 
@@ -244,12 +244,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         try {
             $valid = $this->validate_card_number( $cardNumber );
             if ( false === $valid ) {
-                throw new Exception( __( 'Please enter a valid debit card number', 'integration-rede-for-woocommerce' ) );
+                throw new Exception( __( 'Please enter a valid debit card number', 'woo-rede' ) );
             }
 
             $valid = $this->validate_card_fields( $_POST );
             if ( false === $valid ) {
-                throw new Exception(__('One or more invalid fields', 'integration-rede-for-woocommerce'), 500);
+                throw new Exception(__('One or more invalid fields', 'woo-rede'), 500);
             }
 
             $orderId = $order->get_id();
@@ -334,7 +334,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 update_post_meta( $order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
                 update_post_meta( $order_id, '_wc_rede_transaction_canceled', true );
 
-                $order->add_order_note( esc_attr__( 'Refunded:', 'integration-rede-for-woocommerce' ) . wc_price( $amount ) );
+                $order->add_order_note( esc_attr__( 'Refunded:', 'woo-rede' ) . wc_price( $amount ) );
             } catch ( Exception $e ) {
                 return new WP_Error( 'rede_refund_error', sanitize_text_field( $e->getMessage() ) );
             }

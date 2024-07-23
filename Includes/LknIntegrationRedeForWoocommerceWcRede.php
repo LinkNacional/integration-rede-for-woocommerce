@@ -27,7 +27,7 @@ final class LknIntegrationRedeForWoocommerceWcRede {
     }
 
     public function loadPluginTextdomain(): void {
-        load_plugin_textdomain( 'integration-rede-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+        load_plugin_textdomain( 'woo-rede', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
     }
 
     public function addGateway( $methods ) {

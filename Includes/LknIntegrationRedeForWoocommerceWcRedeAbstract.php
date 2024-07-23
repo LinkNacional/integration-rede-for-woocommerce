@@ -61,10 +61,10 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             $installments = get_post_meta( $order_id, '_wc_rede_transaction_installments', true );
             $last = array_pop( $items );
             $items['payment_return'] = array(
-                'label' => esc_attr__( 'Payment:', 'integration-rede-for-woocommerce' ),
+                'label' => esc_attr__( 'Payment:', 'woo-rede' ),
                 'value' => sprintf(
                     // translators: %1$s is the Order ID, %2$s is the number of installments, %3$s is the Transaction Id.
-                    __( '<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />', 'integration-rede-for-woocommerce' ),
+                    __( '<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />', 'woo-rede' ),
                     //'value' => sprintf('<strong>Order ID</strong>: %s<br /><strong>Installments</strong>: %s<br /><strong>Transaction Id</strong>: %s<br />',
                     $order_id,
                     $installments,
@@ -73,7 +73,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             );
 
             // translators: %s is the name of the plugin required for this one to work.
-            $items['payment_return']['value'] .= sprintf( __( '<strong>Autorization Code</strong>: %s', 'integration-rede-for-woocommerce' ), $authorization_code );
+            $items['payment_return']['value'] .= sprintf( __( '<strong>Autorization Code</strong>: %s', 'woo-rede' ), $authorization_code );
 
             $items[] = $last;
         }
@@ -125,7 +125,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     final public function consult_order( $order, $id, $tid, $status ): void {
         $transaction = $this->api->do_transaction_consultation( $tid );
 
-        $this->process_order_status( $order, $transaction, esc_attr_e( 'automatic check', 'integration-rede-for-woocommerce' ) );
+        $this->process_order_status( $order, $transaction, esc_attr_e( 'automatic check', 'woo-rede' ) );
     }
 
     /**
@@ -147,8 +147,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 wc_reduce_stock_levels( $order->get_id() );
             }
         } else {
-            $order->update_status( esc_attr_e( 'failed', 'integration-rede-for-woocommerce' ), $status_note );
-            $order->update_status( esc_attr_e( 'cancelled', 'integration-rede-for-woocommerce' ), $status_note );
+            $order->update_status( esc_attr_e( 'failed', 'woo-rede' ), $status_note );
+            $order->update_status( esc_attr_e( 'cancelled', 'woo-rede' ), $status_note );
         }
 
         WC()->cart->empty_cart();
@@ -164,12 +164,12 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             $order_url = add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'view_order' ) ) );
         }
 
-        if (    $order->get_status() == esc_attr__( 'on-hold', 'integration-rede-for-woocommerce' ) ||
-                $order->get_status() == esc_attr__( 'processing', 'integration-rede-for-woocommerce' ) ||
-                $order->get_status() == esc_attr__( 'completed', 'integration-rede-for-woocommerce' )) {
-            echo '<div class="woocommerce-message">' . esc_attr__( 'Your order is already being processed. For more information', 'integration-rede-for-woocommerce' ) . ' ' . '<a href="' . esc_url( $order_url ) . '" class="button" style="display: block !important; visibility: visible !important;">' . esc_attr__( 'see order details', 'integration-rede-for-woocommerce' ) . '</a><br /></div>';
+        if (    $order->get_status() == esc_attr__( 'on-hold', 'woo-rede' ) ||
+                $order->get_status() == esc_attr__( 'processing', 'woo-rede' ) ||
+                $order->get_status() == esc_attr__( 'completed', 'woo-rede' )) {
+            echo '<div class="woocommerce-message">' . esc_attr__( 'Your order is already being processed. For more information', 'woo-rede' ) . ' ' . '<a href="' . esc_url( $order_url ) . '" class="button" style="display: block !important; visibility: visible !important;">' . esc_attr__( 'see order details', 'woo-rede' ) . '</a><br /></div>';
         } else {
-            echo '<div class="woocommerce-info">' . esc_attr__( 'For more details on your order, please visit', 'integration-rede-for-woocommerce' ) . ' ' . '<a href="' . esc_url( $order_url ) . '">' . esc_attr__( 'order details page', 'integration-rede-for-woocommerce' ) . '</a></div>';
+            echo '<div class="woocommerce-info">' . esc_attr__( 'For more details on your order, please visit', 'woo-rede' ) . ' ' . '<a href="' . esc_url( $order_url ) . '">' . esc_attr__( 'order details page', 'woo-rede' ) . '</a></div>';
         }
     }
 
@@ -180,7 +180,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if ( array_sum( str_split( $cardNumber_checksum ) ) % 10 !== 0 ) {
-            throw new Exception( esc_attr__( 'Please enter a valid credit card number', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Please enter a valid credit card number', 'woo-rede' ) );
             return false;
         }
 
@@ -189,7 +189,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
     protected function validate_card_fields( $posted ) {
         if ( ! isset( $posted[ $this->id . '_holder_name' ] ) || '' === $posted[ $this->id . '_holder_name' ] ) {
-            throw new Exception( esc_attr__( 'Please enter cardholder name', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Please enter cardholder name', 'woo-rede' ) );
             return false;
         }
 
@@ -198,19 +198,19 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             '',
             $posted[ $this->id . '_holder_name' ]
         ) != $posted[ $this->id . '_holder_name' ] ) {
-            throw new Exception( esc_attr__( 'Cardholder name can only contain letters', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Cardholder name can only contain letters', 'woo-rede' ) );
             return false;
         }
 
         if ( ! isset( $posted[ $this->id . '_expiry' ] ) || '' === $posted[ $this->id . '_expiry' ] ) {
-            throw new Exception( esc_attr__( 'Please enter card expiration date', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Please enter card expiration date', 'woo-rede' ) );
             return false;
         }
 
         //if user filled expiry date with 3 digits,
         // throw an exception and let him/her/they know.
         if ( isset( $posted[ $this->id . '_expiry' ][2] ) && ! isset( $posted[ $this->id . '_expiry' ][3] ) ) {
-            throw new Exception( esc_attr__( 'Expiration date must contain 2 or 4 digits', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Expiration date must contain 2 or 4 digits', 'woo-rede' ) );
             return false;
         }
 
@@ -221,17 +221,17 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 $this->normalize_expiration_date( $posted[ $this->id . '_expiry' ] )
             )
         ) < strtotime( gmdate( 'Y-m' ) . '-01' ) ) {
-            throw new Exception( esc_attr__( 'Card expiration date must be future.', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Card expiration date must be future.', 'woo-rede' ) );
             return false;
         }
 
         if ( ! isset( $posted[ $this->id . '_cvc' ] ) || '' === $posted[ $this->id . '_cvc' ] ) {
-            throw new Exception( esc_attr__( 'Please enter card security code', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Please enter card security code', 'woo-rede' ) );
             return false;
         }
 
         if ( preg_replace( '/[^0-9]/', '', $posted[ $this->id . '_cvc' ] ) != $posted[ $this->id . '_cvc' ] ) {
-            throw new Exception( esc_attr__( 'Security code must contain only numbers', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Security code must contain only numbers', 'woo-rede' ) );
             return false;
         }
 
@@ -295,7 +295,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if ( ! isset( $posted['rede_credit_installments'] ) || '' === $posted['rede_credit_installments'] ) {
-            throw new Exception( esc_attr__( 'Please enter the number of installments', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Please enter the number of installments', 'woo-rede' ) );
         }
 
         $installments = absint( $posted['rede_credit_installments'] );
@@ -303,7 +303,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         $max_parcels = $this->get_option( 'max_parcels_number' );
 
         if ( $installments > $max_parcels || ( ( 0 != $min_value ) && ( ( $order_total / $installments ) < $min_value ) ) ) {
-            throw new Exception( esc_attr__( 'Invalid number of installments', 'integration-rede-for-woocommerce' ) );
+            throw new Exception( esc_attr__( 'Invalid number of installments', 'woo-rede' ) );
         }
 
         return true;
@@ -311,7 +311,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
     final public function generateMetaTable( $order, $metaKeys, $title): void {
         ?>
-<h3><?php esc_attr_e( $title, 'integration-rede-for-woocommerce' ); ?>
+<h3><?php esc_attr_e( $title, 'woo-rede' ); ?>
 </h3>
 <table>
     <tbody>

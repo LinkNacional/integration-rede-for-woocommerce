@@ -168,7 +168,7 @@ final class LknIntegrationRedeForWoocommerce {
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
-            __('Settings', 'integration-rede-for-woocommerce')
+            __('Settings', 'woo-rede')
         );
 
         return array_merge($plugin_meta, $new_meta_links);
@@ -179,7 +179,7 @@ final class LknIntegrationRedeForWoocommerce {
         $url = 'https://www.linknacional.com.br/wordpress/plugins/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
-            __('Be pro', 'integration-rede-for-woocommerce')
+            __('Be pro', 'woo-rede')
         );
 
         // Crie o novo link de meta
