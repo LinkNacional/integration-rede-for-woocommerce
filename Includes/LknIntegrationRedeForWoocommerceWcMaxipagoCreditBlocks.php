@@ -54,9 +54,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
                 'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
-                'cardExpiringDate' => __( 'Card Expiring Date', 'integration-maxipago-for-woocommerce' ),
-                'securityCode' => __('Security Code', 'integration-maxipago-for-woocommerce' ),
-                'nameOnCard' => __( 'Name on Card', 'integration-maxipago-for-woocommerce' ),
+                'cardExpiringDate' => __( 'Card Expiring Date', 'integration-rede-for-woocommerce' ),
+                'securityCode' => __('Security Code', 'integration-rede-for-woocommerce' ),
+                'nameOnCard' => __( 'Name on Card', 'integration-rede-for-woocommerce' ),
                 'installments' => __( 'Installments', 'integration-rede-for-woocommerce' ),
                 'district' => __('District', 'integration-rede-for-woocommerce'),
                 'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),

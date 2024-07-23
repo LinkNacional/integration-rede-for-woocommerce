@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <input id="rede-debit-card-holder-name"
                     name="rede_debit_holder_name" class="input-text"
                     type="text"
-                    placeholder=<?php esc_attr_e( 'Name', 'integration-maxipago-for-woocommerce' ); ?>
+                    placeholder=<?php esc_attr_e( 'Name', 'integration-rede-for-woocommerce' ); ?>
                     maxlength="22" autocomplete="off"
                     style="font-size: 1.5em; padding: 8px 45px;"/>                        
             </div>
