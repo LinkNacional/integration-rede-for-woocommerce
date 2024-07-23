@@ -35,9 +35,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
         if ( function_exists( 'wp_set_script_translations' ) ) {
             wp_set_script_translations( 'maxipago_credit-blocks-integration');
         }
-        
+
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
-        
+
         return array('maxipago_credit-blocks-integration');
     }
 

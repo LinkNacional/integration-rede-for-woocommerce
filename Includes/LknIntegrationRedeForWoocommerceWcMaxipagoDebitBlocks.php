@@ -42,7 +42,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends Abstra
 
     public function get_payment_method_data() {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        
+
         return array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,

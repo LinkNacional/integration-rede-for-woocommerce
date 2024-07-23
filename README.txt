@@ -26,7 +26,7 @@ Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, plea
 **User instructions**
 
 1. Search the WordPress sidebar for 'Integration Rede for WooCommerce'.
-   
+
 2. In the WooCommerce options, navigate to 'Payments' and then proceed to the settings for 'Rede' or 'Maxipago' as your preferred choice.
 
 3. Configure the required credentials for your selected payment gateway, such as PV and Token for Rede or Merchant ID and Merchant Key for Maxipago.

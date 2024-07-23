@@ -15,8 +15,8 @@ $selectStyle = '';
 /* switch ($theme_name) {
     case 'Hello Elementor':
         $selectDivClass = "
-            input-text 
-            jp-card-invalid 
+            input-text
+            jp-card-invalid
             wc-credit-card-form-card-number-select-input
         ";
         $selectDivStyle="
@@ -27,8 +27,8 @@ $selectStyle = '';
 
     case 'OceanWP':
         $selectDivClass = "
-            input-text 
-            jp-card-invalid 
+            input-text
+            jp-card-invalid
             wc-credit-card-form-card-number-select-input
         ";
         $selectSpanStyle = "
@@ -149,14 +149,14 @@ $selectStyle = '';
 						</svg>
 					</div>
 				</label>
-				<input 
+				<input
 					id="maxipago-card-holder-name"
-					name="maxipago_credit_holder_name" 
+					name="maxipago_credit_holder_name"
 					class="input-text"
 					type="text"
 					placeholder=<?php esc_attr_e( 'Name', 'integration-rede-for-woocommerce' ); ?>
 					maxlength="22" autocomplete="off"
-					style="font-size: 1.5em; padding: 8px 45px;"/>	
+					style="font-size: 1.5em; padding: 8px 45px;"/>
 			</div>
 
 			<div class="form-row form-row">

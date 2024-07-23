@@ -64,6 +64,6 @@ window.jQuery(function ($) {
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
         verify = false
       }
-    }, 1000);
+    }, 1000)
   }
 })

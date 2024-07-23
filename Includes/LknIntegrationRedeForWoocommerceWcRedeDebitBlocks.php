@@ -38,10 +38,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_block_editor'] ?? false);
         return array('rede_debit-blocks-integration');
     }
-    
+
     public function get_payment_method_data() {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        
+
         return array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,

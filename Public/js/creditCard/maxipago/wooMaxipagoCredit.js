@@ -26,7 +26,7 @@ window.jQuery(function ($) {
         if (selectedPaymentMethod && selectedPaymentMethod.val() !== 'maxipago_credit') {
           return
         }
-        
+
         const inputSelectors = {
           numberInput: '#maxipago-card-number',
           nameInput: '#maxipago-card-holder-name',

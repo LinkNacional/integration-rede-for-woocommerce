@@ -34,9 +34,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     type="text"
                     placeholder=<?php esc_attr_e( 'Name', 'integration-rede-for-woocommerce' ); ?>
                     maxlength="22" autocomplete="off"
-                    style="font-size: 1.5em; padding: 8px 45px;"/>                        
+                    style="font-size: 1.5em; padding: 8px 45px;"/>
             </div>
-        
+
             <div class="form-row form-row">
                 <label id="labels-with-icons" for="rede-debit-card-number">
                     <?php esc_attr_e( 'Card Number', 'integration-rede-for-woocommerce' ); ?>
@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </svg>
                     </div>
                 </label>
-                <input 
+                <input
                     id ="rede-debit-card-number"
                     name="rede_debit_number"
                     class="input-text jp-card-invalid wc-debit-card-form-card-number"
@@ -65,7 +65,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     type="hidden"
                     value="<?php echo esc_attr(wp_create_nonce('redeCardNonce'))?>"
                 >
-            </div>            
+            </div>
 
             <div class="form-row form-row">
                 <label id="labels-with-icons" for="rede-debit-card-expiry">
@@ -82,7 +82,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     type="tel"
                     autocomplete="off"
                     placeholder="<?php esc_attr_e( 'MM / YEAR', 'integration-rede-for-woocommerce' ); ?>"
-                    style="font-size: 1.5em; padding: 8px 30px 8px 35px;"/>                        
+                    style="font-size: 1.5em; padding: 8px 30px 8px 35px;"/>
             </div>
 
             <div class="form-row form-row">
@@ -98,9 +98,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     type="tel"
                     autocomplete="off"
                     placeholder="<?php esc_attr_e( 'CVC', 'integration-rede-for-woocommerce' ); ?>"
-                    style="font-size: 1.5em; padding: 8px 30px 8px 35px;"/>                        
+                    style="font-size: 1.5em; padding: 8px 30px 8px 35px;"/>
             </div>
             <div class="clear"></div>
         </div>
     </div>
-</fieldset>                        
+</fieldset>

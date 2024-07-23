@@ -90,7 +90,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
          * class.
          */
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
-        
+
         // Localize the script with custom data
         wp_localize_script($this->plugin_name, 'lknPhpTranslations', array(
             'title' => __('Get new features with Rede Pro', 'integration-rede-for-woocommerce'),
