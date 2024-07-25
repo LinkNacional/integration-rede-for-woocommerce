@@ -47,6 +47,39 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $this->configs = $this->getConfigsRedeDebit();
     }
 
+    /**
+     * Fields validation.
+     *
+     * @return bool
+     */
+    public function validate_fields() {
+        if ( empty( $_POST['rede_debit_number'] ) ) {
+            wc_add_notice( esc_attr__( 'Card number is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_debit_expiry'] ) ) {
+            wc_add_notice( esc_attr__( 'Card expiration is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_debit_cvc'] ) ) {
+            wc_add_notice( esc_attr__( 'Card security code is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_debit_holder_name'] ) ) {
+            wc_add_notice( esc_attr__( 'Cardholder name is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function displayMeta( $order ): void {
         if ( $order->get_payment_method() === 'rede_debit' ) {
             $metaKeys = array(

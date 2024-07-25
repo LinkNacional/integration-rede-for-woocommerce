@@ -36,6 +36,45 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $this->log = $this->get_logger();
     }
 
+    /**
+     * Fields validation.
+     *
+     * @return bool
+     */
+    public function validate_fields() {
+        if ( empty( $_POST['maxipago_debit_card_cpf'] ) ) {
+            wc_add_notice( esc_attr__( 'CPF is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['maxipago_debit_number'] ) ) {
+            wc_add_notice( esc_attr__( 'Card number is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['maxipago_debit_expiry'] ) ) {
+            wc_add_notice( esc_attr__( 'Card expiration is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['maxipago_debit_cvc'] ) ) {
+            wc_add_notice( esc_attr__( 'Card security code is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['maxipago_debit_holder_name'] ) ) {
+            wc_add_notice( esc_attr__( 'Cardholder name is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function addNeighborhoodFieldToCheckout( $fields ) {
         if ( ! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
             && $this->is_available()) {

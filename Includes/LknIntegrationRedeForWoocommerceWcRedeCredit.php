@@ -47,6 +47,39 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI( $this );
     }
 
+    /**
+     * Fields validation.
+     *
+     * @return bool
+     */
+    public function validate_fields() {
+        if ( empty( $_POST['rede_credit_number'] ) ) {
+            wc_add_notice( esc_attr__( 'Card number is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_credit_expiry'] ) ) {
+            wc_add_notice( esc_attr__( 'Card expiration is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_credit_cvc'] ) ) {
+            wc_add_notice( esc_attr__( 'Card security code is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        if ( empty( $_POST['rede_credit_holder_name'] ) ) {
+            wc_add_notice( esc_attr__( 'Cardholder name is a required field', 'woo-rede' ), 'error' );
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function getConfigsRedeCredit() {
         $configs = array();
 

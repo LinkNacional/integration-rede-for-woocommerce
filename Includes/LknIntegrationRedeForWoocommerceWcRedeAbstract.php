@@ -26,10 +26,11 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     /**
      * Fields validation.
      *
-     * @abstract
      * @return bool
      */
-    abstract public function validate_fields();
+    public function validate_fields() {
+        return true;
+    }
 
     /**
      * Verify if WooCommerce notice exists before adding.
