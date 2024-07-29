@@ -1,9 +1,11 @@
 window.jQuery(function ($) {
-  if (!document.querySelector('.wc-block-checkout')) {
-    // Cria o card somente quando a requisição for concluida
-    let verify = true
-    setInterval(() => {
-      if (verify) {
+  $(window).on('load', lknRedeCreditCardRender)
+  lknRedeCreditCardRender()
+
+  function lknRedeCreditCardRender () {
+    if (!document.querySelector('.wc-block-checkout')) {
+      // Cria o card somente quando a requisição for concluida
+      setTimeout(() => {
         let $form = $('.woocommerce .woocommerce-checkout')
         if ($form.length === 0) {
           $form = $('#order_review')
@@ -52,7 +54,7 @@ window.jQuery(function ($) {
           /**
            * Debug
            */
-          debug: !!window.wooRede.debug
+          debug: Boolean(window.wooRede.debug)
         })
 
         // Workaround to maintain the card data rendered after checkout updates
@@ -62,8 +64,7 @@ window.jQuery(function ($) {
 
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
         $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
-        verify = false
-      }
-    }, 1000)
+      }, 1000)
+    }
   }
 })
