@@ -1,3 +1,7 @@
+# 3.1.3 - 30/07/2024
+- Melhoria no carregamento de scripts;
+- Correção de validação de campos gerando novos pedidos.
+
 # 3.1.2 - 23/07/2024
 * Correção de traduções não reconhecidas;
 * Correção de geração de pedidos inválidos;
