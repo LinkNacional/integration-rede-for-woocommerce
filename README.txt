@@ -4,12 +4,12 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 3.1.2
+Stable tag: 3.1.3
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
 
-Rede API integration for WooCommerce
+Receba pagamentos por meio de cartões de crédito e débito, de diferentes bandeiras, usando a tecnologia de autenticação 3DS e recursos avançados de proteção contra fraudes.
 
 == Description ==
 
@@ -69,6 +69,10 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.1.3 = *2024/07/30*
+* Improvement in script loading;
+* Fixed field validation generating new orders.
 
 = 3.1.2 = *2024/07/23*
 * Correction of unrecognized translations;

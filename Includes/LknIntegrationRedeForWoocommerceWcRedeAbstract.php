@@ -23,6 +23,27 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     public $merchant_id;
     public $merchant_key;
 
+    /**
+     * Fields validation.
+     *
+     * @return bool
+     */
+    public function validate_fields() {
+        return true;
+    }
+
+    /**
+     * Verify if WooCommerce notice exists before adding.
+     *
+     * @param string $message
+     * @param string $type
+     */
+    private function add_notice_once($message, $type): void {
+        if ( ! wc_has_notice($message, $type)) {
+            wc_add_notice($message, $type);
+        }
+    }
+
     final public function get_valid_value( $value ) {
         return preg_replace( '/[^\d\.]+/', '', str_replace( ',', '.', $value ) );
     }
