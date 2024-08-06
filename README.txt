@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 3.1.3
+Stable tag: 3.2.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -69,6 +69,10 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.2.0 = *2024/08/06*
+* Addition of Rede PRO settings as read-only;
+* Script fix to remove checkout loading.
 
 = 3.1.3 = *2024/07/30*
 * Improvement in script loading;
