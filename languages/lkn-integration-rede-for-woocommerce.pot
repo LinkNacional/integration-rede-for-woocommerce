@@ -312,3 +312,36 @@ msgstr ""
 
 msgid "Payment"
 msgstr ""
+
+msgid "PRO Settings"
+msgstr ""
+
+msgid "License"
+msgstr ""
+
+msgid "Auto Capture"
+msgstr ""
+
+msgid "Custom CSS (Shortcode)"
+msgstr ""
+
+msgid "Custom CSS (Block Editor)"
+msgstr ""
+
+msgid "Interest on installments"
+msgstr ""
+
+msgid "License for Rede for WooCommerce plugin extensions."
+msgstr ""
+
+msgid "By enabling automatic capture, payment is automatically captured immediately after the transaction."
+msgstr ""
+
+msgid "Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}."
+msgstr ""
+
+msgid "Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}."
+msgstr ""
+
+msgid "Enables auto capture"
+msgstr ""

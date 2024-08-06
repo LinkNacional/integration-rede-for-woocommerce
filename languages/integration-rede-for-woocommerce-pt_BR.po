@@ -465,6 +465,58 @@ msgstr "Por favor, preencha todos os campos corretamente."
 msgid "interest-free"
 msgstr "sem juros"
 
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:95
+msgid "PRO Settings"
+msgstr "Configurações PRO"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:96
+msgid "License"
+msgstr "Licença"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:97
+msgid "Auto Capture"
+msgstr "Captura Automática"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:99
+msgid "Custom CSS (Shortcode)"
+msgstr "CSS Customizado (Shortcode)"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:100
+msgid "Custom CSS (Block Editor)"
+msgstr "CSS Customizado (Editor por Blocos)"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:101
+msgid "Interest on installments"
+msgstr "Juros do parcelamento"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:103
+msgid "License for Rede for WooCommerce plugin extensions."
+msgstr "Licença para extensões do plugin Rede para WooCommerce."
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:104
+msgid "By enabling automatic capture, payment is automatically captured immediately after the transaction."
+msgstr "Ao habilitar a captura automática o pagamento é capturado de forma automática logo após a transação."
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:105
+msgid "Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}."
+msgstr "Possibilidade de personalizar o CSS do shortcode. Insira o seletor e as regras, exemplo: .checkout{color:green;}."
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:106
+msgid "Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}."
+msgstr "Possibilidade de personalizar o CSS no checkout de editor por blocos. Insira o seletor e as regras, exemplo: .checkout{color:green;}."
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:98
+msgid "Enables auto capture"
+msgstr "Habilita a captura automática"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:102
+msgid "Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment."
+msgstr "Habilita o pagamento com juros nas parcelas. Salve para continuar a configuração. Após habilitar os juros do parcelamento é possível definir a quantidade de juros de acordo com a parcela."
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:107
+msgid "Become PRO"
+msgstr "Seja PRO"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"
