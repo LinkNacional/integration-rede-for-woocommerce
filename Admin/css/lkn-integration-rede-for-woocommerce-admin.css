@@ -2,3 +2,54 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+
+.lowOpacity {
+    opacity: 0.5;
+}
+
+textarea:disabled {
+    resize: none;
+}
+
+.lknIntegrationRedeForWoocommerceTooltiptext {
+    visibility: hidden;
+    padding: 0.618em 1em;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    font-size: .8em;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    position: absolute;
+    z-index: 1;
+    transform: translateX(57%);
+    margin-left: -100px;
+    margin-top: 17px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: normal
+}
+
+#lknIntegrationRedeForWoocommerceTooltipSpan:hover+.lknIntegrationRedeForWoocommerceTooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.lknIntegrationRedeForWoocommerceBecomePRO {
+    text-decoration: none;
+    color: #FF0D08;
+    font-size: 0.84rem;
+    font-weight: bold;
+    font-family: "Inter", sans-serif;
+}
+
+.lknIntegrationRedeForWoocommerceBecomePRO:hover {
+    color: #FF0D08;
+}
+
+@media (max-width: 782px) {
+    .lknIntegrationRedeForWoocommerceTooltiptext {
+        transform: translateX(-20%);
+        margin-left: 0px;
+    }
+}
