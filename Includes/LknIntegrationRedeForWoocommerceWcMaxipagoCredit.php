@@ -116,6 +116,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     }
 
     public function initFormFields(): void {
+        LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);        
+
         $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-rede'),
@@ -181,6 +183,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'custom_attributes' => array(
                     'required' => 'required'
                 ),
+            ),
+            'enabled_fix_load_script' => array(
+                'title' => __('Load on checkout', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
+                'default' => 'yes',
             ),
             'credit_options' => array(
                 'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),
@@ -659,7 +669,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
     public function checkoutScripts(): void {
         $plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ) . '../';
-        wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
+        if ($this->get_option('enabled_fix_load_script') === 'yes') {
+            wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
+        }
 
         if ( ! is_checkout() ) {
             return;

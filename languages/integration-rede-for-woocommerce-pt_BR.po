@@ -517,6 +517,18 @@ msgstr "Habilita o pagamento com juros nas parcelas. Salve para continuar a conf
 msgid "Become PRO"
 msgstr "Seja PRO"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:180
+msgid "Load on checkout"
+msgstr "Carregar no checkout"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:182
+msgid "By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading."
+msgstr "Ao desativar esse recurso o carregamento será realizado durante o carregamento do checkout. Esse recurso ativado evita erro de carregamento infinito no checkout. Deve desabilitar apenas se houver dificuldade no carregamento do gateway."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:184
+msgid "Load plugin on checkout. Default (enabled)"
+msgstr "Carregar plugin no checkout. Padrão (ativado)"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"

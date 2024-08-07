@@ -345,3 +345,12 @@ msgstr ""
 
 msgid "Enables auto capture"
 msgstr ""
+
+msgid "Load on checkout"
+msgstr ""
+
+msgid "By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading."
+msgstr ""
+
+msgid "Load plugin on checkout. Default (enabled)"
+msgstr ""
