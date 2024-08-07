@@ -1,6 +1,6 @@
 # 3.2.0 - 06/08/2024
 - Adição de configurações do Rede PRO como apenas leitura;
-- Correção de script para remover o carregamento do checkout.
+- Adição de configuração para carregar o script de correção de carregamento infinito.
 
 # 3.1.3 - 30/07/2024
 - Melhoria no carregamento de scripts;

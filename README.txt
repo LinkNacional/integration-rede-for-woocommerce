@@ -72,7 +72,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 = 3.2.0 = *2024/08/06*
 * Addition of Rede PRO settings as read-only;
-* Script fix to remove checkout loading.
+* Add setting to load the infinite loading fix script.
 
 = 3.1.3 = *2024/07/30*
 * Improvement in script loading;
@@ -151,6 +151,10 @@ The Integration Rede for WooCommerce plugin is now live and working.
 8. Rede and Maxipago payment list.
 
 == Upgrade Notice ==
+= 3.2.0 =
+* Add Rede PRO settings as read-only;
+* Add setting to load the infinite loading fix script.
+
 = 3.1.2 =
 * Correction of unrecognized translations;
 * Correction of invalid order generation;
