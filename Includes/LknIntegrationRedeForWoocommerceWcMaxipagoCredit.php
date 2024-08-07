@@ -523,6 +523,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $environment = $this->get_option('environment');
         $orderId = $order->get_meta('_wc_maxipago_transaction_id');
         $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
+        $merchantId = sanitize_text_field($this->get_option('merchant_id'));
+        $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
 
         if ( empty( $order->get_meta( '_wc_maxipago_transaction_canceled' ) ) ) {
             $amount = wc_format_decimal( $amount );
@@ -542,8 +544,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     <transaction-request>
                         <version>3.1.1.15</version>
                         <verification>
-                            <merchantId>24187</merchantId>
-                            <merchantKey>r7wz16zltnpkf61i4ugo3wds</merchantKey>
+                            <merchantId>$merchantId</merchantId>
+                            <merchantKey>$merchantKey</merchantKey>
                         </verification>
                         <order>
                             <return>
