@@ -50,6 +50,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             'minInstallmentsRede' => get_option('woocommerce_rede_credit_settings')['min_parcels_value'],
             'maxInstallmentsRede' => $maxParcels,
             'cartTotal' => $cart_total,
+            'supports' => $this->gateway->supports,
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
                 'cardNumber' => __('Card Number', 'woo-rede'),

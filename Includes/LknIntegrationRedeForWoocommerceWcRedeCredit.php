@@ -5,6 +5,7 @@ use Exception;
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
 use Symfony\Component\Console\Event\ConsoleEvent;
 use WC_Order;
+use WC_Subscriptions_Order;
 use WP_Error;
 
 final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationRedeForWoocommerceWcRedeAbstract {
@@ -18,6 +19,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->supports = array(
             'products',
             'refunds',
+            'subscriptions',
+            'subscription_cancellation',
+            'subscription_suspension',
+            'subscription_reactivation',
+            'multiple_subscriptions',
+            'subscription_date_changes'
         );
 
         $this->initFormFields();
@@ -338,8 +345,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
     }
+        
+    /**
+     * Process subscription payment.
+     *
+     * @param  float     $amount
+     * @param  WC_Order  $order
+     * @return void
+     */
+    public function process_subscription_payment( $amount, $order ): void {
+        add_option('subscription ' . uniqid(), 'teste');
+        apply_filters('integrationRedegetprocessSubscription', $amount, $order);
+    }
 
-    public function process_payment( $order_id ) {
+    public function process_payment( $order_id ) {        
         if ( ! wp_verify_nonce($_POST['rede_card_nonce'], 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
@@ -428,6 +447,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             }
 
             $order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
+            if (class_exists('WC_Subscriptions_Order') && WC_Subscriptions_Order::order_contains_subscription($order_id)) {
+                apply_filters('integrationRedegetCardToken', $cardData, $this, $order);
+            }
 
             $this->process_order_status( $order, $transaction, '' );
 
