@@ -184,8 +184,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
                 'default' => 'yes',
             ),
-
-            'partners' => array(
+            
+            //TODO Remover em issue futura
+            /* 'partners' => array(
                 'title' => esc_attr__( 'Partner Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
@@ -198,7 +199,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__( 'Gateway ID', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '',
-            ),
+            ), */
 
             'credit_options' => array(
                 'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),

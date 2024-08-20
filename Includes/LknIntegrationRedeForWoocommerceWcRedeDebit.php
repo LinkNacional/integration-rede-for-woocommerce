@@ -187,11 +187,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => 'yes',
             ),
 
-            'debit_options' => array(
-                'title' => esc_attr__( 'Debit Card Settings', 'woo-rede' ),
-                'type' => 'title',
-            ),
-            'partners' => array(
+            //TODO Remover em issue futura
+            /* 'partners' => array(
                 'title' => esc_attr__( 'Partner Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
@@ -204,7 +201,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => esc_attr__( 'Gateway ID', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '',
-            ),
+            ), */
 
             'developers' => array(
                 'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
