@@ -19,14 +19,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->supports = array(
             'products',
             'refunds',
-            'subscriptions',
-            'subscription_cancellation',
-            'subscription_suspension',
-            'subscription_reactivation',
-            'multiple_subscriptions',
-            'subscription_date_changes'
         );
-
+        apply_filters('integrationRedeSetSupports', $this);
         $this->initFormFields();
 
         $this->init_settings();
@@ -448,7 +442,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
             $order->update_meta_data( '_wc_rede_transaction_environment', $this->environment );
             if (class_exists('WC_Subscriptions_Order') && WC_Subscriptions_Order::order_contains_subscription($order_id)) {
-                apply_filters('integrationRedegetCardToken', $cardData, $this, $order);
+                apply_filters('integrationRedeGetCardToken', $cardData, $this, $order);
             }
 
             $this->process_order_status( $order, $transaction, '' );
