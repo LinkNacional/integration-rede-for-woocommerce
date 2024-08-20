@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       Integration Rede for WooCommerce
  * Description:       Receba pagamentos por meio de cartões de crédito e débito, de diferentes bandeiras, usando a tecnologia de autenticação 3DS e recursos avançados de proteção contra fraudes.
- * Version:           3.1.3
+ * Version:           3.2.0
  * Author:            Link Nacional
  * Author URI:        https://linknacional.com.br/wordpress
  * License:           GPL-2.0+

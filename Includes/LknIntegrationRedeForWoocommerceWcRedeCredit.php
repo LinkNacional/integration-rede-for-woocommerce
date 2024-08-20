@@ -3,6 +3,7 @@ namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
 use Exception;
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
+use Symfony\Component\Console\Event\ConsoleEvent;
 use WC_Order;
 use WP_Error;
 
@@ -114,7 +115,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function initFormFields(): void {
         $options = get_option('woocommerce_rede_credit', array());
-
+        LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
+        
         $this->form_fields = array(
             'enabled' => array(
                 'title' => esc_attr__( 'Enable/Disable', 'woo-rede' ),
@@ -174,7 +176,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ),
             ),
 
-            'partners' => array(
+            'enabled_fix_load_script' => array(
+                'title' => __('Load on checkout', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
+                'default' => 'yes',
+            ),
+            
+            //TODO Remover em issue futura
+            /* 'partners' => array(
                 'title' => esc_attr__( 'Partner Settings', 'woo-rede' ),
                 'type' => 'title',
             ),
@@ -187,7 +199,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__( 'Gateway ID', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '',
-            ),
+            ), */
 
             'credit_options' => array(
                 'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),
@@ -300,7 +312,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function checkoutScripts(): void {
         $plugin_url = plugin_dir_url( LknIntegrationRedeForWoocommerceWcRede::FILE ) . '../';
-        wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
+        if ($this->get_option('enabled_fix_load_script') === 'yes') {
+            wp_enqueue_script( 'fixInfiniteLoading-js', $plugin_url . 'Public/js/fixInfiniteLoading.js', array(), '1.0.0', true );
+        }
 
         if ( ! is_checkout() ) {
             return;

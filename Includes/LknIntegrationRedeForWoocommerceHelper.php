@@ -40,4 +40,23 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
         }
         return $total;
     }
+    
+    final public static function updateFixLoadScriptOption($id) {
+        if (!empty($_POST) && isset($_POST['_wpnonce']) && isset($_GET['section']) && $_GET['section'] === $id) {
+            $enabledFixLoadScript = isset($_POST["woocommerce_" . $id . "_enabled_fix_load_script"]) ? 'yes' : 'no';
+            
+            $optionsToUpdate = [
+                'maxipago_credit',
+                'maxipago_debit',
+                'rede_credit',
+                'rede_debit',
+            ];
+
+            foreach ($optionsToUpdate as $option) {
+                $paymentOptions = get_option('woocommerce_' . $option . '_settings', array());
+                $paymentOptions['enabled_fix_load_script'] = $enabledFixLoadScript;
+                update_option('woocommerce_' . $option . '_settings', $paymentOptions);
+            }
+        }
+    }
 }
