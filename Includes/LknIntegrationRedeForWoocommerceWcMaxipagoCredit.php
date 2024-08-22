@@ -474,7 +474,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 if ('sale' == $capture) {
                     $order->update_meta_data( '_wc_rede_captured', true );
                     $order->update_status('processing');
-                    apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
+                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
                 }
                 if ('auth' == $capture) {
                     $order->update_meta_data( '_wc_rede_captured', false );

@@ -119,7 +119,7 @@ const ContentMaxipagoCredit = props => {
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
               maxipago_card_nonce: nonceMaxipagoCredit,
-              billing_cpf: creditObject.maxipago_credit_cpf,
+              maxipago_credit_card_cpf: creditObject.maxipago_credit_cpf,
               billing_neighborhood: creditObject.maxipago_credit_neighborhood
             }
           }

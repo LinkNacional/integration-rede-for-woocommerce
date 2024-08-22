@@ -42,7 +42,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
      * @return bool
      */
     public function validate_fields() {
-        if ( empty( $_POST['maxipago_debit_card_cpf'] ) ) {
+        if ( empty( $_POST['maxipago_debit_cpf'] ) ) {
             wc_add_notice( esc_attr__( 'CPF is a required field', 'woo-rede' ), 'error' );
 
             return false;
@@ -373,7 +373,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 $order->update_meta_data( '_wc_maxipago_transaction_holder', $cardData['card_holder'] );
                 $order->update_meta_data( '_wc_maxipago_transaction_expiration', $creditExpiry );
                 $order->update_status('processing');
-                apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
+                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
             }
             if ( 'yes' == $this->debug ) {
                 $this->log->log('info', $this->id, array(
