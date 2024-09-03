@@ -1,3 +1,6 @@
+# 3.3.0 - 03/09/2024
+- Adição de compatibilidade com novas configurações do plugin PRO.
+
 # 3.2.0 - 06/08/2024
 - Adição de configurações do Rede PRO como apenas leitura;
 - Adição de configuração para carregar o script de correção de carregamento infinito.
