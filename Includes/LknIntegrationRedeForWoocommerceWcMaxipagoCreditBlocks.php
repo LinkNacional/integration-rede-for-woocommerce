@@ -65,8 +65,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
         if (isset(get_option('woocommerce_maxipago_credit_settings')['installment_interest'])) {
             if (get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes') {
                 for ($i = 1; $i <= $maxParcels; ++$i) {
-                    $phpArray[$i . 'x'] = round((float) get_option('woocommerce_maxipago_credit_settings')[$i . 'x'], 2);
-                };
+                    $interest = round((float) get_option('woocommerce_maxipago_credit_settings')[$i . 'x'], 2);
+                    $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+                }
             }
         }
         return $phpArray;

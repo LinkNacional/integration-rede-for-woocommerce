@@ -28,26 +28,16 @@ const ContentRedeCredit = props => {
   })
   const options = []
   for (let index = 1; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
-    let totalInstallment = totalAmountFloat / index
-    if (settingsRedeCredit[`${index}x`] && settingsRedeCredit[`${index}x`] !== 0) {
-      totalInstallment = totalInstallment + totalInstallment * (settingsRedeCredit[`${index}x`] * 0.01)
-    }
-    if (totalInstallment >= minInstallmentsRede) {
-      const totalAmountString = totalInstallment.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-      if (settingsRedeCredit[`${index}x`] !== 0) {
-        options.push({
-          key: index,
-          label: `${index}x de R$ ${totalAmountString}`
-        })
-      } else {
-        options.push({
-          key: index,
-          label: `${index}x de R$ ${totalAmountString}${translationsRedeCredit.interestFree}`
-        })
-      }
+    if (settingsRedeCredit[`${index}x`] !== 0) {
+      options.push({
+        key: index,
+        label: settingsRedeCredit[`${index}x`]
+      });
+    } else {
+      options.push({
+        key: index,
+        label: `${index}x de R$ ${totalAmountString}${translationsRedeCredit.interestFree}`
+      });
     }
   }
   const formatCreditCardNumber = value => {
