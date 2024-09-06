@@ -274,19 +274,13 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 break;
             }
 
-            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
-
             $interest = round((float) $this->get_option( $i . 'x' ), 2);
             if ($this->get_option('installment_interest') == 'yes') {
-                $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label');
+                $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
             if (gettype($customLabel) === 'string' && $customLabel) {
-                if ($interest >= 1) {
-                    $label = $customLabel;
-                } else {
-                    $label .= $customLabel;
-                }
+                $label = $customLabel;
             }
 
             $installments[] = array(
@@ -474,7 +468,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 if ('sale' == $capture) {
                     $order->update_meta_data( '_wc_rede_captured', true );
                     $order->update_status('processing');
-                    apply_filters("lknRedeForWoocommerceProUpdatePayment", $order->get_id());
+                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
                 }
                 if ('auth' == $capture) {
                     $order->update_meta_data( '_wc_rede_captured', false );

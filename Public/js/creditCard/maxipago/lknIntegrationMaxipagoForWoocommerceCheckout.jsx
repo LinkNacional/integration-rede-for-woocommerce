@@ -30,22 +30,11 @@ const ContentMaxipagoCredit = (props) => {
   const options = []
 
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    let totalInstallment = totalAmountFloat / index
-
-    if (settingsMaxipagoCredit[`${index}x`] && settingsMaxipagoCredit[`${index}x`] !== 0) {
-      totalInstallment = totalInstallment + (totalInstallment * (settingsMaxipagoCredit[`${index}x`] * 0.01))
-    }
-
-    if (totalInstallment >= minInstallmentsMaxipago) {
-      const totalAmountString = totalInstallment.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-      if (settingsMaxipagoCredit[`${index}x`] !== 0) {
-        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}` })
-      } else {
-        options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}` })
-      }
+    
+    if (settingsMaxipagoCredit[`${index}x`] !== 0) {
+      options.push({ key: index, label: settingsMaxipagoCredit[`${index}x`] })
+    } else {
+      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}` })
     }
   }
 
@@ -121,7 +110,7 @@ const ContentMaxipagoCredit = (props) => {
               maxipago_credit_cvc: creditObject.maxipago_credit_cvc,
               maxipago_credit_holder_name: creditObject.maxipago_credit_holder_name,
               maxipago_card_nonce: nonceMaxipagoCredit,
-              billing_cpf: creditObject.maxipago_credit_cpf,
+              maxipago_credit_card_cpf: creditObject.maxipago_credit_cpf,
               billing_neighborhood: creditObject.maxipago_credit_neighborhood
             }
           }
