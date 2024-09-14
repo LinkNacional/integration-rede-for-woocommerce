@@ -71,7 +71,8 @@ The Integration Rede for WooCommerce plugin is now live and working.
 == Changelog ==
 
 = 3.3.0 = *2024/09/03*
-* Add compatibility with new PRO plugin settings.
+* Add compatibility with new PRO plugin settings;
+* Added configuration to change status of paid orders.
 
 = 3.2.0 = *2024/08/06*
 * Addition of Rede PRO settings as read-only;
