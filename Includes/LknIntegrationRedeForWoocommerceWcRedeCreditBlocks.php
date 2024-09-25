@@ -60,12 +60,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
                 'interestFree' => ' ' . __('interest-free', 'woo-rede'),
             )
         );
-        if (isset(get_option('woocommerce_rede_credit_settings')['installment_interest'])) {
-            if (get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes') {
-                for ($i = 1; $i <= $maxParcels; ++$i) {
-                    $interest = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
-                    $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
-                }
+        if (isset(get_option('woocommerce_rede_credit_settings')['installment_interest']) && 
+            get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes') {
+            for ($i = 1; $i <= $maxParcels; ++$i) {
+                $interest = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
+                $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+            }
+        }else {
+            for ($i = 1; $i <= $maxParcels; ++$i) {
+                $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($cart_total / $i))));
             }
         }
         return $phpArray;

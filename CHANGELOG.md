@@ -1,3 +1,6 @@
+# 3.3.1 - 25/09/2024
+- Correção em exibição de parcelas;
+
 # 3.3.0 - 03/09/2024
 - Adição de compatibilidade com novas configurações do plugin PRO;
 - Adição de configuração para alterar status dos pedidos pagos.

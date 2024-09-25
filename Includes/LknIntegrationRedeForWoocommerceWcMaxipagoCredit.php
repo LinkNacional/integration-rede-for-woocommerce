@@ -273,8 +273,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             if ( ( $order_total / $i ) < $min_value ) {
                 break;
             }
-
             $interest = round((float) $this->get_option( $i . 'x' ), 2);
+            $label = sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price( $order_total / $i ) ) );
             if ($this->get_option('installment_interest') == 'yes') {
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
