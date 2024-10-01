@@ -61,7 +61,7 @@ $selectStyle = '';
         ></div>
         <div class="wc-payment-maxipago-form-fields">
 
-            <?php if (  get_option('wcbcf_settings')['person_type'] === "0" ||
+            <?php if (  get_option('wcbcf_settings', ['person_type' => ''])['person_type'] === "0" ||
                         !is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')) {    ?>
             <div class="form-row form-row">
                 <label
