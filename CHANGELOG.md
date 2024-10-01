@@ -1,3 +1,6 @@
+# 3.3.2 - 01/10/2024
+- Correção em campo de CPF do plugin de campos brasileiros.
+
 # 3.3.1 - 25/09/2024
 - Correção em exibição de parcelas;
 
