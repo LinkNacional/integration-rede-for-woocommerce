@@ -289,7 +289,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 throw new Exception(__('One or more invalid fields', 'woo-rede'), 500);
             }
 
-            if ( ! $this->validateCpf($clientData['billing_cpf'])) {
+            if ( ! $this->validateCpfCnpj($clientData['billing_cpf'])) {
                 throw new Exception(__("Please enter a valid cpf number", 'woo-rede'));
             }
 
@@ -412,42 +412,71 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         );
     }
 
-    public function validateCpf($cpf) {
-        // Remove caracteres não numéricos
-        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+    public function validateCpfCnpj($cpfCnpj)
+    {
+        // Remove caracteres especiais
+        $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
 
-        // Verifica se o CPF possui 11 dígitos
-        if (strlen($cpf) != 11) {
-            return false;
+        // Verifica se é CPF
+        if (strlen($cpfCnpj) === 11) {
+            // Verifica se todos os dígitos são iguais
+            if (preg_match('/(\d)\1{10}/', $cpfCnpj)) {
+                return false;
+            }
+
+            // Calcula o primeiro dígito verificador
+            $sum = 0;
+            for ($i = 0; $i < 9; $i++) {
+                $sum += intval($cpfCnpj[$i]) * (10 - $i);
+            }
+            $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+
+            // Calcula o segundo dígito verificador
+            $sum = 0;
+            for ($i = 0; $i < 10; $i++) {
+                $sum += intval($cpfCnpj[$i]) * (11 - $i);
+            }
+            $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+
+            // Verifica se os dígitos verificadores estão corretos
+            if ($cpfCnpj[9] == $digit1 && $cpfCnpj[10] == $digit2) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        // Verifica se é CNPJ
+        elseif (strlen($cpfCnpj) === 14) {
+            // Verifica se todos os dígitos são iguais
+            if (preg_match('/(\d)\1{13}/', $cpfCnpj)) {
+                return false;
+            }
+
+            // Calcula o primeiro dígito verificador
+            $sum = 0;
+            $weights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            for ($i = 0; $i < 12; $i++) {
+                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+            }
+            $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+
+            // Calcula o segundo dígito verificador
+            $sum = 0;
+            $weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            for ($i = 0; $i < 13; $i++) {
+                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+            }
+            $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
+
+            // Verifica se os dígitos verificadores estão corretos
+            if ($cpfCnpj[12] == $digit1 && $cpfCnpj[13] == $digit2) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        // Verifica se todos os dígitos são iguais
-        if (preg_match('/(\d)\1{10}/', $cpf)) {
-            return false;
-        }
-
-        // Calcula o primeiro dígito verificador
-        $sum = 0;
-        for ($i = 0; $i < 9; $i++) {
-            $sum += (int) ($cpf[$i]) * (10 - $i);
-        }
-        $remainder = $sum % 11;
-        $digit1 = ($remainder < 2) ? 0 : (11 - $remainder);
-
-        // Calcula o segundo dígito verificador
-        $sum = 0;
-        for ($i = 0; $i < 10; $i++) {
-            $sum += (int) ($cpf[$i]) * (11 - $i);
-        }
-        $remainder = $sum % 11;
-        $digit2 = ($remainder < 2) ? 0 : (11 - $remainder);
-
-        // Verifica se os dígitos verificadores calculados são iguais aos fornecidos
-        if ($cpf[9] == $digit1 && $cpf[10] == $digit2) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     public function displayMeta( $order ): void {
