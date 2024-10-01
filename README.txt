@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 3.3.1
+Stable tag: 3.3.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://opensource.org/licenses/MIT
@@ -69,6 +69,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.3.2 = *2024/10/01*
+* Fix CPF field in Brazilian fields plugin.
 
 = 3.3.1 = *2024/09/25*
 * Fix installment display.
@@ -158,6 +161,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 8. Rede and Maxipago payment list.
 
 == Upgrade Notice ==
+= 3.3.2 =
+* Fix CPF field in Brazilian fields plugin.
+
 = 3.3.1 =
 * Fix installment display.
 
