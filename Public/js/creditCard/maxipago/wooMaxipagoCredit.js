@@ -87,5 +87,17 @@ window.jQuery(function ($) {
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
     }
+
+    //Remove o cpnj ou cpf do campo que não foi preenchido
+    billingCnpjInput = document.querySelector('#billing_cnpj')
+    billingCpfInput = document.querySelector('#billing_cpf')
+    if (billingCnpjInput && billingCpfInput) {
+      billingCnpjInput.addEventListener('change', function () {
+        billingCpfInput.value = '';
+      });
+      billingCpfInput.addEventListener('change', function () {
+        billingCnpjInput.value = '';
+      });
+    }
   }
 })

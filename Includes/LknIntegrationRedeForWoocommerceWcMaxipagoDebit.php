@@ -42,7 +42,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
      * @return bool
      */
     public function validate_fields() {
-        if ( empty( $_POST['maxipago_debit_cpf'] ) ) {
+        if ( empty( $_POST['maxipago_debit_cpf']) && empty( $_POST['billing_cpf']) && empty( $_POST['billing_cnpj']) ) {
             wc_add_notice( esc_attr__( 'CPF is a required field', 'woo-rede' ), 'error' );
 
             return false;
@@ -248,7 +248,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 substr($creditExpiry, -2, 2),
             );
         }
-
+        if ($_POST['billing_cpf'] === '') {
+            $_POST['billing_cpf'] = $_POST['billing_cnpj'];
+        }
         if ($_POST['maxipago_debit_cpf']) {
             $_POST['billing_cpf'] = $_POST['maxipago_debit_cpf'];
         }
