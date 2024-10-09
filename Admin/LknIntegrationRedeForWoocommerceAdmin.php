@@ -118,7 +118,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'css' => __('Custom CSS for payment forms', 'woo-rede'),
             'pix' => __('Enable payment with Pix', 'woo-rede'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!', 'woo-rede')
+            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
         ));
     }
 }

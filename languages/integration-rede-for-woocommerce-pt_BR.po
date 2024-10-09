@@ -433,8 +433,8 @@ msgid "Enable payment with Pix"
 msgstr "Possibilita o pagamento com Pix"
 
 #: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:101
-msgid "Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!"
-msgstr "Parabéns! Você ganhou uma hospedagem WooCommerce grátis por 12 meses. Solicite agora!"
+msgid "Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!"
+msgstr "Parabéns! Você ganhou uma hospedagem gratuita por 12 meses para WooCommerce. Receba agora!"
 
 #: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:102
 msgid "Discover and purchase the PRO plugin"

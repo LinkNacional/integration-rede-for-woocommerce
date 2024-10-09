@@ -360,3 +360,6 @@ msgstr ""
 
 msgid "<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />"
 msgstr ""
+
+msgid "Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!"
+msgstr ""
