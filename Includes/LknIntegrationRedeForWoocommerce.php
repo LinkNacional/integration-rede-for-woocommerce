@@ -224,7 +224,7 @@ final class LknIntegrationRedeForWoocommerce {
         if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
             \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
                 'cart_checkout_blocks',
-                __FILE__,
+                dirname(__FILE__) . '/integration-rede-for-woocommerce.php',
                 true
             );
         }
