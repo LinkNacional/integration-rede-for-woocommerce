@@ -77,9 +77,9 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     final public function order_items_payment_details( $items, $order ) {
         $order_id = $order->get_id();
         if ( $order->get_payment_method() === $this->id ) {
-            $tid = get_post_meta( $order_id, '_wc_rede_transaction_id', true );
-            $authorization_code = get_post_meta( $order_id, '_wc_rede_transaction_authorization_code', true );
-            $installments = get_post_meta( $order_id, '_wc_rede_transaction_installments', true );
+            $tid = $order->get_meta( '_wc_rede_transaction_id');
+            $authorization_code = $order->get_meta( '_wc_rede_transaction_authorization_code');
+            $installments = $order->get_meta( '_wc_rede_transaction_installments');
             $last = array_pop( $items );
             $items['payment_return'] = array(
                 'label' => esc_attr__( 'Payment:', 'woo-rede' ),
@@ -92,6 +92,16 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                     $tid
                 ),
             );
+
+            if($this->id == 'rede_debit'){
+                $items['payment_return']['value'] = sprintf(
+                    // translators: %1$s is the Order ID, %2$s is the number of installments, %3$s is the Transaction Id.
+                    __( '<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />', 'woo-rede' ),
+                    //'value' => sprintf('<strong>Order ID</strong>: %s<br /><strong>Installments</strong>: %s<br /><strong>Transaction Id</strong>: %s<br />',
+                    $order_id,
+                    $tid
+                );
+            }
 
             // translators: %s is the name of the plugin required for this one to work.
             $items['payment_return']['value'] .= sprintf( __( '<strong>Autorization Code</strong>: %s', 'woo-rede' ), $authorization_code );

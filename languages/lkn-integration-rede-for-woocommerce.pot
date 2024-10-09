@@ -354,3 +354,9 @@ msgstr ""
 
 msgid "Load plugin on checkout. Default (enabled)"
 msgstr ""
+
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />"
+msgstr ""
+
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />"
+msgstr ""

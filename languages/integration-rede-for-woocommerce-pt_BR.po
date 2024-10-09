@@ -205,7 +205,7 @@ msgstr "Capturado"
 msgid "Payment:"
 msgstr "Pagamento:"
 
-#: Includes/class-wc-rede-abstract.php:52
+#. Includes/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:88
 #, php-format
 msgid ""
 "<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br "
@@ -213,6 +213,10 @@ msgid ""
 msgstr ""
 "<strong>ID do pedido</strong>: %1$s<br /><strong>Parcelas</strong>: %2$s<br "
 "/><strong>ID da transação</strong>: %3$s<br />"
+
+#. Includes/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:99
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />"
+msgstr "<strong>ID do pedido</strong>: %1$s<br /><strong>ID da transação</strong>: %2$s<br />"
 
 #: Includes/class-wc-rede-abstract.php:60
 #, php-format
