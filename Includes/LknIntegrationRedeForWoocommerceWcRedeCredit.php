@@ -131,7 +131,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ),
 
             'rede' => array(
-                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
+                'title' => esc_attr__( 'General', 'woo-rede' ), //TODO adicionar traduções
                 'type' => 'title',
             ),
             'environment' => array(
@@ -202,7 +202,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ), */
 
             'credit_options' => array(
-                'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Credit Card', 'woo-rede' ),
                 'type' => 'title',
             ),
             'min_parcels_value' => array(
@@ -232,7 +232,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ),
 
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Developer', 'woo-rede' ),
                 'type' => 'title',
             ),
 
