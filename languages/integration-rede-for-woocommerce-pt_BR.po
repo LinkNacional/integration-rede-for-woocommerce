@@ -537,6 +537,22 @@ msgstr "Desenvolvedor"
 msgid "Load on checkout"
 msgstr "Carregar no checkout"
 
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:174
+msgid "Set the description to be sent to Rede along with the payment transaction."
+msgstr "Defina a descrição que será enviada para a Rede junto com a transação de pagamento."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:214
+msgid "Set the minimum allowed amount for each installment in credit transactions."
+msgstr "Defina o valor mínimo permitido para cada parcela nas transações de crédito."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:236
+msgid "Set the maximum number of installments allowed in credit transactions."
+msgstr "Defina o número máximo de parcelas permitidas nas transações de crédito."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:250
+msgid "Enable transaction logging."
+msgstr "Habilitar a geração de registros das transações."
+
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:182
 msgid "By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading."
 msgstr "Ao desativar esse recurso o carregamento será realizado durante o carregamento do checkout. Esse recurso ativado evita erro de carregamento infinito no checkout. Deve desabilitar apenas se houver dificuldade no carregamento do gateway."

@@ -173,9 +173,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Payment', 'woo-rede' ),
+                'description' => esc_attr__( 'Set the description to be sent to Rede along with the payment transaction.', 'woo-rede' ),
+                'desc_tip' => true,
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
+            ),
+
+            'enabled_soft_descriptor' => array(
+                'title' => __('Descrição de pagamento', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Marque esta opção para enviar a descrição de pagamento nas requisições para a Rede. Se ocorrerem erros fatais devido ao envio da descrição, desative esta opção para garantir o processamento correto das transações.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('Habilitei o recurso de descrição de pagamento no', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Painel da Rede', 'woo-rede') . '</a>') . '. ' . __('Padrão (Desativado)', 'woo-rede'),
+                'default' => 'no',
             ),
 
             'enabled_fix_load_script' => array(
@@ -212,8 +223,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
-                'default' => esc_attr__( 'no', 'woo-rede' ),
-            ),
+                'default' => 'no',
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
+            )
         );
 
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);

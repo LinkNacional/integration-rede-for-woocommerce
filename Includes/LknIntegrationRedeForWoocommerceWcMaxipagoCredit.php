@@ -200,6 +200,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'title' => esc_attr__( 'Value of the smallest installment', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '0',
+                'description' => esc_attr__( 'Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
             'max_parcels_number' => array(
                 'title' => esc_attr__( 'Max installments', 'woo-rede' ),
@@ -220,6 +222,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     '11' => '11x',
                     '12' => '12x',
                 ),
+                'description' => esc_attr__( 'Set the maximum number of installments allowed in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
 
             'developers' => array(
@@ -231,7 +235,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
-                'default' => esc_attr__( 'no', 'woo-rede' ),
+                'default' => 'no',
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
             )
         );
 

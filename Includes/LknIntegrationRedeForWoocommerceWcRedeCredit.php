@@ -167,10 +167,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'default' => $options['token'] ?? '',
             ),
 
+            'enabled_soft_descriptor' => array(
+                'title' => __('Descrição de pagamento', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Marque esta opção para enviar a descrição de pagamento nas requisições para a Rede. Se ocorrerem erros fatais devido ao envio da descrição, desative esta opção para garantir o processamento correto das transações.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('Habilitei o recurso de descrição de pagamento no', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Painel da Rede', 'woo-rede') . '</a>') . '. ' . __('Padrão (Desativado)', 'woo-rede'),
+                'default' => 'n',
+            ),
+
             'soft_descriptor' => array(
                 'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Payment', 'woo-rede' ),
+                'description' => esc_attr__( 'Set the description to be sent to Rede along with the payment transaction.', 'woo-rede' ),
+                'desc_tip' => true,
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
@@ -209,6 +220,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__( 'Value of the smallest installment', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '0',
+                'description' => esc_attr__( 'Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
             'max_parcels_number' => array(
                 'title' => esc_attr__( 'Max installments', 'woo-rede' ),
@@ -229,6 +242,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     '11' => '11x',
                     '12' => '12x',
                 ),
+                'description' => esc_attr__( 'Set the maximum number of installments allowed in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
 
             'developers' => array(
@@ -241,7 +256,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
-            ),
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
+            )
         );
 
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
