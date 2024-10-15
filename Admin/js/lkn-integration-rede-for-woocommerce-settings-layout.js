@@ -130,11 +130,16 @@
                 if (messageElement) {
                     // Obtenha a div que você deseja mover
                     var divToMove = document.getElementById('lknIntegrationRedeForWoocommerceSettingsLayoutMenu');
-        
-                    // Verifique se a div existe
+
+                    // Verifique se a div e o elemento principal existem
                     if (divToMove) {
-                        // Mova a div para fora do elemento de mensagem
-                        messageElement.parentNode.insertBefore(divToMove, messageElement.nextSibling);
+                        // Obtenha o primeiro elemento 'p' dentro do mainForm
+                        var pElement = mainForm.querySelectorAll('p')[5];
+
+                        if (pElement) {
+                            // Mova a div para depois do elemento 'p'
+                            pElement.parentNode.insertBefore(divToMove, pElement.nextSibling);
+                        }
                     }
                 }
             }

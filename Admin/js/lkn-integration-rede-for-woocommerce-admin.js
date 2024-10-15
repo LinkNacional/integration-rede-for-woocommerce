@@ -31,7 +31,7 @@
           '</ul>'
         wcForm.append(lknCieloNoticeDiv)
 
-        const submitButton = wcForm.querySelector('button[type="submit"]');
+        const submitButton = wcForm.querySelector('button[type="submit"]').parentElement;
         if (submitButton) {
           submitButton.insertAdjacentHTML('beforebegin', lknIntegrationRedeForWoocommerceProFields(adminPage));
         }
