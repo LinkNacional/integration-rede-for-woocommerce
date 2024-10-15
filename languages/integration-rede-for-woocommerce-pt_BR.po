@@ -521,6 +521,18 @@ msgstr "Habilita o pagamento com juros nas parcelas. Salve para continuar a conf
 msgid "Become PRO"
 msgstr "Seja PRO"
 
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:134
+msgid "General"
+msgstr "Geral"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:205
+msgid "Credit Card"
+msgstr "Cartão de Crédito"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:235
+msgid "Developer"
+msgstr "Desenvolvedor"
+
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:180
 msgid "Load on checkout"
 msgstr "Carregar no checkout"

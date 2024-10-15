@@ -363,3 +363,12 @@ msgstr ""
 
 msgid "Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!"
 msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Credit Card"
+msgstr ""
+
+msgid "Developer"
+msgstr ""

@@ -131,7 +131,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ),
 
             'rede' => array(
-                'title' => esc_attr__( 'General', 'woo-rede' ), //TODO adicionar traduções
+                'title' => esc_attr__( 'General', 'woo-rede' ),
                 'type' => 'title',
             ),
             'environment' => array(

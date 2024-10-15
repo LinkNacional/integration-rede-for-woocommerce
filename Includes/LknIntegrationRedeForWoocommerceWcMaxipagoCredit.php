@@ -134,7 +134,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             ),
 
             'maxipago' => array(
-                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
+                'title' => esc_attr__( 'General', 'woo-rede' ),
                 'type' => 'title',
             ),
 
@@ -193,7 +193,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'default' => 'yes',
             ),
             'credit_options' => array(
-                'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Credit Card', 'woo-rede' ),
                 'type' => 'title',
             ),
             'min_parcels_value' => array(
@@ -223,7 +223,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             ),
 
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Developer', 'woo-rede' ),
                 'type' => 'title',
             ),
 
