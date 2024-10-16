@@ -30,7 +30,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $this->pv = $this->get_option( 'pv' );
         $this->token = $this->get_option( 'token' );
 
-        $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        if($this->get_option('enabled_soft_descriptor') === 'yes') {
+            $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        } else if($this->get_option('enabled_soft_descriptor') === 'no') {
+            add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+            update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+        }
 
         $this->auto_capture = 1;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
@@ -169,24 +174,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => $options['token'] ?? '',
             ),
 
+            'enabled_soft_descriptor' => array(
+                'title' => __('Payment Description', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('I have enabled the payment description feature in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . '. ' . __('Default (Disabled)', 'woo-rede'),
+                'default' => 'no',
+            ),
+
             'soft_descriptor' => array(
                 'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
-                'default' => esc_attr__( 'Payment', 'woo-rede' ),
                 'description' => esc_attr__( 'Set the description to be sent to Rede along with the payment transaction.', 'woo-rede' ),
                 'desc_tip' => true,
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
-            ),
-
-            'enabled_soft_descriptor' => array(
-                'title' => __('Descrição de pagamento', 'woo-rede'),
-                'type' => 'checkbox',
-                'description' => __('Marque esta opção para enviar a descrição de pagamento nas requisições para a Rede. Se ocorrerem erros fatais devido ao envio da descrição, desative esta opção para garantir o processamento correto das transações.', 'woo-rede'),
-                'desc_tip' => true,
-                'label' => __('Habilitei o recurso de descrição de pagamento no', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Painel da Rede', 'woo-rede') . '</a>') . '. ' . __('Padrão (Desativado)', 'woo-rede'),
-                'default' => 'no',
             ),
 
             'enabled_fix_load_script' => array(
@@ -358,6 +362,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 ));
             }
         } catch ( Exception $e ) {
+            if($e->getCode() == 63){
+                add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', true);
+                update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', true);
+            }
+
             $this->add_error( $e->getMessage() );
 
             return array(

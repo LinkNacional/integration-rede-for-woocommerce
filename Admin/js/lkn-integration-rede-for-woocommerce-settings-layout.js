@@ -125,20 +125,17 @@
                     
                 }
         
-                // Verifique se o elemento com id="message" existe
-                var messageElement = document.getElementById('message');
-                if (messageElement) {
-                    // Obtenha a div que você deseja mover
-                    var divToMove = document.getElementById('lknIntegrationRedeForWoocommerceSettingsLayoutMenu');
+                // Corrige bug de layout quando alguma mensagem é exibida
+                var divToMove = document.getElementById('lknIntegrationRedeForWoocommerceSettingsLayoutMenu');
 
-                    // Verifique se a div e o elemento principal existem
-                    if (divToMove) {
-                        // Obtenha o primeiro elemento 'p' dentro do mainForm
-                        var pElement = mainForm.querySelectorAll('p')[5];
+                if (divToMove) {
+                    var lknIntegrationRedeForWoocommerceSettingsLayoutDiv = document.getElementById('lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
 
-                        if (pElement) {
-                            // Mova a div para depois do elemento 'p'
-                            pElement.parentNode.insertBefore(divToMove, pElement.nextSibling);
+                    if (lknIntegrationRedeForWoocommerceSettingsLayoutDiv) {
+                        var fifthElement = lknIntegrationRedeForWoocommerceSettingsLayoutDiv.children[3];
+
+                        if (fifthElement) {
+                            lknIntegrationRedeForWoocommerceSettingsLayoutDiv.insertBefore(divToMove, fifthElement.nextSibling);
                         }
                     }
                 }

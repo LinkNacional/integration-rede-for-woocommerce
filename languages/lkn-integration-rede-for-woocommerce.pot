@@ -384,3 +384,24 @@ msgstr ""
 
 msgid "Enable transaction logging."
 msgstr ""
+
+msgid "Feature with error, disable to fix."
+msgstr ""
+
+msgid "There was an error in the transaction, disable the"
+msgstr ""
+
+msgid "Payment Description."
+msgstr ""
+
+msgid "Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions."
+msgstr ""
+
+msgid "I have enabled the payment description feature in the"
+msgstr ""
+
+msgid "Rede Dashboard"
+msgstr ""
+
+msgid "Default (Disabled)"
+msgstr ""

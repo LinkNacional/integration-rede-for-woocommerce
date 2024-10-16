@@ -561,6 +561,34 @@ msgstr "Ao desativar esse recurso o carregamento será realizado durante o carre
 msgid "Load plugin on checkout. Default (enabled)"
 msgstr "Carregar plugin no checkout. Padrão (ativado)"
 
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:133
+msgid "Feature with error, disable to fix."
+msgstr "Recurso com erro, desabilite para corrigir."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRede.php:89
+msgid "There was an error in the transaction, disable the"
+msgstr "Houve um erro na transação, desabilite  a"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRede.php:91
+msgid "Payment Description."
+msgstr "Descrição de Pagamento."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:179
+msgid "Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions."
+msgstr "Marque esta opção para enviar a descrição de pagamento nas requisições para a Rede. Se ocorrerem erros fatais devido ao envio da descrição, desative esta opção para garantir o processamento correto das transações."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "I have enabled the payment description feature in the"
+msgstr "Habilitei o recurso de descrição de pagamento no"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "Rede Dashboard"
+msgstr "Painel da Rede"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "Default (Disabled)"
+msgstr "Padrão (Desativado)"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"

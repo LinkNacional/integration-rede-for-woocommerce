@@ -130,6 +130,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'tax' => __('Adjust interest rate based on installment', 'woo-rede'),
             'css' => __('Custom CSS for payment forms', 'woo-rede'),
             'pix' => __('Enable payment with Pix', 'woo-rede'),
+            'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
             'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
         ));
