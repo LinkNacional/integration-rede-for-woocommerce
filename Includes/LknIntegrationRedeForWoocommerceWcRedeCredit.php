@@ -110,6 +110,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 '_wc_rede_transaction_authorization_code' => esc_attr__( 'Authorization Code', 'woo-rede' ),
                 '_wc_rede_transaction_bin' => esc_attr__( 'Bin', 'woo-rede' ),
                 '_wc_rede_transaction_last4' => esc_attr__( 'Last 4', 'woo-rede' ),
+                '_wc_rede_transaction_brand' => esc_attr__( 'Brand', 'woo-rede' ),
                 '_wc_rede_transaction_installments' => esc_attr__( 'Installments', 'woo-rede' ),
                 '_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'woo-rede' ),
                 '_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'woo-rede' )
@@ -424,6 +425,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
             $order->update_meta_data( '_wc_rede_transaction_bin', $transaction->getCardBin() );
             $order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
+            $order->update_meta_data( '_wc_rede_transaction_brand', LknIntegrationRedeForWoocommerceHelper::getCardBrand($transaction->getTid(), $this));
             $order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
             $order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
             $order->update_meta_data( '_wc_rede_captured', $transaction->getCapture() );
@@ -469,7 +471,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', true);
             }
 
-            $this->add_error( $e->getCode());
+            $this->add_error( $e->getMessage());
 
             return array(
                 'result' => 'fail',

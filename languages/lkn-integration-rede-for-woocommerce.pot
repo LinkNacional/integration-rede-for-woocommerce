@@ -405,3 +405,18 @@ msgstr ""
 
 msgid "Default (Disabled)"
 msgstr ""
+
+msgid "Order ID"
+msgstr ""
+
+msgid "Transaction ID"
+msgstr ""
+
+msgid "Authorization code"
+msgstr ""
+
+msgid "Installments"
+msgstr ""
+
+msgid "Brand"
+msgstr "

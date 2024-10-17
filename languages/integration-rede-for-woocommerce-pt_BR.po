@@ -589,6 +589,26 @@ msgstr "Painel da Rede"
 msgid "Default (Disabled)"
 msgstr "Padrão (Desativado)"
 
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:87
+msgid "Order ID"
+msgstr "ID do pedido"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:91
+msgid "Transaction ID"
+msgstr "ID de transação"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:95
+msgid "Authorization code"
+msgstr "Código de autorização"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:99
+msgid "Installments"
+msgstr "Parcelas"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:113
+msgid "Brand"
+msgstr "Bandeira"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"
