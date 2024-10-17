@@ -86,6 +86,7 @@
                     if(index != 0 && index != 1) {
                         table.style.display = 'none';
                     }
+                    table.menuIndex = index;
                 });
         
         
@@ -139,6 +140,21 @@
                         }
                     }
                 }
+
+                //Caso o formulário tenha um campo inválido, força o click no menu em que o campo inválido está
+                mainForm.addEventListener('invalid', function (event) {
+                    const invalidField = event.target;
+                    if (invalidField) {
+                        let parentNode = invalidField.parentNode;
+                        while (parentNode && parentNode.tagName !== 'TABLE') {
+                            parentNode = parentNode.parentNode;
+                        }
+                        if (parentNode) {
+                            //Força o click no menu em que o campo inválido está
+                            pElements[parentNode.menuIndex-1].parentNode.click()
+                        }
+                    }
+                }, true);
             }
         }
     });
