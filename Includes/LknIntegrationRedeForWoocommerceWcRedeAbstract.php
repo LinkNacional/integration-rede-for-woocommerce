@@ -77,24 +77,28 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     final public function order_items_payment_details( $items, $order ) {
         $order_id = $order->get_id();
         if ( $order->get_payment_method() === $this->id ) {
-            $tid = get_post_meta( $order_id, '_wc_rede_transaction_id', true );
-            $authorization_code = get_post_meta( $order_id, '_wc_rede_transaction_authorization_code', true );
-            $installments = get_post_meta( $order_id, '_wc_rede_transaction_installments', true );
-            $last = array_pop( $items );
-            $items['payment_return'] = array(
-                'label' => esc_attr__( 'Payment:', 'woo-rede' ),
-                'value' => sprintf(
-                    // translators: %1$s is the Order ID, %2$s is the number of installments, %3$s is the Transaction Id.
-                    __( '<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />', 'woo-rede' ),
-                    //'value' => sprintf('<strong>Order ID</strong>: %s<br /><strong>Installments</strong>: %s<br /><strong>Transaction Id</strong>: %s<br />',
-                    $order_id,
-                    $installments,
-                    $tid
-                ),
-            );
+            $tid = $order->get_meta( '_wc_rede_transaction_id');
+            $authorization_code = $order->get_meta( '_wc_rede_transaction_authorization_code');
+            $installments = $order->get_meta( '_wc_rede_transaction_installments');
 
-            // translators: %s is the name of the plugin required for this one to work.
-            $items['payment_return']['value'] .= sprintf( __( '<strong>Autorization Code</strong>: %s', 'woo-rede' ), $authorization_code );
+            $last = array_pop( $items );
+
+            $items['orderId'] = array(
+                'label' => esc_attr__( 'Order ID', 'woo-rede' ),
+                'value' => $order_id,
+            );
+            $items['transactionId'] = array(
+                'label' => esc_attr__( 'Transaction ID', 'woo-rede' ),
+                'value' => $tid,
+            );
+            $items['authorizationCode'] = array(
+                'label' => esc_attr__( 'Authorization code', 'woo-rede' ),
+                'value' => $authorization_code,
+            );
+            $items['installments'] = array(
+                'label' => esc_attr__( 'Installments', 'woo-rede' ),
+                'value' => $installments,
+            );
 
             $items[] = $last;
         }

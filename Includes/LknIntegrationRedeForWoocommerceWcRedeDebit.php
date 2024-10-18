@@ -30,7 +30,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $this->pv = $this->get_option( 'pv' );
         $this->token = $this->get_option( 'token' );
 
-        $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        if($this->get_option('enabled_soft_descriptor') === 'yes') {
+            $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        } else if($this->get_option('enabled_soft_descriptor') === 'no') {
+            add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+            update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+        }
 
         $this->auto_capture = 1;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
@@ -133,7 +138,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             'rede' => array(
-                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
+                'title' => esc_attr__( 'General', 'woo-rede' ),
                 'type' => 'title',
             ),
             'environment' => array(
@@ -169,10 +174,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => $options['token'] ?? '',
             ),
 
+            'enabled_soft_descriptor' => array(
+                'title' => __('Payment Description', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('I have enabled the payment description feature in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . '. ' . __('Default (Disabled)', 'woo-rede'),
+                'default' => 'no',
+            ),
+
             'soft_descriptor' => array(
                 'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
-                'default' => esc_attr__( 'Payment', 'woo-rede' ),
+                'description' => esc_attr__( 'Set the description to be sent to Rede along with the payment transaction.', 'woo-rede' ),
+                'desc_tip' => true,
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
@@ -204,7 +219,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ), */
 
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Developer', 'woo-rede' ),
                 'type' => 'title',
             ),
 
@@ -212,8 +227,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
-                'default' => esc_attr__( 'no', 'woo-rede' ),
-            ),
+                'default' => 'no',
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
+            )
         );
 
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);
@@ -345,6 +362,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 ));
             }
         } catch ( Exception $e ) {
+            if($e->getCode() == 63){
+                add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', true);
+                update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', true);
+            }
+
             $this->add_error( $e->getMessage() );
 
             return array(

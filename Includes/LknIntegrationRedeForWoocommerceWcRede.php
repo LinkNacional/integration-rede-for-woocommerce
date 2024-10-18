@@ -79,6 +79,24 @@ final class LknIntegrationRedeForWoocommerceWcRede {
         include_once __DIR__ . '/views/notices/html-notice-woocommerce-missing.php';
     }
 
+    public function softDescriptorNotice(): void {
+        $errorCredit = get_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit');      
+        $errorDebit = get_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit');      
+        if($errorCredit == true || $errorDebit == true) {
+            $message = '
+                <div class="notice notice-error" id="lknIntegrationRedeForWoocommerceSoftDescriptorErrorDiv">
+                    <p>' 
+                        . __('There was an error in the transaction, disable the', 'woo-rede') . ' ' . 
+                        wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=checkout')) 
+                        . '" target="_blank">' . __('Payment Description.', 'woo-rede') . '</a>') . 
+                    '</p>
+                </div>
+            ';
+    
+            echo wp_kses_post($message);
+        }
+    }
+
     public function updateRedeOrders(): void {
         $orders = new WP_Query(
             array(

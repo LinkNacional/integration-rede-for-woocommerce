@@ -31,7 +31,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->pv = $this->get_option( 'pv' );
         $this->token = $this->get_option( 'token' );
 
-        $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        if($this->get_option('enabled_soft_descriptor') === 'yes') {
+            $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
+        } else if($this->get_option('enabled_soft_descriptor') === 'no') {
+            add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
+            update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
+        }
+
         $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
         $this->max_parcels_number = $this->get_option( 'max_parcels_number' );
         $this->min_parcels_value = $this->get_option( 'min_parcels_value' );
@@ -104,6 +110,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 '_wc_rede_transaction_authorization_code' => esc_attr__( 'Authorization Code', 'woo-rede' ),
                 '_wc_rede_transaction_bin' => esc_attr__( 'Bin', 'woo-rede' ),
                 '_wc_rede_transaction_last4' => esc_attr__( 'Last 4', 'woo-rede' ),
+                '_wc_rede_transaction_brand' => esc_attr__( 'Brand', 'woo-rede' ),
                 '_wc_rede_transaction_installments' => esc_attr__( 'Installments', 'woo-rede' ),
                 '_wc_rede_transaction_holder' => esc_attr__( 'Cardholder', 'woo-rede' ),
                 '_wc_rede_transaction_expiration' => esc_attr__( 'Card Expiration', 'woo-rede' )
@@ -131,7 +138,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ),
 
             'rede' => array(
-                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
+                'title' => esc_attr__( 'General', 'woo-rede' ),
                 'type' => 'title',
             ),
             'environment' => array(
@@ -167,10 +174,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'default' => $options['token'] ?? '',
             ),
 
+            'enabled_soft_descriptor' => array(
+                'title' => __('Payment Description', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions.', 'woo-rede'),
+                'desc_tip' => true,
+                'label' => __('I have enabled the payment description feature in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . '. ' . __('Default (Disabled)', 'woo-rede'),
+                'default' => 'no',
+            ),            
+
             'soft_descriptor' => array(
                 'title' => esc_attr__( 'Payment Description', 'woo-rede' ),
                 'type' => 'text',
-                'default' => esc_attr__( 'Payment', 'woo-rede' ),
+                'description' => esc_attr__( 'Set the description to be sent to Rede along with the payment transaction.', 'woo-rede' ),
+                'desc_tip' => true,
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
@@ -202,13 +219,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             ), */
 
             'credit_options' => array(
-                'title' => esc_attr__( 'Credit Card Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Credit Card', 'woo-rede' ),
                 'type' => 'title',
             ),
             'min_parcels_value' => array(
                 'title' => esc_attr__( 'Value of the smallest installment', 'woo-rede' ),
                 'type' => 'text',
                 'default' => '0',
+                'description' => esc_attr__( 'Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
             'max_parcels_number' => array(
                 'title' => esc_attr__( 'Max installments', 'woo-rede' ),
@@ -229,10 +248,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     '11' => '11x',
                     '12' => '12x',
                 ),
+                'description' => esc_attr__( 'Set the maximum number of installments allowed in credit transactions.', 'woo-rede' ),
+                'desc_tip' => true,
             ),
 
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Developer', 'woo-rede' ),
                 'type' => 'title',
             ),
 
@@ -241,7 +262,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
-            ),
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
+            )
         );
 
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
@@ -402,6 +425,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data( '_wc_rede_transaction_cancel_id', $transaction->getCancelId() );
             $order->update_meta_data( '_wc_rede_transaction_bin', $transaction->getCardBin() );
             $order->update_meta_data( '_wc_rede_transaction_last4', $transaction->getLast4() );
+            $order->update_meta_data( '_wc_rede_transaction_brand', LknIntegrationRedeForWoocommerceHelper::getCardBrand($transaction->getTid(), $this));
             $order->update_meta_data( '_wc_rede_transaction_nsu', $transaction->getNsu() );
             $order->update_meta_data( '_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode() );
             $order->update_meta_data( '_wc_rede_captured', $transaction->getCapture() );
@@ -441,7 +465,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ));
             }
         } catch ( Exception $e ) {
-            $this->add_error( $e->getMessage() );
+            
+            if($e->getCode() == 63){
+                add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', true);
+                update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', true);
+            }
+
+            $this->add_error( $e->getMessage());
 
             return array(
                 'result' => 'fail',

@@ -131,7 +131,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             ),
 
             'maxipago' => array(
-                'title' => esc_attr__( 'General configuration', 'woo-rede' ),
+                'title' => esc_attr__( 'General', 'woo-rede' ),
                 'type' => 'title',
             ),
 
@@ -190,7 +190,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'default' => 'yes',
             ),
             'developers' => array(
-                'title' => esc_attr__( 'Developer Settings', 'woo-rede' ),
+                'title' => esc_attr__( 'Developer', 'woo-rede' ),
                 'type' => 'title',
             ),
 
@@ -198,7 +198,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
                 'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
-                'default' => esc_attr__( 'no', 'woo-rede' ),
+                'default' => 'no',
+                'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
+                'desc_tip' => true,
             )
         );
 

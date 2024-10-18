@@ -47,6 +47,46 @@ textarea:disabled {
     color: #FF0D08;
 }
 
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv{
+    padding: 10px 24px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu{
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    height: 40px;
+    font-size: xx-large;
+    color: #101111;
+    margin-bottom: 20px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu p{
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0;
+    height: 100%;
+    padding: 4px 30px 0px 30px;
+    /* background-color: #CCCCCC; */
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu p.active{
+    background-color: #CCCCCC;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a{
+    text-decoration: none;
+    color: inherit;
+}
+
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
+    border-bottom: 2px solid #CCCCCC;
+}
+
+
 @media (max-width: 782px) {
     .lknIntegrationRedeForWoocommerceTooltiptext {
         transform: translateX(-20%);

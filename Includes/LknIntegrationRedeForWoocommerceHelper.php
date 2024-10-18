@@ -59,4 +59,28 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
             }
         }
     }
+
+    final public static function getCardBrand($tid, $instace) {
+        $auth = base64_encode( $instace->pv . ':' . $instace->token );
+
+        if('production' === $instace->environment) {
+            $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+        }
+
+        $response = wp_remote_get( $apiUrl . '/' . $tid , array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+                'Content-Type' => 'application/json',
+                'Transaction-Response' => 'brand-return-opened'
+            ),
+        ));
+
+        $response_body = wp_remote_retrieve_body($response);
+        $response_body = json_decode($response_body, true);
+
+        return($response_body['authorization']['brand']['name']);
+    }
+    
 }

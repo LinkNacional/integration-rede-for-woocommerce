@@ -109,6 +109,19 @@ final class LknIntegrationRedeForWoocommerceAdmin {
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
 
+        $gateways = array(
+            'maxipago_credit',
+            'maxipago_debit',
+            'rede_credit',
+            'rede_debit',
+            'maxipago_pix',
+            'rede_pix'
+        );
+
+        if ( $_GET['page'] === 'wc-settings' && $_GET['tab'] === 'checkout' && in_array($_GET['section'], $gateways) ) {
+            wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
+        }
+
         // Localize the script with custom data
         wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
             'title' => __('Get new features with Rede Pro', 'woo-rede'),
@@ -117,8 +130,9 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'tax' => __('Adjust interest rate based on installment', 'woo-rede'),
             'css' => __('Custom CSS for payment forms', 'woo-rede'),
             'pix' => __('Enable payment with Pix', 'woo-rede'),
+            'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!', 'woo-rede')
+            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
         ));
     }
 }
