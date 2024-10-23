@@ -155,6 +155,8 @@ final class LknIntegrationRedeForWoocommerce {
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_credit_class->id, $this->wc_maxipago_credit_class, 'process_admin_options');
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_credit_class, 'displayMeta', 10, 1);
 
+        $this->loader->add_action('admin_notices', $this->wc_rede_class, 'softDescriptorNotice');
+
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_debit_class->id, $this->wc_maxipago_debit_class, 'process_admin_options');
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_debit_class, 'displayMeta', 10, 1);
         $this->loader->add_filter('lknRedeAPIOrderCapture', $this->wc_rede_api_class, 'do_transaction_capture');
@@ -224,7 +226,7 @@ final class LknIntegrationRedeForWoocommerce {
         if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
             \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
                 'cart_checkout_blocks',
-                __FILE__,
+                dirname(__FILE__) . '/integration-rede-for-woocommerce.php',
                 true
             );
         }

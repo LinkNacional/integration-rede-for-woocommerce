@@ -354,3 +354,69 @@ msgstr ""
 
 msgid "Load plugin on checkout. Default (enabled)"
 msgstr ""
+
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br /><strong>Transaction Id</strong>: %3$s<br />"
+msgstr ""
+
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />"
+msgstr ""
+
+msgid "Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Credit Card"
+msgstr ""
+
+msgid "Developer"
+msgstr ""
+
+msgid "Set the description to be sent to Rede along with the payment transaction."
+msgstr ""
+
+msgid "Set the minimum allowed amount for each installment in credit transactions."
+msgstr ""
+
+msgid "Set the maximum number of installments allowed in credit transactions."
+msgstr ""
+
+msgid "Enable transaction logging."
+msgstr ""
+
+msgid "Feature with error, disable to fix."
+msgstr ""
+
+msgid "There was an error in the transaction, disable the"
+msgstr ""
+
+msgid "Payment Description."
+msgstr ""
+
+msgid "Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions."
+msgstr ""
+
+msgid "I have enabled the payment description feature in the"
+msgstr ""
+
+msgid "Rede Dashboard"
+msgstr ""
+
+msgid "Default (Disabled)"
+msgstr ""
+
+msgid "Order ID"
+msgstr ""
+
+msgid "Transaction ID"
+msgstr ""
+
+msgid "Authorization code"
+msgstr ""
+
+msgid "Installments"
+msgstr ""
+
+msgid "Brand"
+msgstr "

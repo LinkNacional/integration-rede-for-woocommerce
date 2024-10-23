@@ -1,3 +1,10 @@
+# 3.4.0 - 18/10/2024
+- Correção de erros de compatibilidade com editor por blocos do woocommerce;
+- Alteração em textos de hospedagem gratuita;
+- Alteração em layout das configurações do administrador;
+- Adição de configuração para desabilitar o campo de softdescriptor;
+- Adição da informação de bandeira do cartão nas informações do pedido.
+
 # 3.3.2 - 01/10/2024
 - Correção em campo de CPF do plugin de campos brasileiros.
 

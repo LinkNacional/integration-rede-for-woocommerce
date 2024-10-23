@@ -31,7 +31,7 @@
           '</ul>'
         wcForm.append(lknCieloNoticeDiv)
 
-        const submitButton = wcForm.querySelector('button[type="submit"]');
+        const submitButton = wcForm.querySelector('button[type="submit"]').parentElement;
         if (submitButton) {
           submitButton.insertAdjacentHTML('beforebegin', lknIntegrationRedeForWoocommerceProFields(adminPage));
         }
@@ -51,6 +51,33 @@
           if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1])
         })
       return result
+    }
+
+    // Código para deixar o campo de soft descriptor desabilitado caso o campo de habilitar esteja desmarcado
+    const enabledSoftDescriptorInput = document.querySelector(`#woocommerce_${adminPage}_enabled_soft_descriptor`)
+    const softDescriptorInput = document.querySelector(`#woocommerce_${adminPage}_soft_descriptor`)
+
+    if (enabledSoftDescriptorInput && softDescriptorInput) {      
+
+      if(document.querySelector('#lknIntegrationRedeForWoocommerceSoftDescriptorErrorDiv') && enabledSoftDescriptorInput.checked){
+        var newP = document.createElement('p');
+        newP.textContent = lknPhpVariables.descriptionError; 
+        newP.style.color = 'FF0000'; 
+
+        enabledSoftDescriptorInput.parentElement.appendChild(newP);
+      }
+
+      if(!enabledSoftDescriptorInput.checked){
+        softDescriptorInput.setAttribute('disabled', 'disabled')
+      }
+
+      enabledSoftDescriptorInput.addEventListener('change', function () {
+        if (this.checked) {
+          softDescriptorInput.removeAttribute('disabled')
+        } else {
+          softDescriptorInput.setAttribute('disabled', 'disabled')
+        }
+      })
     }
   })
 })(jQuery)

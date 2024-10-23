@@ -205,7 +205,7 @@ msgstr "Capturado"
 msgid "Payment:"
 msgstr "Pagamento:"
 
-#: Includes/class-wc-rede-abstract.php:52
+#. Includes/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:88
 #, php-format
 msgid ""
 "<strong>Order ID</strong>: %1$s<br /><strong>Installments</strong>: %2$s<br "
@@ -213,6 +213,10 @@ msgid ""
 msgstr ""
 "<strong>ID do pedido</strong>: %1$s<br /><strong>Parcelas</strong>: %2$s<br "
 "/><strong>ID da transação</strong>: %3$s<br />"
+
+#. Includes/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:99
+msgid "<strong>Order ID</strong>: %1$s<br /><strong>Transaction Id</strong>: %2$s<br />"
+msgstr "<strong>ID do pedido</strong>: %1$s<br /><strong>ID da transação</strong>: %2$s<br />"
 
 #: Includes/class-wc-rede-abstract.php:60
 #, php-format
@@ -429,8 +433,8 @@ msgid "Enable payment with Pix"
 msgstr "Possibilita o pagamento com Pix"
 
 #: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:101
-msgid "Congratulations! You have won a free WooCommerce hosting for 12 months. Claim it now!"
-msgstr "Parabéns! Você ganhou uma hospedagem WooCommerce grátis por 12 meses. Solicite agora!"
+msgid "Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!"
+msgstr "Parabéns! Você ganhou uma hospedagem gratuita por 12 meses para WooCommerce. Receba agora!"
 
 #: Admin/js/lkn-integration-rede-for-woocommerce-admin.js:102
 msgid "Discover and purchase the PRO plugin"
@@ -517,9 +521,37 @@ msgstr "Habilita o pagamento com juros nas parcelas. Salve para continuar a conf
 msgid "Become PRO"
 msgstr "Seja PRO"
 
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:134
+msgid "General"
+msgstr "Geral"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:205
+msgid "Credit Card"
+msgstr "Cartão de Crédito"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:235
+msgid "Developer"
+msgstr "Desenvolvedor"
+
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:180
 msgid "Load on checkout"
 msgstr "Carregar no checkout"
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:174
+msgid "Set the description to be sent to Rede along with the payment transaction."
+msgstr "Defina a descrição que será enviada para a Rede junto com a transação de pagamento."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:214
+msgid "Set the minimum allowed amount for each installment in credit transactions."
+msgstr "Defina o valor mínimo permitido para cada parcela nas transações de crédito."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:236
+msgid "Set the maximum number of installments allowed in credit transactions."
+msgstr "Defina o número máximo de parcelas permitidas nas transações de crédito."
+
+#: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:250
+msgid "Enable transaction logging."
+msgstr "Habilitar a geração de registros das transações."
 
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:182
 msgid "By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading."
@@ -528,6 +560,54 @@ msgstr "Ao desativar esse recurso o carregamento será realizado durante o carre
 #: Includes/LknIntegrationRedeForWoocommerceWcRedeCredit.php:184
 msgid "Load plugin on checkout. Default (enabled)"
 msgstr "Carregar plugin no checkout. Padrão (ativado)"
+
+#: Admin/LknIntegrationRedeForWoocommerceAdmin.php:133
+msgid "Feature with error, disable to fix."
+msgstr "Recurso com erro, desabilite para corrigir."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRede.php:89
+msgid "There was an error in the transaction, disable the"
+msgstr "Houve um erro na transação, desabilite  a"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRede.php:91
+msgid "Payment Description."
+msgstr "Descrição de Pagamento."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:179
+msgid "Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions."
+msgstr "Marque esta opção para enviar a descrição de pagamento nas requisições para a Rede. Se ocorrerem erros fatais devido ao envio da descrição, desative esta opção para garantir o processamento correto das transações."
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "I have enabled the payment description feature in the"
+msgstr "Habilitei o recurso de descrição de pagamento no"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "Rede Dashboard"
+msgstr "Painel da Rede"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:181
+msgid "Default (Disabled)"
+msgstr "Padrão (Desativado)"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:87
+msgid "Order ID"
+msgstr "ID do pedido"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:91
+msgid "Transaction ID"
+msgstr "ID de transação"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:95
+msgid "Authorization code"
+msgstr "Código de autorização"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeAbstract.php:99
+msgid "Installments"
+msgstr "Parcelas"
+
+#: Admin/LknIntegrationRedeForWoocommerceWcRedeCredit.php:113
+msgid "Brand"
+msgstr "Bandeira"
 
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
