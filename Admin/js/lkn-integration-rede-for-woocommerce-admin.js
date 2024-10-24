@@ -4,9 +4,10 @@
     const pluginPages = [
       'maxipago_credit',
       'maxipago_debit',
+      'maxipago_pix',
       'rede_credit',
       'rede_debit',
-      'maxipago_pix'
+      'rede_pix',
     ]
     if (adminPage && pluginPages.includes(adminPage)) {
       const wcForm = document.getElementById('mainform')
@@ -20,7 +21,7 @@
       const lknCieloNoticeDiv = document.createElement('div')
       lknCieloNoticeDiv.setAttribute('style', 'padding: 10px 5px;background-color: #fcf9e8;color: #646970;border: solid 1px lightgrey;border-left-color: #dba617;border-left-width: 4px;font-size: 14px;min-width: 625px;margin-top: 10px;')
       lknCieloNoticeDiv.setAttribute('id', 'lkn-cielo-pro-notice')
-      if (!document.querySelector(`#woocommerce_${adminPage}_PRO`) && adminPage !== 'maxipago_pix') {
+      if (!document.querySelector(`#woocommerce_${adminPage}_PRO`) && adminPage !== 'maxipago_pix' && adminPage !== 'rede_pix') {
         lknCieloNoticeDiv.innerHTML = '<div style="font-size: 21px;padding: 6px 0px 10px 0px;">' + lknPhpVariables.title + '</div>' +
           '<a href="https://www.linknacional.com.br/wordpress/plugins/" target="_blank">' + lknPhpVariables.desc + '</a>' +
           '<ul style="margin: 10px 28px;list-style: disclosure-closed;">' +
