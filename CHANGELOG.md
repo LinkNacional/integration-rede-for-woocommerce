@@ -1,3 +1,6 @@
+# 3.4.1 - 24/10/2024
+- Alteração em lógica de script de notificações.
+
 # 3.4.0 - 18/10/2024
 - Correção de erros de compatibilidade com editor por blocos do woocommerce;
 - Alteração em textos de hospedagem gratuita;
