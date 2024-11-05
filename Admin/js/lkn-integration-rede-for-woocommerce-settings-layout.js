@@ -30,37 +30,25 @@
     
             let subTitles = mainForm.querySelectorAll('.wc-settings-sub-title');
             let descriptionElement = mainForm.querySelector('p');
-            
+            let divElement = document.createElement('div');
             if(subTitles && descriptionElement){
                 // Criar a div que irá conter os novos elementos <p>
-                let divElement = document.createElement('div');
                 divElement.id = 'lknIntegrationRedeForWoocommerceSettingsLayoutMenu';
-        
-                var pElements = [];
+                aElements = [];
                 subTitles.forEach((subTitle, index) => {
-                    // Criar um novo elemento <p> com a descrição do subtítulo
-                    let pElement = document.createElement('p');
-        
-                    //Marca o primeiro elemento quando carregar a página
-                    if(index == 0){
-                        pElement.className = 'active';
-                    }
-        
-                    pElements.push(pElement);
-                    pElement.textContent = subTitle.textContent;
-        
+                    
                     // Criar um novo elemento <a> e adicionar o elemento <p> a ele
                     let aElement = document.createElement('a');
-                    aElement.appendChild(pElement);
+                    aElement.textContent = subTitle.textContent;
                     aElement.href = '#';
+                    aElement.className = 'nav-tab';
                     aElement.onclick = (event) => {
                         lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar = index + 1;
-                        
-                        pElements.forEach((pElement, indexP) => {
+                        aElements.forEach((pElement, indexP) => {
                             if(indexP == index){
-                                pElements[index].className = 'active';
+                                aElements[index].className = 'nav-tab nav-tab-active';
                             }else{
-                                pElements[indexP].className = '';
+                                aElements[indexP].className = 'nav-tab';
                             }
                         });
                         changeLayout()
@@ -68,17 +56,14 @@
         
                     // Adicionar o novo elemento <a> à div
                     divElement.appendChild(aElement);
-        
-                    // Adicionar um "|" entre os elementos <a>, mas não no início do primeiro ou no final do último
-                    if (index < subTitles.length - 1) {
-                        let separator = document.createTextNode(' | ');
-                        divElement.appendChild(separator);
-                    }
+                    aElements.push(aElement);
         
                     // Remover o subtítulo original
                     subTitle.parentNode.removeChild(subTitle);
                 });
-        
+                
+                aElements[0].className = 'nav-tab nav-tab-active';
+
                 // Inserir a div após mainForm.querySelector('p')
                 descriptionElement.parentNode.insertBefore(divElement, descriptionElement.nextSibling);
         
@@ -156,6 +141,9 @@
                     }
                 }, true);
             }
+
+            let hrElement = document.createElement('hr');
+            divElement.parentElement.insertBefore(hrElement, divElement.nextSibling);
         }
     });
 })(jQuery);
