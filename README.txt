@@ -69,7 +69,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
-= 3.4.2 = *2024/11/05*
+= 3.4.2 = *2024/11/12*
 * Change layout of admin settings.
 
 = 3.4.1 = *2024/10/24*
