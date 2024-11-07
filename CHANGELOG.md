@@ -1,3 +1,6 @@
+# 3.4.2 - 12/11/2024
+- Alteração em layout das configurações do administrador.
+
 # 3.4.1 - 24/10/2024
 - Alteração em lógica de script de notificações.
 

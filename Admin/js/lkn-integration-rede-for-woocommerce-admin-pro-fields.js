@@ -2,7 +2,6 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
   return (`
     <div>
       <h3 class="wc-settings-sub-title" id="woocommerce_rede_credit_PRO">${lknPhpProFieldsVariables.proSettings}</h3>
-      <hr>
       <table class="form-table">
         <tbody>
           <tr valign="top">

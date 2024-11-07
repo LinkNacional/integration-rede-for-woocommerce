@@ -54,36 +54,27 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu{
-    display: flex;
-    align-items: center;
-    width: fit-content;
-    height: 40px;
-    font-size: xx-large;
-    color: #101111;
-    margin-bottom: 20px;
+    height: 27px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutMenu p{
-    font-size: x-large;
-    font-weight: bold;
-    margin: 0;
-    height: 100%;
-    padding: 4px 30px 0px 30px;
-    /* background-color: #CCCCCC; */
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:first-of-type {
+    margin: 0px !important;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutMenu p.active{
-    background-color: #CCCCCC;
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a {
+    height: 22px !important;
+    border: none;
+    background-color: #F0F0F1;
+    color: #9A9A9A;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a{
-    text-decoration: none;
-    color: inherit;
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:hover {
+    color: black;
 }
 
-
-#lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
-    border-bottom: 2px solid #CCCCCC;
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab.nav-tab-active {
+    margin-top: 1.5px !important;
+    color: black;
 }
 
 
