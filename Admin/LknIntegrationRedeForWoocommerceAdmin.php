@@ -118,7 +118,11 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'rede_pix'
         );
 
-        if ( $_GET['page'] === 'wc-settings' && $_GET['tab'] === 'checkout' && in_array($_GET['section'], $gateways) ) {
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
+        $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
+
+        if ( 'wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true) ) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
         }
 
