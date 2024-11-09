@@ -3,13 +3,13 @@ Contributors: linknacional,MarcosAlexandre
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
-Tested up to: 6.6
-Stable tag: 3.4.2
+Tested up to: 6.7
+Stable tag: 3.4.3
 Requires PHP: 7.2
-License: GPLv2 or later
-License URI: https://opensource.org/licenses/MIT
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
-Receba pagamentos por meio de cartões de crédito e débito, de diferentes bandeiras, usando a tecnologia de autenticação 3DS
+Receive payments through credit and debit cards, from different brands, using 3DS authentication technology.
 
 == Description ==
 
@@ -21,7 +21,10 @@ O [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede) is part of 
 
 **Dependencies**
 
-Integration Rede for WooCommerce plugin is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Integration Rede for WooCommerce installation.
+Integration [Rede for WooCommerce plugin](https://www.linknacional.com.br/wordpress/woocommerce/rede/) is dependent on WooCommerce plugin, please make sure WooCommerce is installed and properly configured before starting Integration Rede for WooCommerce installation.
+
+*PHP Dependencies*
+* This plugins uses the [Rede SDK](https://github.com/DevelopersRede/erede-php) to process payemnts with Rede API.
 
 **User instructions**
 
@@ -69,7 +72,12 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
-= 3.4.2 = *2024/11/12*
+= 3.4.3 = *2024/11/11*
+* Correction of undefined attribute warnings;
+* Correction of compatibility statement for WooCommerce block editor;
+* Improved treatment of payment variables.
+
+= 3.4.2 = *2024/11/08*
 * Change layout of admin settings.
 
 = 3.4.1 = *2024/10/24*
