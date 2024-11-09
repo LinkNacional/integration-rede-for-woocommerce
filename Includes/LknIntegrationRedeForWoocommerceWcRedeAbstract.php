@@ -134,7 +134,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '>=' ) ) {
             $order_id = absint( get_query_var( 'order-pay' ) );
         } else {
-            $order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
+            $order_id = isset( $_GET['order_id'] ) ? absint( wp_unslash($_GET['order_id']) ) : 0;
         }
 
         if ( 0 < $order_id ) {

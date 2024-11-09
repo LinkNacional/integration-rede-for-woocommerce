@@ -31,9 +31,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $this->pv = $this->get_option( 'pv' );
         $this->token = $this->get_option( 'token' );
 
-        if($this->get_option('enabled_soft_descriptor') === 'yes') {
+        if ($this->get_option('enabled_soft_descriptor') === 'yes') {
             $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option( 'soft_descriptor' ));
-        } else if($this->get_option('enabled_soft_descriptor') === 'no') {
+        } elseif ($this->get_option('enabled_soft_descriptor') === 'no') {
             add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
             update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
         }
@@ -260,7 +260,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+                'label' => esc_attr__( 'Enable debug logs.', 'woo-rede' ) . ' ' . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
                 'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
                 'desc_tip' => true,
@@ -369,12 +369,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $order = wc_get_order( $order_id );
         $cardNumber = isset( $_POST['rede_credit_number'] ) ?
-            sanitize_text_field( $_POST['rede_credit_number'] ) : '';
+            sanitize_text_field( wp_unslash($_POST['rede_credit_number']) ) : '';
 
         $installments = isset( $_POST['rede_credit_installments'] ) ?
-            absint( sanitize_text_field($_POST['rede_credit_installments']) ) : 1;
+            absint( sanitize_text_field(wp_unslash($_POST['rede_credit_installments'])) ) : 1;
 
-        $creditExpiry = sanitize_text_field($_POST['rede_credit_expiry']);
+        $creditExpiry = sanitize_text_field(wp_unslash($_POST['rede_credit_expiry']));
 
         if (strpos($creditExpiry, '/') !== false) {
             $expiration = explode( '/', $creditExpiry );
@@ -386,11 +386,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         $cardData = array(
-            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['rede_credit_number'] ) ),
+            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( wp_unslash($_POST['rede_credit_number']) ) ),
             'card_expiration_month' => sanitize_text_field( $expiration[0] ),
             'card_expiration_year' => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-            'card_cvv' => sanitize_text_field( $_POST['rede_credit_cvc'] ),
-            'card_holder' => sanitize_text_field( $_POST['rede_credit_holder_name'] ),
+            'card_cvv' => sanitize_text_field( wp_unslash($_POST['rede_credit_cvc']) ),
+            'card_holder' => sanitize_text_field( wp_unslash($_POST['rede_credit_holder_name']) ),
         );
         try {
             $valid = $this->validate_card_number( $cardNumber );
@@ -465,8 +465,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ));
             }
         } catch ( Exception $e ) {
-            
-            if($e->getCode() == 63){
+            if ($e->getCode() == 63) {
                 add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', true);
                 update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', true);
             }
