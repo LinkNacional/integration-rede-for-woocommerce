@@ -197,7 +197,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+                'label' => esc_attr__( 'Enable debug logs.', 'woo-rede' ) . ' ' . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
                 'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
                 'desc_tip' => true,
@@ -240,7 +240,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
         $referenceNum = uniqid('order_', true);
 
-        $creditExpiry = sanitize_text_field($_POST['maxipago_debit_expiry']);
+        $creditExpiry = sanitize_text_field(wp_unslash($_POST['maxipago_debit_expiry']));
 
         if (strpos($creditExpiry, '/') !== false) {
             $expiration = explode( '/', $creditExpiry );
@@ -250,32 +250,32 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 substr($creditExpiry, -2, 2),
             );
         }
-        if ($_POST['billing_cpf'] === '') {
+        if ('' === $_POST['billing_cpf']) {
             $_POST['billing_cpf'] = $_POST['billing_cnpj'];
         }
         if ($_POST['maxipago_debit_cpf']) {
             $_POST['billing_cpf'] = $_POST['maxipago_debit_cpf'];
         }
         $clientData = array(
-            'billing_cpf' => sanitize_text_field( $_POST['billing_cpf'] ),
-            'billing_name' => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
-            'billing_address_1' => sanitize_text_field( $_POST['billing_address_1'] ),
-            'billing_district' => sanitize_text_field( $_POST['billingNeighborhood'] ),
-            'billing_city' => sanitize_text_field( $_POST['billing_city'] ),
-            'billing_state' => sanitize_text_field( $_POST['billing_state'] ),
-            'billing_postcode' => sanitize_text_field( $_POST['billing_postcode'] ),
-            'billing_phone' => sanitize_text_field( $_POST['billing_phone'] ),
-            'billing_email' => sanitize_text_field( $_POST['billing_email'] ),
+            'billing_cpf' => sanitize_text_field( wp_unslash($_POST['billing_cpf']) ),
+            'billing_name' => sanitize_text_field(wp_unslash($_POST['maxipago_debit_holder_name'])),
+            'billing_address_1' => sanitize_text_field( wp_unslash($_POST['billing_address_1']) ),
+            'billing_district' => sanitize_text_field( wp_unslash($_POST['billingNeighborhood']) ),
+            'billing_city' => sanitize_text_field( wp_unslash($_POST['billing_city']) ),
+            'billing_state' => sanitize_text_field( wp_unslash($_POST['billing_state']) ),
+            'billing_postcode' => sanitize_text_field( wp_unslash($_POST['billing_postcode']) ),
+            'billing_phone' => sanitize_text_field( wp_unslash($_POST['billing_phone']) ),
+            'billing_email' => sanitize_text_field( wp_unslash($_POST['billing_email'] )),
             'currency_code' => get_option('woocommerce_currency'),
             'country' => $countryCode,
         );
 
         $cardData = array(
-            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipago_debit_number'] ) ),
+            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( wp_unslash($_POST['maxipago_debit_number']) ) ),
             'card_expiration_month' => sanitize_text_field( $expiration[0] ),
             'card_expiration_year' => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-            'card_cvv' => sanitize_text_field( $_POST['maxipago_debit_cvc'] ),
-            'card_holder' => sanitize_text_field( $_POST['maxipago_debit_holder_name'] ),
+            'card_cvv' => sanitize_text_field( wp_unslash($_POST['maxipago_debit_cvc']) ),
+            'card_holder' => sanitize_text_field( wp_unslash($_POST['maxipago_debit_holder_name']) ),
         );
 
         try {
@@ -414,8 +414,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         );
     }
 
-    public function validateCpfCnpj($cpfCnpj)
-    {
+    public function validateCpfCnpj($cpfCnpj) {
         // Remove caracteres especiais
         $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
 
@@ -429,14 +428,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             // Calcula o primeiro dígito verificador
             $sum = 0;
             for ($i = 0; $i < 9; $i++) {
-                $sum += intval($cpfCnpj[$i]) * (10 - $i);
+                $sum += (int) ($cpfCnpj[$i]) * (10 - $i);
             }
             $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
             // Calcula o segundo dígito verificador
             $sum = 0;
             for ($i = 0; $i < 10; $i++) {
-                $sum += intval($cpfCnpj[$i]) * (11 - $i);
+                $sum += (int) ($cpfCnpj[$i]) * (11 - $i);
             }
             $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
@@ -456,17 +455,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
             // Calcula o primeiro dígito verificador
             $sum = 0;
-            $weights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            $weights = array(5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
             for ($i = 0; $i < 12; $i++) {
-                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+                $sum += (int) ($cpfCnpj[$i]) * $weights[$i];
             }
             $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
             // Calcula o segundo dígito verificador
             $sum = 0;
-            $weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            $weights = array(6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
             for ($i = 0; $i < 13; $i++) {
-                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+                $sum += (int) ($cpfCnpj[$i]) * $weights[$i];
             }
             $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 

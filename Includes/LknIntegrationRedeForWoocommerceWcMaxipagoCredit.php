@@ -234,7 +234,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'debug' => array(
                 'title' => esc_attr__( 'Debug', 'woo-rede' ),
                 'type' => 'checkbox',
-                'label' => esc_attr__( 'Enable debug logs.' . ' ', 'woo-rede' ) . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+                'label' => esc_attr__( 'Enable debug logs.', 'woo-rede' ) . ' ' . wp_kses_post( '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
                 'description' => esc_attr__( 'Enable transaction logging.', 'woo-rede' ),
                 'desc_tip' => true,
@@ -320,14 +320,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $referenceNum = uniqid('order_', true);
 
         $installments = isset( $_POST['maxipago_credit_installments'] ) ?
-        absint( sanitize_text_field($_POST['maxipago_credit_installments']) ) : 1;
+        absint( sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments'])) ) : 1;
 
         $interest = round((float) $this->get_option( $installments . 'x' ), 2);
         if ($this->get_option('installment_interest') == 'yes') {
             $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
         }
 
-        $creditExpiry = sanitize_text_field($_POST['maxipago_credit_expiry']);
+        $creditExpiry = sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry']));
 
         if (strpos($creditExpiry, '/') !== false) {
             $expiration = explode( '/', $creditExpiry );
@@ -337,33 +337,34 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 substr($creditExpiry, -2, 2),
             );
         }
-        if ($_POST['billing_cpf'] === '') {
-            $_POST['billing_cpf'] = $_POST['billing_cnpj'];
+
+        $billingCPF = isset($_POST['billing_cpf']) ? sanitize_text_field(wp_unslash($_POST['billing_cpf'])) : '';
+
+        if (isset($_POST['maxipago_credit_card_cpf'])) {
+            $billingCPF = sanitize_text_field(wp_unslash($_POST['maxipago_credit_card_cpf']));
         }
-        if ($_POST['maxipago_credit_card_cpf']) {
-            $_POST['billing_cpf'] = $_POST['maxipago_credit_card_cpf'];
-        }
+
         $clientData = array(
-            'billing_cpf' => sanitize_text_field( $_POST['billing_cpf'] ),
-            'billing_name' => sanitize_text_field( $_POST['billing_address_1'] . ' ' . $_POST['billing_address_1']),
-            'billing_address_1' => sanitize_text_field( $_POST['billing_address_1'] ),
-            'billing_district' => sanitize_text_field( $_POST['billing_neighborhood'] ),
-            'billing_city' => sanitize_text_field( $_POST['billing_city'] ),
-            'billing_state' => sanitize_text_field( $_POST['billing_state'] ),
-            'billing_postcode' => sanitize_text_field( $_POST['billing_postcode'] ),
-            'billing_phone' => sanitize_text_field( $_POST['billing_phone'] ),
-            'billing_email' => sanitize_text_field( $_POST['billing_email'] ),
+            'billing_cpf' => $billingCPF,
+            'billing_name' => sanitize_text_field( wp_unslash($_POST['maxipago_credit_holder_name'])),
+            'billing_address_1' => sanitize_text_field( wp_unslash($_POST['billing_address_1']) ),
+            'billing_district' => sanitize_text_field( wp_unslash($_POST['billing_neighborhood']) ),
+            'billing_city' => sanitize_text_field( wp_unslash($_POST['billing_city']) ),
+            'billing_state' => sanitize_text_field( wp_unslash($_POST['billing_state']) ),
+            'billing_postcode' => sanitize_text_field( wp_unslash($_POST['billing_postcode']) ),
+            'billing_phone' => sanitize_text_field( wp_unslash($_POST['billing_phone']) ),
+            'billing_email' => sanitize_text_field( wp_unslash($_POST['billing_email']) ),
             'currency_code' => get_option('woocommerce_currency'),
             'country' => $countryCode,
         );
 
         $cardData = array(
-            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( $_POST['maxipago_credit_number'] ) ),
+            'card_number' => preg_replace( '/[^\d]/', '', sanitize_text_field( wp_unslash($_POST['maxipago_credit_number']) ) ),
             'card_expiration_month' => sanitize_text_field( $expiration[0] ),
             'card_expiration_year' => $this->normalize_expiration_year( sanitize_text_field( $expiration[1] ) ),
-            'card_cvv' => sanitize_text_field( $_POST['maxipago_credit_cvc'] ),
-            'card_holder' => sanitize_text_field( $_POST['maxipago_credit_holder_name'] ),
-            'card_installments' => sanitize_text_field( $_POST['maxipago_credit_installments'] ),
+            'card_cvv' => sanitize_text_field( wp_unslash($_POST['maxipago_credit_cvc']) ),
+            'card_holder' => sanitize_text_field( wp_unslash($_POST['maxipago_credit_holder_name']) ),
+            'card_installments' => sanitize_text_field( wp_unslash($_POST['maxipago_credit_installments']) ),
         );
 
         try {
@@ -614,8 +615,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         return false;
     }
 
-    public function validateCpfCnpj($cpfCnpj)
-    {
+    public function validateCpfCnpj($cpfCnpj) {
         // Remove caracteres especiais
         $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
 
@@ -629,14 +629,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             // Calcula o primeiro dígito verificador
             $sum = 0;
             for ($i = 0; $i < 9; $i++) {
-                $sum += intval($cpfCnpj[$i]) * (10 - $i);
+                $sum += (int) ($cpfCnpj[$i]) * (10 - $i);
             }
             $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
             // Calcula o segundo dígito verificador
             $sum = 0;
             for ($i = 0; $i < 10; $i++) {
-                $sum += intval($cpfCnpj[$i]) * (11 - $i);
+                $sum += (int) ($cpfCnpj[$i]) * (11 - $i);
             }
             $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
@@ -656,17 +656,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
             // Calcula o primeiro dígito verificador
             $sum = 0;
-            $weights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            $weights = array(5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
             for ($i = 0; $i < 12; $i++) {
-                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+                $sum += (int) ($cpfCnpj[$i]) * $weights[$i];
             }
             $digit1 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 
             // Calcula o segundo dígito verificador
             $sum = 0;
-            $weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            $weights = array(6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
             for ($i = 0; $i < 13; $i++) {
-                $sum += intval($cpfCnpj[$i]) * $weights[$i];
+                $sum += (int) ($cpfCnpj[$i]) * $weights[$i];
             }
             $digit2 = ($sum % 11 < 2) ? 0 : 11 - ($sum % 11);
 

@@ -1,4 +1,9 @@
-# 3.4.2 - 12/11/2024
+# 3.4.2 - 11/11/2024
+- Correção de avisos de atributos indefinidos;
+- Correção de declaração de compatibilidade para editor de blocos WooCommerce;
+- Melhoria de tratamento de varáveis de pagamento.
+
+# 3.4.2 - 08/11/2024
 - Alteração em layout das configurações do administrador.
 
 # 3.4.1 - 24/10/2024
