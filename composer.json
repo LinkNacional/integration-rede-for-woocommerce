@@ -20,7 +20,7 @@
         "phan/phan": "5.4.1"
     },
     "require": {
-        "developersrede/erede-php": "4.2.1",
+        "developersrede/erede-php": "5.2.1",
         "monolog/monolog": "2.9.2"
     },
     "config": {
