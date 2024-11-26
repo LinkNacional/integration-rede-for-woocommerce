@@ -1,3 +1,6 @@
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
 const settingsRedeCredit = window.wc.wcSettings.getSetting('rede_credit_data', {})
 const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit.title)
 // Obtendo o nonce da variável global
@@ -24,6 +27,8 @@ const ContentRedeCredit = (props) => {
     rede_credit_cvc: '',
     rede_credit_holder_name: ''
   })
+
+  const [focus, setFocus] = window.wp.element.useState('')
 
   const options = []
 
@@ -122,12 +127,26 @@ const ContentRedeCredit = (props) => {
 
   return (
     <>
-
+      <Cards
+        number={creditObject.rede_credit_number}
+        name={creditObject.rede_credit_holder_name}
+        expiry={(creditObject.rede_credit_expiry).replace(/\s+/g, '')}
+        cvc={creditObject.rede_credit_cvc}
+        placeholders={{
+          name: 'NOME', 
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
       <wcComponents.TextInput
         id="rede_credit_holder_name"
         label={translationsRedeCredit.nameOnCard}
         value={creditObject.rede_credit_holder_name}
         onChange={(value) => {
+          setFocus('name')
           updateCreditObject('rede_credit_holder_name', value)
         }}
       />
@@ -137,6 +156,7 @@ const ContentRedeCredit = (props) => {
         label={translationsRedeCredit.cardNumber}
         value={formatCreditCardNumber(creditObject.rede_credit_number)}
         onChange={(value) => {
+          setFocus('number')
           updateCreditObject('rede_credit_number', formatCreditCardNumber(value))
         }}
       />
@@ -146,6 +166,7 @@ const ContentRedeCredit = (props) => {
         label={translationsRedeCredit.cardExpiringDate}
         value={creditObject.rede_credit_expiry}
         onChange={(value) => {
+          setFocus('expiry')
           updateCreditObject('rede_credit_expiry', value)
         }}
       />
@@ -155,6 +176,7 @@ const ContentRedeCredit = (props) => {
         label={translationsRedeCredit.securityCode}
         value={creditObject.rede_credit_cvc}
         onChange={(value) => {
+          setFocus('cvc')
           updateCreditObject('rede_credit_cvc', value)
         }}
       />

@@ -1,18 +1,21 @@
-const settingsMaxipagoDebit = window.wc.wcSettings.getSetting('maxipago_debit_data', {})
-const labelMaxipagoDebit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoDebit.title)
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
+const settingsMaxipagoDebit = window.wc.wcSettings.getSetting('maxipago_debit_data', {});
+const labelMaxipagoDebit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoDebit.title);
 
 // Obtendo o nonce da variável global
-const nonceMaxipagoDebit = settingsMaxipagoDebit.nonceMaxipagoDebit
-const translationsMaxipagoDebit = settingsMaxipagoDebit.translations
+const nonceMaxipagoDebit = settingsMaxipagoDebit.nonceMaxipagoDebit;
+const translationsMaxipagoDebit = settingsMaxipagoDebit.translations;
 const ContentMaxipagoDebit = props => {
   const {
     eventRegistration,
     emitResponse
-  } = props
+  } = props;
   const {
     onPaymentSetup
-  } = eventRegistration
-  const wcComponents = window.wc.blocksComponents
+  } = eventRegistration;
+  const wcComponents = window.wc.blocksComponents;
   const [creditObject, setCreditObject] = window.wp.element.useState({
     maxipago_debit_card_number: '',
     maxipago_debit_card_expiry: '',
@@ -20,63 +23,64 @@ const ContentMaxipagoDebit = props => {
     maxipago_debit_card_holder_name: '',
     maxipago_debit_cpf: '',
     maxipago_debit_neighborhood: ''
-  })
+  });
+  const [focus, setFocus] = window.wp.element.useState('');
   const formatCreditCardNumber = value => {
-    if (value?.length > 19) return creditObject.maxipago_debit_card_number
+    if (value?.length > 19) return creditObject.maxipago_debit_card_number;
     // Remove caracteres não numéricos
-    const cleanedValue = value?.replace(/\D/g, '')
+    const cleanedValue = value?.replace(/\D/g, '');
     // Adiciona espaços a cada quatro dígitos
-    const formattedValue = cleanedValue?.replace(/(.{4})/g, '$1 ')?.trim()
-    return formattedValue
-  }
+    const formattedValue = cleanedValue?.replace(/(.{4})/g, '$1 ')?.trim();
+    return formattedValue;
+  };
   const updateCreditObject = (key, value) => {
-    let isValidDate = false
+    let isValidDate = false;
     switch (key) {
       case 'maxipago_debit_card_expiry':
-        if (value.length > 7) return
+        if (value.length > 7) return;
 
         // Verifica se o valor é uma data válida (MM/YY)
-        isValidDate = /^\d{2}\/\d{2}$/.test(value)
+        isValidDate = /^\d{2}\/\d{2}$/.test(value);
         if (!isValidDate) {
           // Remove caracteres não numéricos
-          const cleanedValue = value?.replace(/\D/g, '')
-          let formattedValue = cleanedValue?.replace(/^(.{2})/, '$1 / ')?.trim()
+          const cleanedValue = value?.replace(/\D/g, '');
+          let formattedValue = cleanedValue?.replace(/^(.{2})/, '$1 / ')?.trim();
 
           // Se o tamanho da string for 5, remove o espaço e a barra adicionados anteriormente
           if (formattedValue.length === 4) {
-            formattedValue = formattedValue.replace(/\s\//, '')
+            formattedValue = formattedValue.replace(/\s\//, '');
           }
 
           // Atualiza o estado
           setCreditObject({
             ...creditObject,
             [key]: formattedValue
-          })
+          });
         }
-        return
+        return;
       case 'maxipago_debit_cvc':
-        if (!/^\d+$/.test(value) && value !== '' || value.length > 4) return
-        break
+        if (!/^\d+$/.test(value) && value !== '' || value.length > 4) return;
+        break;
       default:
-        break
+        break;
     }
     setCreditObject({
       ...creditObject,
       [key]: value
-    })
-  }
+    });
+  };
   const formatarCPF = cpf => {
-    cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
-    cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os segundos 3 dígitos
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Adiciona hífen após os últimos 3 dígitos
-    return cpf
-  }
+    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+    cpf = cpf.slice(0, 11); // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os primeiros 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona ponto após os segundos 3 dígitos
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona hífen após os últimos 3 dígitos
+    return cpf;
+  };
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
-      const allFieldsFilled = Object.values(creditObject).every(field => field.trim() !== '')
+      const allFieldsFilled = Object.values(creditObject).every(field => field.trim() !== '');
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,
@@ -91,66 +95,85 @@ const ContentMaxipagoDebit = props => {
               billingNeighborhood: creditObject.maxipago_debit_neighborhood
             }
           }
-        }
+        };
       }
       return {
         type: emitResponse.responseTypes.ERROR,
         message: translationsMaxipagoDebit.fieldsNotFilled
-      }
-    })
+      };
+    });
 
     // Cancela a inscrição quando este componente é desmontado.
     return () => {
-      unsubscribe()
-    }
+      unsubscribe();
+    };
   }, [creditObject,
   // Adiciona creditObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoDebit // Adicione translations como dependência
-  ])
-  return /* #__PURE__ */React.createElement(React.Fragment, null, /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_cpf',
-    label: 'CPF',
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoDebit // Adicione translations como dependência
+  ]);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
+    number: creditObject.maxipago_debit_card_number,
+    name: creditObject.maxipago_debit_card_holder_name,
+    expiry: creditObject.maxipago_debit_card_expiry.replace(/\s+/g, ''),
+    cvc: creditObject.maxipago_debit_cvc,
+    placeholders: {
+      name: 'NOME',
+      expiry: 'MM/ANO',
+      cvc: 'CVC',
+      number: '•••• •••• •••• ••••'
+    },
+    locale: {
+      valid: 'VÁLIDO ATÉ'
+    },
+    focused: focus
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_cpf",
+    label: "CPF",
     value: formatarCPF(creditObject.maxipago_debit_cpf),
     onChange: value => {
-      updateCreditObject('maxipago_debit_cpf', formatarCPF(value))
+      updateCreditObject('maxipago_debit_cpf', formatarCPF(value));
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_neighborhood',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_neighborhood",
     label: translationsMaxipagoDebit.district,
     value: creditObject.maxipago_debit_neighborhood,
     onChange: value => {
-      updateCreditObject('maxipago_debit_neighborhood', value)
+      updateCreditObject('maxipago_debit_neighborhood', value);
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_card_holder_name',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_card_holder_name",
     label: translationsMaxipagoDebit.nameOnCard,
     value: creditObject.maxipago_debit_card_holder_name,
     onChange: value => {
-      updateCreditObject('maxipago_debit_card_holder_name', value)
+      setFocus('name');
+      updateCreditObject('maxipago_debit_card_holder_name', value);
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_card_number',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_card_number",
     label: translationsMaxipagoDebit.cardNumber,
     value: formatCreditCardNumber(creditObject.maxipago_debit_card_number),
     onChange: value => {
-      updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value))
+      setFocus('number');
+      updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value));
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_card_expiry',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_card_expiry",
     label: translationsMaxipagoDebit.cardExpiringDate,
     value: creditObject.maxipago_debit_card_expiry,
     onChange: value => {
-      updateCreditObject('maxipago_debit_card_expiry', value)
+      setFocus('expiry');
+      updateCreditObject('maxipago_debit_card_expiry', value);
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'maxipago_debit_cvc',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "maxipago_debit_cvc",
     label: translationsMaxipagoDebit.securityCode,
     value: creditObject.maxipago_debit_cvc,
     onChange: value => {
-      updateCreditObject('maxipago_debit_cvc', value)
+      setFocus('cvc');
+      updateCreditObject('maxipago_debit_cvc', value);
     }
-  }))
-}
+  }));
+};
 const BlockGatewayMaxipagoDebit = {
   name: 'maxipago_debit',
   label: labelMaxipagoDebit,
@@ -161,5 +184,5 @@ const BlockGatewayMaxipagoDebit = {
   supports: {
     features: settingsMaxipagoDebit.supports
   }
-}
-window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayMaxipagoDebit)
+};
+window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayMaxipagoDebit);

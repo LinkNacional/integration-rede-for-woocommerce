@@ -1,3 +1,6 @@
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
 const settingsMaxipagoDebit = window.wc.wcSettings.getSetting('maxipago_debit_data', {})
 const labelMaxipagoDebit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoDebit.title)
 
@@ -17,6 +20,7 @@ const ContentMaxipagoDebit = (props) => {
     maxipago_debit_cpf: '',
     maxipago_debit_neighborhood: ''
   })
+  const [focus, setFocus] = window.wp.element.useState('')
 
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_debit_card_number
@@ -115,6 +119,20 @@ const ContentMaxipagoDebit = (props) => {
 
   return (
     <>
+      <Cards
+        number={creditObject.maxipago_debit_card_number}
+        name={creditObject.maxipago_debit_card_holder_name}
+        expiry={(creditObject.maxipago_debit_card_expiry).replace(/\s+/g, '')}
+        cvc={creditObject.maxipago_debit_cvc}
+        placeholders={{
+          name: 'NOME', 
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
       <wcComponents.TextInput
         id="maxipago_debit_cpf"
         label="CPF"
@@ -138,6 +156,7 @@ const ContentMaxipagoDebit = (props) => {
         label={translationsMaxipagoDebit.nameOnCard}
         value={creditObject.maxipago_debit_card_holder_name}
         onChange={(value) => {
+          setFocus('name')
           updateCreditObject('maxipago_debit_card_holder_name', value)
         }}
       />
@@ -147,6 +166,7 @@ const ContentMaxipagoDebit = (props) => {
         label={translationsMaxipagoDebit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_debit_card_number)}
         onChange={(value) => {
+          setFocus('number')
           updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value))
         }}
       />
@@ -156,6 +176,7 @@ const ContentMaxipagoDebit = (props) => {
         label={translationsMaxipagoDebit.cardExpiringDate}
         value={creditObject.maxipago_debit_card_expiry}
         onChange={(value) => {
+          setFocus('expiry')
           updateCreditObject('maxipago_debit_card_expiry', value)
         }}
       />
@@ -165,6 +186,7 @@ const ContentMaxipagoDebit = (props) => {
         label={translationsMaxipagoDebit.securityCode}
         value={creditObject.maxipago_debit_cvc}
         onChange={(value) => {
+          setFocus('cvc')
           updateCreditObject('maxipago_debit_cvc', value)
         }}
       />

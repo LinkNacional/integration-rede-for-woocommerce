@@ -1,72 +1,76 @@
-const settingsRedeDebit = window.wc.wcSettings.getSetting('rede_debit_data', {})
-const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.title)
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
+const settingsRedeDebit = window.wc.wcSettings.getSetting('rede_debit_data', {});
+const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.title);
 // Obtendo o nonce da variável global
-const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit
-const translationsRedeDebit = settingsRedeDebit.translations
+const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
+const translationsRedeDebit = settingsRedeDebit.translations;
 const ContentRedeDebit = props => {
   const {
     eventRegistration,
     emitResponse
-  } = props
+  } = props;
   const {
     onPaymentSetup
-  } = eventRegistration
-  const wcComponents = window.wc.blocksComponents
+  } = eventRegistration;
+  const wcComponents = window.wc.blocksComponents;
   const [debitObject, setDebitObject] = window.wp.element.useState({
     rede_debit_number: '',
     rede_debit_installments: '1',
     rede_debit_expiry: '',
     rede_debit_cvc: '',
     rede_debit_holder_name: ''
-  })
+  });
+  const [focus, setFocus] = window.wp.element.useState('');
   const formatDebitCardNumber = value => {
-    if (value?.length > 19) return debitObject.rede_debit_number
+    if (value?.length > 19) return debitObject.rede_debit_number;
     // Remove caracteres não numéricos
-    const cleanedValue = value?.replace(/\D/g, '')
+    const cleanedValue = value?.replace(/\D/g, '');
     // Adiciona espaços a cada quatro dígitos
-    const formattedValue = cleanedValue?.replace(/(.{4})/g, '$1 ')?.trim()
-    return formattedValue
-  }
+    const formattedValue = cleanedValue?.replace(/(.{4})/g, '$1 ')?.trim();
+    return formattedValue;
+  };
   const updateDebitObject = (key, value) => {
-    let isValidDate = false
+    let isValidDate = false;
     switch (key) {
       case 'rede_debit_expiry':
-        if (value.length > 7) return
+        if (value.length > 7) return;
 
         // Verifica se o valor é uma data válida (MM/YY)
-        isValidDate = /^\d{2}\/\d{2}$/.test(value)
+        isValidDate = /^\d{2}\/\d{2}$/.test(value);
         if (!isValidDate) {
           // Remove caracteres não numéricos
-          const cleanedValue = value?.replace(/\D/g, '')
-          let formattedValue = cleanedValue?.replace(/^(.{2})/, '$1 / ')?.trim()
+          const cleanedValue = value?.replace(/\D/g, '');
+          let formattedValue = cleanedValue?.replace(/^(.{2})/, '$1 / ')?.trim();
 
           // Se o tamanho da string for 5, remove o espaço e a barra adicionados anteriormente
           if (formattedValue.length === 4) {
-            formattedValue = formattedValue.replace(/\s\//, '')
+            formattedValue = formattedValue.replace(/\s\//, '');
           }
 
           // Atualiza o estado
           setDebitObject({
             ...debitObject,
             [key]: formattedValue
-          })
+          });
         }
-        return
+        return;
       case 'rede_debit_cvc':
-        if (!/^\d+$/.test(value) && value !== '' || value.length > 4) return
-        break
+        if (!/^\d+$/.test(value) && value !== '' || value.length > 4) return;
+        break;
       default:
-        break
+        break;
     }
     setDebitObject({
       ...debitObject,
       [key]: value
-    })
-  }
+    });
+  };
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do debitObject estão preenchidos
-      const allFieldsFilled = Object.values(debitObject).every(field => field.trim() !== '')
+      const allFieldsFilled = Object.values(debitObject).every(field => field.trim() !== '');
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,
@@ -80,52 +84,71 @@ const ContentRedeDebit = props => {
               rede_card_nonce: nonceRedeDebit
             }
           }
-        }
+        };
       }
       return {
         type: emitResponse.responseTypes.ERROR,
         message: translationsRedeDebit.fieldsNotFilled
-      }
-    })
+      };
+    });
 
     // Cancela a inscrição quando este componente é desmontado.
     return () => {
-      unsubscribe()
-    }
+      unsubscribe();
+    };
   }, [debitObject,
   // Adiciona debitObject como dependência
-    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeDebit // Adicione translationsRedeDebit como dependência
-  ])
-  return /* #__PURE__ */React.createElement(React.Fragment, null, /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'rede_debit_holder_name',
+  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeDebit // Adicione translationsRedeDebit como dependência
+  ]);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
+    number: debitObject.rede_debit_number,
+    name: debitObject.rede_debit_holder_name,
+    expiry: debitObject.rede_debit_expiry.replace(/\s+/g, ''),
+    cvc: debitObject.rede_debit_cvc,
+    placeholders: {
+      name: 'NOME',
+      expiry: 'MM/ANO',
+      cvc: 'CVC',
+      number: '•••• •••• •••• ••••'
+    },
+    locale: {
+      valid: 'VÁLIDO ATÉ'
+    },
+    focused: focus
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_debit_holder_name",
     label: translationsRedeDebit.nameOnCard,
     value: debitObject.rede_debit_holder_name,
     onChange: value => {
-      updateDebitObject('rede_debit_holder_name', value)
+      setFocus('name');
+      updateDebitObject('rede_debit_holder_name', value);
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'rede_debit_number',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_debit_number",
     label: translationsRedeDebit.cardNumber,
     value: formatDebitCardNumber(debitObject.rede_debit_number),
     onChange: value => {
-      updateDebitObject('rede_debit_number', formatDebitCardNumber(value))
+      setFocus('number');
+      updateDebitObject('rede_debit_number', formatDebitCardNumber(value));
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'rede_debit_expiry',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_debit_expiry",
     label: translationsRedeDebit.cardExpiringDate,
     value: debitObject.rede_debit_expiry,
     onChange: value => {
-      updateDebitObject('rede_debit_expiry', value)
+      setFocus('expiry');
+      updateDebitObject('rede_debit_expiry', value);
     }
-  }), /* #__PURE__ */React.createElement(wcComponents.TextInput, {
-    id: 'rede_debit_cvc',
+  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
+    id: "rede_debit_cvc",
     label: translationsRedeDebit.securityCode,
     value: debitObject.rede_debit_cvc,
     onChange: value => {
-      updateDebitObject('rede_debit_cvc', value)
+      setFocus('cvc');
+      updateDebitObject('rede_debit_cvc', value);
     }
-  }))
-}
+  }));
+};
 const BlockGatewayRedeDebit = {
   name: 'rede_debit',
   label: labelRedeDebit,
@@ -136,5 +159,5 @@ const BlockGatewayRedeDebit = {
   supports: {
     features: settingsRedeDebit.supports
   }
-}
-window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayRedeDebit)
+};
+window.wc.wcBlocksRegistry.registerPaymentMethod(BlockGatewayRedeDebit);
