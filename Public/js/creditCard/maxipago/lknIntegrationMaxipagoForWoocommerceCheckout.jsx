@@ -177,9 +177,9 @@ const ContentMaxipagoCredit = (props) => {
         label={translationsMaxipagoCredit.nameOnCard}
         value={creditObject.maxipago_credit_holder_name}
         onChange={(value) => {
-          setFocus('name')
           updateCreditObject('maxipago_credit_holder_name', value)
         }}
+        onFocus={() => setFocus('name')}
       />
 
       <wcComponents.TextInput
@@ -187,9 +187,9 @@ const ContentMaxipagoCredit = (props) => {
         label={translationsMaxipagoCredit.cardNumber}
         value={formatCreditCardNumber(creditObject.maxipago_credit_number)}
         onChange={(value) => {
-          setFocus('number')
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
         }}
+        onFocus={() => setFocus('number')}
       />
 
       <wcComponents.TextInput
@@ -197,9 +197,9 @@ const ContentMaxipagoCredit = (props) => {
         label={translationsMaxipagoCredit.cardExpiringDate}
         value={creditObject.maxipago_credit_expiry}
         onChange={(value) => {
-          setFocus('expiry')
           updateCreditObject('maxipago_credit_expiry', value)
         }}
+        onFocus={() => setFocus('expiry')}
       />
 
       <wcComponents.TextInput
@@ -207,9 +207,9 @@ const ContentMaxipagoCredit = (props) => {
         label={translationsMaxipagoCredit.securityCode}
         value={creditObject.maxipago_credit_cvc}
         onChange={(value) => {
-          setFocus('cvc')
           updateCreditObject('maxipago_credit_cvc', value)
         }}
+        onFocus={() => setFocus('cvc')}
       />
 
       {options.length > 1 && (

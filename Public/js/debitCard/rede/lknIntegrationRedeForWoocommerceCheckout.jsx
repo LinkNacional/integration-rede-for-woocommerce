@@ -126,9 +126,9 @@ const ContentRedeDebit = (props) => {
         label={translationsRedeDebit.nameOnCard}
         value={debitObject.rede_debit_holder_name}
         onChange={(value) => {
-          setFocus('name')
           updateDebitObject('rede_debit_holder_name', value)
         }}
+        onFocus={() => setFocus('name')}
       />
 
       <wcComponents.TextInput
@@ -136,9 +136,9 @@ const ContentRedeDebit = (props) => {
         label={translationsRedeDebit.cardNumber}
         value={formatDebitCardNumber(debitObject.rede_debit_number)}
         onChange={(value) => {
-          setFocus('number')
           updateDebitObject('rede_debit_number', formatDebitCardNumber(value))
         }}
+        onFocus={() => setFocus('number')}
       />
 
       <wcComponents.TextInput
@@ -146,9 +146,9 @@ const ContentRedeDebit = (props) => {
         label={translationsRedeDebit.cardExpiringDate}
         value={debitObject.rede_debit_expiry}
         onChange={(value) => {
-          setFocus('expiry')
           updateDebitObject('rede_debit_expiry', value)
         }}
+        onFocus={() => setFocus('expiry')}
       />
 
       <wcComponents.TextInput
@@ -156,9 +156,9 @@ const ContentRedeDebit = (props) => {
         label={translationsRedeDebit.securityCode}
         value={debitObject.rede_debit_cvc}
         onChange={(value) => {
-          setFocus('cvc')
           updateDebitObject('rede_debit_cvc', value)
         }}
+        onFocus={() => setFocus('cvc')}
       />
     </>
   )

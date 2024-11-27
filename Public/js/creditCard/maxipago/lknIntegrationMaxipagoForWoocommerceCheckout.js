@@ -167,33 +167,33 @@ const ContentMaxipagoCredit = props => {
     label: translationsMaxipagoCredit.nameOnCard,
     value: creditObject.maxipago_credit_holder_name,
     onChange: value => {
-      setFocus('name');
       updateCreditObject('maxipago_credit_holder_name', value);
-    }
+    },
+    onFocus: () => setFocus('name')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_number",
     label: translationsMaxipagoCredit.cardNumber,
     value: formatCreditCardNumber(creditObject.maxipago_credit_number),
     onChange: value => {
-      setFocus('number');
       updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value));
-    }
+    },
+    onFocus: () => setFocus('number')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_expiry",
     label: translationsMaxipagoCredit.cardExpiringDate,
     value: creditObject.maxipago_credit_expiry,
     onChange: value => {
-      setFocus('expiry');
       updateCreditObject('maxipago_credit_expiry', value);
-    }
+    },
+    onFocus: () => setFocus('expiry')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_credit_cvc",
     label: translationsMaxipagoCredit.securityCode,
     value: creditObject.maxipago_credit_cvc,
     onChange: value => {
-      setFocus('cvc');
       updateCreditObject('maxipago_credit_cvc', value);
-    }
+    },
+    onFocus: () => setFocus('cvc')
   }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
     instanceId: 1,
     className: "lknIntegrationRedeForWoocommerceSelectBlocks",

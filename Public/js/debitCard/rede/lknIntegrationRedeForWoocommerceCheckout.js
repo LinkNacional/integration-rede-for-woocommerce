@@ -120,33 +120,33 @@ const ContentRedeDebit = props => {
     label: translationsRedeDebit.nameOnCard,
     value: debitObject.rede_debit_holder_name,
     onChange: value => {
-      setFocus('name');
       updateDebitObject('rede_debit_holder_name', value);
-    }
+    },
+    onFocus: () => setFocus('name')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_debit_number",
     label: translationsRedeDebit.cardNumber,
     value: formatDebitCardNumber(debitObject.rede_debit_number),
     onChange: value => {
-      setFocus('number');
       updateDebitObject('rede_debit_number', formatDebitCardNumber(value));
-    }
+    },
+    onFocus: () => setFocus('number')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_debit_expiry",
     label: translationsRedeDebit.cardExpiringDate,
     value: debitObject.rede_debit_expiry,
     onChange: value => {
-      setFocus('expiry');
       updateDebitObject('rede_debit_expiry', value);
-    }
+    },
+    onFocus: () => setFocus('expiry')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_debit_cvc",
     label: translationsRedeDebit.securityCode,
     value: debitObject.rede_debit_cvc,
     onChange: value => {
-      setFocus('cvc');
       updateDebitObject('rede_debit_cvc', value);
-    }
+    },
+    onFocus: () => setFocus('cvc')
   }));
 };
 const BlockGatewayRedeDebit = {

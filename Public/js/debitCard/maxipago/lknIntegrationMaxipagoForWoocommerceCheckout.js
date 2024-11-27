@@ -145,33 +145,33 @@ const ContentMaxipagoDebit = props => {
     label: translationsMaxipagoDebit.nameOnCard,
     value: creditObject.maxipago_debit_card_holder_name,
     onChange: value => {
-      setFocus('name');
       updateCreditObject('maxipago_debit_card_holder_name', value);
-    }
+    },
+    onFocus: () => setFocus('name')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_debit_card_number",
     label: translationsMaxipagoDebit.cardNumber,
     value: formatCreditCardNumber(creditObject.maxipago_debit_card_number),
     onChange: value => {
-      setFocus('number');
       updateCreditObject('maxipago_debit_card_number', formatCreditCardNumber(value));
-    }
+    },
+    onFocus: () => setFocus('number')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_debit_card_expiry",
     label: translationsMaxipagoDebit.cardExpiringDate,
     value: creditObject.maxipago_debit_card_expiry,
     onChange: value => {
-      setFocus('expiry');
       updateCreditObject('maxipago_debit_card_expiry', value);
-    }
+    },
+    onFocus: () => setFocus('expiry')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "maxipago_debit_cvc",
     label: translationsMaxipagoDebit.securityCode,
     value: creditObject.maxipago_debit_cvc,
     onChange: value => {
-      setFocus('cvc');
       updateCreditObject('maxipago_debit_cvc', value);
-    }
+    },
+    onFocus: () => setFocus('cvc')
   }));
 };
 const BlockGatewayMaxipagoDebit = {

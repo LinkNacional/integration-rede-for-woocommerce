@@ -141,33 +141,33 @@ const ContentRedeCredit = props => {
     label: translationsRedeCredit.nameOnCard,
     value: creditObject.rede_credit_holder_name,
     onChange: value => {
-      setFocus('name');
       updateCreditObject('rede_credit_holder_name', value);
-    }
+    },
+    onFocus: () => setFocus('name')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_number",
     label: translationsRedeCredit.cardNumber,
     value: formatCreditCardNumber(creditObject.rede_credit_number),
     onChange: value => {
-      setFocus('number');
       updateCreditObject('rede_credit_number', formatCreditCardNumber(value));
-    }
+    },
+    onFocus: () => setFocus('number')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_expiry",
     label: translationsRedeCredit.cardExpiringDate,
     value: creditObject.rede_credit_expiry,
     onChange: value => {
-      setFocus('expiry');
       updateCreditObject('rede_credit_expiry', value);
-    }
+    },
+    onFocus: () => setFocus('expiry')
   }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
     id: "rede_credit_cvc",
     label: translationsRedeCredit.securityCode,
     value: creditObject.rede_credit_cvc,
     onChange: value => {
-      setFocus('cvc');
       updateCreditObject('rede_credit_cvc', value);
-    }
+    },
+    onFocus: () => setFocus('cvc')
   }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
     instanceId: 1,
     className: "lknIntegrationRedeForWoocommerceSelectBlocks",
