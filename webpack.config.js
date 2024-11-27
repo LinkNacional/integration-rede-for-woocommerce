@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production', // ou 'production'
   entry: {
     creditCardMaxipago: './Public/js/creditCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',
     debitCardMaxipago: './Public/js/debitCard/maxipago/lknIntegrationMaxipagoForWoocommerceCheckout.js',
