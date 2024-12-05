@@ -72,7 +72,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
-= 3.5.0 = *2024/11/27*
+= 3.5.0 = *2024/12/05*
 * Update in SDK version;
 * Add animated card in WooCommerce block editor checkout.
 
