@@ -1,3 +1,6 @@
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
 const settingsMaxipagoCredit = window.wc.wcSettings.getSetting('maxipago_credit_data', {})
 const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipagoCredit.title)
 // Obtendo o nonce da variável global
@@ -26,7 +29,7 @@ const ContentMaxipagoCredit = (props) => {
     maxipago_credit_cpf: '',
     maxipago_credit_neighborhood: ''
   })
-
+  const [focus, setFocus] = window.wp.element.useState('')
   const options = []
 
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
@@ -136,6 +139,21 @@ const ContentMaxipagoCredit = (props) => {
 
   return (
     <>
+      <Cards
+        number={creditObject.maxipago_credit_number}
+        name={creditObject.maxipago_credit_holder_name}
+        expiry={(creditObject.maxipago_credit_expiry).replace(/\s+/g, '')}
+        cvc={creditObject.maxipago_credit_cvc}
+        placeholders={{
+          name: 'NOME', 
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
+
       <wcComponents.TextInput
         id="maxipago_credit_cpf"
         label="CPF"
@@ -161,6 +179,7 @@ const ContentMaxipagoCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('maxipago_credit_holder_name', value)
         }}
+        onFocus={() => setFocus('name')}
       />
 
       <wcComponents.TextInput
@@ -170,6 +189,7 @@ const ContentMaxipagoCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('maxipago_credit_number', formatCreditCardNumber(value))
         }}
+        onFocus={() => setFocus('number')}
       />
 
       <wcComponents.TextInput
@@ -179,6 +199,7 @@ const ContentMaxipagoCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('maxipago_credit_expiry', value)
         }}
+        onFocus={() => setFocus('expiry')}
       />
 
       <wcComponents.TextInput
@@ -188,6 +209,7 @@ const ContentMaxipagoCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('maxipago_credit_cvc', value)
         }}
+        onFocus={() => setFocus('cvc')}
       />
 
       {options.length > 1 && (

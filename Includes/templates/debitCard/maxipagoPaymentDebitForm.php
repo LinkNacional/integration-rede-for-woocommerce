@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </p>
         <img
             id="logoMaxipago"
-            src="<?php echo plugins_url( '../../Public/images/maxipago.png', plugin_dir_path(__FILE__) ); ?>"
+            src="<?php echo esc_url(plugins_url( '../../Public/images/maxipago.png', plugin_dir_path(__FILE__) )); ?>"
             alt="Logo Maxipago"
         >
     </div>

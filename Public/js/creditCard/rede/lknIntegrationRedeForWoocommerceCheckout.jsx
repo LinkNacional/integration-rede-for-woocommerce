@@ -1,3 +1,6 @@
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
 const settingsRedeCredit = window.wc.wcSettings.getSetting('rede_credit_data', {})
 const labelRedeCredit = window.wp.htmlEntities.decodeEntities(settingsRedeCredit.title)
 // Obtendo o nonce da variável global
@@ -24,6 +27,8 @@ const ContentRedeCredit = (props) => {
     rede_credit_cvc: '',
     rede_credit_holder_name: ''
   })
+
+  const [focus, setFocus] = window.wp.element.useState('')
 
   const options = []
 
@@ -122,7 +127,20 @@ const ContentRedeCredit = (props) => {
 
   return (
     <>
-
+      <Cards
+        number={creditObject.rede_credit_number}
+        name={creditObject.rede_credit_holder_name}
+        expiry={(creditObject.rede_credit_expiry).replace(/\s+/g, '')}
+        cvc={creditObject.rede_credit_cvc}
+        placeholders={{
+          name: 'NOME', 
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
       <wcComponents.TextInput
         id="rede_credit_holder_name"
         label={translationsRedeCredit.nameOnCard}
@@ -130,6 +148,7 @@ const ContentRedeCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('rede_credit_holder_name', value)
         }}
+        onFocus={() => setFocus('name')}
       />
 
       <wcComponents.TextInput
@@ -139,6 +158,7 @@ const ContentRedeCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('rede_credit_number', formatCreditCardNumber(value))
         }}
+        onFocus={() => setFocus('number')}
       />
 
       <wcComponents.TextInput
@@ -148,6 +168,7 @@ const ContentRedeCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('rede_credit_expiry', value)
         }}
+        onFocus={() => setFocus('expiry')}
       />
 
       <wcComponents.TextInput
@@ -157,6 +178,7 @@ const ContentRedeCredit = (props) => {
         onChange={(value) => {
           updateCreditObject('rede_credit_cvc', value)
         }}
+        onFocus={() => setFocus('cvc')}
       />
 
       {options.length > 1 && (

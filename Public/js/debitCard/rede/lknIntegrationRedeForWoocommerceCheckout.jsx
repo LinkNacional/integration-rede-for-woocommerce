@@ -1,3 +1,6 @@
+import React from 'react';
+import Cards from 'react-credit-cards';
+import 'react-credit-cards/es/styles-compiled.css';
 const settingsRedeDebit = window.wc.wcSettings.getSetting('rede_debit_data', {})
 const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.title)
 // Obtendo o nonce da variável global
@@ -15,6 +18,7 @@ const ContentRedeDebit = (props) => {
     rede_debit_cvc: '',
     rede_debit_holder_name: ''
   })
+  const [focus, setFocus] = window.wp.element.useState('')
 
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number
@@ -103,6 +107,20 @@ const ContentRedeDebit = (props) => {
 
   return (
     <>
+      <Cards
+        number={debitObject.rede_debit_number}
+        name={debitObject.rede_debit_holder_name}
+        expiry={(debitObject.rede_debit_expiry).replace(/\s+/g, '')}
+        cvc={debitObject.rede_debit_cvc}
+        placeholders={{
+          name: 'NOME', 
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
       <wcComponents.TextInput
         id="rede_debit_holder_name"
         label={translationsRedeDebit.nameOnCard}
@@ -110,6 +128,7 @@ const ContentRedeDebit = (props) => {
         onChange={(value) => {
           updateDebitObject('rede_debit_holder_name', value)
         }}
+        onFocus={() => setFocus('name')}
       />
 
       <wcComponents.TextInput
@@ -119,6 +138,7 @@ const ContentRedeDebit = (props) => {
         onChange={(value) => {
           updateDebitObject('rede_debit_number', formatDebitCardNumber(value))
         }}
+        onFocus={() => setFocus('number')}
       />
 
       <wcComponents.TextInput
@@ -128,6 +148,7 @@ const ContentRedeDebit = (props) => {
         onChange={(value) => {
           updateDebitObject('rede_debit_expiry', value)
         }}
+        onFocus={() => setFocus('expiry')}
       />
 
       <wcComponents.TextInput
@@ -137,6 +158,7 @@ const ContentRedeDebit = (props) => {
         onChange={(value) => {
           updateDebitObject('rede_debit_cvc', value)
         }}
+        onFocus={() => setFocus('cvc')}
       />
     </>
   )

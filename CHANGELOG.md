@@ -1,4 +1,8 @@
-# 3.4.2 - 11/11/2024
+# 3.5.0 - 05/12/2024
+- Atualização em versão do SDK;
+- Adição de cartão animado no checkout do editor de blocos WooCommerce.
+
+# 3.4.3 - 11/11/2024
 - Correção de avisos de atributos indefinidos;
 - Correção de declaração de compatibilidade para editor de blocos WooCommerce;
 - Melhoria de tratamento de varáveis de pagamento.

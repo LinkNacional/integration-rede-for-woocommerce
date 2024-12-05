@@ -6,7 +6,13 @@
     "type": "git",
     "url": "git+https://github.com/srbrunoferreira/docker-php-dev-container.git"
   },
-  "keywords": ["WordPress", "WHMCS", "plugin", "Dev Container", "VS Code"],
+  "keywords": [
+    "WordPress",
+    "WHMCS",
+    "plugin",
+    "Dev Container",
+    "VS Code"
+  ],
   "author": "Bruno Ferreira <srbrunoferreira@outlook.com>",
   "license": "MIT",
   "bugs": {
@@ -14,11 +20,21 @@
   },
   "homepage": "https://github.com/srbrunoferreira/docker-php-dev-container#readme",
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
     "eslint": "^8.34.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.6.1",
-    "eslint-plugin-promise": "^6.1.1"
+    "eslint-plugin-promise": "^6.1.1",
+    "style-loader": "^4.0.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "react-credit-cards": "^0.8.3"
   }
 }
