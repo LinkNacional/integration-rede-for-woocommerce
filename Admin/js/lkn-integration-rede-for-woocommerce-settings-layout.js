@@ -80,28 +80,28 @@
                         switch(lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar){
                             case 1:
                                 if(index == 0 || index == 1) {
-                                    table.style.display = 'block';
+                                    table.style.display = 'flex';
                                 }else{
                                     table.style.display = 'none';
                                 }
                             break;
                             case 2:
                                 if(index == 2) {
-                                    table.style.display = 'block';
+                                    table.style.display = 'flex';
                                 }else{
                                     table.style.display = 'none';
                                 }
                             break
                             case 3:
                                 if(index == 3) {
-                                    table.style.display = 'block';
+                                    table.style.display = 'flex';
                                 }else{
                                     table.style.display = 'none';
                                 }
                             break
                             case 4:
                                 if(index == 4) {
-                                    table.style.display = 'block';
+                                    table.style.display = 'flex';
                                 }else{
                                     table.style.display = 'none';
                                 }

@@ -77,6 +77,39 @@ textarea:disabled {
     color: black;
 }
 
+#lknIntegrationRedeForWoocommerceSettingsCard {
+    min-width: 325px;
+    width: 325px;
+    height: 185px;
+    background-color: #121519;
+    border-radius: 10px;
+    margin-bottom: 150px;
+    background-position: right bottom, left top calc(15px);
+    background-repeat: no-repeat;
+    display: flex;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCard img{
+    height: 25px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCardTable{
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 1150px) {
+    #lknIntegrationRedeForWoocommerceSettingsCardTable {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #lknIntegrationRedeForWoocommerceSettingsCard{
+        margin-bottom: 0px;
+    }
+}
 
 @media (max-width: 782px) {
     .lknIntegrationRedeForWoocommerceTooltiptext {

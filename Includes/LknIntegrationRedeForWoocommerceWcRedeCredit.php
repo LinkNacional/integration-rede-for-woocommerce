@@ -125,6 +125,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
         
         $this->form_fields = array(
+            'rede' => array(
+                'title' => esc_attr__( 'General', 'woo-rede' ),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => esc_attr__( 'Enable/Disable', 'woo-rede' ),
                 'type' => 'checkbox',
@@ -135,12 +139,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__( 'Title', 'woo-rede' ),
                 'type' => 'text',
                 'default' => esc_attr__( 'Pay with the Rede Credit', 'woo-rede' ),
-            ),
-
-            'rede' => array(
-                'title' => esc_attr__( 'General', 'woo-rede' ),
-                'type' => 'title',
-            ),
+            ),            
             'environment' => array(
                 'title' => esc_attr__( 'Environment', 'woo-rede' ),
                 'type' => 'select',

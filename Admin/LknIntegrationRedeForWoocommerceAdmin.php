@@ -124,6 +124,19 @@ final class LknIntegrationRedeForWoocommerceAdmin {
 
         if ( 'wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true) ) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
+            wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);
+            wc_get_template(
+                'adminCard/adminSettingsCard.php',
+                array(
+                    'backgrounds' => array(
+                        'right' => plugin_dir_url(__FILE__) . 'images/backgroundCardRight.svg',
+                        'left' => plugin_dir_url(__FILE__) . 'images/backgroundCardLeft.svg'
+                    ),
+                    'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp'
+                ),
+                'woocommerce/adminSettingsCard/',
+                plugin_dir_path( __FILE__ ) . '../Includes/templates/'
+            );
         }
 
         // Localize the script with custom data
