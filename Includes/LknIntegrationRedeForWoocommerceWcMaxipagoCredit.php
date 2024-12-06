@@ -78,8 +78,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             return false;
         }
 
-        if (strlen($_POST['maxipago_credit_cvc']) < 3 || strlen($_POST['maxipago_credit_cvc']) > 4) {
-            wc_add_notice(esc_attr__('Card security code must be 3 or 4 digits long', 'woo-rede'), 'error');
+        if (strlen($_POST['maxipago_credit_cvc']) < 3) {
+            wc_add_notice(esc_attr__('Card security code must be 3 digits long', 'woo-rede'), 'error');
             return false;
         }
 
