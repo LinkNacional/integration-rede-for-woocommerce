@@ -88,7 +88,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         if (strlen($_POST['rede_credit_cvc']) < 3) {
-            wc_add_notice(esc_attr__('Card security code must be 3 digits long', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
             return false;
         }
 
