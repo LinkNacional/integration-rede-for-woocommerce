@@ -122,7 +122,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
         $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
-        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede'). 2.1;
+        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION;
         if(defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')){
             $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
