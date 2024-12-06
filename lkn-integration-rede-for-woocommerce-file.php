@@ -5,7 +5,7 @@ use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceA
 use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
 
 // If this file is called directly, abort.
-if ( ! defined('WPINC')) {
+if (! defined('WPINC')) {
     die;
 }
 
@@ -16,38 +16,39 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
-    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.5.0');
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.5.1');
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR', plugin_dir_path(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE));
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME', plugin_basename(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE));
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL', plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE));
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME', plugin_basename(__DIR__ . '/integration-rede-for-woocommerce.php'));
 }
 
-if ( ! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
 }
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
  */
-function activate_LknIntegrationRedeForWoocommerce(): void {
+function activate_LknIntegrationRedeForWoocommerce(): void
+{
     LknIntegrationRedeForWoocommerceActivator::activate();
 }
 
@@ -55,7 +56,8 @@ function activate_LknIntegrationRedeForWoocommerce(): void {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceDeactivator.php
  */
-function deactivate_LknIntegrationRedeForWoocommerce(): void {
+function deactivate_LknIntegrationRedeForWoocommerce(): void
+{
     LknIntegrationRedeForWoocommerceDeactivator::deactivate();
 }
 
@@ -71,7 +73,8 @@ register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerc
  *
  * @since    1.0.0
  */
-function run_LknIntegrationRedeForWoocommerce(): void {
+function run_LknIntegrationRedeForWoocommerce(): void
+{
     $plugin = new LknIntegrationRedeForWoocommerce();
     $plugin->run();
 }

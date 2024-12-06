@@ -1,3 +1,6 @@
+# 3.5.1 - 06/12/2024
+- Correção de segurança no CVV do cartão(Debito e crédito).
+
 # 3.5.0 - 05/12/2024
 - Atualização em versão do SDK;
 - Adição de cartão animado no checkout do editor de blocos WooCommerce.
