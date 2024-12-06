@@ -78,17 +78,63 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
-    min-width: 325px;
-    width: 325px;
-    height: 185px;
+    color: white;
+    min-width: 370px;
+    width: 370px;
+    height: 192px;
     background-color: #121519;
     border-radius: 10px;
     margin-bottom: 150px;
     background-position: right bottom, left top calc(15px);
     background-repeat: no-repeat;
     display: flex;
-    padding: 20px;
+    flex-direction: column;
+    padding: 15px 45px 15px 20px;
     box-sizing: border-box;
+    gap: 20px;
+}
+
+#lknIntegrationRedeForWoocommerceDivLogo{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: inter;
+    font-weight: 500;
+}
+
+#lknIntegrationRedeForWoocommerceDivLogo p{
+    margin: 0;
+    font-size: x-small;
+}
+
+#lknIntegrationRedeForWoocommerDivLinks{
+    display: flex;
+    justify-content: space-between;
+}
+
+#lknIntegrationRedeForWoocommerDivLinks div{
+    display: flex;
+    flex-direction: column;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCard a {
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: small;
+}
+
+#lknIntegrationRedeForWoocommerDivLinks a b{
+    color: #D1D838;
+    font-size: x-large;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard img{
@@ -100,7 +146,32 @@ textarea:disabled {
     align-items: center;
 }
 
-@media (max-width: 1150px) {
+#lknIntegrationRedeForWoocommerStarsDiv img{
+    height: 10px;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv{
+    width: fit-content;
+}
+
+
+#lknIntegrationRedeForWoocommerStarsDiv a{
+    flex-direction: column;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv p{
+    margin: 0;
+    font-size: x-small;
+    font-family: inter;
+}
+
+#lknIntegrationRedeForWoocommerDivContent{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+@media (max-width: 1205px) {
     #lknIntegrationRedeForWoocommerceSettingsCardTable {
         flex-direction: column;
         align-items: flex-start;
@@ -108,6 +179,15 @@ textarea:disabled {
 
     #lknIntegrationRedeForWoocommerceSettingsCard{
         margin-bottom: 0px;
+        margin-top: 15px;
+    }
+
+    #lknIntegrationRedeForWoocommerDivLinks div{
+        gap: 10px;
+    }
+
+    #lknIntegrationRedeForWoocommerDivContent{
+        gap: 18px;
     }
 }
 

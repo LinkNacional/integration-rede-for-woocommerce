@@ -9,16 +9,34 @@ if (!defined('ABSPATH')) {
         <div>
             <img src=<?php echo esc_url($logo); ?> alt="Logo">
         </div>
-        <p>Plugin Rede API v3.1 | PRO v2.1</p>
+        <p><?php echo esc_attr($versions); ?></p>
     </div>
-    <div id="lknIntegrationRedeForWoocommerDivLinks">
-        <div>
-            <p>Documentação</p>
-            <p>WordPress VIP</p>
+    <div id="lknIntegrationRedeForWoocommerDivContent">
+        <div id="lknIntegrationRedeForWoocommerDivLinks">
+            <div>
+                <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin'); ?>>
+                    <b>•</b><?php echo esc_attr_e('Documentation', 'woo-rede'); ?>
+                </a>
+                <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin'); ?>>
+                    <b>•</b><?php echo esc_attr_e('WordPress VIP', 'woo-rede'); ?>
+                </a>            
+            </div>
+            <div>
+                <a target="_blank" href=<?php echo esc_url('https://t.me/wpprobr'); ?>>
+                    <b>•</b><?php echo esc_attr_e('Support via Telegram', 'woo-rede'); ?>
+                </a>
+                <a target="_blank" href=<?php echo esc_url('https://cliente.linknacional.com.br/solicitar/wordpress-woo-gratis/?utm=plugin'); ?>>
+                    <b>•</b><?php echo esc_attr_e('Free WP Hosting', 'woo-rede'); ?>
+                </a>
+            </div>
         </div>
-        <div>
-            <p>Suporte via Telegram</p>
-            <p>Hospedagem WP Grátis</p>
+        <div id="lknIntegrationRedeForWoocommerStarsDiv">
+            <a target="_blank" href=<?php echo esc_url('https://wordpress.org/support/plugin/woo-rede/reviews/#new-post'); ?>>
+                <p><?php echo esc_attr_e('Rate Plugin', 'woo-rede'); ?></p>
+                <div>
+                    <img src=<?php echo esc_url($stars); ?> alt="Logo">
+                </div>
+            </a>
         </div>
     </div>
 </div>

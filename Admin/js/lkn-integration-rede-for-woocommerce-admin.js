@@ -17,7 +17,7 @@
       noticeDiv.setAttribute('style', 'background-color: #fcf9e8;color: #646970;border: solid 1px #d3d3d3;border-left: 4px #dba617 solid;font-size: 16px;margin-top: 10px;')
 
       noticeDiv.innerHTML = '<a  href="https://cliente.linknacional.com.br/solicitar/wordpress-woo-gratis/" target="_blank" style="text-decoration:none; display: block;padding: 10px;">' + lknPhpVariables.freeHost + '</a>'
-
+      noticeDiv.id = 'lknIntegrationRedeForWoocommerceSettingsNoticeDiv'
       const lknCieloNoticeDiv = document.createElement('div')
       lknCieloNoticeDiv.setAttribute('style', 'padding: 10px 5px;background-color: #fcf9e8;color: #646970;border: solid 1px lightgrey;border-left-color: #dba617;border-left-width: 4px;font-size: 14px;margin-top: 10px;')
       lknCieloNoticeDiv.setAttribute('id', 'lkn-cielo-pro-notice')

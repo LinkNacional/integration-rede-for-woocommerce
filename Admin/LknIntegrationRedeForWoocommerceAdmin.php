@@ -122,6 +122,11 @@ final class LknIntegrationRedeForWoocommerceAdmin {
         $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
+        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede'). 2.1;
+        if(defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')){
+            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
+        }
+
         if ( 'wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true) ) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);
@@ -132,7 +137,10 @@ final class LknIntegrationRedeForWoocommerceAdmin {
                         'right' => plugin_dir_url(__FILE__) . 'images/backgroundCardRight.svg',
                         'left' => plugin_dir_url(__FILE__) . 'images/backgroundCardLeft.svg'
                     ),
-                    'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp'
+                    'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp',
+                    'stars' => plugin_dir_url(__FILE__) . 'images/stars.svg',
+                    'versions' => $versions
+                    
                 ),
                 'woocommerce/adminSettingsCard/',
                 plugin_dir_path( __FILE__ ) . '../Includes/templates/'

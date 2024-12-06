@@ -419,4 +419,19 @@ msgid "Installments"
 msgstr ""
 
 msgid "Brand"
-msgstr "
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "WordPress VIP"
+msgstr ""
+
+msgid "Support via Telegram"
+msgstr ""
+
+msgid "Free WP Hosting"
+msgstr ""
+
+msgid "Rate Plugin"
+msgstr ""

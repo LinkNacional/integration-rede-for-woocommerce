@@ -609,6 +609,26 @@ msgstr "Parcelas"
 msgid "Brand"
 msgstr "Bandeira"
 
+#: Admin/templates/adminSettingsCard.php:13
+msgid "Documentation"
+msgstr "Documentação"
+
+#: Admin/templates/adminSettingsCard.php:16
+msgid "WordPress VIP"
+msgstr "WordPress VIP"
+
+#: Admin/templates/adminSettingsCard.php:20
+msgid "Support via Telegram"
+msgstr "Suporte via Telegram"
+
+#: Admin/templates/adminSettingsCard.php:23
+msgid "Free WP Hosting"
+msgstr "Hospedagem WP Grátis"
+
+#: Admin/templates/adminSettingsCard.php:28
+msgid "Rate Plugin"
+msgstr "Avaliar Plugin"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"

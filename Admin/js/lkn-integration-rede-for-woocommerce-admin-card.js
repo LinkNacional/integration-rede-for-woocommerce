@@ -24,12 +24,29 @@
     ]
     if (adminPage && pluginPages.includes(adminPage)) {
       const wcForm = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
+      const noticeDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsNoticeDiv')
       const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard');
       const secondFormTable = wcForm.querySelectorAll('.form-table')[1];
       if (secondFormTable && cardDiv) {
-        secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable';        
-        secondFormTable.appendChild(cardDiv);
+        wcForm.appendChild(noticeDiv);
+        if(window.innerWidth <= 1205){
+          wcForm.appendChild(cardDiv);
+        }else{
+          secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable';        
+          secondFormTable.appendChild(cardDiv);
+        }
         cardDiv.style.display = 'flex';
+
+        const adjustCardDivPosition = () => {
+          if (window.innerWidth <= 1205) {
+              wcForm.appendChild(cardDiv);
+          } else {
+              secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable';
+              secondFormTable.appendChild(cardDiv);
+          }
+        };
+        
+        window.addEventListener('resize', adjustCardDivPosition);
       }
     }
   })
