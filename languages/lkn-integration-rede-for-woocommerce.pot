@@ -989,3 +989,21 @@ msgstr ""
 #: Includes/views/notices/html-notice-woocommerce-missing.php:35
 msgid "WooCommerce"
 msgstr ""
+
+msgid "Brand"
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "WordPress VIP"
+msgstr ""
+
+msgid "Support via Telegram"
+msgstr ""
+
+msgid "Free WP Hosting"
+msgstr ""
+
+msgid "Rate Plugin"
+msgstr ""

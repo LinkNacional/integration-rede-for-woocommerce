@@ -142,6 +142,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
 
         $this->form_fields = array(
+            'rede' => array(
+                'title' => esc_attr__( 'General', 'woo-rede' ),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => esc_attr__('Enable/Disable', 'woo-rede'),
                 'type' => 'checkbox',
