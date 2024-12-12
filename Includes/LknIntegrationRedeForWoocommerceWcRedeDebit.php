@@ -175,9 +175,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'type' => 'password',
                 'description' => esc_attr__('Your Rede PV (affiliation number).', 'woo-rede'),
                 'desc_tip' => true,
-                'custom_attributes' => array(
-                    'required' => 'required'
-                ),
                 'default' => $options['pv'] ?? '',
             ),
             'token' => array(
@@ -185,9 +182,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'type' => 'password',
                 'description' => esc_attr__('Your Rede Token.', 'woo-rede'),
                 'desc_tip' => true,
-                'custom_attributes' => array(
-                    'required' => 'required'
-                ),
                 'default' => $options['token'] ?? '',
             ),
 

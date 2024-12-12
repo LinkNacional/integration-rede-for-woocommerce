@@ -72,7 +72,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
-= 3.5.1 = *2024/12/06*
+= 3.5.1 = *2024/12/13*
 * Security correction in the card CVV (debit and credit).
 
 = 3.5.0 = *2024/12/05*

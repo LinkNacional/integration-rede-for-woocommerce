@@ -1,4 +1,4 @@
-# 3.5.1 - 06/12/2024
+# 3.5.1 - 13/12/2024
 - Correção de segurança no CVV do cartão(Debito e crédito).
 
 # 3.5.0 - 05/12/2024
