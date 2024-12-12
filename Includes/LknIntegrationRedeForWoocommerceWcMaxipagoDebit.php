@@ -167,9 +167,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'description' => __('Your Maxipago Merchant ID.', 'woo-rede'),
                 'default' => '',
                 'desc_tip' => true,
-                'custom_attributes' => array(
-                    'required' => 'required'
-                ),
             ),
             'merchant_key' => array(
                 'title' => __('Merchant Key', 'woo-rede'),
@@ -177,9 +174,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'description' => __('Your Maxipago Merchant Key.', 'woo-rede'),
                 'default' => '',
                 'desc_tip' => true,
-                'custom_attributes' => array(
-                    'required' => 'required'
-                ),
             ),
             'enabled_fix_load_script' => array(
                 'title' => __('Load on checkout', 'woo-rede'),
