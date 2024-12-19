@@ -1,3 +1,6 @@
+# 3.5.2 - 18/12/2024
+- Correção de erro fatal em chamada de função de tradução.
+
 # 3.5.1 - 13/12/2024
 - Correção de segurança no CVV do cartão(Debito e crédito).
 

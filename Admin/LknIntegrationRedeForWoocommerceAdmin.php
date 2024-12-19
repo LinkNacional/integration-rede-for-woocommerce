@@ -124,7 +124,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
 
         $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION;
         if(defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')){
-            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
+            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
         if ( 'wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true) ) {
