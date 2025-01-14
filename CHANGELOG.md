@@ -1,3 +1,6 @@
+# 3.5.3 - 14/01/2025
+- Correção de valor total do pedido quando exitem taxas de entrega.
+
 # 3.5.2 - 18/12/2024
 - Correção de erro fatal em chamada de função de tradução.
 
