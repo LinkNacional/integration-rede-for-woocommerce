@@ -166,6 +166,7 @@ const ContentMaxipagoCredit = props => {
     id: "maxipago_credit_holder_name",
     label: translationsMaxipagoCredit.nameOnCard,
     value: creditObject.maxipago_credit_holder_name,
+    maxLength: 50,
     onChange: value => {
       updateCreditObject('maxipago_credit_holder_name', value);
     },
