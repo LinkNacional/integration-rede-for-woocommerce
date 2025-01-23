@@ -1,5 +1,5 @@
 (function ($) {
-  function lknFindGetParameter (parameterName) {
+  function lknFindGetParameter(parameterName) {
     let result = null
     let tmp = []
     location.search
@@ -21,32 +21,33 @@
       'rede_credit',
       'rede_debit',
       'rede_pix',
+      'integration_rede_pix'
     ]
     if (adminPage && pluginPages.includes(adminPage)) {
-      const wcForm = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
+      const wcForm = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv')
       const noticeDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsNoticeDiv')
-      const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard');
-      const secondFormTable = wcForm.querySelectorAll('.form-table')[1];
+      const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard')
+      const secondFormTable = wcForm.querySelectorAll('.form-table')[1]
       if (secondFormTable && cardDiv) {
-        wcForm.appendChild(noticeDiv);
-        if(window.innerWidth <= 1205){
-          wcForm.appendChild(cardDiv);
-        }else{
-          secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable';        
-          secondFormTable.appendChild(cardDiv);
+        wcForm.appendChild(noticeDiv)
+        if (window.innerWidth <= 1205) {
+          wcForm.appendChild(cardDiv)
+        } else {
+          secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
+          secondFormTable.appendChild(cardDiv)
         }
-        cardDiv.style.display = 'flex';
+        cardDiv.style.display = 'flex'
 
         const adjustCardDivPosition = () => {
           if (window.innerWidth <= 1205) {
-              wcForm.appendChild(cardDiv);
+            wcForm.appendChild(cardDiv)
           } else {
-              secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable';
-              secondFormTable.appendChild(cardDiv);
+            secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
+            secondFormTable.appendChild(cardDiv)
           }
-        };
-        
-        window.addEventListener('resize', adjustCardDivPosition);
+        }
+
+        window.addEventListener('resize', adjustCardDivPosition)
       }
     }
   })

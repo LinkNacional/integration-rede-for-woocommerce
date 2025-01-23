@@ -1,4 +1,5 @@
 <?php
+
 namespace Lkn\IntegrationRedeForWoocommerce\Admin;
 
 /**
@@ -21,7 +22,8 @@ namespace Lkn\IntegrationRedeForWoocommerce\Admin;
  * @subpackage LknIntegrationRedeForWoocommerce/admin
  * @author     Link Nacional <contato@linknacional.com>
  */
-final class LknIntegrationRedeForWoocommerceAdmin {
+final class LknIntegrationRedeForWoocommerceAdmin
+{
     /**
      * The ID of this plugin.
      *
@@ -47,7 +49,8 @@ final class LknIntegrationRedeForWoocommerceAdmin {
      * @param      string    $plugin_name       The name of this plugin.
      * @param      string    $version    The version of this plugin.
      */
-    public function __construct($plugin_name, $version) {
+    public function __construct($plugin_name, $version)
+    {
         $this->plugin_name = $plugin_name;
         $this->version = $version;
     }
@@ -57,7 +60,8 @@ final class LknIntegrationRedeForWoocommerceAdmin {
      *
      * @since    1.0.0
      */
-    public function enqueue_styles(): void {
+    public function enqueue_styles(): void
+    {
         /**
          * This function is provided for demonstration purposes only.
          *
@@ -77,7 +81,8 @@ final class LknIntegrationRedeForWoocommerceAdmin {
      *
      * @since    1.0.0
      */
-    public function enqueue_scripts(): void {
+    public function enqueue_scripts(): void
+    {
         /**
          * This function is provided for demonstration purposes only.
          *
@@ -90,7 +95,7 @@ final class LknIntegrationRedeForWoocommerceAdmin {
          * class.
          */
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
-        
+
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
             'proSettings' => __('PRO Settings', 'woo-rede'),
             'license' => __('License', 'woo-rede'),
@@ -115,7 +120,8 @@ final class LknIntegrationRedeForWoocommerceAdmin {
             'rede_credit',
             'rede_debit',
             'maxipago_pix',
-            'rede_pix'
+            'rede_pix',
+            'integration_rede_pix'
         );
 
         $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
@@ -123,11 +129,11 @@ final class LknIntegrationRedeForWoocommerceAdmin {
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
         $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION;
-        if(defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')){
+        if (defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')) {
             $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
-        if ( 'wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true) ) {
+        if ('wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true)) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);
             wc_get_template(
@@ -140,10 +146,10 @@ final class LknIntegrationRedeForWoocommerceAdmin {
                     'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp',
                     'stars' => plugin_dir_url(__FILE__) . 'images/stars.svg',
                     'versions' => $versions
-                    
+
                 ),
                 'woocommerce/adminSettingsCard/',
-                plugin_dir_path( __FILE__ ) . '../Includes/templates/'
+                plugin_dir_path(__FILE__) . '../Includes/templates/'
             );
         }
 
