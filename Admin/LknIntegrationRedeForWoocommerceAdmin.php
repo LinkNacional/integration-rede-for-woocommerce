@@ -128,9 +128,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
         $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
-        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION;
+        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede'). 2.1;
         if (defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')) {
-            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
+            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
         if ('wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true)) {
@@ -164,6 +164,22 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
             'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
+        ));
+
+        wp_enqueue_script(
+            $this->plugin_name . '-endpoint',
+            plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-endpoint.js',
+            array('jquery', 'wp-api'),
+            $this->version,
+            false
+        );
+
+        wp_localize_script($this->plugin_name . '-endpoint', 'lknRedeForWoocommerceProSettings', array(
+            'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false),
+            'translations' => array(
+                'endpointSuccess' => __('Request received!', 'woo-rede'),
+                'endpointError' => __('No requests received!', 'woo-rede'),
+            ),
         ));
     }
 }

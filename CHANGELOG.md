@@ -1,3 +1,6 @@
+# 3.6.0 - 24/01/2025
+- Novo modo de pagamento via pix(rede).
+
 # 3.5.3 - 14/01/2025
 - Correção de valor total do pedido quando exitem taxas de entrega.
 

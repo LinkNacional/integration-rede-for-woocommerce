@@ -134,10 +134,10 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         wc_get_template(
             '/pixRedePaymentPaymentFields.php',
             array(),
-            'woocommerce/rede/',
+            'woocommerce/integration-rede/',
             plugin_dir_path(__FILE__) . 'templates/pix/'
         );
-        wp_enqueue_style('woo-integration-rede-pix-style', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePaymentFields.css', array(), '1.0.0', 'all');
+        wp_enqueue_style('integration-rede-pix-style', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePaymentFields.css', array(), '1.0.0', 'all');
     }
 
     final public function get_logger()
@@ -169,7 +169,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     $reference = uniqid();
                 }
 
-                $pix = LknIntegrationRedeForWoocommerceWcHelper::getPixRede($order->get_total(), $this, $reference, $order);
+                $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
                     throw new Exception(__('PV or Token is invalid!', 'woo-rede'));
                 }
@@ -234,7 +234,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
             return true;
         }
 
-        $refund = LknIntegrationRedeForWoocommerceWcHelper::refundPixRede($amount, $this, $orderId);
+        $refund = LknIntegrationRedeForWoocommerceWcPixHelper::refundPixRede($amount, $this, $orderId);
         if ('yes' == $this->debug) {
             $this->log->log('info', $this->id, array(
                 'order' => array(
@@ -246,7 +246,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         if ('359' == $refund['returnCode']) {
             return true;
         } else {
-            throw new Exception($refund['returnMessage']);
+            throw new Exception(esc_html($refund['returnMessage']));
         }
     }
 
@@ -272,7 +272,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 '_wc_rede_integration_pix_transaction_tid' => esc_attr__('TID', 'woo-rede'),
             );
 
-            LknIntegrationRedeForWoocommerceWcHelper::generateMetaTable($order, $metaKeys, 'Rede');
+            LknIntegrationRedeForWoocommerceWcPixHelper::generateMetaTable($order, $metaKeys, 'Rede');
         }
     }
 
@@ -298,18 +298,18 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     'dueDateMsg' => $formattedDate,
                     'donationId' => $order->get_id()
                 ),
-                'woocommerce/pix/',
+                'woocommerce/integration-pix/',
                 plugin_dir_path(__FILE__) . 'templates/pix/'
             );
-            wp_enqueue_style('woo-integration-rede-pix-style', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePix.css', array(), '1.0.0', 'all');
+            wp_enqueue_style('integration-rede-pix-style', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePix.css', array(), '1.0.0', 'all');
 
-            if (get_current_theme() == 'Divi') {
-                wp_enqueue_style('woo-integration-rede-pix-style-divi', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePixDivi.css', array(), '1.0.0', 'all');
+            if (wp_get_theme()->get('Name') == 'Divi') {
+                wp_enqueue_style('integration-rede-pix-style-divi', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePixDivi.css', array(), '1.0.0', 'all');
             }
 
-            wp_enqueue_script('woo-rede-pix-js', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/js/pix/LknIntegrationRedeForWoocommercePix.js', array(), '1.0.0', 'all');
-            wp_localize_script('woo-rede-pix-js', 'currentTheme', wp_get_theme()->get('Name'));
-            wp_localize_script('woo-rede-pix-js', 'phpVarsPix', array(
+            wp_enqueue_script('integration-rede-pix-js', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/js/pix/LknIntegrationRedeForWoocommercePix.js', array(), '1.0.0', 'all');
+            wp_localize_script('integration-rede-pix-js', 'currentTheme', wp_get_theme()->get('Name'));
+            wp_localize_script('integration-rede-pix-js', 'phpVarsPix', array(
                 'copied' => __('COPIED', 'woo-rede'),
                 'copy' => __('COPY', 'woo-rede'),
                 'shareError' => __('Sharing is not supported in this browser.', 'woo-rede'),

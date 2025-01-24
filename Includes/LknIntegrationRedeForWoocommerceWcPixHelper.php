@@ -4,7 +4,7 @@ namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
 use DateTime;
 
-final class LknIntegrationRedeForWoocommerceWcHelper
+final class LknIntegrationRedeForWoocommerceWcPixHelper
 {
     public static function getPixRede($total, $pixInstance, $reference, $order)
     {
@@ -40,7 +40,7 @@ final class LknIntegrationRedeForWoocommerceWcHelper
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Basic ' . $auth
             ),
-            'body' => json_encode($body),
+            'body' => wp_json_encode($body),
         ));
 
         $response_body = wp_remote_retrieve_body($response);
@@ -74,7 +74,7 @@ final class LknIntegrationRedeForWoocommerceWcHelper
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Basic ' . $auth
             ),
-            'body' => json_encode($body),
+            'body' => wp_json_encode($body),
         ));
 
         $response_body = wp_remote_retrieve_body($response);

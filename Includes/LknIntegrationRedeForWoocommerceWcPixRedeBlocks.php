@@ -22,9 +22,9 @@ final class LknIntegrationRedeForWoocommerceWcPixRedeBlocks extends AbstractPaym
 
     public function get_payment_method_script_handles()
     {
-        wp_enqueue_style('woo-rede-pix-style-blocks', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePaymentFields.css', array(), '1.0.0', 'all');
+        wp_enqueue_style('integration-rede-pix-style-blocks', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/css/rede/LknIntegrationRedeForWoocommercePaymentFields.css', array(), '1.0.0', 'all');
         wp_register_script(
-            'rede_pix-blocks-integration',
+            'rede-pix-blocks-integration',
             plugin_dir_url(__FILE__) . '../Public/js/pix/LknIntegrationRedeForWoocommercePixRede.js',
             array(
                 'wc-blocks-registry',
@@ -37,10 +37,10 @@ final class LknIntegrationRedeForWoocommerceWcPixRedeBlocks extends AbstractPaym
             true
         );
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('rede_pix-blocks-integration');
+            wp_set_script_translations('rede-pix-blocks-integration');
         }
 
-        return array('rede_pix-blocks-integration');
+        return array('rede-pix-blocks-integration');
     }
 
     public function get_payment_method_data()

@@ -5,10 +5,10 @@ if (! defined('ABSPATH')) {
 
 ?>
 <div id="LknIntegrationRedeForWoocommercePaymentFields">
-    <p><?php esc_html_e('Pay for your purchase with a pix through ', 'rede-for-woocommerce-pro'); ?>
+    <p><?php esc_html_e('Pay for your purchase with a pix through ', 'woo-rede'); ?>
     </p>
     <svg
-        id="logo-rede"
+        id="integration-logo-rede"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 480.72 156.96"
     >

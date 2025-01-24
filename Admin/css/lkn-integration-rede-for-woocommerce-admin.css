@@ -47,13 +47,13 @@ textarea:disabled {
     color: #FF0D08;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutDiv{
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
     padding: 10px 24px;
     background-color: #FFFFFF;
     border-radius: 10px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutMenu{
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
     height: 27px;
 }
 
@@ -94,7 +94,7 @@ textarea:disabled {
     gap: 20px;
 }
 
-#lknIntegrationRedeForWoocommerceDivLogo{
+#lknIntegrationRedeForWoocommerceDivLogo {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -102,17 +102,17 @@ textarea:disabled {
     font-weight: 500;
 }
 
-#lknIntegrationRedeForWoocommerceDivLogo p{
+#lknIntegrationRedeForWoocommerceDivLogo p {
     margin: 0;
     font-size: x-small;
 }
 
-#lknIntegrationRedeForWoocommerDivLinks{
+#lknIntegrationRedeForWoocommerDivLinks {
     display: flex;
     justify-content: space-between;
 }
 
-#lknIntegrationRedeForWoocommerDivLinks div{
+#lknIntegrationRedeForWoocommerDivLinks div {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -134,49 +134,61 @@ textarea:disabled {
     font-size: small;
 }
 
-#lknIntegrationRedeForWoocommerDivLinks a b{
+#lknIntegrationRedeForWoocommerDivLinks a b {
     color: #D1D838;
     font-size: small;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCard img{
+#lknIntegrationRedeForWoocommerceSettingsCard img {
     height: 25px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCardTable{
+#lknIntegrationRedeForWoocommerceSettingsCardTable {
     display: flex;
     align-items: center;
 }
 
-#lknIntegrationRedeForWoocommerStarsDiv img{
+#lknIntegrationRedeForWoocommerStarsDiv img {
     height: 10px;
 }
 
-#lknIntegrationRedeForWoocommerStarsDiv{
+#lknIntegrationRedeForWoocommerStarsDiv {
     width: fit-content;
 }
 
 
-#lknIntegrationRedeForWoocommerStarsDiv a{
+#lknIntegrationRedeForWoocommerStarsDiv a {
     flex-direction: column;
 }
 
-#lknIntegrationRedeForWoocommerStarsDiv p{
+#lknIntegrationRedeForWoocommerStarsDiv p {
     margin: 0;
     font-size: x-small;
     font-family: 'Inter';
     width: 100%;
 }
 
-#lknIntegrationRedeForWoocommerDivContent{
+#lknIntegrationRedeForWoocommerDivContent {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCard{
+#lknIntegrationRedeForWoocommerceSettingsCard {
     margin-bottom: 125px;
     gap: 25px;
+}
+
+/* Endpoint */
+#integrationwoocommerceRedePixEndpointField {
+    display: flex;
+    gap: 40px;
+}
+
+#integrationwoocommerceRedePixEndpointAlert {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 @media (max-width: 1205px) {
@@ -184,11 +196,12 @@ textarea:disabled {
         flex-direction: column;
         align-items: flex-start;
     }
+
     #lknIntegrationRedeForWoocommerceSettingsCard {
         margin-top: 25px;
         margin-bottom: 15px;
     }
-    
+
 }
 
 @media (max-width: 782px) {

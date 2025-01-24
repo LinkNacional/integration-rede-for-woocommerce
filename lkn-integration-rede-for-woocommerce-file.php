@@ -17,7 +17,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Rename this for your plugin and update it as you release new versions.
  */
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
-    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.5.3');
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.6.0');
 }
 
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {

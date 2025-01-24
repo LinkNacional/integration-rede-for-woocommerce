@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
     exit();
 }
 $theme = wp_get_theme();
@@ -18,7 +18,7 @@ $selectStyle = '';
     class="rede-payment-form"
 >
     <div class="payment-method-description">
-        <p><?php esc_html_e( 'Pay for your purchase with a credit card through', 'woo-rede' ); ?>
+        <p><?php esc_html_e('Pay for your purchase with a credit card through', 'woo-rede'); ?>
         </p>
         <svg
             id="logo-rede"
@@ -50,7 +50,7 @@ $selectStyle = '';
                     id="labels-with-icons"
                     for="rede-card-holder-name"
                 >
-                    <?php esc_attr_e( 'Name on Card', 'woo-rede' ); ?><span
+                    <?php esc_attr_e('Name on Card', 'woo-rede'); ?><span
                         class="required"
                     >*</span>
                     <div class="icon-rede-input">
@@ -87,9 +87,10 @@ $selectStyle = '';
                     name="rede_credit_holder_name"
                     class="input-text"
                     type="text"
-                    placeholder=<?php esc_attr_e( 'Name', 'woo-rede' ); ?>
-                    maxlength="22" autocomplete="off"
-                    style="font-size: 1.5em; padding: 8px 45px;"/>
+                    placeholder=<i
+                ></i><!-- %pcs-comment-start#<?php esc_attr_e('Name', 'woo-rede'); ?>
+                maxlength="22" autocomplete="off"
+                style="font-size: 1.5em; padding: 8px 45px;"/>
             </div>
 
             <div class="form-row form-row">
@@ -97,7 +98,7 @@ $selectStyle = '';
                     id="labels-with-icons"
                     for="rede-card-number"
                 >
-                    <?php esc_attr_e( 'Card Number', 'woo-rede' ); ?>
+                    <?php esc_attr_e('Card Number', 'woo-rede'); ?>
                     <span class="required">*</span>
                     <div class="icon-rede-input">
                         <svg
@@ -162,7 +163,7 @@ $selectStyle = '';
                     id="labels-with-icons"
                     for="rede-card-expiry"
                 >
-                    <?php esc_attr_e( 'Card Expiring Date', 'woo-rede' ); ?><span
+                    <?php esc_attr_e('Card Expiring Date', 'woo-rede'); ?><span
                         class="required"
                     >*</span>
                     <div class="icon-rede-input">
@@ -193,7 +194,7 @@ $selectStyle = '';
                     class="input-text wc-credit-card-form-card-expiry"
                     type="tel"
                     autocomplete="off"
-                    placeholder="<?php esc_attr_e( 'MM / YEAR', 'woo-rede' ); ?>"
+                    placeholder="<?php esc_attr_e('MM / YEAR', 'woo-rede'); ?>"
                     style="font-size: 1.5em; padding: 8px 30px 8px 35px;"
                 />
             </div>
@@ -202,7 +203,7 @@ $selectStyle = '';
                 <label
                     id="labels-with-icons"
                     for="rede-card-cvc"
-                ><?php esc_attr_e('Security Code', 'woo-rede' ); ?><span
+                ><?php esc_attr_e('Security Code', 'woo-rede'); ?><span
                         class="required"
                     >*</span>
                     <div class="icon-rede-input">
@@ -233,15 +234,15 @@ $selectStyle = '';
                     class="input-text wc-credit-card-form-card-cvc"
                     type="tel"
                     autocomplete="off"
-                    placeholder="<?php esc_attr_e( 'CVC', 'woo-rede' ); ?>"
+                    placeholder="<?php esc_attr_e('CVC', 'woo-rede'); ?>"
                     style="font-size: 1.5em; padding: 8px 30px 8px 35px;"
                 />
             </div>
 
             <div class="form-row form-row">
-                <?php if ( is_array( $installments ) && count( $installments ) > 1 ) { ?>
+                <?php if (is_array($installments) && count($installments) > 1) { ?>
                 <label for="rede-card-installments">
-                    <?php esc_attr_e( 'Installments', 'woo-rede' ); ?>
+                    <?php esc_attr_e('Installments', 'woo-rede'); ?>
                     <span class="required">*</span>
                 </label>
                 <select
@@ -252,8 +253,8 @@ $selectStyle = '';
                     autocomplete="off"
                 >
                     <?php
-                            foreach ( $installments as $installment ) {
-                                printf( '<option value="%d">%s</option>', esc_attr( $installment['num'] ), esc_html( $installment['label'] ) );
+                            foreach ($installments as $installment) {
+                                printf('<option value="%d">%s</option>', esc_attr($installment['num']), esc_html($installment['label']));
                             }
                     ?>
                 </select>

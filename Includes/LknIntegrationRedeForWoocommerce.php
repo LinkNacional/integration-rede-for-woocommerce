@@ -134,7 +134,7 @@ final class LknIntegrationRedeForWoocommerce
     {
         $this->loader = new LknIntegrationRedeForWoocommerceLoader();
         $this->LknIntegrationRedeForWoocommerceProEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
-        $this->LknIntegrationRedeForWoocommerceProHelperClass = new LknIntegrationRedeForWoocommerceWcHelper();
+        $this->LknIntegrationRedeForWoocommerceProHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
         $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommerceProHelperClass, 'getCardToken', 10, 3);
         $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommerceProHelperClass, 'setSupports', 10, 1);
     }
@@ -191,7 +191,7 @@ final class LknIntegrationRedeForWoocommerce
     public function customize_wc_payment_gateway_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = 'pix';
+            $title = __('basic pix', 'woo-rede');
         }
         return $title;
     }

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
 >
-<div id="pix_new_content">
+<div id="pix_integration_new_content">
     <div class="container_pix">
         <div class="span_title_container">
             <span class="span_title_text"><?php echo esc_attr__('Instructions', 'woo-rede'); ?></span>
