@@ -31,11 +31,6 @@ final class LknIntegrationRedeForWoocommerceWcRede
         return plugin_dir_path(__FILE__) . 'templates/';
     }
 
-    public function loadPluginTextdomain(): void
-    {
-        load_plugin_textdomain('woo-rede', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-    }
-
     public function addGateway($methods)
     {
         $wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
