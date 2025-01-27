@@ -1,22 +1,29 @@
 <?php
+
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
 
-abstract class LknIntegrationRedeForWoocommerceHelper {
-    final public static function getCartTotal() {
+abstract class LknIntegrationRedeForWoocommerceHelper
+{
+    final public static function getCartTotal()
+    {
         global $woocommerce;
         if (empty($woocommerce)) {
             return 0;
         }
-        return (float) $woocommerce->cart->total;
+        if ($woocommerce->cart) {
+            return (float) $woocommerce->cart->total;
+        }
+        return 0;
     }
-    
-    final public static function updateFixLoadScriptOption($id): void {
+
+    final public static function updateFixLoadScriptOption($id): void
+    {
         $wpnonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
-        if ( ! empty($wpnonce) && $section === $id) {
+        if (! empty($wpnonce) && $section === $id) {
             $enabledFixLoadScript = isset($_POST["woocommerce_" . $id . "_enabled_fix_load_script"]) ? 'yes' : 'no';
-            
+
             $optionsToUpdate = array(
                 'maxipago_credit',
                 'maxipago_debit',
@@ -32,8 +39,9 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
         }
     }
 
-    final public static function getCardBrand($tid, $instace) {
-        $auth = base64_encode( $instace->pv . ':' . $instace->token );
+    final public static function getCardBrand($tid, $instace)
+    {
+        $auth = base64_encode($instace->pv . ':' . $instace->token);
 
         if ('production' === $instace->environment) {
             $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
@@ -41,7 +49,7 @@ abstract class LknIntegrationRedeForWoocommerceHelper {
             $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
         }
 
-        $response = wp_remote_get( $apiUrl . '/' . $tid, array(
+        $response = wp_remote_get($apiUrl . '/' . $tid, array(
             'headers' => array(
                 'Authorization' => 'Basic ' . $auth,
                 'Content-Type' => 'application/json',
