@@ -85,6 +85,6 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
 
     public static function generateMetaTable($order, $metaKeys, $title): void
     {
-        require INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Includes/views/LknIntegrationRedeForWoocommerceMetaTable.php';
+        require INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/views/LknIntegrationRedeForWoocommerceMetaTable.php';
     }
 }

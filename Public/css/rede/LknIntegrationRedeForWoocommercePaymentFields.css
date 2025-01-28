@@ -14,12 +14,12 @@
     margin-left: 10px;
 }
 
-#lknRedeForWoocommerceProPixRedeDiv {
+#LknIntegrationRedeForWoocommercePaymentFields {
     display: flex;
     justify-content: center;
 }
 
-#lknRedeForWoocommerceProPixRedeDiv svg {
+#LknIntegrationRedeForWoocommercePaymentFields svg {
     width: 60px;
     margin-left: 10px;
 }
