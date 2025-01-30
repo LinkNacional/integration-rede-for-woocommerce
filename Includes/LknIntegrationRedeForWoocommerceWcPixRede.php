@@ -94,11 +94,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'type' => 'number',
                         'description' => esc_attr__('Enter the validity time of Pix in hours.', 'woo-rede'),
                         'desc_tip' => true,
-                        'default' => '1',
+                        'default' => '24',
                         'required' => true,
                         'custom_attributes' => array(
                             'min' => '1',
                             'step' => '1',
+                            'readonly' => 'readonly',
                         ),
                     ),
                     'payment_complete_status' => array(
@@ -112,7 +113,10 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'on-hold' => _x('On hold', 'Order status', 'woocommerce'),
                             'completed' => _x('Completed', 'Order status', 'woocommerce'),
                         ),
-                        'default' => 'processing'
+                        'default' => 'processing',
+                        'custom_attributes' => array(
+                            'disabled' => 'disabled',
+                        ),
                     ),
                     'developers' => array(
                         'title' => esc_attr__('Developer', 'woo-rede'),
@@ -319,5 +323,18 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 'shareTitle' => __('Payment via PIX', 'woo-rede')
             ));
         }
+    }
+
+    public function process_admin_options()
+    {
+        if (isset($_POST['woocommerce_integration_rede_pix_expiration_count'])) {
+            $_POST['woocommerce_integration_rede_pix_expiration_count'] = '24';
+        }
+
+        if (isset($_POST['woocommerce_integration_rede_pix_payment_complete_status'])) {
+            $_POST['woocommerce_integration_rede_pix_payment_complete_status'] = 'processing';
+        }
+
+        parent::process_admin_options();
     }
 }

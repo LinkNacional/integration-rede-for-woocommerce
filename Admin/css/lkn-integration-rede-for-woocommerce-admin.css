@@ -79,9 +79,9 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
     color: white;
-    min-width: 370px;
-    width: 370px;
-    height: 192px;
+    max-width: 370px;
+    width: fit-content;
+    height: fit-content;
     background-color: #121519;
     border-radius: 10px;
     margin-bottom: 150px;
@@ -110,6 +110,7 @@ textarea:disabled {
 #lknIntegrationRedeForWoocommerDivLinks {
     display: flex;
     justify-content: space-between;
+    gap: 6%;
 }
 
 #lknIntegrationRedeForWoocommerDivLinks div {

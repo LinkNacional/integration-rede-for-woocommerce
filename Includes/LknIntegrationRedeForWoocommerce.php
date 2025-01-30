@@ -90,9 +90,9 @@ final class LknIntegrationRedeForWoocommerce
     public $wc_rede_debit_class;
     public $wc_maxipago_credit_class;
     public $wc_maxipago_debit_class;
-    public $LknIntegrationRedeForWoocommerceProPixRedeClass;
-    public $LknIntegrationRedeForWoocommerceProEndpointClass;
-    public $LknIntegrationRedeForWoocommerceProHelperClass;
+    public $LknIntegrationRedeForWoocommercePixRedeClass;
+    public $LknIntegrationRedeForWoocommerceEndpointClass;
+    public $LknIntegrationRedeForWoocommerceHelperClass;
 
     //Define os hooks somente quando woocommerce está ativo
     public function define_hooks(): void
@@ -103,10 +103,9 @@ final class LknIntegrationRedeForWoocommerce
             $this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
             $this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
             $this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
+            $this->LknIntegrationRedeForWoocommercePixRedeClass = new LknIntegrationRedeForWoocommerceWcPixRede();
+
             $this->wc_rede_api_class = $this->wc_rede_credit_class->api;
-            if (class_exists('WC_Payment_Gateway')) {
-                $this->LknIntegrationRedeForWoocommerceProPixRedeClass = new LknIntegrationRedeForWoocommerceWcPixRede();
-            }
             $this->define_admin_hooks();
             $this->define_public_hooks();
         } else {
@@ -133,10 +132,10 @@ final class LknIntegrationRedeForWoocommerce
     private function load_dependencies(): void
     {
         $this->loader = new LknIntegrationRedeForWoocommerceLoader();
-        $this->LknIntegrationRedeForWoocommerceProEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
-        $this->LknIntegrationRedeForWoocommerceProHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
-        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommerceProHelperClass, 'getCardToken', 10, 3);
-        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommerceProHelperClass, 'setSupports', 10, 1);
+        $this->LknIntegrationRedeForWoocommerceEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
+        $this->LknIntegrationRedeForWoocommerceHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
+        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommerceHelperClass, 'getCardToken', 10, 3);
+        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommerceHelperClass, 'setSupports', 10, 1);
     }
 
     /**
@@ -153,9 +152,9 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
-        $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommerceProPixRedeClass->id, $this->LknIntegrationRedeForWoocommerceProPixRedeClass, "process_admin_options");
-        $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommerceProPixRedeClass, 'displayMeta');
-        $this->loader->add_action('woocommerce_order_details_after_order_table', $this->LknIntegrationRedeForWoocommerceProPixRedeClass, "showPix");
+        $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommercePixRedeClass->id, $this->LknIntegrationRedeForWoocommercePixRedeClass, "process_admin_options");
+        $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommercePixRedeClass, 'displayMeta');
+        $this->loader->add_action('woocommerce_order_details_after_order_table', $this->LknIntegrationRedeForWoocommercePixRedeClass, "showPix");
 
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
 
@@ -184,7 +183,7 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMeta', 10, 2);
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMetaPro', 10, 2);
 
-        $this->loader->add_action('rest_api_init', $this->LknIntegrationRedeForWoocommerceProEndpointClass, 'registerorderRedeCaptureEndPoint');
+        $this->loader->add_action('rest_api_init', $this->LknIntegrationRedeForWoocommerceEndpointClass, 'registerorderRedeCaptureEndPoint');
         $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_name', 10, 2);
     }
 

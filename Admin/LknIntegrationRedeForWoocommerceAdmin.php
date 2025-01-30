@@ -133,6 +133,16 @@ final class LknIntegrationRedeForWoocommerceAdmin
             $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . _('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
+        if (isset($_GET['section']) && $_GET['section'] === 'integration_rede_pix') {
+            wp_enqueue_script(
+                $this->plugin_name . '-pix-settings',
+                plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-pix-settings.js',
+                array('jquery'),
+                $this->version,
+                false
+            );
+        }
+
         if ('wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true)) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);
