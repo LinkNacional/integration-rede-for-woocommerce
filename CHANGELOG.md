@@ -1,3 +1,6 @@
+# 3.6.1 - 24/01/2025
+- Correção de configuração.
+
 # 3.6.0 - 24/01/2025
 - Novo modo de pagamento via pix(rede).
 - Adição do notice de donwloado do plugin: fraud-detection-for-woocommerce.
