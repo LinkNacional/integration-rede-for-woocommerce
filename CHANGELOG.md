@@ -1,5 +1,7 @@
 # 3.6.0 - 24/01/2025
 - Novo modo de pagamento via pix(rede).
+- Adição do notice de donwloado do plugin: fraud-detection-for-woocommerce.
+- Adição de mensagem de avaliação do plugin no footer.
 
 # 3.5.3 - 14/01/2025
 - Correção de valor total do pedido quando exitem taxas de entrega.

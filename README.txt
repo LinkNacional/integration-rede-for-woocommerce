@@ -74,6 +74,8 @@ The Integration Rede for WooCommerce plugin is now live and working.
 == Changelog ==
 # 3.6.0 - 2025/01/24
 * New payment method via Pix (Rede).
+* Added the download notice for the plugin: fraud-detection-for-woocommerce.
+* Added the plugin rating message in the footer.
 
 = 3.5.3 = *2025/01/14*
 * Fix order total when delivery fees are applied.
