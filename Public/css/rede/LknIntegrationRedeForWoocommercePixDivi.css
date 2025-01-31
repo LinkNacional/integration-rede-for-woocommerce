@@ -1,0 +1,17 @@
+#span_container{
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.container_pix ol{
+    margin-left: 22px;
+    margin-top: 10px;
+}
+
+#timer{
+    margin: 15px;
+}
+
+#copy_container{
+    padding-left: 10px;
+}

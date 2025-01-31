@@ -1,0 +1,25 @@
+#LknRedeForWoocommerceProPixImage {
+    height: 30px;
+    margin-left: 0px !important;
+}
+
+.LknIntegrationRedeForWoocommercePaymentFields {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.LknIntegrationRedeForWoocommercePaymentFields svg {
+    width: 60px;
+    margin-left: 10px;
+}
+
+#LknIntegrationRedeForWoocommercePaymentFields {
+    display: flex;
+    justify-content: center;
+}
+
+#LknIntegrationRedeForWoocommercePaymentFields svg {
+    width: 60px;
+    margin-left: 10px;
+}

@@ -1,0 +1,256 @@
+#pix_integration_new_content {
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    flex-wrap: wrap-reverse;
+    align-items: flex-end;
+    justify-content: space-evenly;
+    flex-direction: row;
+    border: 1px solid #E6E6E6;
+    border-radius: 10px;
+    box-shadow: -2px 2px 4px #E6E6E6;
+    padding: 20px;
+    height: min-content;
+    box-sizing: border-box;
+    margin: 50px 0px;
+    background-color: #fff;
+}
+
+.container_pix {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 40px;
+}
+
+.span_title_container {
+    display: flex;
+    align-items: start;
+    width: 100%;
+    padding-left: 20px;
+    box-sizing: border-box;
+}
+
+.span_title_text {
+    font-size: 20px;
+    color: black;
+}
+
+.span_content_text {
+    font-size: 20px;
+    color: #838383;
+}
+
+.schedule_check_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.schedule_text {
+    font-size: 12px;
+    text-align: center;
+    color: #838383;
+}
+
+#timer {
+    font-size: 48px;
+    color: #3A3A3A;
+    text-align: center
+}
+
+.payment_check_container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.payment_check_button {
+    display: flex;
+    width: 350px;
+    height: 50px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    background-color: #D9D9D9;
+    color: #FFF;
+    font-size: 20px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    margin-top: 16px;
+    transition: background-color 0.5s ease;
+}
+
+.payment_check_button[disabled]:hover {
+    background-color: #D9D9D9;
+}
+
+.payment_check_text {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    max-width: 350px;
+    font-size: 16px;
+    color: #838383;
+}
+
+.span_title_value {
+    font-size: 20px;
+    color: #686868;
+    font-weight: bold;
+    text-align: center;
+}
+
+.span_total_value {
+    font-size: 32px;
+    font-weight: bold;
+    color: black;
+    margin-top: -10px;
+}
+
+.span_date {
+    font-size: 20px;
+    color: #686868;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#span_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#copy_container {
+    display: flex;
+    align-items: center;
+    width: 360px;
+    border-radius: 8px;
+    height: 50px;
+    overflow: hidden;
+    background-color: #D9D9D9;
+    margin-bottom: 20px;
+}
+
+.input_copy_code {
+    width: 100%;
+    height: 32px;
+    background-color: #D9D9D9;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding-left: 10px;
+}
+
+.input_copy_code[disabled] {
+    background-color: #D9D9D9 !important;
+}
+
+.button_copy_code {
+    width: 100px !important;
+    height: 100%;
+    background-color: #3A3A3A;
+    font-size: 12px;
+    color: #FFF;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    text-align: center;
+    padding: 0px !important;
+    transition: background-color 0.5s ease;
+}
+
+.button_copy_code:hover {
+    background-color: #3A3A3A;
+}
+
+.button_copy_code[disabled] {
+    background-color: #28a428;
+}
+
+.pix_img {
+    width: 300px;
+    height: auto;
+}
+
+.share_container {
+    display: flex;
+    width: 100%;
+    justify-content: end;
+    display: none;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.share_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #fff;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 0px;
+    background-color: transparent;
+}
+
+@media screen and (max-width: 986px) {
+    #pix_integration_new_content {
+        flex-direction: column-reverse;
+        align-items: center;
+        margin: 20px 0px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .share_container {
+        display: flex;
+    }
+}
+
+@media screen and (max-width: 586px) {
+    .container_pix {
+        width: 100%;
+        padding: 20px 0px;
+    }
+
+    .span_title_text {
+        font-size: 16px;
+    }
+
+    .span_content_text {
+        font-size: 16px;
+    }
+
+    .payment_check_button {
+        font-size: 16px;
+    }
+
+    .payment_check_text {
+        font-size: 14px;
+    }
+
+    .pix_img {
+        width: 100%;
+    }
+
+    #copy_container {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    .input_copy_code {
+        max-width: 288px;
+    }
+}

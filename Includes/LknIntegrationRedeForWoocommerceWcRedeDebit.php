@@ -80,12 +80,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             return false;
         }
 
-        if (! ctype_digit($_POST['rede_debit_cvc'])) {
+        if (! ctype_digit(sanitize_text_field(wp_unslash($_POST['rede_debit_cvc'])))) {
             wc_add_notice(esc_attr__('Card security code must be a numeric value', 'woo-rede'), 'error');
             return false;
         }
 
-        if (strlen($_POST['rede_debit_cvc']) < 3) {
+        if (strlen(absint(wp_unslash($_POST['rede_debit_cvc']))) < 3) {
             wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
             return false;
         }
@@ -284,7 +284,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
     public function process_payment($order_id)
     {
-        if (! wp_verify_nonce($_POST['rede_card_nonce'], 'redeCardNonce')) {
+        if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
                 'redirect' => '',
@@ -295,7 +295,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $cardNumber = isset($_POST['rede_debit_number']) ?
             sanitize_text_field(wp_unslash($_POST['rede_debit_number'])) : '';
 
-        $debitExpiry = sanitize_text_field(wp_unslash($_POST['rede_debit_expiry']));
+        $debitExpiry = isset($_POST['rede_debit_expiry']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_expiry'])) : '';
 
         if (strpos($debitExpiry, '/') !== false) {
             $expiration = explode('/', $debitExpiry);
@@ -310,8 +310,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'card_number' => preg_replace('/[^\d]/', '', sanitize_text_field(wp_unslash($_POST['rede_debit_number']))),
             'card_expiration_month' => sanitize_text_field($expiration[0]),
             'card_expiration_year' => $this->normalize_expiration_year(sanitize_text_field($expiration[1])),
-            'card_cvv' => sanitize_text_field(wp_unslash($_POST['rede_debit_cvc'])),
-            'card_holder' => sanitize_text_field(wp_unslash($_POST['rede_debit_holder_name'])),
+            'card_cvv' => isset($_POST['rede_debit_cvc']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_cvc'])) : '',
+            'card_holder' => isset($_POST['rede_debit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_holder_name'])) : '',
         );
 
         try {

@@ -119,6 +119,7 @@ const ContentRedeDebit = props => {
     id: "rede_debit_holder_name",
     label: translationsRedeDebit.nameOnCard,
     value: debitObject.rede_debit_holder_name,
+    maxLength: 30,
     onChange: value => {
       updateDebitObject('rede_debit_holder_name', value);
     },

@@ -155,6 +155,7 @@ const ContentMaxipagoDebit = (props) => {
         id="maxipago_debit_card_holder_name"
         label={translationsMaxipagoDebit.nameOnCard}
         value={creditObject.maxipago_debit_card_holder_name}
+        maxLength={50}
         onChange={(value) => {
           updateCreditObject('maxipago_debit_card_holder_name', value)
         }}

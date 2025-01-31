@@ -145,6 +145,7 @@ const ContentRedeCredit = (props) => {
         id="rede_credit_holder_name"
         label={translationsRedeCredit.nameOnCard}
         value={creditObject.rede_credit_holder_name}
+        maxLength={30}
         onChange={(value) => {
           updateCreditObject('rede_credit_holder_name', value)
         }}

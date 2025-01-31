@@ -49,7 +49,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
      */
     public function validate_fields()
     {
-        if (empty($_POST['maxipago_credit_card_cpf']) && empty($_POST['billing_cpf']) && empty($_POST['billing_cnpj'])) {
+        if (empty(sanitize_text_field(wp_unslash($_POST['maxipago_credit_card_cpf']))) && empty(sanitize_text_field(wp_unslash($_POST['billing_cpf']))) && empty(sanitize_text_field(wp_unslash($_POST['billing_cnpj'])))) {
             wc_add_notice(esc_attr__('CPF is a required field', 'woo-rede'), 'error');
 
             return false;
@@ -73,12 +73,12 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             return false;
         }
 
-        if (! ctype_digit($_POST['maxipago_credit_cvc'])) {
+        if (! ctype_digit(sanitize_text_field(wp_unslash($_POST['maxipago_credit_cvc'])))) {
             wc_add_notice(esc_attr__('Card security code must be a numeric value', 'woo-rede'), 'error');
             return false;
         }
 
-        if (strlen($_POST['maxipago_credit_cvc']) < 3) {
+        if (strlen(absint(wp_unslash($_POST['maxipago_credit_cvc']))) < 3) {
             wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
             return false;
         }
@@ -313,7 +313,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
     public function process_payment($orderId)
     {
-        if (! wp_verify_nonce($_POST['maxipago_card_nonce'], 'maxipagoCardNonce')) {
+        if (isset($_POST['maxipago_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['maxipago_card_nonce'])), 'maxipagoCardNonce')) {
             return array(
                 'result' => 'fail',
                 'redirect' => '',
@@ -341,7 +341,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
         }
 
-        $creditExpiry = sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry']));
+        $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
         if (strpos($creditExpiry, '/') !== false) {
             $expiration = explode('/', $creditExpiry);
@@ -360,25 +360,25 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         $clientData = array(
             'billing_cpf' => $billingCPF,
-            'billing_name' => sanitize_text_field(wp_unslash($_POST['maxipago_credit_holder_name'])),
-            'billing_address_1' => sanitize_text_field(wp_unslash($_POST['billing_address_1'])),
-            'billing_district' => sanitize_text_field(wp_unslash($_POST['billing_neighborhood'])),
-            'billing_city' => sanitize_text_field(wp_unslash($_POST['billing_city'])),
-            'billing_state' => sanitize_text_field(wp_unslash($_POST['billing_state'])),
-            'billing_postcode' => sanitize_text_field(wp_unslash($_POST['billing_postcode'])),
-            'billing_phone' => sanitize_text_field(wp_unslash($_POST['billing_phone'])),
-            'billing_email' => sanitize_text_field(wp_unslash($_POST['billing_email'])),
+            'billing_name' => isset($_POST['maxipago_credit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_holder_name'])) : '',
+            'billing_address_1' => isset($_POST['billing_address_1']) ? sanitize_text_field(wp_unslash($_POST['billing_address_1'])) : '',
+            'billing_district' => isset($_POST['billing_neighborhood']) ? sanitize_text_field(wp_unslash($_POST['billing_neighborhood'])) : '',
+            'billing_city' => isset($_POST['billing_city']) ? sanitize_text_field(wp_unslash($_POST['billing_city'])) : '',
+            'billing_state' => isset($_POST['billing_state']) ? sanitize_text_field(wp_unslash($_POST['billing_state'])) : '',
+            'billing_postcode' => isset($_POST['billing_postcode']) ? sanitize_text_field(wp_unslash($_POST['billing_postcode'])) : '',
+            'billing_phone' => isset($_POST['billing_phone']) ? sanitize_text_field(wp_unslash($_POST['billing_phone'])) : '',
+            'billing_email' => isset($_POST['billing_email']) ? sanitize_text_field(wp_unslash($_POST['billing_email'])) : '',
             'currency_code' => get_option('woocommerce_currency'),
             'country' => $countryCode,
         );
 
         $cardData = array(
-            'card_number' => preg_replace('/[^\d]/', '', sanitize_text_field(wp_unslash($_POST['maxipago_credit_number']))),
+            'card_number' => preg_replace('/[^\d]/', '', isset($_POST['maxipago_credit_number']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_number'])) : ''),
             'card_expiration_month' => sanitize_text_field($expiration[0]),
             'card_expiration_year' => $this->normalize_expiration_year(sanitize_text_field($expiration[1])),
-            'card_cvv' => sanitize_text_field(wp_unslash($_POST['maxipago_credit_cvc'])),
-            'card_holder' => sanitize_text_field(wp_unslash($_POST['maxipago_credit_holder_name'])),
-            'card_installments' => sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments'])),
+            'card_cvv' => isset($_POST['maxipago_credit_cvc']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_cvc'])) : '',
+            'card_holder' => isset($_POST['maxipago_credit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_holder_name'])) : '',
+            'card_installments' => isset($_POST['maxipago_credit_installments']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments'])) : '',
         );
 
         try {
