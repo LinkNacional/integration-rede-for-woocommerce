@@ -82,12 +82,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             return false;
         }
 
-        if (! ctype_digit($_POST['rede_credit_cvc'])) {
+        if (! ctype_digit(sanitize_text_field(wp_unslash($_POST['rede_credit_cvc'])))) {
             wc_add_notice(esc_attr__('Card security code must be a numeric value', 'woo-rede'), 'error');
             return false;
         }
 
-        if (strlen($_POST['rede_credit_cvc']) < 3) {
+        if (strlen(absint(wp_unslash($_POST['rede_credit_cvc']))) < 3) {
             wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
             return false;
         }
@@ -143,7 +143,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $this->form_fields = array(
             'rede' => array(
-                'title' => esc_attr__( 'General', 'woo-rede' ),
+                'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
             ),
             'enabled' => array(
@@ -379,7 +379,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function process_payment($order_id)
     {
-        if (! wp_verify_nonce($_POST['rede_card_nonce'], 'redeCardNonce')) {
+        if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
                 'redirect' => '',
@@ -393,7 +393,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $installments = isset($_POST['rede_credit_installments']) ?
             absint(sanitize_text_field(wp_unslash($_POST['rede_credit_installments']))) : 1;
 
-        $creditExpiry = sanitize_text_field(wp_unslash($_POST['rede_credit_expiry']));
+        $creditExpiry = isset($_POST['rede_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['rede_credit_expiry'])) : '';
 
         if (strpos($creditExpiry, '/') !== false) {
             $expiration = explode('/', $creditExpiry);
@@ -408,8 +408,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'card_number' => preg_replace('/[^\d]/', '', sanitize_text_field(wp_unslash($_POST['rede_credit_number']))),
             'card_expiration_month' => sanitize_text_field($expiration[0]),
             'card_expiration_year' => $this->normalize_expiration_year(sanitize_text_field($expiration[1])),
-            'card_cvv' => sanitize_text_field(wp_unslash($_POST['rede_credit_cvc'])),
-            'card_holder' => sanitize_text_field(wp_unslash($_POST['rede_credit_holder_name'])),
+            'card_cvv' => isset($_POST['rede_credit_cvc']) ? sanitize_text_field(wp_unslash($_POST['rede_credit_cvc'])) : '',
+            'card_holder' => isset($_POST['rede_credit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['rede_credit_holder_name'])) : '',
         );
         try {
             $valid = $this->validate_card_number($cardNumber);

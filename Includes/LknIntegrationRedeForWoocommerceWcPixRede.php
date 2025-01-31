@@ -38,7 +38,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
     public function init_form_fields(): void
     {
         if (isset($_GET['page']) && isset($_GET['section'])) {
-            if ('wc-settings' == $_GET['page'] && $_GET['section'] == $this->id) {
+            if ('wc-settings' == sanitize_text_field(wp_unslash($_GET['page'])) && sanitize_text_field(wp_unslash($_GET['section'])) == $this->id) {
                 $this->form_fields = array(
                     'enabled' => array(
                         'title' => esc_attr__('Enable/Disable', 'woo-rede'),
@@ -109,9 +109,9 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'desc_tip' => true,
                         'description' => esc_attr__('Select the order status after payment confirmation.', 'woo-rede'),
                         'options' => array(
-                            'processing' => _x('Processing', 'Order status', 'woocommerce'),
-                            'on-hold' => _x('On hold', 'Order status', 'woocommerce'),
-                            'completed' => _x('Completed', 'Order status', 'woocommerce'),
+                            'processing' => _x('Processing', 'Order status', 'woo-rede'),
+                            'on-hold' => _x('On hold', 'Order status', 'woo-rede'),
+                            'completed' => _x('Completed', 'Order status', 'woo-rede'),
                         ),
                         'default' => 'processing',
                         'custom_attributes' => array(
