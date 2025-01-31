@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.7.1
-Stable tag: 3.6.0
+Stable tag: 3.6.1
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -72,6 +72,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 3.6.1 - 2025/01/24
+* Settings fixed.
+
 # 3.6.0 - 2025/01/24
 * New payment method via Pix (Rede).
 * Added the download notice for the plugin: fraud-detection-for-woocommerce.

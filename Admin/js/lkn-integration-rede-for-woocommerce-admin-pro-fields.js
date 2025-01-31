@@ -6,7 +6,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
         <tbody>
           <tr valign="top">
             <th scope="row" class="titledesc">
-              <label for="woocommerce_rede_credit_license"><span class="lowOpacity">${lknPhpProFieldsVariables.license}</span> 
+              <label for="woocommerce_rede_credit_license"><span class="lowOpacity">${lknPhpProFieldsVariables.license}</span>
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
                 </span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
@@ -43,7 +43,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
           }
           <tr valign="top">
             <th scope="row" class="titledesc">
-              <label for="woocommerce_rede_credit_custom_css_short_code"><span class="lowOpacity">${lknPhpProFieldsVariables.customCssShortcode}</span>            
+              <label for="woocommerce_rede_credit_custom_css_short_code"><span class="lowOpacity">${lknPhpProFieldsVariables.customCssShortcode}</span>
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0"></span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
                   ${lknPhpProFieldsVariables.customCssShortcodeDescription}
@@ -73,7 +73,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               </fieldset>
             </td>
           </tr>
-          ${(page === 'rede_credit' || page === 'maxipago_credit') ? `          
+          ${(page === 'rede_credit' || page === 'maxipago_credit') ? `
             <tr valign="top">
               <th scope="row" class="titledesc">
                 <label class="lowOpacity" for="woocommerce_rede_credit_installment_interest">${lknPhpProFieldsVariables.interestOnInstallments}</label>

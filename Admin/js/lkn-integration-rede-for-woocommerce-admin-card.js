@@ -12,7 +12,7 @@
     return result
   }
 
-  $(window).load(function () {
+  $(window).on('load', function () {
     const adminPage = lknFindGetParameter('section')
     const pluginPages = [
       'maxipago_credit',
@@ -23,32 +23,49 @@
       'rede_pix',
       'integration_rede_pix'
     ]
+
     if (adminPage && pluginPages.includes(adminPage)) {
       const wcForm = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv')
       const noticeDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsNoticeDiv')
       const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard')
-      const secondFormTable = wcForm.querySelectorAll('.form-table')[1]
-      if (secondFormTable && cardDiv) {
-        wcForm.appendChild(noticeDiv)
+      const formTables = wcForm ? wcForm.querySelectorAll('.form-table') : []
+
+      if (!wcForm) {
+        return
+      }
+      if (!noticeDiv) {
+        return
+      }
+      if (!cardDiv) {
+        return
+      }
+      if (formTables.length < 2) {
+        return
+      }
+
+      const secondFormTable = formTables[1]
+
+      wcForm.appendChild(noticeDiv)
+
+      if (window.innerWidth <= 1205) {
+        wcForm.appendChild(cardDiv)
+      } else {
+        secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
+        secondFormTable.appendChild(cardDiv)
+      }
+
+      cardDiv.style.display = 'flex'
+
+      const adjustCardDivPosition = () => {
         if (window.innerWidth <= 1205) {
           wcForm.appendChild(cardDiv)
         } else {
           secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
           secondFormTable.appendChild(cardDiv)
         }
-        cardDiv.style.display = 'flex'
-
-        const adjustCardDivPosition = () => {
-          if (window.innerWidth <= 1205) {
-            wcForm.appendChild(cardDiv)
-          } else {
-            secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
-            secondFormTable.appendChild(cardDiv)
-          }
-        }
-
-        window.addEventListener('resize', adjustCardDivPosition)
       }
+
+      window.addEventListener('resize', adjustCardDivPosition)
     }
   })
 })(jQuery)

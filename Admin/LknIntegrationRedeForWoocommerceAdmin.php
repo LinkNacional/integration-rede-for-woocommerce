@@ -94,6 +94,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
          * between the defined hooks and the functions defined in this
          * class.
          */
+
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
 
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
@@ -112,7 +113,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'becomePRO' => __('Become PRO', 'woo-rede')
         ));
 
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
+        }
 
         $gateways = array(
             'maxipago_credit',
