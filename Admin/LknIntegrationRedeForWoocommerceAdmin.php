@@ -143,6 +143,26 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
         }
 
+        $allowed_sections = [
+            'rede_credit',
+            'rede_debit',
+            'integration_rede_pix',
+            'maxipago_credit',
+            'maxipago_debit',
+            'maxipago_pix',
+            'rede_pix'
+        ];
+
+        if (isset($_GET['section']) && in_array($_GET['section'], $allowed_sections, true)) {
+            wp_enqueue_script(
+                $this->plugin_name . '-plugin-rate',
+                plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-plugin-rate.js',
+                array('jquery'),
+                $this->version,
+                false
+            );
+        }
+
         if ('wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true)) {
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);

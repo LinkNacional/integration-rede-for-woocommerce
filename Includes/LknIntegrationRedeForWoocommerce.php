@@ -184,10 +184,19 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMetaPro', 10, 2);
 
         $this->loader->add_action('rest_api_init', $this->LknIntegrationRedeForWoocommerceEndpointClass, 'registerorderRedeCaptureEndPoint');
-        $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_name', 10, 2);
+        $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_pix_name', 10, 2);
+
+        $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
     }
 
-    public function customize_wc_payment_gateway_name($title, $gateway_id)
+    public function lkn_admin_notice()
+    {
+        if (!file_exists(WP_PLUGIN_DIR . '/fraud-detection-for-woocommerce/fraud-detection-for-woocommerce.php')) {
+            require INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/views/notices/lkn-integration-rede-for-woocommerce-notice-download.php';
+        }
+    }
+
+    public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
             $title = __('basic pix', 'woo-rede');
