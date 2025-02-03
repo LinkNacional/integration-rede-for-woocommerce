@@ -67,7 +67,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             )
         );
         if (isset(get_option('woocommerce_rede_credit_settings')['installment_interest']) &&
-            get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes') {
+            get_option('woocommerce_rede_credit_settings')['installment_interest'] == 'yes' &&
+            is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $interest = round((float) get_option('woocommerce_rede_credit_settings')[$i . 'x'], 2);
                 $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
