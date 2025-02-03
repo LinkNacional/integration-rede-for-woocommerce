@@ -1,3 +1,6 @@
+# 3.6.2 - 03/02/2025
+- Correção em validação do campo de CVV.
+
 # 3.6.1 - 24/01/2025
 - Correção de configuração.
 
