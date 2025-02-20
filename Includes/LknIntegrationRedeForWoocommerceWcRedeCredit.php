@@ -41,7 +41,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
         }
 
-        $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
+        $this->auto_capture = true;
+        if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
+        }
         $this->max_parcels_number = $this->get_option('max_parcels_number');
         $this->min_parcels_value = $this->get_option('min_parcels_value');
 
