@@ -1,3 +1,6 @@
+# 3.6.3 - 24/02/2025
+- Correção configurações quando o plugin PRO está desativado.
+
 # 3.6.2 - 03/02/2025
 - Correção em validação do campo de CVV.
 
