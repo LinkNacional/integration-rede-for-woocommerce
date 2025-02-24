@@ -330,7 +330,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
         $companyName = sanitize_text_field($this->get_option('company_name'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
-        $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
+        $capture = true;
+        if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
+        }
         $referenceNum = uniqid('order_', true);
 
         $installments = isset($_POST['maxipago_credit_installments']) ?
