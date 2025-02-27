@@ -327,6 +327,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
             $orderId = $order->get_id();
             $amount = $order->get_total();
+            $amount = (float) $amount;
 
             $transaction = $this->api->doTransactionDebitRequest($orderId + time(), $amount, $cardData);
 

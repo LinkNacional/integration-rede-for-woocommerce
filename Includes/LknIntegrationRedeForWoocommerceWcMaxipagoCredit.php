@@ -344,6 +344,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
         }
 
+        $order_total = (float) $order_total;
         $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
         if (strpos($creditExpiry, '/') !== false) {
