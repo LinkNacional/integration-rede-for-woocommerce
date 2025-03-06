@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         $date = new DateTime();
         $date->modify('+' . $expirationCount . ' hours');
         $dateTimeExpiration = $date->format('Y-m-d\TH:i:s');
-        $order->update_meta_data('_wc_rede_pix_time_expiration', $dateTimeExpiration);
+        $order->update_meta_data('_wc_rede_pix_integration_time_expiration', $dateTimeExpiration);
         if ('production' === $environment) {
             $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
         } else {
