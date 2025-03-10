@@ -370,7 +370,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
 
-            if (isset($xml_decode['processorCode']) && "00" == $xml_decode['processorCode']) {
+            if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
                 $order->update_meta_data('_wc_maxipago_transaction_id', $xml_decode['orderID']);
                 $order->update_meta_data('_wc_maxipago_transaction_bin', $xml_decode['creditCardBin']);

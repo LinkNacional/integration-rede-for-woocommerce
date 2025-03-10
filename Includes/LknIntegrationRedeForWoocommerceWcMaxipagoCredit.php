@@ -321,10 +321,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
         $companyName = sanitize_text_field($this->get_option('company_name'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
-        $capture = true;
-        /* if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-            $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
-        } */
+        $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
         $referenceNum = uniqid('order_', true);
 
         $installments = isset($_POST['maxipago_credit_installments']) ?
@@ -471,7 +468,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
 
-            if (isset($xml_decode['processorCode']) && "00" == $xml_decode['processorCode']) {
+            if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
                 $order->update_meta_data('_wc_maxipago_transaction_installments', $installments);
                 $order->update_meta_data('_wc_maxipago_transaction_id', $xml_decode['orderID']);
