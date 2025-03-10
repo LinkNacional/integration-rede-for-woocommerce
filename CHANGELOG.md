@@ -1,5 +1,6 @@
 # 3.6.4 - 27/02/2025
-- Adição de conversão do valor total da compra.
+- Adição de conversão do valor total da compra;
+- Correção configurações quando o plugin PRO está desativado.
 
 # 3.6.3 - 24/02/2025
 - Correção configurações quando o plugin PRO está desativado.
