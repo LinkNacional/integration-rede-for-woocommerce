@@ -1,5 +1,5 @@
 <?php
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit();
 }
 $theme = wp_get_theme();
@@ -87,11 +87,9 @@ $selectStyle = '';
                     name="rede_credit_holder_name"
                     class="input-text"
                     type="text"
-                    placeholder="<?php esc_attr_e('Name', 'woo-rede'); ?>"
-                    maxlength="30"
-                    autocomplete="off"
-                    style="font-size: 1.5em; padding: 8px 45px;"
-                />
+                    placeholder=<?php esc_attr_e('Name', 'woo-rede'); ?>
+                maxlength="22" autocomplete="off"
+                style="font-size: 1.5em; padding: 8px 45px;"/>
             </div>
 
             <div class="form-row form-row">

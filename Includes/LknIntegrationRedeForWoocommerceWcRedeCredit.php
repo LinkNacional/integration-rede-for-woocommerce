@@ -433,7 +433,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             if ($this->get_option('installment_interest') == 'yes') {
                 $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, '', 'total');
             }
-            $order_total = (float) $order_total;
 
             $transaction = $this->api->doTransactionCreditRequest($orderId + time(), $order_total, $installments, $cardData);
             $order->update_meta_data('_transaction_id', $transaction->getTid());

@@ -163,8 +163,8 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
         try {
             $pixInfos = array(
-                'generated' => $order->get_meta('_wc_rede_pix_integration_transaction_pix_generated'),
-                'amount' => $order->get_meta('_wc_rede_pix_integration_transaction_amount'),
+                'generated' => $order->get_meta('_wc_rede_pix_transaction_pix_generated'),
+                'amount' => $order->get_meta('_wc_rede_pix_transaction_amount'),
             );
             $total = str_replace(".", "", $order->get_total());
             if (empty($pixInfos['generated']) || $total != $pixInfos['amount']) {
@@ -194,12 +194,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 $pixQrCodeData = $pix['qrCodeResponse']['qrCodeData'];
                 $pixQrCodeImage = $pix['qrCodeResponse']['qrCodeImage'];
 
-                $order->update_meta_data('_wc_rede_pix_integration_transaction_reference', $pixReference);
+                $order->update_meta_data('_wc_rede_pix_transaction_reference', $pixReference);
                 $order->update_meta_data('_wc_rede_integration_pix_transaction_tid', $pixTid);
-                $order->update_meta_data('_wc_rede_pix_integration_transaction_amount', $pixAmount);
-                $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_code', $pixQrCodeData);
-                $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_generated', true);
-                $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_qrcode_base64', $pixQrCodeImage);
+                $order->update_meta_data('_wc_rede_pix_transaction_amount', $pixAmount);
+                $order->update_meta_data('_wc_rede_pix_transaction_pix_code', $pixQrCodeData);
+                $order->update_meta_data('_wc_rede_pix_transaction_pix_generated', true);
+                $order->update_meta_data('_wc_rede_pix_transaction_pix_qrcode_base64', $pixQrCodeImage);
 
                 if ('yes' == $this->debug) {
                     $this->log->log('info', $this->id, array(
@@ -272,7 +272,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
     {
         if ($order->get_payment_method() === 'integration_rede_pix') {
             $metaKeys = array(
-                '_wc_rede_pix_integration_transaction_reference' => esc_attr__('Reference Number', 'woo-rede'),
+                '_wc_rede_pix_transaction_reference' => esc_attr__('Reference Number', 'woo-rede'),
                 '_wc_rede_integration_pix_transaction_tid' => esc_attr__('TID', 'woo-rede'),
             );
 
@@ -285,11 +285,11 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         $order = wc_get_order($orderWCID);
 
         if ($order->get_payment_method() == 'integration_rede_pix') {
-            $orderBase64 = $order->get_meta('_wc_rede_pix_integration_transaction_pix_qrcode_base64');
-            $pixCode = $order->get_meta('_wc_rede_pix_integration_transaction_pix_code');
+            $orderBase64 = $order->get_meta('_wc_rede_pix_transaction_pix_qrcode_base64');
+            $pixCode = $order->get_meta('_wc_rede_pix_transaction_pix_code');
             $filePath = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/images/share.svg';
             $total = wc_price($order->get_total());
-            $timeExpiration = $order->get_meta('_wc_rede_pix_integration_time_expiration');
+            $timeExpiration = $order->get_meta('_wc_rede_pix_time_expiration');
             $dateTime = new DateTime($timeExpiration);
             $formattedDate = 'Vencimento: ' . $dateTime->format('d/m/Y');
             wc_get_template(

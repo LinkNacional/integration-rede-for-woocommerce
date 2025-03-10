@@ -19,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             id="maxipagoDebitCardAnimation"
             class="card-wrapper card-animation"
         ></div>
-        <?php if (  get_option('wcbcf_settings', array('person_type' => ''))['person_type'] === "0" ||
-                    ! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')) {    ?>
+        <?php if (  get_option('wcbcf_settings', ['person_type' => ''])['person_type'] === "0" ||
+                    !is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')) {    ?>
 
         <div class="form-row form-row">
             <label
@@ -114,10 +114,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                 name="maxipago_debit_holder_name"
                 class="input-text"
                 type="text"
-                placeholder=<i
-            ></i><?php esc_attr_e( 'Name', 'woo-rede' ); ?>
-            maxlength="30" autocomplete="off"
-            style="font-size: 1.5em; padding: 8px 45px;"/>
+                placeholder=<?php esc_attr_e( 'Name', 'woo-rede' ); ?>
+                maxlength="22" autocomplete="off"
+                style="font-size: 1.5em; padding: 8px 45px;"/>
         </div>
 
         <div class="form-row form-row">

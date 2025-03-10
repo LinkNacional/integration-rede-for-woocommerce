@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     name="rede_debit_holder_name" class="input-text"
                     type="text"
                     placeholder=<?php esc_attr_e( 'Name', 'woo-rede' ); ?>
-                    maxlength="30" autocomplete="off"
+                    maxlength="22" autocomplete="off"
                     style="font-size: 1.5em; padding: 8px 45px;"/>
             </div>
 
