@@ -115,7 +115,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 class="input-text"
                 type="text"
                 placeholder=<i
-            ></i><!-- %pcs-comment-start#<?php esc_attr_e( 'Name', 'woo-rede' ); ?>
+            ></i><?php esc_attr_e( 'Name', 'woo-rede' ); ?>
             maxlength="30" autocomplete="off"
             style="font-size: 1.5em; padding: 8px 45px;"/>
         </div>
