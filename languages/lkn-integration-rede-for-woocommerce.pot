@@ -1007,3 +1007,6 @@ msgstr ""
 
 msgid "Rate Plugin"
 msgstr ""
+
+msgid "Return URL to automatically update the status of orders paid via debit on the Maxipago."
+msgstr ""

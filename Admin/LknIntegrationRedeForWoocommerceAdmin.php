@@ -198,21 +198,5 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
             'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
         ));
-
-        wp_enqueue_script(
-            $this->plugin_name . '-endpoint',
-            plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-endpoint.js',
-            array('jquery', 'wp-api'),
-            $this->version,
-            false
-        );
-
-        wp_localize_script($this->plugin_name . '-endpoint', 'lknRedeForWoocommerceProSettings', array(
-            'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false),
-            'translations' => array(
-                'endpointSuccess' => __('Request received!', 'woo-rede'),
-                'endpointError' => __('No requests received!', 'woo-rede'),
-            ),
-        ));
     }
 }

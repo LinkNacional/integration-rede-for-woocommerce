@@ -490,6 +490,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $order->update_meta_data('_wc_rede_captured', false);
                     $order->update_status('on-hold');
                 }
+            }elseif(isset($xml_decode['responseCode']) && "1" == $xml_decode['responseCode']){
+                throw new Exception($xml_decode['processorMessage']);
             }
             if ('yes' == $this->debug) {
                 $this->log->log('info', $this->id, array(
