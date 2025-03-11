@@ -629,6 +629,9 @@ msgstr "Hospedagem WP Grátis"
 msgid "Rate Plugin"
 msgstr "Avaliar Plugin"
 
+msgid "Return URL to automatically update the status of orders paid via debit on the Maxipago."
+msgstr "URL de retorno para atualização automática do status dos pedidos pagos via débito no Maxipago"
+
 #. Name of the plugin
 msgid "Integration Rede for WooCommerce"
 msgstr "Integração da Rede para WooCommerce"

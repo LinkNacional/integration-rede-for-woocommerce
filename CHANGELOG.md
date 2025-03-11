@@ -1,6 +1,11 @@
+# 3.7.0 - 11/03/2025
+- Adição de validação 3DS para pagamentos de débito com Maxipago;
+- Adição de endpoint para receber notificações no método de débito com Maxipago.
+
 # 3.6.4 - 27/02/2025
-- Adição de conversão do valor total da compra;
-- Correção configurações quando o plugin PRO está desativado.
+- Correção campos do MaxiPago;
+- Correção de reconhecimento do retorno MaxiPAgo;
+- Adição de conversão do valor total da compra.
 
 # 3.6.3 - 24/02/2025
 - Correção configurações quando o plugin PRO está desativado.

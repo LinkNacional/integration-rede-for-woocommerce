@@ -126,6 +126,22 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
     public function initFormFields(): void {
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
 
+        wp_enqueue_script(
+            'lkn-integration-rede-for-woocommerce-endpoint',
+            plugin_dir_url(__FILE__) . '../Admin/js/lkn-integration-rede-for-woocommerce-endpoint.js',
+            array('jquery', 'wp-api'),
+            INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
+            false
+        );
+
+        wp_localize_script('lkn-integration-rede-for-woocommerce-endpoint', 'lknRedeForWoocommerceProSettings', array(
+            'endpointStatus' => get_option('LknIntegrationRedeForWoocommerceMaxipagoDebitEndpointStatus', false),
+            'translations' => array(
+                'endpointSuccess' => __('Request received!', 'woo-rede'),
+                'endpointError' => __('No requests received!', 'woo-rede'),
+            ),
+        ));
+
         $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-rede'),
@@ -141,6 +157,12 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'desc_tip' => true,
             ),
 
+            'endpoint' => array(
+                'title' => esc_attr__('Endpoint', 'woo-rede'),
+                'type' => 'text',
+                'description' => esc_attr__('Return URL to automatically update the status of orders paid via debit on the Maxipago.', 'woo-rede'),
+                'desc_tip' => true,
+            ),
             'maxipago' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
@@ -241,9 +263,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $countryCode = $countryParts[0];
 
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
-        $companyName = sanitize_text_field($this->get_option('company_name'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
         $referenceNum = uniqid('order_', true);
+        $browser = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
         $creditExpiry = isset($_POST['maxipago_debit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_debit_expiry'])) : '';
 
@@ -302,10 +324,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
             if ('production' === $environment) {
                 $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
-                $processorID = '1';
             } else {
                 $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
-                $processorID = '5';
             }
 
             $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
@@ -316,21 +336,33 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                             <merchantKey>$merchantKey</merchantKey>
                         </verification>
                         <order>
-                            <sale>
-                                <processorID>$processorID</processorID>
-                                <referenceNum>$referenceNum</referenceNum>
+                            <debitSale>
                                 <customerIdExt>" . $clientData['billing_cpf'] . "</customerIdExt>
-                                <billing>
+                                <processorID>5</processorID>
+                                <referenceNum>$referenceNum</referenceNum>
+                                <fraudCheck>N</fraudCheck>
+                                <authentication>
+                                    <mpiProcessorID>41</mpiProcessorID>
+                                    <onFailure>decline</onFailure>
+                                </authentication>
+                                <billing> 
                                     <name>" . $clientData['billing_name'] . "</name>
                                     <address>" . $clientData['billing_address_1'] . "</address>
+                                    <city>" . $clientData['billing_city'] . "</city>
                                     <district>" . $clientData['billing_district'] . "</district>
+                                    <state>" . $clientData['billing_state'] . "</state>
+                                    <postalcode>" . $clientData['billing_postcode'] . "</postalcode>
+                                    <country>" . $clientData['country'] . "</country>
+                                    <email>" . $order->get_billing_email() . "</email>
+                                </billing>
+                                <shipping>
+                                    <name>" . $clientData['billing_name'] . "</name>
+                                    <address>" . $clientData['billing_address_1'] . "</address>
                                     <city>" . $clientData['billing_city'] . "</city>
                                     <state>" . $clientData['billing_state'] . "</state>
                                     <postalcode>" . $clientData['billing_postcode'] . "</postalcode>
                                     <country>" . $clientData['country'] . "</country>
-                                    <phone>" . $clientData['billing_phone'] . "</phone>
-                                    <companyName>$companyName</companyName>
-                                </billing>
+                                </shipping>
                                 <transactionDetail>
                                     <payType>
                                         <debitCard>
@@ -338,6 +370,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                                             <expMonth>" . $cardData['card_expiration_month'] . "</expMonth>
                                             <expYear>" . $cardData['card_expiration_year'] . "</expYear>
                                             <cvvNumber>" . $cardData['card_cvv'] . "</cvvNumber>
+                                            <storageCard>0</storageCard>
+                                            <credentialId>02</credentialId>
                                         </debitCard>
                                     </payType>
                                 </transactionDetail>
@@ -345,7 +379,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                                     <chargeTotal>" . $order->get_total() . "</chargeTotal>
                                     <currencyCode>" . $clientData['currency_code'] . "</currencyCode>
                                 </payment>
-                            </sale>
+                                <userAgent>$browser</userAgent>
+                            </debitSale>
                         </order>
                     </transaction-request>";
 
@@ -383,6 +418,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 $order->update_meta_data('_wc_maxipago_transaction_expiration', $creditExpiry);
                 $order->update_status('processing');
                 apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+            }elseif(isset($xml_decode['responseCode']) && "1" == $xml_decode['responseCode']){
+                throw new Exception($xml_decode['processorMessage']);
             }
             if ('yes' == $this->debug) {
                 $this->log->log('info', $this->id, array(
@@ -410,6 +447,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             return array(
                 'result' => 'fail',
                 'redirect' => '',
+            );
+        }
+
+        if (isset($xml_decode['authenticationURL'])) {
+            $order->update_status('pending');
+    
+            return array(
+                'result' => 'success',
+                'redirect' => $xml_decode['authenticationURL'],
             );
         }
 

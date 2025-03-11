@@ -20,6 +20,54 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'callback' => array($this, 'verifyPixRedeStatus'),
             'permission_callback' => '__return_true',
         ));
+
+        register_rest_route('redeIntegration', '/maxipagoDebitListener', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'maxipagoDebitListener'),
+            'permission_callback' => '__return_true',
+        ));
+    }
+
+    public function maxipagoDebitListener($request) {
+        add_option('LknIntegrationRedeForWoocommerceMaxipagoDebitEndpointStatus', true);
+        update_option('LknIntegrationRedeForWoocommerceMaxipagoDebitEndpointStatus', true);
+        $requestBody = $request->get_body();
+
+        parse_str($requestBody, $parsedBody);
+        $xmlString = urldecode($parsedBody['xml']);
+        $xmlObject = simplexml_load_string($xmlString, "SimpleXMLElement", LIBXML_NOCDATA);
+        $notification = $xmlObject->{'transaction-event'};
+        
+        // Converte o valor de orderID para string
+        $referenceNumber = (string) $notification->referenceNumber;
+        $transactionStatus = (string) $notification->transactionStatus;
+        $maxipagoPixOptions = get_option('woocommerce_maxipago_debit_settings');
+
+        $args = array(
+            'limit' => -1,
+            'status' => array_keys( wc_get_order_statuses() ),
+            'meta_key' => '_wc_maxipago_transaction_reference_num',
+            'meta_value' => $referenceNumber,
+        );
+        $order = wc_get_orders( $args )[0];
+
+        switch ($transactionStatus) {
+            case '3':
+                $paymentCompleteStatus = $maxipagoPixOptions['payment_complete_status'];
+                if ("" == $paymentCompleteStatus) {
+                    $paymentCompleteStatus = 'processing';
+                }
+                $order->update_status($paymentCompleteStatus);
+                break;
+            case '9':
+                $order->update_status('cancelled');
+                break;
+            default:
+                $order->update_status('cancelled');
+                break;
+        }
+
+        return new WP_REST_Response('', 200);
     }
 
     public function pixListener($request)

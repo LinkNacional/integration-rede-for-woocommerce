@@ -39,6 +39,22 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
     {
         if (isset($_GET['page']) && isset($_GET['section'])) {
             if ('wc-settings' == sanitize_text_field(wp_unslash($_GET['page'])) && sanitize_text_field(wp_unslash($_GET['section'])) == $this->id) {
+                wp_enqueue_script(
+                    'lkn-integration-rede-for-woocommerce-endpoint',
+                    plugin_dir_url(__FILE__) . '../Admin/js/lkn-integration-rede-for-woocommerce-endpoint.js',
+                    array('jquery', 'wp-api'),
+                    INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
+                    false
+                );
+        
+                wp_localize_script('lkn-integration-rede-for-woocommerce-endpoint', 'lknRedeForWoocommerceProSettings', array(
+                    'endpointStatus' => get_option('LknIntegrationRedeForWoocommerceEndpointStatus', false),
+                    'translations' => array(
+                        'endpointSuccess' => __('Request received!', 'woo-rede'),
+                        'endpointError' => __('No requests received!', 'woo-rede'),
+                    ),
+                ));
+                
                 $this->form_fields = array(
                     'enabled' => array(
                         'title' => esc_attr__('Enable/Disable', 'woo-rede'),
