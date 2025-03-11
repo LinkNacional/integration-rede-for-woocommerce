@@ -78,7 +78,8 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 # 3.6.4 - 2025/02/27
 * Add conversion of the total purchase amount;
-* Fix settings when the PRO plugin is deactivated.
+- Fixed MaxiPago card fields;
+- Fixed MaxiPAgo API return code detection.
 
 # 3.6.3 - 2025/02/24
 * Fix settings when the PRO plugin is deactivated.
