@@ -451,6 +451,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         }
 
         if (isset($xml_decode['authenticationURL'])) {
+            $order->update_status('pending');
+    
             return array(
                 'result' => 'success',
                 'redirect' => $xml_decode['authenticationURL'],
