@@ -114,10 +114,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                 name="maxipago_debit_holder_name"
                 class="input-text"
                 type="text"
-                placeholder=<i
-            ></i><?php esc_attr_e( 'Name', 'woo-rede' ); ?>
-            maxlength="30" autocomplete="off"
-            style="font-size: 1.5em; padding: 8px 45px;"/>
+                placeholder="<?php esc_attr_e( 'Name', 'woo-rede' ); ?>"
+                maxlength="30" 
+                autocomplete="off"
+                style="font-size: 1.5em; padding: 8px 45px;"/>
         </div>
 
         <div class="form-row form-row">
