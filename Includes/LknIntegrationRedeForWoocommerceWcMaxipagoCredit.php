@@ -451,6 +451,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'headers' => array(
                     'Content-Type' => 'application/xml'
                 ),
+                'timeout' => 60,
                 'sslverify' => false // Desativa a verificação do certificado SSL
             );
 
