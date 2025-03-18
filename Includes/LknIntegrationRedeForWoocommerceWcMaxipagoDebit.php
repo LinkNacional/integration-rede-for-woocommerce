@@ -380,6 +380,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                                     <currencyCode>" . $clientData['currency_code'] . "</currencyCode>
                                 </payment>
                                 <userAgent>$browser</userAgent>
+                                <device>
+                                    <colorDepth>1</colorDepth>
+                                    <deviceType3ds>BROWSER</deviceType3ds>
+                                    <javaEnabled>true</javaEnabled>
+                                    <language>BR</language>
+                                    <screenHeight>550</screenHeight>
+                                    <screenWidth>550</screenWidth>
+                                    <timeZoneOffset>3</timeZoneOffset>
+                                </device>
                             </debitSale>
                         </order>
                     </transaction-request>";
@@ -423,7 +432,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             }
             if ('yes' == $this->debug) {
                 $this->log->log('info', $this->id, array(
-                    'transaction' => $xml,
+                    'request' => simplexml_load_string($xmlData),
+                    'response' => $xml,
                     'order' => array(
                         'orderId' => $orderId,
                         'amount' => $order->get_total(),

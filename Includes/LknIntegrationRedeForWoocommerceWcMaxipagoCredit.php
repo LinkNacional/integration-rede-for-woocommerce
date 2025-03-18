@@ -495,7 +495,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             }
             if ('yes' == $this->debug) {
                 $this->log->log('info', $this->id, array(
-                    'transaction' => $xml,
+                    'request' => simplexml_load_string($xmlData),
+                    'response' => $xml,
                     'order' => array(
                         'orderId' => $orderId,
                         'amount' => $order_total,
