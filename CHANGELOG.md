@@ -1,3 +1,6 @@
+# 3.7.2 - 08/04/2025
+- Atualização de "Tested up to" para a versão mais recente do WordPress.
+
 # 3.7.1 - 18/03/2025
 - Correção em requisição de débito com Maxipago.
 
