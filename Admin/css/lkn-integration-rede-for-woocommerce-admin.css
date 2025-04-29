@@ -192,6 +192,45 @@ textarea:disabled {
     align-items: center;
 }
 
+#woocommerce_maxipago_debit_clear_order_records{
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    padding: 0px 20px 0px 20px;
+}
+
+#lknWcRedeOrderLogs pre {
+    padding: 5px;
+    background-color: #D9D9D9;
+    width: fit-content;
+    border-radius: 4px;
+    margin: 0;
+    white-space: pre-wrap
+}
+
+#lknWcRedeOrderLogs pre{
+    padding: 10px;
+    background-color: #D9D9D9 !important;
+    width: fit-content;
+    max-width: 96%;
+    border-radius: 4px;
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+#lknWcRedeOrderLogs h3{
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#lknWcRedeOrderLogs div{
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
 @media (max-width: 1205px) {
     #lknIntegrationRedeForWoocommerceSettingsCardTable {
         flex-direction: column;

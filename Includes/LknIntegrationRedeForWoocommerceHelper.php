@@ -62,4 +62,22 @@ abstract class LknIntegrationRedeForWoocommerceHelper
 
         return($response_body['authorization']['brand']['name']);
     }
+
+    final public static function censorString($string, $censorLength) {
+        $length = strlen($string);
+
+        if ($censorLength >= $length) {
+            // Se o número de caracteres a censurar for maior ou igual ao comprimento total, censura tudo
+            return str_repeat('*', $length);
+        }
+
+        $startLength = floor(($length - $censorLength) / 2); // Dividir o restante igualmente entre início e fim
+        $endLength = $length - $startLength - $censorLength; // O que sobra para o final
+
+        $start = substr($string, 0, $startLength);
+        $end = substr($string, -$endLength);
+
+        $censored = str_repeat('*', $censorLength);
+        return $start . $censored . $end;
+    }
 }
