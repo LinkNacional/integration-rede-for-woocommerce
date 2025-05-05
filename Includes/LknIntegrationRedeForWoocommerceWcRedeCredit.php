@@ -504,10 +504,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         );
     }
 
-    public function process_refund($order_id, $amount = null, $reason = '')
+    public function process_refund($order_id, $amount = 0, $reason = '')
     {
         $order = new WC_Order($order_id);
-        $totalAmount = $order->get_meta('_wc_rede_total_amount');
+        $totalAmount = (int) $order->get_meta('_wc_rede_total_amount');
+        $refunded  = $order->get_total_refunded();
 
         if (! $order || ! $order->get_transaction_id()) {
             return false;
@@ -515,20 +516,37 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
             $tid = $order->get_transaction_id();
-            $amount = wc_format_decimal($amount);
+            $amount = wc_format_decimal($amount, 2);
 
             try {
-                if ($order->get_total() == $amount) {
-                    $transaction = $this->api->do_transaction_cancellation($tid, $totalAmount);
+                if ($amount > 0) {
+                    if ($refunded > $totalAmount) {
+                        return new WP_Error('rede_refund_error', esc_attr__('The amount to be refunded is greater than the total amount of the order.', 'woo-rede'));
+                    } elseif (isset($amount) && $amount > 0 && $amount < $totalAmount) {
+                        return new WP_Error(
+                            'rede_refund_error',
+                            esc_attr__('Reembolsos parciais não são permitidos. Você deve reembolsar o valor total do pedido.', 'woo-rede')
+                        );
+                        $transaction = $this->api->do_transaction_cancellation($tid, $amount);
+                    } elseif ($order->get_total() == $amount) {
+                        $transaction = $this->api->do_transaction_cancellation($tid, $totalAmount);
+                    }
+
+                    update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
+                    if ($transaction->getCancelId() === null) {
+                        update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getTid());
+                    } else {
+                        update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
+                    }
+                    if ($amount != 0) {
+                        update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
+                    }
+
+                    $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . wc_price($amount));
                 } else {
-                    $transaction = $this->api->do_transaction_cancellation($tid, $amount);
+                    $amount = $totalAmount;
+                    return true;
                 }
-
-                update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
-                update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
-                update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
-
-                $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . wc_price($amount));
             } catch (Exception $e) {
                 return new WP_Error('rede_refund_error', sanitize_text_field($e->getMessage()));
             }
