@@ -1,3 +1,6 @@
+# 3.7.3 - 05/05/2025
+- Correção no reembolso de pagamento.
+
 # 3.7.2 - 08/04/2025
 - Atualização de "Tested up to" para a versão mais recente do WordPress.
 
