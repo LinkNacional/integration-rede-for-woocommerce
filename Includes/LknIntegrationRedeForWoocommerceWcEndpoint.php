@@ -26,6 +26,29 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'callback' => array($this, 'maxipagoDebitListener'),
             'permission_callback' => '__return_true',
         ));
+
+        register_rest_route('redeIntegration', '/clearOrderLogs', array(
+            'methods' => 'DELETE',
+            'callback' => array($this, 'clearOrderLogs'),
+            'permission_callback' => '__return_true',
+        ));
+    }
+
+    public function clearOrderLogs($request) {
+        $args = array(
+            'limit' => -1, // Sem limite, pega todas as ordens
+            'meta_key' => 'lknWcRedeOrderLogs', // Meta key específica
+            'meta_compare' => 'EXISTS', // Verifica se a meta key existe
+        );
+
+        $orders = wc_get_orders($args);
+
+        foreach ($orders as $order) {
+            $order->delete_meta_data('lknWcRedeOrderLogs');
+            $order->save();
+        }
+
+        return new WP_REST_Response($orders, 200);
     }
 
     public function maxipagoDebitListener($request) {

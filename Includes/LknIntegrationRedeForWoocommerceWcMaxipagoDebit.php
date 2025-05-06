@@ -231,6 +231,21 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             )
         );
 
+        if ($this->get_option('debug') == 'yes') {
+            $this->form_fields['show_order_logs'] =  array(
+                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                'default' => 'no',
+            );
+            $this->form_fields['clear_order_records'] =  array(
+                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'type' => 'button',
+                'id' => 'validateLicense',
+                'class' => 'woocommerce-save-button components-button is-primary'
+            );
+        }
+
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);
 
         if ( ! empty($customConfigs)) {
@@ -265,7 +280,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $merchantId = sanitize_text_field($this->get_option('merchant_id'));
         $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
         $referenceNum = uniqid('order_', true);
-        $browser = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $browser = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 
         $creditExpiry = isset($_POST['maxipago_debit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_debit_expiry'])) : '';
 
@@ -414,6 +429,36 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             //Reconstruindo o $xml para facilitar o uso da variavel
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
+            if ('yes' == $this->debug) {
+                $this->log->log('info', $this->id, array(
+                    'request' => simplexml_load_string($xmlData),
+                    'response' => $xml,
+                    'order' => array(
+                        'orderId' => $orderId,
+                        'amount' => $order->get_total(),
+                        'status' => $order->get_status()
+                    ),
+                ));
+                
+                
+                $xmlBody = simplexml_load_string($xmlData);
+                $cardNumber = $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number;
+                
+                $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
+                $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
+                $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+                
+                $orderLogsArray = array(
+                    'url' => $apiUrl,
+                    'body' => $xmlBody,
+                    'response' => $xml
+                );
+                
+                $orderLogs = json_encode($orderLogsArray);
+                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            }
+            throw new Exception(json_encode($orderLogsArray));
+
 
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
@@ -431,17 +476,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             }elseif(isset($xml_decode['responseCode']) && "1" == $xml_decode['responseCode']){
                 throw new Exception($xml_decode['processorMessage']);
             }
-            if ('yes' == $this->debug) {
-                $this->log->log('info', $this->id, array(
-                    'request' => simplexml_load_string($xmlData),
-                    'response' => $xml,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order->get_total(),
-                        'status' => $order->get_status()
-                    ),
-                ));
-            }
+            
 
             if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
                 throw new Exception($xml_decode['errorMessage']);
