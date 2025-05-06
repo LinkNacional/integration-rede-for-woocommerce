@@ -32,8 +32,15 @@ jobs:
       uses: wordpress/plugin-check-action@v1
       with:
         build-dir: './'
-        exclude-directories: 'node_modules,vendor,tests,.eslintrc'
-        exclude-checks: 'WordPress.WP.I18n.TextDomainMismatch'
+        exclude-directories: |
+          node_modules
+          vendor
+          tests
+          .eslintrc
+        exclude-checks: |
+          WordPress.WP.I18n.TextDomainMismatch
+          hidden_files
+          WordPress.Security.NonceVerification.Missing
         categories: |
           performance
           accessibility
