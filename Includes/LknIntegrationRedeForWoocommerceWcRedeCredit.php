@@ -508,7 +508,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     {
         $order = new WC_Order($order_id);
         $totalAmount = (int) $order->get_meta('_wc_rede_total_amount');
-        $refunded  = $order->get_total_refunded();
+
+        if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
+            return new WP_Error(
+                'rede_refund_error',
+                esc_attr__('Reembolso total já realizado, verifique no bloco observações do pedido.', 'woo-rede')
+            );
+        }
 
         if (! $order || ! $order->get_transaction_id()) {
             return false;
@@ -520,9 +526,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
             try {
                 if ($amount > 0) {
-                    if ($refunded > $totalAmount) {
-                        return new WP_Error('rede_refund_error', esc_attr__('The amount to be refunded is greater than the total amount of the order.', 'woo-rede'));
-                    } elseif (isset($amount) && $amount > 0 && $amount < $totalAmount) {
+                    if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
                         return new WP_Error(
                             'rede_refund_error',
                             esc_attr__('Reembolsos parciais não são permitidos. Você deve reembolsar o valor total do pedido.', 'woo-rede')
@@ -538,11 +542,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     } else {
                         update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
                     }
-                    if ($amount != 0) {
-                        update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
-                    }
+                    update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
 
-                    $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . wc_price($amount));
+                    $order->add_order_note(esc_attr__('Transation refund id: ', 'woo-rede') . $transaction->getRefundId());
+                    $order->add_order_note(esc_attr__('Refunded: ', 'woo-rede') . wc_price($amount));
                 } else {
                     $amount = $totalAmount;
                     return true;

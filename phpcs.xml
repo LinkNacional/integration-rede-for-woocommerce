@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset name="Custom WP Standards">
+  <description>Custom WP Coding Standards excluding TextDomainMismatch and warnings</description>
+
+  <rule ref="WordPress-Core" />
+  <rule ref="WordPress-Extra" />
+  <rule ref="WordPress-Docs" />
+
+  <!-- Exclude this specific error -->
+  <exclude name="WordPress.WP.I18n.TextDomainMismatch" />
+
+  <file>./</file>
+</ruleset>

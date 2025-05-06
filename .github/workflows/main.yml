@@ -9,6 +9,7 @@ env:
   PLUGIN_NAME: integration-rede-for-woocommerce
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
+  DEPLOY_TAG: "3.7.3"
 
 jobs:
   release-build:
@@ -17,6 +18,25 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+        coverage: none
+
+    # Plugin check
+    - name: Install PHP_CodeSniffer and WordPress Standards
+      run: |
+        composer global require "squizlabs/php_codesniffer=*"
+        composer global require "wp-coding-standards/wpcs"
+        ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+        ~/.composer/vendor/bin/phpcs -i
+
+    - name: Run PHPCS with custom ruleset
+      run: |
+        export PATH="$HOME/.composer/vendor/bin:$PATH"
+        phpcs --warning-severity=0
 
     - name: Run composer install
       uses: php-actions/composer@v6
@@ -28,18 +48,38 @@ jobs:
         dev: no
 
     # Add plugin files to a root directory
-    - name: Make plugin root directory
-      run: "mkdir ${{env.DIR_NAME}} && mv -t ./${{env.DIR_NAME}} ./Admin ./Includes ./languages ./Public *.txt *.php *.json && cp -r ./vendor ./${{env.DIR_NAME}}/vendor && find ./${{env.DIR_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.DIR_NAME}} -type d -exec chmod 0755 {} +  && ls -lah"
+    - name: Prepare plugin folder
+      run: |
+        mkdir -p dist
+        mkdir -p build/${{ env.PLUGIN_NAME }}
+        mv ./Admin ./Includes ./languages ./Public *.php *.txt ./build/${{ env.PLUGIN_NAME }}
+        cp -r vendor ./build/${{ env.PLUGIN_NAME }}/vendor
+        find ./build -type f -exec chmod 0644 {} +
+        find ./build -type d -exec chmod 0755 {} +
 
     # Compact plugin as .zip
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: '${{ env.DIR_NAME }}'
-        directory: '.'
-        filename: '${{ env.DIR_NAME }}.zip'
+        path: '.'
+        directory: 'build'
+        filename: '${{ env.PLUGIN_NAME }}.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig'
+
+    - name: Move .zip to custom location
+      run: |
+        mv ./build/${{ env.PLUGIN_NAME }}.zip ./dist/
+
+    - name: Deploy para WordPress.org
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        VERSION: ${{ env.DEPLOY_TAG }}
+        SLUG: woo-rede
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        ASSETS_DIR: .wordpress-org
+        BUILD_DIR: build/${{ env.PLUGIN_NAME }}
 
     # Update version tag
     - name: Bump version and push tag
@@ -47,13 +87,13 @@ jobs:
       uses: mathieudutour/github-tag-action@v6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        custom_tag: "3.7.3"
+        custom_tag: ${{ env.DEPLOY_TAG }}
 
     # Generate new release
     - name: Generate new Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "${{ env.DIR_NAME }}.zip"
+        artifacts: "dist/${{ env.PLUGIN_NAME }}.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
         commit: "main"
         draft: true
