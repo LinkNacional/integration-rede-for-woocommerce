@@ -19,24 +19,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
+    - name: Executar Plugin Check com configurações personalizadas
+      uses: wordpress/plugin-check-action@v1
       with:
-        php-version: ${{ env.PHP_VERSION }}
-        coverage: none
-
-    # Plugin check
-    - name: Install PHP_CodeSniffer and WordPress Standards
-      run: |
-        composer global require "squizlabs/php_codesniffer=*"
-        composer global require "wp-coding-standards/wpcs"
-        ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
-        ~/.composer/vendor/bin/phpcs -i
-
-    - name: Run PHPCS with custom ruleset
-      run: |
-        export PATH="$HOME/.composer/vendor/bin:$PATH"
-        phpcs --warning-severity=0
+        build-dir: './'
+        exclude-directories: 'node_modules,vendor,tests,.eslintrc'
+        exclude-checks: 'WordPress.WP.I18n.TextDomainMismatch'
+        categories: |
+          performance
+          accessibility
+          general
+          plugin_repo
+          security
 
     - name: Run composer install
       uses: php-actions/composer@v6
