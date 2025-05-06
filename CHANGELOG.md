@@ -1,8 +1,8 @@
-# 3.7.4 - 05/05/2025
+# 3.7.4 - 06/05/2025
 - Correção no reembolso de pagamento.
 - Correção no action de lançamento de plugin.
 
-# 3.7.3 - 05/05/2025
+# 3.7.3 - 06/05/2025
 - Correção no reembolso de pagamento.
 
 # 3.7.2 - 08/04/2025

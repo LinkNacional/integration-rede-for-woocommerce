@@ -72,11 +72,11 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
-# 3.7.4 - 2025/05/05
+# 3.7.4 - 2025/05/06
 * Fix Correction in payment refund
 * Fixed issue in plugin release action
 
-# 3.7.3 - 2025/05/05
+# 3.7.3 - 2025/05/06
 * Fix Correction in payment refund
 
 # 3.7.2 - 2025/04/08
