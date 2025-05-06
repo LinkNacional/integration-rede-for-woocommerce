@@ -544,7 +544,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     }
                     update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
 
-                    $order->add_order_note(esc_attr__('Transation refund id: ', 'woo-rede') . $transaction->getRefundId());
+                    $order->add_order_note(esc_attr__('Rede Transation refund id: ', 'woo-rede') . $transaction->getRefundId());
                     $order->add_order_note(esc_attr__('Refunded: ', 'woo-rede') . wc_price($amount));
                 } else {
                     $amount = $totalAmount;
