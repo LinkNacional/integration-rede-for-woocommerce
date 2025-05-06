@@ -533,7 +533,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                         );
                         $transaction = $this->api->do_transaction_cancellation($tid, $amount);
                     } elseif ($order->get_total() == $amount) {
-                        $transaction = $this->api->do_transaction_cancellation($tid, $totalAmount);
+                        $transaction = $this->api->do_transaction_cancellation($tid, $amount);
                     }
 
                     update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
@@ -544,10 +544,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     }
                     update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
 
-                    $order->add_order_note(esc_attr__('Rede Transation refund id: ', 'woo-rede') . $transaction->getRefundId());
-                    $order->add_order_note(esc_attr__('Refunded: ', 'woo-rede') . wc_price($amount));
+                    $order->add_order_note(esc_attr__('Id da transação de reembolso da Rede: ', 'woo-rede') . $transaction->getRefundId());
+                    $order->add_order_note(esc_attr__('Valor reembolsado: ', 'woo-rede') . wc_price($amount));
                 } else {
-                    $amount = $totalAmount;
                     return true;
                 }
             } catch (Exception $e) {
