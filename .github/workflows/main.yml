@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 env:
-  PLUGIN_NAME: integration-rede-for-woocommerce
+  PLUGIN_NAME: woo-rede
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
   DEPLOY_TAG: "3.7.3"
