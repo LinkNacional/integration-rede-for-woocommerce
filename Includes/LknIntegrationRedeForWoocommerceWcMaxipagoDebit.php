@@ -465,7 +465,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 $orderLogs = json_encode($orderLogsArray);
                 $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
             }
-            throw new Exception(json_encode($orderLogsArray));
 
 
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
