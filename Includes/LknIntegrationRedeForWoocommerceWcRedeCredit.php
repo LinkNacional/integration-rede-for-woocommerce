@@ -282,6 +282,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             )
         );
 
+        if ($this->get_option('debug') == 'yes') {
+            $this->form_fields['show_order_logs'] =  array(
+                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                'default' => 'no',
+            );
+            $this->form_fields['clear_order_records'] =  array(
+                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'type' => 'button',
+                'id' => 'validateLicense',
+                'class' => 'woocommerce-save-button components-button is-primary'
+            );
+        }
+
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
@@ -436,6 +451,26 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order_total = (float) $order_total;
 
             $transaction = $this->api->doTransactionCreditRequest($orderId + time(), $order_total, $installments, $cardData);
+            if ('yes' == $this->debug) {
+                $bodyArray = array(
+                    'orderId' => $orderId,
+                    'amount' => $order_total,
+                    'installments' => $installments,
+                    'cardData' => $cardData
+                );
+
+                $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
+                $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
+
+                $orderLogsArray = array(
+                    'body' => $bodyArray,
+                    'response' => $transaction
+                );
+                
+                $orderLogs = json_encode($orderLogsArray);
+                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            }
+
             $order->update_meta_data('_transaction_id', $transaction->getTid());
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
             $order->update_meta_data('_wc_rede_transaction_return_message', $transaction->getReturnMessage());
