@@ -1,3 +1,6 @@
+# 3.7.5 - 07/05/2025
+- Correção em pagamento de débito com Maxipago.
+
 # 3.7.4 - 06/05/2025
 - Correção no reembolso de pagamento.
 - Correção no action de lançamento de plugin.

@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 3.7.4
+Stable tag: 3.7.5
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -72,6 +72,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 3.7.5 - 2025/05/07
+* Fix debit payment issue with Maxipago.
+
 # 3.7.4 - 2025/05/06
 * Fix Correction in payment refund
 * Fixed issue in plugin release action
