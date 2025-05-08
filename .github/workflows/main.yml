@@ -9,7 +9,7 @@ env:
   PLUGIN_NAME: woo-rede
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "3.7.5"
+  DEPLOY_TAG: "3.8.0"
 
 jobs:
   release-build:
