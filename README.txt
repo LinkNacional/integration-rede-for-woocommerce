@@ -74,6 +74,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 == Changelog ==
 # 3.8.0 - 2025/05/08
 - Add setting to display logs within orders.
+- Fix logic for the minimum installment value.
 
 # 3.7.5 - 2025/05/07
 * Fix debit payment issue with Maxipago.

@@ -1,5 +1,6 @@
 # 3.8.0 - 08/05/2025
 - Adição de configuração para exibir logs dentro dos pedidos.
+- Correção em lógica do valor de parcela minima.
 
 # 3.7.5 - 07/05/2025
 - Correção em pagamento de débito com Maxipago.
