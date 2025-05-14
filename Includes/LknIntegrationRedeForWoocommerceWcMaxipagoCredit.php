@@ -309,7 +309,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             }
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
-            if ($this->get_option('installment_interest') == 'yes') {
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
@@ -352,8 +352,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         absint(sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments']))) : 1;
 
         $interest = round((float) $this->get_option($installments . 'x'), 2);
-        if ($this->get_option('installment_interest') == 'yes') {
-            $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
+        if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+            $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this);
         }
 
         $order_total = (float) $order_total;

@@ -344,7 +344,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
-            if ($this->get_option('installment_interest') == 'yes') {
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
@@ -445,8 +445,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $orderId = $order->get_id();
             $interest = round((float) $this->get_option($installments . 'x'), 2);
             $order_total = $order->get_total();
-            if ($this->get_option('installment_interest') == 'yes') {
-                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, '', 'total');
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this);
             }
             $order_total = (float) $order_total;
 

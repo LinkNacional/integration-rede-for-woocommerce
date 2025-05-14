@@ -72,7 +72,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
 
         if (
             isset($settings['installment_interest']) &&
-            $settings['installment_interest'] === 'yes' &&
+            ($settings['installment_interest'] === 'yes' || $settings['installment_discount']) &&
             is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
         ) {
 
