@@ -1,3 +1,11 @@
+# 3.9.0 - 15/05/2025
+* Adição de compatibilidade com configuração PRO para adicionar desconto na parcela.
+* Adição de compatibilidade com configuração PRO para definir o valor mínimo para parcelas sem juros.
+
+# 3.8.0 - 08/05/2025
+- Adição de configuração para exibir logs dentro dos pedidos.
+- Correção em lógica do valor de parcela minima.
+
 # 3.7.5 - 07/05/2025
 - Correção em pagamento de débito com Maxipago.
 

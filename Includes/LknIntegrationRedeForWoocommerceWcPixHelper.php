@@ -45,7 +45,17 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
 
         $response_body = wp_remote_retrieve_body($response);
         $response_body = json_decode($response_body, true);
+        
+        if ($pixInstance->get_option('debug') == 'yes') {
+            $orderLogsArray = array(
+                'url' => $apiUrl,
+                'body' => $body,
+                'response' => $response_body
+            );
 
+            $orderLogs = json_encode($orderLogsArray);
+            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+        }
         return $response_body;
     }
 

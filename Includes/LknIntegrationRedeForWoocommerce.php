@@ -92,6 +92,7 @@ final class LknIntegrationRedeForWoocommerce
     public $wc_maxipago_debit_class;
     public $LknIntegrationRedeForWoocommercePixRedeClass;
     public $LknIntegrationRedeForWoocommerceEndpointClass;
+    public $LknIntegrationRedeForWoocommercePixHelperClass;
     public $LknIntegrationRedeForWoocommerceHelperClass;
 
     //Define os hooks somente quando woocommerce está ativo
@@ -133,9 +134,10 @@ final class LknIntegrationRedeForWoocommerce
     {
         $this->loader = new LknIntegrationRedeForWoocommerceLoader();
         $this->LknIntegrationRedeForWoocommerceEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
-        $this->LknIntegrationRedeForWoocommerceHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
-        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommerceHelperClass, 'getCardToken', 10, 3);
-        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommerceHelperClass, 'setSupports', 10, 1);
+        $this->LknIntegrationRedeForWoocommercePixHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
+        $this->LknIntegrationRedeForWoocommerceHelperClass = new LknIntegrationRedeForWoocommerceHelper();
+        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'getCardToken', 10, 3);
+        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'setSupports', 10, 1);
     }
 
     /**
@@ -186,6 +188,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('rest_api_init', $this->LknIntegrationRedeForWoocommerceEndpointClass, 'registerorderRedeCaptureEndPoint');
         $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_pix_name', 10, 2);
 
+        $this->loader->add_action('add_meta_boxes', $this->LknIntegrationRedeForWoocommerceHelperClass, 'showOrderLogs');
+        
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
     }
 
