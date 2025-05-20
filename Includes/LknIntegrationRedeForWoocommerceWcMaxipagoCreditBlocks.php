@@ -49,7 +49,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     public function get_payment_method_data()
     {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        $maxParcels = get_option('woocommerce_maxipago_credit_settings')['max_parcels_number'];
+        $settings = get_option('woocommerce_maxipago_credit_settings');
+        $maxParcels = $settings['max_parcels_number'];
+        $minParcelValue = (float) $settings['min_parcels_value'];
+
         $phpArray = array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
@@ -68,16 +71,26 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
                 'interestFree' => ' ' . __('interest-free', 'woo-rede'),
             )
         );
-        if (isset(get_option('woocommerce_maxipago_credit_settings')['installment_interest']) &&
-            get_option('woocommerce_maxipago_credit_settings')['installment_interest'] == 'yes' &&
-            is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+
+        if (
+            isset($settings['installment_interest']) &&
+            ($settings['installment_interest'] === 'yes' || $settings['installment_discount']) &&
+            is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
+        ) {
+
             for ($i = 1; $i <= $maxParcels; ++$i) {
-                $interest = round((float) get_option('woocommerce_maxipago_credit_settings')[$i . 'x'], 2);
-                $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+                $parcelAmount = $cart_total / $i;
+                if ($parcelAmount >= $minParcelValue) {
+                    $interest = round((float) $settings[$i . 'x'], 2);
+                    $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+                }
             }
         } else {
             for ($i = 1; $i <= $maxParcels; ++$i) {
-                $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($cart_total / $i))));
+                $parcelAmount = $cart_total / $i;
+                if ($parcelAmount >= $minParcelValue) {
+                    $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($parcelAmount))));
+                }
             }
         }
         return $phpArray;

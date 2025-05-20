@@ -2,11 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit();
 }
+$option = get_option('woocommerce_maxipago_debit_settings');
 
 ?>
 <fieldset id="maxipagoDebitPaymentForm">
     <div class="paymentMethodDescription">
-        <p><?php esc_html_e( 'Pay for your purchase with a debit card through', 'woo-rede' ); ?>
+        <p><?php echo esc_html( $option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')  ); ?>
         </p>
         <img
             id="logoMaxipago"

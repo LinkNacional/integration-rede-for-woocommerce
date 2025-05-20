@@ -12,6 +12,9 @@ $selectDivClass = 'select-input';
 $selectDivStyle = '';
 $selectSpanStyle = '';
 $selectStyle = '';
+$option = get_option('woocommerce_maxipago_credit_settings');
+
+
 /* switch ($theme_name) {
     case 'Hello Elementor':
         $selectDivClass = "
@@ -46,7 +49,7 @@ $selectStyle = '';
     class="maxipago-payment-form"
 >
     <div class="payment-method-description">
-        <p><?php esc_html_e( 'Pay for your purchase with a credit card through', 'woo-rede' ); ?>
+        <p><?php echo esc_html( $option['description'] ?? __('Pay for your purchase with a credit card through ', 'woo-rede')  ); ?>
         </p>
         <img
             id="logo-maxipago"

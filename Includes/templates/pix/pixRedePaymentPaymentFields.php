@@ -2,10 +2,11 @@
 if (! defined('ABSPATH')) {
     exit();
 }
+$option = get_option('woocommerce_integration_rede_pix_settings');
 
 ?>
 <div id="LknIntegrationRedeForWoocommercePaymentFields">
-    <p><?php esc_html_e('Pay for your purchase with a pix through ', 'woo-rede'); ?>
+    <p><?php echo esc_html( $option['description'] ?? __('Pay for your purchase with a pix through ', 'woo-rede')  ); ?>
     </p>
     <svg
         id="integration-logo-rede"

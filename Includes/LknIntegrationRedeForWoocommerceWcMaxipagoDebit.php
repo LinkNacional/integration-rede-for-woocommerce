@@ -196,9 +196,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'description' => array(
                 'title' => __('Description', 'woo-rede'),
                 'type' => 'textarea',
-                'description' => __('This controls the description which the user sees during checkout.', 'woo-rede'),
-                'default' => __('Pay securely with Maxipago.', 'woo-rede'),
-                'desc_tip' => true,
+                'default' => __('Pay for your purchase with a debit card through ', 'woo-rede'),
             ),
             'merchant_id' => array(
                 'title' => __('Merchant ID', 'woo-rede'),
