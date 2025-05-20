@@ -361,7 +361,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         $order_total = (float) $order_total;
-        throw new Exception($order_total);
 
         $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
