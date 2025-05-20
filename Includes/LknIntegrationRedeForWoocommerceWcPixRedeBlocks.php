@@ -45,9 +45,11 @@ final class LknIntegrationRedeForWoocommerceWcPixRedeBlocks extends AbstractPaym
 
     public function get_payment_method_data()
     {
+        $option = get_option('woocommerce_integration_rede_pix_settings');
+
         return array(
             'title' => $this->gateway->title,
-            'description' => __('Pay for your purchase with a pix through ', 'woo-rede'),
+            'description' => $option['description'] ?? __('Pay for your purchase with a pix through ', 'woo-rede'),
         );
     }
 }

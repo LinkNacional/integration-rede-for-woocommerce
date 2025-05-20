@@ -157,7 +157,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'text',
                 'default' => esc_attr__('Pay with the Rede Credit', 'woo-rede'),
             ),
-
+            'description' => array(
+                'title' => __('Description', 'woo-rede'),
+                'type' => 'textarea',
+                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+            ),
             'rede' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',

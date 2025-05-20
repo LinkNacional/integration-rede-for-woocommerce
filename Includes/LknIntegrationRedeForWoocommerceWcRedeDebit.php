@@ -158,6 +158,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
             ),
+            'description' => array(
+                'title' => __('Description', 'woo-rede'),
+                'type' => 'textarea',
+                'default' => __('Pay for your purchase with a debit card through ', 'woo-rede'),
+            ),
             'environment' => array(
                 'title' => esc_attr__('Environment', 'woo-rede'),
                 'type' => 'select',

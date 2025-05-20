@@ -149,7 +149,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'default' => __('Pay with the Maxipago Credit', 'woo-rede'),
                 'desc_tip' => true,
             ),
-
+            'description' => array(
+                'title' => __('Description', 'woo-rede'),
+                'type' => 'textarea',
+                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+            ),
             'maxipago' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
@@ -357,6 +361,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         $order_total = (float) $order_total;
+        throw new Exception($order_total);
+
         $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
         if (strpos($creditExpiry, '/') !== false) {

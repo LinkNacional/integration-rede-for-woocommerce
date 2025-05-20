@@ -74,6 +74,38 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
             </td>
           </tr>
           ${(page === 'rede_credit' || page === 'maxipago_credit') ? `
+            
+            <tr valign="top">
+                <th scope="row" class="titledesc">
+                    <label for="woocommerce_rede_credit_license"><span class="lowOpacity">Configurações de Parcelamento</span>
+                    </label>
+                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                  </th>
+                <td class="forminp">
+                    <fieldset>
+                        <legend class="screen-reader-text"><span>Configurações de Parcelamento</span></legend>
+                        <input disabled class="input-text regular-input " value="Juros" type="text" name="woocommerce_rede_credit_license" id="woocommerce_rede_credit_license">
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row" class="titledesc">
+                    <label for="woocommerce_rede_credit_license"><span class="lowOpacity">Parcela minima para sem juros</span>
+                      <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
+                      </span>
+                      <span class="lknIntegrationRedeForWoocommerceTooltiptext">
+                        Defina o valor mínimo de cada parcela para que a venda seja considerada sem juros. Se o valor total da compra for maior que o limite definido para parcelamento sem juros, mas se for inferior a este valor mínimo, juros serão aplicados automaticamente.
+                      </span>
+                    </label>
+                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                  </th>
+                <td class="forminp">
+                    <fieldset>
+                        <legend class="screen-reader-text"><span>Parcela minima para sem juros</span></legend>
+                        <input value disabled class="input-text regular-input " type="password" name="woocommerce_rede_credit_license" id="woocommerce_rede_credit_license">
+                    </fieldset>
+                </td>
+            </tr>
             <tr valign="top">
               <th scope="row" class="titledesc">
                 <label class="lowOpacity" for="woocommerce_rede_credit_installment_interest">${lknPhpProFieldsVariables.interestOnInstallments}</label>

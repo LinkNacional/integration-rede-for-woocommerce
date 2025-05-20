@@ -2,10 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit();
 }
+$option = get_option('woocommerce_rede_debit_settings');
+
 ?>
 <fieldset id="rede-debit-payment-form" class="rede-payment-form">
     <div class="payment-method-description">
-        <p><?php esc_html_e( 'Pay for your purchase with a debit card through', 'woo-rede' ); ?></p>
+        <p><?php echo esc_html( $option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')  ); ?>
         <svg id="logo-rede" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480.72 156.96">
             <defs>
                 <style>.cls-1{fill:#ff7800}</style>
