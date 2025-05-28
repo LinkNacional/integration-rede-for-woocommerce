@@ -157,7 +157,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'text',
                 'default' => esc_attr__('Pay with the Rede Credit', 'woo-rede'),
             ),
-
+            'description' => array(
+                'title' => __('Description', 'woo-rede'),
+                'type' => 'textarea',
+                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+            ),
             'rede' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
@@ -282,6 +286,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             )
         );
 
+        if ($this->get_option('debug') == 'yes') {
+            $this->form_fields['show_order_logs'] =  array(
+                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                'default' => 'no',
+            );
+            $this->form_fields['clear_order_records'] =  array(
+                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'type' => 'button',
+                'id' => 'validateLicense',
+                'class' => 'woocommerce-save-button components-button is-primary'
+            );
+        }
+
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
@@ -329,7 +348,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
-            if ($this->get_option('installment_interest') == 'yes') {
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
@@ -430,12 +449,32 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $orderId = $order->get_id();
             $interest = round((float) $this->get_option($installments . 'x'), 2);
             $order_total = $order->get_total();
-            if ($this->get_option('installment_interest') == 'yes') {
-                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, '', 'total');
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this);
             }
             $order_total = (float) $order_total;
 
             $transaction = $this->api->doTransactionCreditRequest($orderId + time(), $order_total, $installments, $cardData);
+            if ('yes' == $this->debug) {
+                $bodyArray = array(
+                    'orderId' => $orderId,
+                    'amount' => $order_total,
+                    'installments' => $installments,
+                    'cardData' => $cardData
+                );
+
+                $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
+                $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
+
+                $orderLogsArray = array(
+                    'body' => $bodyArray,
+                    'response' => $transaction
+                );
+                
+                $orderLogs = json_encode($orderLogsArray);
+                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            }
+
             $order->update_meta_data('_transaction_id', $transaction->getTid());
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
             $order->update_meta_data('_wc_rede_transaction_return_message', $transaction->getReturnMessage());

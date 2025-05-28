@@ -33,10 +33,8 @@ const ContentRedeCredit = (props) => {
   const options = []
 
   for (let index = 1; index <= settingsRedeCredit.maxInstallmentsRede; index++) {
-    if (settingsRedeCredit[`${index}x`] !== 0) {
+    if (settingsRedeCredit[`${index}x`] !== undefined) {
       options.push({ key: index, label: settingsRedeCredit[`${index}x`] })
-    } else {
-      options.push({ key: index, label: `${index}x de R$ ${totalAmountString}${translationsRedeCredit.interestFree}` })
     }
   }
 

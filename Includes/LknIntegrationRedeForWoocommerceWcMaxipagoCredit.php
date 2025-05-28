@@ -149,7 +149,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'default' => __('Pay with the Maxipago Credit', 'woo-rede'),
                 'desc_tip' => true,
             ),
-
+            'description' => array(
+                'title' => __('Description', 'woo-rede'),
+                'type' => 'textarea',
+                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+            ),
             'maxipago' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
                 'type' => 'title',
@@ -252,6 +256,21 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             )
         );
 
+        if ($this->get_option('debug') == 'yes') {
+            $this->form_fields['show_order_logs'] =  array(
+                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                'default' => 'no',
+            );
+            $this->form_fields['clear_order_records'] =  array(
+                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'type' => 'button',
+                'id' => 'validateLicense',
+                'class' => 'woocommerce-save-button components-button is-primary'
+            );
+        }
+
         $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
@@ -294,7 +313,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             }
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
-            if ($this->get_option('installment_interest') == 'yes') {
+            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
@@ -337,11 +356,12 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         absint(sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments']))) : 1;
 
         $interest = round((float) $this->get_option($installments . 'x'), 2);
-        if ($this->get_option('installment_interest') == 'yes') {
-            $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $interest, 'total');
+        if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+            $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this);
         }
 
         $order_total = (float) $order_total;
+
         $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
         if (strpos($creditExpiry, '/') !== false) {
@@ -477,6 +497,36 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             //Reconstruindo o $xml para facilitar o uso da variavel
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
+
+            if ('yes' == $this->debug) {
+                $this->log->log('info', $this->id, array(
+                    'request' => simplexml_load_string($xmlData),
+                    'response' => $xml,
+                    'order' => array(
+                        'orderId' => $orderId,
+                        'amount' => $order->get_total(),
+                        'status' => $order->get_status()
+                    ),
+                ));
+
+
+                $xmlBody = simplexml_load_string($xmlData);
+                $cardNumber = $xmlBody->order->sale->transactionDetail->payType->creditCard->number;
+
+                $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
+                $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
+                $xmlBody->order->sale->transactionDetail->payType->creditCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+
+                $orderLogsArray = array(
+                    'url' => $apiUrl,
+                    'body' => $xmlBody,
+                    'response' => $xml
+                );
+
+                $orderLogs = json_encode($orderLogsArray);
+                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            }
+
 
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);

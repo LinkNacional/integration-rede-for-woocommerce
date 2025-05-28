@@ -34,17 +34,12 @@ const ContentMaxipagoCredit = props => {
   const [focus, setFocus] = window.wp.element.useState('');
   const options = [];
   for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    if (settingsMaxipagoCredit[`${index}x`] !== 0) {
+    if (settingsMaxipagoCredit[`${index}x`] !== undefined) {
       options.push({
         key: index,
         label: settingsMaxipagoCredit[`${index}x`]
       });
-    } else {
-      options.push({
-        key: index,
-        label: `${index}x de R$ ${totalAmountString}${translationsMaxipagoCredit.interestFree}`
-      });
-    }
+    } 
   }
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number;

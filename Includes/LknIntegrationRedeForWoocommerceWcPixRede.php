@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         $this->id = 'integration_rede_pix';
         $this->title = 'Integration Rede Pix';
         $this->has_fields = true;
-        $this->method_title = esc_attr__('Pay with the Rede Pix', 'woo-rede');
+        $this->method_title = esc_attr__('Pay with the Rede Pix FREE', 'woo-rede');
         $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede');
         $this->supports = array(
             'products',
@@ -72,6 +72,11 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'description' => __('The payment name that the user sees at checkout.', 'woo-rede'),
                         'default' => __('Pay with the Rede Pix', 'woo-rede'),
                         'desc_tip' => true,
+                    ),
+                    'description' => array(
+                        'title' => __('Description', 'woo-rede'),
+                        'type' => 'textarea',
+                        'default' => __( 'Pay for your purchase with a pix through ', 'woo-rede' ),
                     ),
                     'endpoint' => array(
                         'title' => esc_attr__('Endpoint', 'woo-rede'),
@@ -145,6 +150,21 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'default' => 'no',
                     )
                 );
+
+                if ($this->get_option('debug') == 'yes') {
+                    $this->form_fields['show_order_logs'] =  array(
+                        'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                        'type' => 'checkbox',
+                        'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                        'default' => 'no',
+                    );
+                    $this->form_fields['clear_order_records'] =  array(
+                        'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                        'type' => 'button',
+                        'id' => 'validateLicense',
+                        'class' => 'woocommerce-save-button components-button is-primary'
+                    );
+                }
             }
         }
     }

@@ -192,7 +192,12 @@ textarea:disabled {
     align-items: center;
 }
 
-#woocommerce_maxipago_debit_clear_order_records{
+#woocommerce_integration_rede_pix_clear_order_records,
+#woocommerce_rede_credit_clear_order_records,
+#woocommerce_rede_debit_clear_order_records,
+#woocommerce_maxipago_credit_clear_order_records,
+#woocommerce_maxipago_debit_clear_order_records
+{
     display: flex;
     justify-content: center;
     width: fit-content;
@@ -206,6 +211,29 @@ textarea:disabled {
     border-radius: 4px;
     margin: 0;
     white-space: pre-wrap
+}
+
+#lknWcRedeOrderLogs pre{
+    padding: 10px;
+    background-color: #D9D9D9 !important;
+    width: fit-content;
+    max-width: 96%;
+    border-radius: 4px;
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+#lknWcRedeOrderLogs h3{
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#lknWcRedeOrderLogs div{
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 #lknWcRedeOrderLogs pre{
