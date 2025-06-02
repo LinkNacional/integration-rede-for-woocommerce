@@ -321,10 +321,20 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 $label = $customLabel;
             }
 
-            $installments[] = array(
-                'num' => $i,
-                'label' => $label,
+            $has_interest_or_discount = (
+                $this->get_option('installment_interest') === 'yes' ||
+                $this->get_option('installment_discount') === 'yes'
             );
+            
+            if (
+                ($has_interest_or_discount && $customLabel !== null) ||
+                !$has_interest_or_discount
+            ) {
+                $installments[] = array(
+                    'num'   => $i,
+                    'label' => $label,
+                );
+            }
         }
 
         return $installments;

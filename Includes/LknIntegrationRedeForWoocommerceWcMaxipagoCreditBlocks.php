@@ -82,7 +82,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
                 $parcelAmount = $cart_total / $i;
                 if ($parcelAmount >= $minParcelValue) {
                     $interest = round((float) $settings[$i . 'x'], 2);
-                    $phpArray[$i . 'x'] = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+                    $customLabel = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
+
+                    if($customLabel){
+                        $phpArray[$i . 'x'] = $customLabel;
+                    }
                 }
             }
         } else {
