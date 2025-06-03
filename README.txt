@@ -74,6 +74,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 == Changelog ==
 # 3.9.1 - 2025/06/02
 * Fix installment limit per product.
+* Fix log display in the order.
 
 # 3.9.0 - 2025/05/15
 * Add compatibility with PRO configuration to add discounts on installments.
