@@ -340,6 +340,45 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         return $installments;
     }
 
+    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl){
+        if ('yes' == $this->debug) {
+            $this->log->log('info', $this->id, array(
+                'request' => simplexml_load_string($xmlData),
+                'response' => $xml,
+                'order' => array(
+                    'orderId' => $orderId,
+                    'amount' => $order->get_total(),
+                    'status' => $order->get_status()
+                ),
+            ));
+
+
+            $xmlBody = simplexml_load_string($xmlData);
+            $cardNumber = $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number;
+
+            $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
+            $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
+            $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+
+            $response_body = wp_remote_retrieve_body($xml);
+            $xml = simplexml_load_string($response_body);
+
+            //Reconstruindo o $xml para facilitar o uso da variavel
+            $xml_encode = wp_json_encode($xml);
+            $xml_decode = json_decode($xml_encode, true);
+
+            $orderLogsArray = array(
+                'url' => $apiUrl,
+                'body' => $xmlBody,
+                'response' => $xml_decode,
+            );
+
+            $orderLogs = json_encode($orderLogsArray);
+            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            $order->save();
+        }
+    }
+
     public function process_payment($orderId)
     {
         if (isset($_POST['maxipago_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['maxipago_card_nonce'])), 'maxipagoCardNonce')) {
@@ -494,7 +533,26 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 'sslverify' => false // Desativa a verificação do certificado SSL
             );
 
-            $response = wp_remote_post($apiUrl, $args);
+            try {
+                $response = wp_remote_post($apiUrl, $args);
+                $this->regOrderLogs(
+                    $xmlData,
+                    $response,
+                    $orderId,
+                    $order,
+                    $apiUrl
+                );
+            } catch (Exception $e) {
+                $this->regOrderLogs(
+                    $xmlData,
+                    $e->getMessage(),
+                    $orderId,
+                    $order,
+                    $apiUrl
+                );
+
+                throw $e;
+            }
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
@@ -507,35 +565,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             //Reconstruindo o $xml para facilitar o uso da variavel
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
-
-            if ('yes' == $this->debug) {
-                $this->log->log('info', $this->id, array(
-                    'request' => simplexml_load_string($xmlData),
-                    'response' => $xml,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order->get_total(),
-                        'status' => $order->get_status()
-                    ),
-                ));
-
-
-                $xmlBody = simplexml_load_string($xmlData);
-                $cardNumber = $xmlBody->order->sale->transactionDetail->payType->creditCard->number;
-
-                $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
-                $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
-                $xmlBody->order->sale->transactionDetail->payType->creditCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
-
-                $orderLogsArray = array(
-                    'url' => $apiUrl,
-                    'body' => $xmlBody,
-                    'response' => $xml
-                );
-
-                $orderLogs = json_encode($orderLogsArray);
-                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
-            }
 
 
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
