@@ -1,3 +1,7 @@
+# 3.9.1 - 02/06/2025
+* Correção em limite de parcelas por produto.
+* Correção em exibição de logs no pedido.
+
 # 3.9.0 - 15/05/2025
 * Adição de compatibilidade com configuração PRO para adicionar desconto na parcela.
 * Adição de compatibilidade com configuração PRO para definir o valor mínimo para parcelas sem juros.

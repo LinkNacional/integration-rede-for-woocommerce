@@ -9,7 +9,7 @@ env:
   PLUGIN_NAME: woo-rede
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "3.9.0"
+  DEPLOY_TAG: "3.9.1"
 
 jobs:
   release-build:
@@ -73,16 +73,6 @@ jobs:
     - name: Move .zip to custom location
       run: |
         mv ./build/${{ env.PLUGIN_NAME }}.zip ./dist/
-
-    - name: Deploy para WordPress.org
-      uses: 10up/action-wordpress-plugin-deploy@stable
-      env:
-        VERSION: ${{ env.DEPLOY_TAG }}
-        SLUG: woo-rede
-        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        ASSETS_DIR: .wordpress-org
-        BUILD_DIR: build/${{ env.PLUGIN_NAME }}
 
     # Update version tag
     - name: Bump version and push tag

@@ -302,6 +302,31 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_short_code'] ?? false);
     }
 
+    public function regOrderLogs($orderId, $amount, $cardData, $transaction, $order): void{
+        if ('yes' === $this->debug) {
+            $bodyArray = array(
+                'orderId' => $orderId,
+                'amount' => $amount,
+                'cardData' => $cardData
+            );
+    
+            $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
+            
+            if(gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
+                $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
+            }
+    
+            $orderLogsArray = array(
+                'body' => $bodyArray,
+                'response' => $transaction
+            );
+    
+            $orderLogs = json_encode($orderLogsArray);
+            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            $order->save();
+        }
+    }
+
     public function process_payment($order_id)
     {
         if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
@@ -349,25 +374,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $amount = $order->get_total();
             $amount = (float) $amount;
 
-            $transaction = $this->api->doTransactionDebitRequest($orderId + time(), $amount, $cardData);
-
-            if ('yes' == $this->debug) {
-                $bodyArray = array(
-                    'orderId' => $orderId,
-                    'amount' => $amount,
-                    'cardData' => $cardData
-                );
-
-                $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
-                $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
-
-                $orderLogsArray = array(
-                    'body' => $bodyArray,
-                    'response' => $transaction
-                );
-                
-                $orderLogs = json_encode($orderLogsArray);
-                $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            try {
+                $transaction = $this->api->doTransactionDebitRequest($orderId + time(), $amount, $cardData);
+                $this->regOrderLogs($orderId, $amount, $cardData, $transaction, $order);
+            } catch (Exception $e) {
+                $this->regOrderLogs($orderId, $amount, $cardData, $e->getMessage(), $order);
+                throw $e;
             }
 
             $order->update_meta_data('_transaction_id', $transaction->getTid());
