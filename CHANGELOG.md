@@ -1,3 +1,6 @@
+# 3.9.2 - 06/06/2025
+* Correção na URL de verificação do PIX.
+
 # 3.9.1 - 02/06/2025
 * Correção em limite de parcelas por produto.
 * Correção em exibição de logs no pedido.

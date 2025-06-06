@@ -12,7 +12,7 @@
       currency: 'BRL'
     })
 
-    const apiUrl = '/wp-json/redeIntegration/verifyPixRedeStatus'
+    const apiUrl = wpApiSettings.root + 'redeIntegration/verifyPixRedeStatus'
 
     $(document).ready(function ($) {
       const donationId = $('#donationId').val()
