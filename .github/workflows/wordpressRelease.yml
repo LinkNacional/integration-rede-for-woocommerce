@@ -6,7 +6,7 @@ on:
 env:
   PLUGIN_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "3.9.1"
+  DEPLOY_TAG: "3.9.2"
 
 jobs:
   deploy-to-wp:
