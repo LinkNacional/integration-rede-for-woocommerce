@@ -75,13 +75,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI
 
             return $transaction;
         } catch (Exception $e) {
-            $transactionTId = $transaction->getTid() ?? null;
+            $transactionTId = isset($transaction) && method_exists($transaction, 'getTid') ? $transaction->getTid() : null;
 
             throw new LknIntegrationRedeForWoocommerceTransactionException(
-                $e->getMessage(),
-                $e->getCode(),
-                ['tid' => $transactionTId],
-                $e
+                esc_html($e->getMessage()),
+                intval($e->getCode()),
+                ['tid' => esc_html($transactionTId)]
             );
         }
     }
@@ -119,13 +118,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI
 
             return $transaction;
         } catch (Exception $e) {
-            $transactionTId = $transaction->getTid() ?? null;
+            $transactionTId = isset($transaction) && method_exists($transaction, 'getTid') ? $transaction->getTid() : null;
 
             throw new LknIntegrationRedeForWoocommerceTransactionException(
-                $e->getMessage(),
-                $e->getCode(),
-                ['tid' => $transactionTId],
-                $e
+                esc_html($e->getMessage()),
+                intval($e->getCode()),
+                ['tid' => esc_html($transactionTId)]
             );
         }
     }
