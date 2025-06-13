@@ -72,6 +72,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 3.9.3 - 2025/06/13
+* Changed the feedback for logs in the Rede payment method.
+
 # 3.9.2 - 2025/06/06
 * Fix for the PIX verification URL.
 
