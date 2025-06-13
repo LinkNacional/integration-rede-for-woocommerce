@@ -50,29 +50,40 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI
         $installments = 1,
         $credit_card_data = array()
     ) {
-        $transaction = (new Transaction($amount, $id))->creditCard(
-            $credit_card_data['card_number'],
-            $credit_card_data['card_cvv'],
-            $credit_card_data['card_expiration_month'],
-            $credit_card_data['card_expiration_year'],
-            $credit_card_data['card_holder']
-        )->capture($this->capture);
+        try {
+            $transaction = (new Transaction($amount, $id))->creditCard(
+                $credit_card_data['card_number'],
+                $credit_card_data['card_cvv'],
+                $credit_card_data['card_expiration_month'],
+                $credit_card_data['card_expiration_year'],
+                $credit_card_data['card_holder']
+            )->capture($this->capture);
 
-        if ($installments > 1) {
-            $transaction->setInstallments($installments);
+            if ($installments > 1) {
+                $transaction->setInstallments($installments);
+            }
+
+            if (!empty($this->soft_descriptor)) {
+                $transaction->setSoftDescriptor($this->soft_descriptor);
+            }
+
+            if (!empty($this->partner_module) && !empty($this->partner_gateway)) {
+                $transaction->additional($this->partner_gateway, $this->partner_module);
+            }
+
+            $transaction = (new eRede($this->store, $this->get_logger()))->create($transaction);
+
+            return $transaction;
+        } catch (Exception $e) {
+            $transactionTId = $transaction->getTid() ?? null;
+
+            throw new LknIntegrationRedeForWoocommerceTransactionException(
+                $e->getMessage(),
+                $e->getCode(),
+                ['tid' => $transactionTId],
+                $e
+            );
         }
-
-        if (! empty($this->soft_descriptor)) {
-            $transaction->setSoftDescriptor($this->soft_descriptor);
-        }
-
-        if (! empty($this->partner_module) && ! empty($this->partner_gateway)) {
-            $transaction->additional($this->partner_gateway, $this->partner_module);
-        }
-
-        $transaction = (new eRede($this->store, $this->get_logger()))->create($transaction);
-
-        return $transaction;
     }
 
     /**
@@ -87,25 +98,36 @@ final class LknIntegrationRedeForWoocommerceWcRedeAPI
         $amount,
         $credit_card_data = array()
     ) {
-        $transaction = (new Transaction($amount, $id))->debitCard(
-            $credit_card_data['card_number'],
-            $credit_card_data['card_cvv'],
-            $credit_card_data['card_expiration_month'],
-            $credit_card_data['card_expiration_year'],
-            $credit_card_data['card_holder']
-        )->capture($this->capture);
+        try {
+            $transaction = (new Transaction($amount, $id))->debitCard(
+                $credit_card_data['card_number'],
+                $credit_card_data['card_cvv'],
+                $credit_card_data['card_expiration_month'],
+                $credit_card_data['card_expiration_year'],
+                $credit_card_data['card_holder']
+            )->capture($this->capture);
 
-        if (! empty($this->soft_descriptor)) {
-            $transaction->setSoftDescriptor($this->soft_descriptor);
+            if (!empty($this->soft_descriptor)) {
+                $transaction->setSoftDescriptor($this->soft_descriptor);
+            }
+
+            if (!empty($this->partner_module) && !empty($this->partner_gateway)) {
+                $transaction->additional($this->partner_gateway, $this->partner_module);
+            }
+
+            $transaction = (new eRede($this->store, $this->get_logger()))->create($transaction);
+
+            return $transaction;
+        } catch (Exception $e) {
+            $transactionTId = $transaction->getTid() ?? null;
+
+            throw new LknIntegrationRedeForWoocommerceTransactionException(
+                $e->getMessage(),
+                $e->getCode(),
+                ['tid' => $transactionTId],
+                $e
+            );
         }
-
-        if (! empty($this->partner_module) && ! empty($this->partner_gateway)) {
-            $transaction->additional($this->partner_gateway, $this->partner_module);
-        }
-
-        $transaction = (new eRede($this->store, $this->get_logger()))->create($transaction);
-
-        return $transaction;
     }
 
     protected function get_logger()
