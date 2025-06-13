@@ -1,6 +1,7 @@
 <?php
 
 namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+
 use WC_Order;
 
 class LknIntegrationRedeForWoocommerceHelper
@@ -40,6 +41,42 @@ class LknIntegrationRedeForWoocommerceHelper
         }
     }
 
+    final public static function getTransactionBrandDetails($tid, $instance)
+    {
+        // Autenticação básica
+        $auth = base64_encode($instance->pv . ':' . $instance->token);
+
+        $apiUrl = ('production' === $instance->environment)
+            ? 'https://api.userede.com.br/erede/v1/transactions'
+            : 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+
+        $headers = array(
+            'Authorization' => 'Basic ' . $auth,
+            'Content-Type' => 'application/json',
+            'Transaction-Response' => 'brand-return-opened',
+        );
+
+        $response = wp_remote_get($apiUrl . '/' . $tid, array(
+            'headers' => $headers,
+        ));
+
+        if (is_wp_error($response)) {
+            return null;
+        }
+
+        $response_body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($response_body, true);
+
+        if (isset($response_data['authorization'])) {
+            return [
+                'brand' => $response_data['authorization']['brand'] ?? null,
+                'returnCode' => $response_data['authorization']['returnCode'] ?? null,
+            ];
+        }
+
+        return null;
+    }
+
     final public static function getCardBrand($tid, $instace)
     {
         $auth = base64_encode($instace->pv . ':' . $instace->token);
@@ -64,7 +101,8 @@ class LknIntegrationRedeForWoocommerceHelper
         return($response_body['authorization']['brand']['name']);
     }
 
-    final public static function censorString($string, $censorLength) {
+    final public static function censorString($string, $censorLength)
+    {
         $length = strlen($string);
 
         if ($censorLength >= $length) {
@@ -82,24 +120,25 @@ class LknIntegrationRedeForWoocommerceHelper
         return $start . $censored . $end;
     }
 
-    public function showOrderLogs(): void {
+    public function showOrderLogs(): void
+    {
         $id = isset($_GET['id']) ? sanitize_text_field(wp_unslash($_GET['id'])) : '';
         if (empty($id)) {
             $id = isset($_GET['post']) ? sanitize_text_field(wp_unslash($_GET['post'])) : '';
         }
-        if ( ! empty($id)) {
+        if (! empty($id)) {
             $order_id = $id;
-            $order = wc_get_order( $order_id );
-            
+            $order = wc_get_order($order_id);
+
             if ($order && $order instanceof WC_Order) {
                 $orderLogs = $order->get_meta('lknWcRedeOrderLogs');
                 $payment_method_id = $order->get_payment_method();
                 $options = get_option('woocommerce_' . $payment_method_id . '_settings');
-                if ($orderLogs && 'yes' === $options['show_order_logs']) {
-                    $screen = class_exists( '\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' ) && wc_get_container()->get( 'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )->custom_orders_table_usage_is_enabled()
-                    ? wc_get_page_screen_id( 'shop-order' )
+                if (isset($options['show_order_logs']) && $orderLogs && 'yes' === $options['show_order_logs']) {
+                    $screen = class_exists('\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController')->custom_orders_table_usage_is_enabled()
+                    ? wc_get_page_screen_id('shop-order')
                     : 'shop_order';
-                    
+
                     add_meta_box(
                         'showOrderLogs',
                         'Logs das transações',
@@ -111,37 +150,38 @@ class LknIntegrationRedeForWoocommerceHelper
             }
         }
     }
-    
+
     public function showLogsContent($object): void
     {
         // Obter o objeto WC_Order
         $order = is_a($object, 'WP_Post') ? wc_get_order($object->ID) : $object;
         $orderLogs = $order->get_meta('lknWcRedeOrderLogs');
-        
+
         // Decodificar o JSON armazenado
         $decodedLogs = json_decode($orderLogs, true);
-        
+
         if ($decodedLogs && is_array($decodedLogs)) {
             // Preparar cada seção para exibição com formatação
             $url = $decodedLogs['url'] ?? 'N/A';
             $body = isset($decodedLogs['body']) ? json_encode($decodedLogs['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : 'N/A';
             $response = isset($decodedLogs['response']) ? json_encode($decodedLogs['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : 'N/A';
-            
+
             // Exibir as seções formatadas
             ?>
-            <div id="lknWcRedeOrderLogs">
-                <div>
-                    <h3>URL:</h3>
-                    <pre class="wc-pre"><?php echo esc_html($url); ?></pre>
-                </div>
-                
-                <h3>Body:</h3>
-                <pre class="wc-pre"><?php echo esc_html($body); ?></pre>
-                
-                <h3>Response:</h3>
-                <pre class="wc-pre"><?php echo esc_html($response); ?></pre>
-            </div>
-            <?php
+<div id="lknWcRedeOrderLogs">
+    <div>
+        <h3>URL:</h3>
+        <pre class="wc-pre"><?php echo esc_html($url); ?></pre>
+    </div>
+
+    <h3>Body:</h3>
+    <pre class="wc-pre"><?php echo esc_html($body); ?></pre>
+
+    <h3>Response:</h3>
+    <pre class="wc-pre"><?php echo esc_html($response); ?></pre>
+</div>
+<?php
         }
     }
 }
+?>

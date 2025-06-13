@@ -302,25 +302,28 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_short_code'] ?? false);
     }
 
-    public function regOrderLogs($orderId, $amount, $cardData, $transaction, $order): void{
+    public function regOrderLogs($orderId, $amount, $cardData, $transaction, $order, $brand = null): void
+    {
         if ('yes' === $this->debug) {
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $amount,
-                'cardData' => $cardData
+                'cardData' => $cardData,
+                'brand' => isset($brand['brand']) ? $brand['brand'] : null,
+                'returnCode' => isset($brand['returnCode']) ? $brand['returnCode'] : null
             );
-    
+
             $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
-            
-            if(gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
+
+            if (gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
                 $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
             }
-    
+
             $orderLogsArray = array(
                 'body' => $bodyArray,
                 'response' => $transaction
             );
-    
+
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
             $order->save();
@@ -377,8 +380,19 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             try {
                 $transaction = $this->api->doTransactionDebitRequest($orderId + time(), $amount, $cardData);
                 $this->regOrderLogs($orderId, $amount, $cardData, $transaction, $order);
+            } catch (LknIntegrationRedeForWoocommerceTransactionException $e) {
+
+                $additionalData = $e->getAdditionalData();
+                $tid = $additionalData['tid'] ?? 'N/A';
+
+                $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tid, $this);
+
+                $this->regOrderLogs($orderId, $amount, $cardData, $e->getMessage(), $order, $brand);
+
+                throw $e;
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $amount, $cardData, $e->getMessage(), $order);
+
                 throw $e;
             }
 

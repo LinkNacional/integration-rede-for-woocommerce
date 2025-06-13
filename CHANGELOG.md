@@ -1,3 +1,6 @@
+# 3.9.3 - 13/06/2025
+* Mudança no feedback do logs do método de pagamento do Rede.
+
 # 3.9.2 - 06/06/2025
 * Correção na URL de verificação do PIX.
 

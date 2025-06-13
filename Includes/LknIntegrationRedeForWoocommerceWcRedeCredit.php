@@ -160,7 +160,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'description' => array(
                 'title' => __('Description', 'woo-rede'),
                 'type' => 'textarea',
-                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+                'default' => __('Pay for your purchase with a credit card through ', 'woo-rede'),
             ),
             'rede' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
@@ -360,7 +360,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 $this->get_option('installment_interest') === 'yes' ||
                 $this->get_option('installment_discount') === 'yes'
             );
-            
+
             if (
                 ($has_interest_or_discount && $customLabel !== null) ||
                 !$has_interest_or_discount
@@ -406,17 +406,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
     }
 
-    public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order): void{
+    public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order, $brand = null): void
+    {
         if ('yes' == $this->debug) {
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $order_total,
                 'installments' => $installments,
-                'cardData' => $cardData
+                'cardData' => $cardData,
+                'brand' => isset($brand['brand']) ? $brand['brand'] : null,
+                'returnCode' => isset($brand['returnCode']) ? $brand['returnCode'] : null
             );
 
             $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
-            if(gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
+            if (gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
                 $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
             }
 
@@ -424,7 +427,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'body' => $bodyArray,
                 'response' => $transaction
             );
-            
+
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
             $order->save();
@@ -492,11 +495,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             try {
                 $transaction = $this->api->doTransactionCreditRequest($orderId + time(), $order_total, $installments, $cardData);
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order);
+            } catch (LknIntegrationRedeForWoocommerceTransactionException $e) {
+                $additionalData = $e->getAdditionalData();
+                $tid = $additionalData['tid'] ?? 'N/A';
+
+                $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tid, $this);
+
+                $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $e->getMessage(), $order, $brand);
+                throw $e;
             } catch (Exception $e) {
+                // Tratamento para outras exceções
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $e->getMessage(), $order);
                 throw $e;
             }
-            
+
 
             $order->update_meta_data('_transaction_id', $transaction->getTid());
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
