@@ -1,3 +1,6 @@
+# 3.10.0 - 08/07/2025
+* Adição de compatibilidade com informação de juros ou desconto no checkout.
+
 # 3.9.3 - 13/06/2025
 * Mudança no feedback do logs do método de pagamento do Rede.
 
