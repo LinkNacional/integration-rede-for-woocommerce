@@ -4,4 +4,17 @@
 
 .lknIntegrationRedeForWoocommerceSelectBlocks {
     padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.lknIntegrationRedeForWoocommerceSelectBlocks label{
+    margin: 0 !important;
+    
+}
+
+.lknIntegrationRedeForWoocommerceSelectBlocks select{
+    font-size: 20px !important;
+    padding: 10px !important;
+    width: 100% !important;
+    background: white !important;
 }
