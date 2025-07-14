@@ -73,7 +73,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 
 == Changelog ==
 # 3.10.1 - 2025/05/07
-* Fix debit payment issue with Maxipago.
+* Fix description of payment methods.
 
 # 3.10.0 - 2025/07/08
 * Add compatibility with PRO interest or discount information in the checkout.

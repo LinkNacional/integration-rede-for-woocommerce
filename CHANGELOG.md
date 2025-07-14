@@ -1,5 +1,5 @@
 # 3.10.1 - 07/05/2025
-- Correção em pagamento de débito com Maxipago.
+- Correção em descrição dos métodos de pagamento.
 
 # 3.10.0 - 08/07/2025
 * Adição de compatibilidade com informação de juros ou desconto no checkout.
