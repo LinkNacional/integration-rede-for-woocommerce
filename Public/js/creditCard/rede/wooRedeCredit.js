@@ -73,5 +73,6 @@ window.jQuery(function ($) {
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
     }
+    document.querySelector('.payment_box.payment_method_rede_credit p').style.display = 'none'
   }
 })
