@@ -99,5 +99,6 @@ window.jQuery(function ($) {
         billingCnpjInput.value = '';
       });
     }
+    document.querySelector('.payment_box.payment_method_maxipago_credit p').style.display = 'none'
   }
 })
