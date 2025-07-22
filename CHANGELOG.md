@@ -1,3 +1,6 @@
+# 3.11.0 - 22/07/2025
+- Adição de botão para pagamentos com pix.
+
 # 3.10.1 - 07/05/2025
 - Correção em descrição dos métodos de pagamento.
 
