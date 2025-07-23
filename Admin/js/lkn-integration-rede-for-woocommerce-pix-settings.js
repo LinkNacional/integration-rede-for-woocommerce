@@ -14,7 +14,21 @@
     if ($countInput.length) {
       const $countFieldset = $countInput.closest('fieldset')
 
-      $countFieldset.append('<p class="pro-version-info">Disponível no PRO.</p>')
+      $countFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
+
+      $countFieldset.css({
+        display: 'flex',
+        'flex-wrap': 'wrap',
+        gap: '6px'
+      })
+    }
+
+    const $shouButton = $('#woocommerce_integration_rede_pix_show_button')
+
+    if ($shouButton.length) {
+      const $countFieldset = $shouButton.closest('fieldset')
+
+      $countFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
 
       $countFieldset.css({
         display: 'flex',
@@ -37,7 +51,7 @@
     if ($selectInput.length) {
       const $selectFieldset = $selectInput.closest('fieldset')
 
-      $selectFieldset.append('<p class="pro-version-info">Disponível no PRO.</p>')
+      $selectFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
 
       $selectFieldset.css({
         display: 'flex',
