@@ -139,6 +139,15 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'disabled' => 'disabled',
                         ),
                     ),
+                    'show_button' => array(
+                        'title' => esc_attr__('Habilitar e Desabilitar (habilitado de padrão).', 'woo-rede'),
+                        'type' => 'checkbox',
+                        'label' => __('Botão Gerar PIX no checkout', 'woo-rede'),
+                        'default' => 'yes',
+                        'custom_attributes' => array(
+                            'disabled' => 'disabled',
+                        ),
+                    ),
                     'developers' => array(
                         'title' => esc_attr__('Developer', 'woo-rede'),
                         'type' => 'title',
