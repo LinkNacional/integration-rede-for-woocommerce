@@ -629,6 +629,15 @@ msgstr "Hospedagem WP Grátis"
 msgid "Rate Plugin"
 msgstr "Avaliar Plugin"
 
+msgid "How to Configure"
+msgstr "Como Configurar"
+
+msgid "Payment with Rede Pix"
+msgstr "Pagamento com Rede Pix"
+
+msgid "Enable"
+msgstr "Habilitar"
+
 msgid "Return URL to automatically update the status of orders paid via debit on the Maxipago."
 msgstr "URL de retorno para atualização automática do status dos pedidos pagos via débito no Maxipago"
 
