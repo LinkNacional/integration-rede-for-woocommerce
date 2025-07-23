@@ -19,7 +19,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         $this->title = 'Integration Rede Pix';
         $this->has_fields = true;
         $this->method_title = esc_attr__('Pay with the Rede Pix FREE', 'woo-rede');
-        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede');
+        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede') . '<a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__( 'Documentation', 'woo-rede' ) . '</a>';
         $this->supports = array(
             'products',
             'refunds',
@@ -52,14 +52,15 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     'translations' => array(
                         'endpointSuccess' => __('Request received!', 'woo-rede'),
                         'endpointError' => __('No requests received!', 'woo-rede'),
+                        'howToConfigure' => __('How to Configure', 'woo-rede'),
                     ),
                 ));
                 
                 $this->form_fields = array(
                     'enabled' => array(
-                        'title' => esc_attr__('Enable/Disable', 'woo-rede'),
+                        'title' => esc_attr__('Payment with Rede Pix', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => __('Enables payment with Rede Pix', 'woo-rede'),
+                        'label' => __('Enable', 'woo-rede'),
                         'default' => 'no'
                     ),
                     'rede' => array(
@@ -140,10 +141,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ),
                     ),
                     'show_button' => array(
-                        'title' => esc_attr__('Habilitar e Desabilitar (habilitado de padrão).', 'woo-rede'),
+                        'title' => esc_attr__('Botão Gerar PIX', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => __('Botão Gerar PIX no checkout', 'woo-rede'),
-                        'default' => 'yes',
+                        'label' => __('Habilitar', 'woo-rede'),
+                        'desc_tip' => true,
+                        'description' => esc_attr__('Exibe o botão "Finalizar e Gerar PIX" no checkout.', 'woo-rede'),
+                        'default' => 'no',
                         'custom_attributes' => array(
                             'disabled' => 'disabled',
                         ),
