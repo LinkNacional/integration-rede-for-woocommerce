@@ -22,7 +22,12 @@
         } else {
           span.classList.add('dashicons', 'dashicons-dismiss')
           span.style.color = 'red'
-          textElement.textContent = settings.translations.endpointError
+          textElement.textContent = settings.translations.endpointError + ' '
+          let link = document.createElement('a');
+          link.href = 'https://youtu.be/g8IA3QUiV8o?si=I_InLyKUurv7epWh&t=703';
+          link.target = '_blank';
+          link.textContent = settings.translations.howToConfigure;
+          textElement.appendChild(link);
         }
 
         textElement.style.paddingBottom = '2px'
@@ -41,7 +46,7 @@
     const redeEndpointElement = document.querySelector('#woocommerce_integration_rede_pix_endpoint')
     const maxipagoDebitEndpointElement = document.querySelector('#woocommerce_maxipago_debit_endpoint')
 
-    handleEndpoint(redeEndpointElement, baseUrl, 'redeIntegration/pixListener', lknRedeForWoocommerceProSettings)
-    handleEndpoint(maxipagoDebitEndpointElement, baseUrl, 'redeIntegration/maxipagoDebitListener', lknRedeForWoocommerceProSettings)
+    handleEndpoint(redeEndpointElement, baseUrl, 'redeintegration/pixlistener', lknRedeForWoocommerceProSettings)
+    handleEndpoint(maxipagoDebitEndpointElement, baseUrl, 'redeintegration/maxipagoDebitListener', lknRedeForWoocommerceProSettings)
   })
 })(jQuery)

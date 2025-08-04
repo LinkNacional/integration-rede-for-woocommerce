@@ -6,12 +6,13 @@
 
     message.css({
       'text-align': 'center',
-      padding: '10px',
+      'width': '100%',
+      padding: '10px 0px',
       'font-size': '13px',
       color: '#666'
     })
 
-    $('#wpfooter').html(message).css('display', 'block')
+    $('#wpbody').append(message)
 
     $('.give-rating-link').on('click', function (e) {
       $('#footer-left').html('Obrigado :)').css('text-align', 'center')

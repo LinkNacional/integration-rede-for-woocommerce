@@ -1,3 +1,8 @@
+# 3.11.0 - 23/07/2025
+* Adição de configuração PRO para exibir botão "Finalizar e Gerar PIX" no checkout.
+* Adição de links nas configurações para direcionar o usuário para documentações e tutoriais.
+* Correção em exibição de texto de avaliação do plugin.
+
 # 3.10.1 - 07/05/2025
 - Correção em descrição dos métodos de pagamento.
 

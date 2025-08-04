@@ -145,6 +145,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'translations' => array(
                 'endpointSuccess' => __('Request received!', 'woo-rede'),
                 'endpointError' => __('No requests received!', 'woo-rede'),
+                'howToConfigure' => __('How to Configure', 'woo-rede'),
             ),
         ));
 
