@@ -151,6 +151,129 @@ class LknIntegrationRedeForWoocommerceHelper
         }
     }
 
+    /**
+     * Checks if BRL conversion is enabled via pro plugin license and option.
+     * @return bool
+     */
+    public static function is_convert_to_brl_enabled($id) {
+        if (function_exists('is_plugin_active') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                if (strpos($license_data, 'active') !== false) {
+                    $options = get_option('woocommerce_' . $id . '_settings', []);
+                    $convert_to_brl_option = isset($options['convert_to_brl']) ? $options['convert_to_brl'] : 'no';
+                    return ($convert_to_brl_option === 'yes');
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Converts the order total to BRL if enabled and rates are available.
+     * @param float|string $order_total
+     * @param WC_Order $order
+     * @param bool $convert_to_brl_enabled
+     * @return float|string Converted order total or original if not converted
+     */
+    public static function convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled) {
+        if ($convert_to_brl_enabled) {
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            // Garante que o diretório e arquivo existem
+            LknIntegrationRedeForWoocommerceHelper::ensure_currency_json_path($currency_json_path);
+            $currency_transient = INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY;
+            if (!get_transient($currency_transient)) {
+                LknIntegrationRedeForWoocommerceHelper::lkn_update_currency_rates($currency_json_path);
+            }
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            if ($order_currency !== 'BRL' && !empty($currency_data['rates'][$order_currency])) {
+                $rate = floatval($currency_data['rates'][$order_currency]);
+                if ($rate > 0) {
+                    $order_total = $order_total * (1 / $rate); // Convert to BRL
+                }
+            }
+        }
+        return $order_total;
+    }
+
+    // Update currency rates from JSON file
+    public static function lkn_update_currency_rates($json_path) {
+        $url = INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API . '/cotacao/cotacao-BRL.json';
+        $response = wp_remote_get($url);
+        if (is_wp_error($response)) {
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+            return false;
+        }
+        $body = wp_remote_retrieve_body($response);
+        if (empty($body)) {
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+            return false;
+        }
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+        $result = $wp_filesystem->put_contents($json_path, $body, FS_CHMOD_FILE);
+        if ($result) {
+            set_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY, true, 12 * HOUR_IN_SECONDS);
+            return json_decode($body, true);
+        } else {
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+            return false;
+        }
+    }
+
+    /**
+     * Ensures the currency JSON directory and file exist, creating them if necessary.
+     * Uses WordPress filesystem APIs for permissions.
+     */
+    public static function ensure_currency_json_path($json_path) {
+        $dir = dirname($json_path);
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+        // Cria o diretório se não existir
+        if (!is_dir($dir)) {
+            $wp_filesystem->mkdir($dir, FS_CHMOD_DIR);
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+        }
+        // Cria o arquivo vazio se não existir
+        if (!file_exists($json_path)) {
+            $wp_filesystem->put_contents($json_path, '{}', FS_CHMOD_FILE);
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+        }
+
+        // Verifica se o conteúdo do arquivo é vazio, apenas '{}' ou estrutura inválida
+        $content = $wp_filesystem->get_contents($json_path);
+        $is_invalid = false;
+        if (trim($content) === '{}' || trim($content) === '') {
+            $is_invalid = true;
+        } else {
+            $json = json_decode($content, true);
+            // Estrutura esperada: base, date, rates (rates é array)
+            if (!is_array($json) || !isset($json['base']) || !isset($json['date']) || !isset($json['rates']) || !is_array($json['rates'])) {
+                $is_invalid = true;
+            }
+        }
+        if ($is_invalid) {
+            delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);
+        }
+    }
+
+    // Get currency rates from JSON file
+    public static function lkn_get_currency_rates($json_path) {
+        if (!file_exists($json_path)) return false;
+        $json = file_get_contents($json_path);
+        if (empty($json)) return false;
+        return json_decode($json, true);
+    }
+
     public function showLogsContent($object): void
     {
         // Obter o objeto WC_Order

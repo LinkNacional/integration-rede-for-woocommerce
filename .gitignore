@@ -1,5 +1,6 @@
 node_modules
 .vscode/settings.json
+.vscode/mcp.json
 vendor
 .devcontainer/devcontainer.json
 Includes/logs/*.log

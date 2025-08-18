@@ -43,6 +43,14 @@ if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
 }
+
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API', 'https://api.linknacional.com');
+}
+
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY', 'lkn_currency_rates_cache');
+}
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php

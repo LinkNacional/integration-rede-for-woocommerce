@@ -221,26 +221,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'default' => 'yes',
             ),
 
-            //TODO Remover em issue futura
-            /* 'partners' => array(
-                'title' => esc_attr__( 'Partner Settings', 'woo-rede' ),
-                'type' => 'title',
-            ),
-            'module' => array(
-                'title' => esc_attr__( 'Module ID', 'woo-rede' ),
-                'type' => 'text',
-                'default' => '',
-            ),
-            'gateway' => array(
-                'title' => esc_attr__( 'Gateway ID', 'woo-rede' ),
-                'type' => 'text',
-                'default' => '',
-            ), */
-
             'credit_options' => array(
                 'title' => esc_attr__('Credit Card', 'woo-rede'),
                 'type' => 'title',
             ),
+
             'min_parcels_value' => array(
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'text',
@@ -409,9 +394,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order, $brand = null): void
     {
         if ('yes' == $this->debug) {
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $order_total,
+                'order_currency' => $order_currency,
+                'convert_currency' => $convert_to_brl_enabled ? ($order_currency . ' -> BRL') : null,
                 'installments' => $installments,
                 'cardData' => $cardData,
                 'brand' => isset($brand['brand']) ? $brand['brand'] : null,
@@ -487,10 +479,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $orderId = $order->get_id();
             $interest = round((float) $this->get_option($installments . 'x'), 2);
             $order_total = $order->get_total();
+            $decimals = get_option('woocommerce_price_num_decimals', 2);
+            $convert_to_brl_enabled = false;
+
+
+            // Check if BRL conversion is enabled via pro plugin
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+            // Convert order total to BRL if enabled
+            $order_total = LknIntegrationRedeForWoocommerceHelper::convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled);
+
             if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this, $order_id);
             }
-            $order_total = (float) $order_total;
+
+            $order_total = wc_format_decimal($order_total, $decimals);
 
             try {
                 $transaction = $this->api->doTransactionCreditRequest($orderId + time(), $order_total, $installments, $cardData);
@@ -549,11 +552,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->save();
 
             if ('yes' == $this->debug) {
+                $default_currency = get_option('woocommerce_currency', 'BRL');
+                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+
                 $this->log->log('info', $this->id, array(
                     'transaction' => $transaction,
                     'order' => array(
                         'orderId' => $orderId,
                         'amount' => $order_total,
+                        'order_currency' => $order_currency,
+                        'convert_currency' => $convert_to_brl_enabled ? ($order_currency . ' -> BRL') : null,
                         'status' => $order->get_status()
                     ),
                 ));
