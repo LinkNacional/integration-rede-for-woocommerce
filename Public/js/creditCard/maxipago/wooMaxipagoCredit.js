@@ -9,10 +9,10 @@ window.jQuery(function ($) {
   // Fallback para quando o evento não é disparado
   lknMaxipagoCreditCardRender()
 
-  function lknMaxipagoCreditCardRender () {
+  function lknMaxipagoCreditCardRender() {
     if (!document.querySelector('.wc-block-checkout')) {
       // Cria o card somente quando a requisição for concluida
-      function formatarCPF (cpf) {
+      function formatarCPF(cpf) {
         cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
         cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
         cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
@@ -99,6 +99,9 @@ window.jQuery(function ($) {
         billingCnpjInput.value = '';
       });
     }
-    document.querySelector('.payment_box.payment_method_maxipago_credit p').style.display = 'none'
+    const paymentBoxP = document.querySelector('.payment_box.payment_method_maxipago_credit p');
+    if (paymentBoxP) {
+      paymentBoxP.style.display = 'none';
+    }
   }
 })

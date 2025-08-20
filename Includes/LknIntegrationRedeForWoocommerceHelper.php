@@ -219,7 +219,7 @@ class LknIntegrationRedeForWoocommerceHelper
         }
         $result = $wp_filesystem->put_contents($json_path, $body, FS_CHMOD_FILE);
         if ($result) {
-            set_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY, true, 12 * HOUR_IN_SECONDS);
+            set_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY, true, 2 * HOUR_IN_SECONDS);
             return json_decode($body, true);
         } else {
             delete_transient(INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY);

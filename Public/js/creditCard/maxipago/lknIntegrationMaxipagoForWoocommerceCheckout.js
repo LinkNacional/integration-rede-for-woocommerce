@@ -6,7 +6,6 @@ const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipa
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations;
-const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
 const ContentMaxipagoCredit = props => {
   const totalAmountFloat = settingsMaxipagoCredit.cartTotal;
   const [selectedValue, setSelectedValue] = window.wp.element.useState('');
@@ -39,7 +38,7 @@ const ContentMaxipagoCredit = props => {
         key: index,
         label: settingsMaxipagoCredit[`${index}x`]
       });
-    } 
+    }
   }
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number;
@@ -125,8 +124,8 @@ const ContentMaxipagoCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-  // Adiciona creditObject como dependência
-  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+    // Adiciona creditObject como dependência
+    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
     number: creditObject.maxipago_credit_number,

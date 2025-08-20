@@ -49,15 +49,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     public function get_payment_method_data()
     {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        $settings = get_option('woocommerce_maxipago_credit_settings');
-        $maxParcels = $settings['max_parcels_number'];
-        $minParcelValue = (float) $settings['min_parcels_value'];
+        $settings = get_option('woocommerce_maxipago_credit_settings', array());
+        $maxParcels = isset($settings['max_parcels_number']) ? (int)$settings['max_parcels_number'] : 12;
+        $minParcelValue = isset($settings['min_parcels_value']) ? (int)$settings['min_parcels_value'] : 5;
 
         $phpArray = array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceMaxipagoCredit' => wp_create_nonce('maxipagoCardNonce'),
-            'minInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['min_parcels_value'],
+            'minInstallmentsMaxipago' => $minParcelValue,
             'maxInstallmentsMaxipago' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(

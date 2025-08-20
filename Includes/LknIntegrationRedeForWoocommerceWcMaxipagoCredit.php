@@ -340,25 +340,46 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         return $installments;
     }
 
-    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl){
+    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null){
         if ('yes' == $this->debug) {
-            $this->log->log('info', $this->id, array(
-                'request' => simplexml_load_string($xmlData),
-                'response' => $xml,
-                'order' => array(
-                    'orderId' => $orderId,
-                    'amount' => $order->get_total(),
-                    'status' => $order->get_status()
-                ),
-            ));
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            // Define $capture as in process_payment
+            $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
 
+            $exchange_rate_value = null;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
 
             $xmlBody = simplexml_load_string($xmlData);
-            $cardNumber = $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number;
-
-            $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
-            $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
-            $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+            $cardNumber = null;
+            if (
+                isset($xmlBody->order) &&
+                isset($xmlBody->order->debitSale) &&
+                isset($xmlBody->order->debitSale->transactionDetail) &&
+                isset($xmlBody->order->debitSale->transactionDetail->payType) &&
+                isset($xmlBody->order->debitSale->transactionDetail->payType->debitCard) &&
+                isset($xmlBody->order->debitSale->transactionDetail->payType->debitCard->number)
+            ) {
+                $cardNumber = $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number;
+                $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+            }
+            if (isset($xmlBody->verification)) {
+                if (isset($xmlBody->verification->merchantId)) {
+                    $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
+                }
+                if (isset($xmlBody->verification->merchantKey)) {
+                    $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
+                }
+            }
 
             $response_body = wp_remote_retrieve_body($xml);
             $xml = simplexml_load_string($response_body);
@@ -367,14 +388,39 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
 
+            // Convert XML body to array for manipulation
+            $bodyArr = json_decode(json_encode($xmlBody), true);
+            $orderSummary = array(
+                'orderId' => $orderId,
+                'amount' => isset($orderTotal) ? $orderTotal : $order->get_total(),
+                'order_currency' => $order_currency,
+                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchange_rate_value' => $exchange_rate_value,
+                'status' => $order->get_status()
+            );
+            // Force replace payment with orderSummary and installments
+            if (
+                isset($bodyArr['order']) &&
+                isset($bodyArr['order'][$capture]) &&
+                isset($bodyArr['order'][$capture]['payment'])
+            ) {
+                $installments = array();
+                if (isset($bodyArr['order'][$capture]['payment']['creditInstallment'])) {
+                    $installments = $bodyArr['order'][$capture]['payment']['creditInstallment'];
+                }
+                $bodyArr['order'][$capture]['payment'] = array_merge($orderSummary, array('installments' => $installments));
+            }
             $orderLogsArray = array(
                 'url' => $apiUrl,
-                'body' => $xmlBody,
+                'body' => $bodyArr,
                 'response' => $xml_decode,
             );
 
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+
+            
+
             $order->save();
         }
     }
@@ -390,7 +436,27 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         $order = wc_get_order($orderId);
         $order_total = $order->get_total();
+        $decimals = get_option('woocommerce_price_num_decimals', 2);
+        $convert_to_brl_enabled = false;
+        $default_currency = get_option('woocommerce_currency', 'BRL');
+        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
         $woocommerceCountry = get_option('woocommerce_default_country');
+
+        // Check if BRL conversion is enabled via pro plugin
+        $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+        // Convert order total to BRL if enabled
+        $order_total = LknIntegrationRedeForWoocommerceHelper::convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled);
+
+        if ($convert_to_brl_enabled) {
+            $order->add_order_note(
+                sprintf(
+                    __('Order currency %s converted to BRL.', 'woo-rede'),
+                    $order_currency,
+                )
+            );
+        }
+
         // Extraindo somente o país da string
         $countryParts = explode(':', $woocommerceCountry);
         $countryCode = $countryParts[0];
@@ -409,7 +475,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this, $orderId);
         }
 
-        $order_total = (float) $order_total;
+        $order_total = wc_format_decimal($order_total, $decimals);
 
         $creditExpiry = isset($_POST['maxipago_credit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_credit_expiry'])) : 0;
 
@@ -540,7 +606,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $response,
                     $orderId,
                     $order,
-                    $apiUrl
+                    $apiUrl,
+                    $order_total
                 );
             } catch (Exception $e) {
                 $this->regOrderLogs(
@@ -566,6 +633,22 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
 
+            // Adiciona nota de status do pagamento estilo Maxipago[Success.] ou Maxipago[Failed.]
+            if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
+                $order->add_order_note(
+                    sprintf(
+                        'Maxipago[Success.] %s',
+                        $xml_decode['processorMessage'] ?? ''
+                    )
+                );
+            } else {
+                $order->add_order_note(
+                    sprintf(
+                        'Maxipago[Failed.] %s',
+                        $xml_decode['processorMessage'] ?? ''
+                    )
+                );
+            }
 
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
@@ -593,16 +676,45 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 throw new Exception($xml_decode['processorMessage']);
             }
             if ('yes' == $this->debug) {
-                $this->log->log('info', $this->id, array(
-                    'request' => simplexml_load_string($xmlData),
-                    'response' => $xml,
-                    'order' => array(
-                        'orderId' => $orderId,
-                        'amount' => $order_total,
-                        'status' => $order->get_status()
-                    ),
-                    'installments' => $installments
-                ));
+                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+                $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+                $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+                $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+                $exchange_rate_value = null;
+                if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                    // Exibe a cotação apenas se não for BRL
+                    if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                        $rate = $currency_data['rates'][$order_currency];
+                        // Converte para string, preservando todas as casas decimais
+                        $exchange_rate_value = (string)$rate;
+                    }
+                }
+
+            // Convert XML to array for manipulation
+            $requestArr = json_decode(json_encode(simplexml_load_string($xmlData)), true);
+            // Build orderSummary
+            $orderSummary = array(
+                'orderId' => $orderId,
+                'amount' => $order_total,
+                'order_currency' => $order_currency,
+                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchange_rate_value' => $exchange_rate_value,
+                'status' => $order->get_status()
+            );
+            // Place orderSummary inside payment, and add installments
+            if (
+                isset($requestArr['order']) &&
+                isset($requestArr['order'][$capture]) &&
+                isset($requestArr['order'][$capture]['payment'])
+            ) {
+                $requestArr['order'][$capture]['payment'] = $orderSummary;
+                $requestArr['order'][$capture]['payment']['installments'] = $installments;
+            }
+            $this->log->log('info', $this->id, array(
+                'request' => $requestArr,
+                'response' => $xml,
+            ));
             }
 
             if ("INVALID REQUEST" == $xml_decode['responseMessage']) {

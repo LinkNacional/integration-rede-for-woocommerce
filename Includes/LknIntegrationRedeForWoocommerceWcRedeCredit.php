@@ -394,20 +394,46 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order, $brand = null): void
     {
         if ('yes' == $this->debug) {
+            $tId = null;
+            $returnCode = null;
+            if ($brand === null && $transaction) {
+                $brand = null;
+                if (method_exists($transaction, 'getTid')) {
+                    $tId = $transaction->getTid();
+                }
+                if (method_exists($transaction, 'getReturnCode')) {
+                    $returnCode = $transaction->getReturnCode();
+                }
+                if ($tId) {
+                    $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
+                }
+            }
             $default_currency = get_option('woocommerce_currency', 'BRL');
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
             $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+            $exchange_rate_value = null;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
 
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $order_total,
                 'order_currency' => $order_currency,
-                'convert_currency' => $convert_to_brl_enabled ? ($order_currency . ' -> BRL') : null,
+                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchange_rate_value' => $exchange_rate_value,
                 'installments' => $installments,
                 'cardData' => $cardData,
-                'brand' => isset($brand['brand']) ? $brand['brand'] : null,
-                'returnCode' => isset($brand['returnCode']) ? $brand['returnCode'] : null
+                'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
+                'returnCode' => isset($returnCode) ? $returnCode : null,
             );
 
             $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
@@ -481,6 +507,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order_total = $order->get_total();
             $decimals = get_option('woocommerce_price_num_decimals', 2);
             $convert_to_brl_enabled = false;
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
 
 
             // Check if BRL conversion is enabled via pro plugin
@@ -488,6 +516,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
             // Convert order total to BRL if enabled
             $order_total = LknIntegrationRedeForWoocommerceHelper::convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled);
+
+            if ($convert_to_brl_enabled) {
+                $order->add_order_note(
+                    sprintf(
+                        __('Order currency %s converted to BRL.', 'woo-rede'),
+                        $order_currency,
+                    )
+                );
+            }
 
             if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
                 $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this, $order_id);
@@ -552,8 +589,35 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->save();
 
             if ('yes' == $this->debug) {
+                $tId = null;
+                $returnCode = null;
+                if ($brand === null && $transaction) {
+                    $brand = null;
+                    if (method_exists($transaction, 'getTid')) {
+                        $tId = $transaction->getTid();
+                    }
+                    if (method_exists($transaction, 'getReturnCode')) {
+                        $returnCode = $transaction->getReturnCode();
+                    }
+                    if ($tId) {
+                        $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
+                    }
+                }
                 $default_currency = get_option('woocommerce_currency', 'BRL');
                 $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+                $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+                $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+                $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+                $exchange_rate_value = null;
+                if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                    // Exibe a cotação apenas se não for BRL
+                    if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                        $rate = $currency_data['rates'][$order_currency];
+                        // Converte para string, preservando todas as casas decimais
+                        $exchange_rate_value = (string)$rate;
+                    }
+                }
 
                 $this->log->log('info', $this->id, array(
                     'transaction' => $transaction,
@@ -561,8 +625,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                         'orderId' => $orderId,
                         'amount' => $order_total,
                         'order_currency' => $order_currency,
-                        'convert_currency' => $convert_to_brl_enabled ? ($order_currency . ' -> BRL') : null,
-                        'status' => $order->get_status()
+                        'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
+                        'exchange_rate_value' => $exchange_rate_value,
+                        'status' => $order->get_status(),
+                        'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
+                        'returnCode' => isset($returnCode) ? $returnCode : null,
                     ),
                 ));
             }
