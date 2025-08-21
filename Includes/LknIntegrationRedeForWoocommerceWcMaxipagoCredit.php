@@ -342,6 +342,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
     public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null){
         if ('yes' == $this->debug) {
+            $default_currency = get_option('woocommerce_currency', 'BRL');
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
             // Define $capture as in process_payment
             $capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? 'auth' : 'sale';
@@ -393,9 +394,9 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $orderSummary = array(
                 'orderId' => $orderId,
                 'amount' => isset($orderTotal) ? $orderTotal : $order->get_total(),
-                'order_currency' => $order_currency,
-                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
-                'exchange_rate_value' => $exchange_rate_value,
+                'orderCurrency' => $order_currency,
+                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchangeRateValue' => $exchange_rate_value,
                 'status' => $order->get_status()
             );
             // Force replace payment with orderSummary and installments
@@ -455,6 +456,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $order_currency,
                 )
             );
+            $order_currency = 'BRL';
         }
 
         // Extraindo somente o país da string
@@ -580,7 +582,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                                 </transactionDetail>
                                 <payment>
                                     <chargeTotal>" . $order_total . "</chargeTotal>
-                                    <currencyCode>" . $clientData['currency_code'] . "</currencyCode>
+                                    <currencyCode>" . $order_currency . "</currencyCode>
                                     <creditInstallment>
                                         <numberOfInstallments>" . $installments . "</numberOfInstallments>
                                         <chargeInterest>N</chargeInterest>
@@ -615,7 +617,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     $e->getMessage(),
                     $orderId,
                     $order,
-                    $apiUrl
+                    $apiUrl,
+                    $order_total
                 );
 
                 throw $e;
@@ -676,6 +679,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 throw new Exception($xml_decode['processorMessage']);
             }
             if ('yes' == $this->debug) {
+                $default_currency = get_option('woocommerce_currency', 'BRL');
                 $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
                 $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
                 $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
@@ -691,30 +695,30 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     }
                 }
 
-            // Convert XML to array for manipulation
-            $requestArr = json_decode(json_encode(simplexml_load_string($xmlData)), true);
-            // Build orderSummary
-            $orderSummary = array(
-                'orderId' => $orderId,
-                'amount' => $order_total,
-                'order_currency' => $order_currency,
-                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
-                'exchange_rate_value' => $exchange_rate_value,
-                'status' => $order->get_status()
-            );
-            // Place orderSummary inside payment, and add installments
-            if (
-                isset($requestArr['order']) &&
-                isset($requestArr['order'][$capture]) &&
-                isset($requestArr['order'][$capture]['payment'])
-            ) {
-                $requestArr['order'][$capture]['payment'] = $orderSummary;
-                $requestArr['order'][$capture]['payment']['installments'] = $installments;
-            }
-            $this->log->log('info', $this->id, array(
-                'request' => $requestArr,
-                'response' => $xml,
-            ));
+                // Convert XML to array for manipulation
+                $requestArr = json_decode(json_encode(simplexml_load_string($xmlData)), true);
+                // Build orderSummary
+                $orderSummary = array(
+                    'orderId' => $orderId,
+                    'amount' => $order_total,
+                    'orderCurrency' => $order_currency,
+                    'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                    'exchangeRateValue' => $exchange_rate_value,
+                    'status' => $order->get_status()
+                );
+                // Place orderSummary inside payment, and add installments
+                if (
+                    isset($requestArr['order']) &&
+                    isset($requestArr['order'][$capture]) &&
+                    isset($requestArr['order'][$capture]['payment'])
+                ) {
+                    $requestArr['order'][$capture]['payment'] = $orderSummary;
+                    $requestArr['order'][$capture]['payment']['installments'] = $installments;
+                }
+                $this->log->log('info', $this->id, array(
+                    'request' => $requestArr,
+                    'response' => $xml,
+                ));
             }
 
             if ("INVALID REQUEST" == $xml_decode['responseMessage']) {

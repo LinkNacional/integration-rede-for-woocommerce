@@ -268,41 +268,123 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         );
     }
 
-    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl){
+    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null){
         if ('yes' == $this->debug) {
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+            $exchange_rate_value = null;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
+
+            // Convert XML to array for manipulation
+            $requestArr = json_decode(json_encode(simplexml_load_string($xmlData)), true);
+            // Build orderSummary
+            $orderSummary = array(
+                'orderId' => $orderId,
+                'amount' => isset($orderTotal) ? $orderTotal : $order->get_total(),
+                'orderCurrency' => $order_currency,
+                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchangeRateValue' => $exchange_rate_value,
+                'status' => $order->get_status()
+            );
+
+            // Place orderSummary inside payment
+            if (
+                isset($requestArr['order']) &&
+                isset($requestArr['order']['debitSale']) &&
+                isset($requestArr['order']['debitSale']['payment'])
+            ) {
+                $requestArr['order']['debitSale']['payment'] = $orderSummary;
+            }
+            // Remove userAgent and device from log
+            if (
+                isset($requestArr['order']) &&
+                isset($requestArr['order']['debitSale'])
+            ) {
+                unset($requestArr['order']['debitSale']['userAgent']);
+                unset($requestArr['order']['debitSale']['device']);
+            }
+
+            if (is_object($xml) && method_exists($xml, 'get_error_message')) {
+                $responseArr = $xml->get_error_message();
+            } elseif (is_array($xml) && isset($xml['body'])) {
+                $responseArr = json_decode(json_encode(simplexml_load_string($xml['body'])), true);
+            } elseif (is_string($xml)) {
+                $responseArr = json_decode(json_encode(simplexml_load_string($xml)), true);
+            } else {
+                $responseArr = json_decode(json_encode($xml), true);
+            }
+
             $this->log->log('info', $this->id, array(
-                'request' => simplexml_load_string($xmlData),
-                'response' => $xml,
-                'order' => array(
-                    'orderId' => $orderId,
-                    'amount' => $order->get_total(),
-                    'status' => $order->get_status()
-                ),
+                'request' => $requestArr,
+                'response' => $responseArr,
             ));
 
+            // Monta o xmlBody como array, censura dados sensíveis, atualiza payment, remove userAgent/device
+            $xmlBodyObj = simplexml_load_string($xmlData);
+            $cardNumber = $xmlBodyObj->order->debitSale->transactionDetail->payType->debitCard->number;
+            $xmlBodyObj->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBodyObj->verification->merchantId, 3);
+            $xmlBodyObj->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBodyObj->verification->merchantKey, 12);
+            $xmlBodyObj->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+            $xmlBodyArr = json_decode(json_encode($xmlBodyObj), true);
 
-            $xmlBody = simplexml_load_string($xmlData);
-            $cardNumber = $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number;
+            // Place orderSummary inside payment
+            if (
+                isset($xmlBodyArr['order']) &&
+                isset($xmlBodyArr['order']['debitSale']) &&
+                isset($xmlBodyArr['order']['debitSale']['payment'])
+            ) {
+                $xmlBodyArr['order']['debitSale']['payment'] = $orderSummary;
+            }
 
-            $xmlBody->verification->merchantId = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantId, 3);
-            $xmlBody->verification->merchantKey = LknIntegrationRedeForWoocommerceHelper::censorString($xmlBody->verification->merchantKey, 12);
-            $xmlBody->order->debitSale->transactionDetail->payType->debitCard->number = LknIntegrationRedeForWoocommerceHelper::censorString($cardNumber, 8);
+            if (
+                isset($xmlBodyArr['order']) &&
+                isset($xmlBodyArr['order']['debitSale'])
+            ) {
+                unset($xmlBodyArr['order']['debitSale']['userAgent']);
+                unset($xmlBodyArr['order']['debitSale']['device']);
+            }
 
             $response_body = wp_remote_retrieve_body($xml);
             $xml = simplexml_load_string($response_body);
-
-            //Reconstruindo o $xml para facilitar o uso da variavel
             $xml_encode = wp_json_encode($xml);
             $xml_decode = json_decode($xml_encode, true);
-
             $orderLogsArray = array(
                 'url' => $apiUrl,
-                'body' => $xmlBody,
+                'body' => $xmlBodyArr,
                 'response' => $xml_decode,
             );
 
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+
+            // Adiciona nota de status do pagamento estilo Maxipago[Success.] ou Maxipago[Failed.]
+            if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
+                $order->add_order_note(
+                    sprintf(
+                        'Maxipago[Success.] %s',
+                        $xml_decode['processorMessage'] ?? ''
+                    )
+                );
+            } else {
+                $order->add_order_note(
+                    sprintf(
+                        'Maxipago[Failed.] %s',
+                        $xml_decode['processorMessage'] ?? ''
+                    )
+                );
+            }
+
             $order->save();
         }
     }
@@ -317,6 +399,30 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         }
 
         $order = wc_get_order($orderId);
+        $order_total = $order->get_total();
+        $decimals = get_option('woocommerce_price_num_decimals', 2);
+        $convert_to_brl_enabled = false;
+        $default_currency = get_option('woocommerce_currency', 'BRL');
+        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+        $woocommerceCountry = get_option('woocommerce_default_country');
+
+        // Check if BRL conversion is enabled via pro plugin
+        $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+        // Convert order total to BRL if enabled
+        $order_total = LknIntegrationRedeForWoocommerceHelper::convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled);
+
+        if ($convert_to_brl_enabled) {
+            $order->add_order_note(
+                sprintf(
+                    __('Order currency %s converted to BRL.', 'woo-rede'),
+                    $order_currency,
+                )
+            );
+            $order_currency = 'BRL';
+        }
+
+        $order_total = wc_format_decimal($order_total, $decimals);
 
         $woocommerceCountry = get_option('woocommerce_default_country');
         // Extraindo somente o país da string
@@ -328,14 +434,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         $referenceNum = uniqid('order_', true);
         $browser = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 
-        $creditExpiry = isset($_POST['maxipago_debit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_debit_expiry'])) : '';
+        $debitExpiry = isset($_POST['maxipago_debit_expiry']) ? sanitize_text_field(wp_unslash($_POST['maxipago_debit_expiry'])) : '';
 
-        if (strpos($creditExpiry, '/') !== false) {
-            $expiration = explode('/', $creditExpiry);
+        if (strpos($debitExpiry, '/') !== false) {
+            $expiration = explode('/', $debitExpiry);
         } else {
             $expiration = array(
-                substr($creditExpiry, 0, 2),
-                substr($creditExpiry, -2, 2),
+                substr($debitExpiry, 0, 2),
+                substr($debitExpiry, -2, 2),
             );
         }
         if (isset($_POST['billing_cpf']) && '' === sanitize_text_field(wp_unslash($_POST['billing_cpf']))) {
@@ -437,8 +543,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                                     </payType>
                                 </transactionDetail>
                                 <payment>
-                                    <chargeTotal>" . $order->get_total() . "</chargeTotal>
-                                    <currencyCode>" . $clientData['currency_code'] . "</currencyCode>
+                                    <chargeTotal>" . $order_total . "</chargeTotal>
+                                    <currencyCode>" . $order_currency . "</currencyCode>
                                 </payment>
                                 <userAgent>$browser</userAgent>
                                 <device>
@@ -470,7 +576,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                     $response,
                     $orderId,
                     $order,
-                    $apiUrl
+                    $apiUrl,
+                    $order_total
                 );
             } catch (Exception $e) {
                 $this->regOrderLogs(
@@ -478,7 +585,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                     $e->getMessage(),
                     $orderId,
                     $order,
-                    $apiUrl
+                    $apiUrl,
+                    $order_total
                 );
 
                 throw $e;
@@ -499,20 +607,23 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
                 $order->update_meta_data('_wc_maxipago_transaction_id', $xml_decode['orderID']);
-                $order->update_meta_data('_wc_maxipago_transaction_bin', $xml_decode['creditCardBin']);
-                $order->update_meta_data('_wc_maxipago_transaction_last4', $xml_decode['creditCardLast4']);
+                if (isset($xml_decode['debitCardBin'])) {
+                    $order->update_meta_data('_wc_maxipago_transaction_bin', $xml_decode['debitCardBin']);
+                }
+                if (isset($xml_decode['debitCardLast4'])) {
+                    $order->update_meta_data('_wc_maxipago_transaction_last4', $xml_decode['debitCardLast4']);
+                }
                 $order->update_meta_data('_wc_maxipago_transaction_nsu', $xml_decode['transactionID']);
                 $order->update_meta_data('_wc_maxipago_transaction_reference_num', $referenceNum);
                 $order->update_meta_data('_wc_maxipago_transaction_authorization_code', $xml_decode['authCode']);
                 $order->update_meta_data('_wc_maxipago_transaction_environment', $environment);
                 $order->update_meta_data('_wc_maxipago_transaction_holder', $cardData['card_holder']);
-                $order->update_meta_data('_wc_maxipago_transaction_expiration', $creditExpiry);
+                $order->update_meta_data('_wc_maxipago_transaction_expiration', $debitExpiry);
                 $order->update_status('processing');
                 apply_filters("integrationRedeChangeOrderStatus", $order, $this);
             } elseif (isset($xml_decode['responseCode']) && "1" == $xml_decode['responseCode']) {
                 throw new Exception($xml_decode['processorMessage']);
             }
-
 
             if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
                 throw new Exception($xml_decode['errorMessage']);

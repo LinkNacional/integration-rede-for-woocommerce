@@ -321,9 +321,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $amount,
-                'order_currency' => $order_currency,
-                'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
-                'exchange_rate_value' => $exchange_rate_value,
+                'orderCurrency' => $order_currency,
+                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchangeRateValue' => $exchange_rate_value,
                 'cardData' => $cardData,
                 'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
                 'returnCode' => isset($returnCode) ? $returnCode : null
@@ -504,9 +504,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'order' => array(
                         'orderId' => $orderId,
                         'amount' => $order_total,
-                        'order_currency' => $order_currency,
-                        'currency_converted' => $convert_to_brl_enabled ? 'BRL' : null,
-                        'exchange_rate_value' => $exchange_rate_value,
+                        'orderCurrency' => $order_currency,
+                        'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                        'exchangeRateValue' => $exchange_rate_value,
                         'status' => $order->get_status(),
                         'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
                         'returnCode' => isset($returnCode) ? $returnCode : null
