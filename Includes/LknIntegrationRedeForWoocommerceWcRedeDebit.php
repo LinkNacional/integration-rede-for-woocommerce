@@ -308,7 +308,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
             $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
 
-            $exchange_rate_value = null;
+            $exchange_rate_value = 1;
             if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
                 // Exibe a cotação apenas se não for BRL
                 if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
@@ -489,7 +489,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
                 $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
 
-                $exchange_rate_value = null;
+                $exchange_rate_value = 1;
                 if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
                     // Exibe a cotação apenas se não for BRL
                     if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {

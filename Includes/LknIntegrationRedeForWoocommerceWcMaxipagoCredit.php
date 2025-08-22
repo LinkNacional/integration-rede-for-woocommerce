@@ -350,7 +350,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
             $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
 
-            $exchange_rate_value = null;
+            $exchange_rate_value = 1;
             if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
                 // Exibe a cotação apenas se não for BRL
                 if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
@@ -653,6 +653,21 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 );
             }
 
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+
+            $exchange_rate_value = 1;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
+
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->update_meta_data('_wc_maxipago_transaction_return_message', $xml_decode['processorMessage']);
                 $order->update_meta_data('_wc_maxipago_transaction_installments', $installments);
@@ -665,7 +680,12 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 $order->update_meta_data('_wc_maxipago_transaction_environment', $environment);
                 $order->update_meta_data('_wc_maxipago_transaction_holder', $cardData['card_holder']);
                 $order->update_meta_data('_wc_maxipago_transaction_expiration', $creditExpiry);
-                $order->update_meta_data('_wc_maxipago_total_amount', $order_total);
+                $order->update_meta_data('_wc_maxipago_total_amount', $order->get_total());
+                $order->update_meta_data('_wc_maxipago_total_amount_converted', $order_total);
+                $order->update_meta_data('_wc_maxipago_total_amount_is_converted', $convert_to_brl_enabled ? true : false);
+                $order->update_meta_data('_wc_maxipago_exchange_rate', $exchange_rate_value);
+                $order->update_meta_data('_wc_maxipago_decimal_value', $decimals);
+
                 if ('sale' == $capture) {
                     $order->update_meta_data('_wc_rede_captured', true);
                     $order->update_status('processing');
@@ -679,22 +699,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 throw new Exception($xml_decode['processorMessage']);
             }
             if ('yes' == $this->debug) {
-                $default_currency = get_option('woocommerce_currency', 'BRL');
-                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-                $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
-                $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-                $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
-
-                $exchange_rate_value = null;
-                if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
-                    // Exibe a cotação apenas se não for BRL
-                    if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
-                        $rate = $currency_data['rates'][$order_currency];
-                        // Converte para string, preservando todas as casas decimais
-                        $exchange_rate_value = (string)$rate;
-                    }
-                }
-
                 // Convert XML to array for manipulation
                 $requestArr = json_decode(json_encode(simplexml_load_string($xmlData)), true);
                 // Build orderSummary
@@ -748,96 +752,136 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function process_refund($order_id, $amount = null, $reason = '')
     {
         $order = new WC_Order($order_id);
-        $totalAmount = $order->get_meta('_wc_maxipago_total_amount');
-        $environment = $this->get_option('environment');
-        $orderId = $order->get_meta('_wc_maxipago_transaction_id');
-        $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
-        $merchantId = sanitize_text_field($this->get_option('merchant_id'));
-        $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
+        if ($order->get_payment_method() === 'maxipago_credit') {
+            
+            $totalAmount = $order->get_meta('_wc_maxipago_total_amount');
+            $environment = $this->get_option('environment');
+            $orderId = $order->get_meta('_wc_maxipago_transaction_id');
+            $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
+            $merchantId = sanitize_text_field($this->get_option('merchant_id'));
+            $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
 
-        if (empty($order->get_meta('_wc_maxipago_transaction_canceled'))) {
-            $amount = wc_format_decimal($amount);
+            // Get conversion meta
+            $is_converted = $order->get_meta('_wc_maxipago_total_amount_is_converted');
+            $exchange_rate = $order->get_meta('_wc_maxipago_exchange_rate');
+            $decimals = $order->get_meta('_wc_maxipago_decimal_value');
+            $amount = $order->get_total();
+            $amount_converted = $order->get_meta('_wc_maxipago_total_amount_converted');
 
-            try {
-                if ($order->get_total() == $amount) {
-                    $amount = $totalAmount;
+            if (empty($order->get_meta('_wc_maxipago_transaction_canceled'))) {
+                $amount = wc_format_decimal($amount);
+
+                try {
+                    if ($order->get_total() == $amount) {
+                        $amount = $totalAmount;
+                    }
+
+                    // If converted, calculate refund in BRL using exchange rate
+                    if ($is_converted && $exchange_rate) {
+                        $amount_brl = floatval($amount) / floatval($exchange_rate);
+                        // Format with correct decimals
+                        $amount_brl = number_format($amount_brl, (int)$decimals, '.', '');
+                        $amount = $amount_brl;
+                    }
+
+                    if ('production' === $environment) {
+                        $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
+                    } else {
+                        $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
+                    }
+
+                    $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+                        <transaction-request>
+                            <version>3.1.1.15</version>
+                            <verification>
+                                <merchantId>$merchantId</merchantId>
+                                <merchantKey>$merchantKey</merchantKey>
+                            </verification>
+                            <order>
+                                <return>
+                                    <orderID>$orderId</orderID>
+                                    <referenceNum>$referenceNum</referenceNum>
+                                    <payment>
+                                        <chargeTotal>$amount</chargeTotal>
+                                    </payment>
+                                </return>
+                            </order>
+                        </transaction-request>
+                    ";
+
+                    $args = array(
+                        'body' => $xmlData,
+                        'headers' => array(
+                            'Content-Type' => 'application/xml'
+                        ),
+                        'sslverify' => false // Desativa a verificação do certificado SSL
+                    );
+
+                    $response = wp_remote_post($apiUrl, $args);
+
+                    if (is_wp_error($response)) {
+                        $error_message = $response->get_error_message();
+                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr($error_message));
+                        $order->save();
+                        return false;
+                    } else {
+                        $response_body = wp_remote_retrieve_body($response);
+                        $xml = simplexml_load_string($response_body);
+                    }
+
+                    //Reconstruindo o $xml para facilitar o uso da variavel
+                    $xml_encode = wp_json_encode($xml);
+                    $xml_decode = json_decode($xml_encode, true);
+
+                    if ("APPROVED" == $xml_decode['processorMessage']) {
+                        update_post_meta($order_id, '_wc_maxipago_transaction_refund_id', $xml_decode['transactionID']);
+                        update_post_meta($order_id, '_wc_maxipago_transaction_cancel_id', $xml_decode['transactionID']);
+                        update_post_meta($order_id, '_wc_maxipago_transaction_canceled', true);
+
+                        if ($is_converted) {
+                            $formatted_amount = wc_price($amount, array('currency' => 'BRL'));
+                        } else {
+                            $formatted_amount = wc_price($amount, array('currency' => $order_currency));
+                        }
+                        $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
+                    }
+
+                    if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
+                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr__('Unknown error.', 'woo-rede'));
+                        $order->save();
+                        return false;
+                    }
+
+                    $order->save();
+
+                    $this->log->log('info', $this->id, array(
+                        'order' => array(
+                            'amount' => $amount,
+                            'totalAmount' => $totalAmount,
+                            'totalOrder' => $order->get_total(),
+                            'is_converted' => $is_converted,
+                            'exchange_rate' => $exchange_rate,
+                            'decimals' => $decimals,
+                        ),
+                    ));
+                } catch (Exception $e) {
+                    $order->add_order_note('Maxipago[Refund Error] ' . sanitize_text_field($e->getMessage()));
+                    $order->save();
+                    return false;
                 }
 
-                if ('production' === $environment) {
-                    $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
-                } else {
-                    $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
-                }
-
-                $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
-                    <transaction-request>
-                        <version>3.1.1.15</version>
-                        <verification>
-                            <merchantId>$merchantId</merchantId>
-                            <merchantKey>$merchantKey</merchantKey>
-                        </verification>
-                        <order>
-                            <return>
-                                <orderID>$orderId</orderID>
-                                <referenceNum>$referenceNum</referenceNum>
-                                <payment>
-                                    <chargeTotal>$amount</chargeTotal>
-                                </payment>
-                            </return>
-                        </order>
-                    </transaction-request>
-                ";
-
-                $args = array(
-                    'body' => $xmlData,
-                    'headers' => array(
-                        'Content-Type' => 'application/xml'
-                    ),
-                    'sslverify' => false // Desativa a verificação do certificado SSL
+                return true;
+            } else {
+                $order->add_order_note(
+                    'Maxipago[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede')
                 );
-
-                $response = wp_remote_post($apiUrl, $args);
-
-                if (is_wp_error($response)) {
-                    $error_message = $response->get_error_message();
-                    throw new Exception(esc_attr($error_message));
-                } else {
-                    $response_body = wp_remote_retrieve_body($response);
-                    $xml = simplexml_load_string($response_body);
-                }
-
-                //Reconstruindo o $xml para facilitar o uso da variavel
-                $xml_encode = wp_json_encode($xml);
-                $xml_decode = json_decode($xml_encode, true);
-
-                if ("APPROVED" == $xml_decode['processorMessage']) {
-                    update_post_meta($order_id, '_wc_maxipago_transaction_refund_id', $xml_decode['transactionID']);
-                    update_post_meta($order_id, '_wc_maxipago_transaction_cancel_id', $xml_decode['transactionID']);
-                    update_post_meta($order_id, '_wc_maxipago_transaction_canceled', true);
-                    $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . wc_price($amount));
-                }
-
-                if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
-                    throw new Exception($xml_decode['errorMessage']);
-                }
-
                 $order->save();
-
-                $this->log->log('info', $this->id, array(
-                    'order' => array(
-                        'amount' => $amount,
-                        'totalAmount' => $totalAmount,
-                        'totalOrder' => $order->get_total(),
-                    ),
-                ));
-            } catch (Exception $e) {
-                return new WP_Error('rede_refund_error', sanitize_text_field($e->getMessage()));
+                return false;
             }
-
-            return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public function validateCpfCnpj($cpfCnpj)

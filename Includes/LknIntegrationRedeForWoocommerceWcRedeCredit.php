@@ -414,7 +414,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
             $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
 
-            $exchange_rate_value = null;
+            $exchange_rate_value = 1;
             if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
                 // Exibe a cotação apenas se não for BRL
                 if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
@@ -549,6 +549,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 throw $e;
             }
 
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+
+            $exchange_rate_value = 1;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
 
             $order->update_meta_data('_transaction_id', $transaction->getTid());
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
@@ -563,7 +577,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data('_wc_rede_transaction_nsu', $transaction->getNsu());
             $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode());
             $order->update_meta_data('_wc_rede_captured', $transaction->getCapture());
-            $order->update_meta_data('_wc_rede_total_amount', $order_total);
+            $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
+            $order->update_meta_data('_wc_rede_total_amount_converted', $order_total);
+            $order->update_meta_data('_wc_rede_total_amount_is_converted', $convert_to_brl_enabled ? true : false);
+            $order->update_meta_data('_wc_rede_exchange_rate', $exchange_rate_value);
+            $order->update_meta_data('_wc_rede_decimal_value', $decimals);
 
             $authorization = $transaction->getAuthorization();
 
@@ -601,21 +619,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     }
                     if ($tId) {
                         $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
-                    }
-                }
-                $default_currency = get_option('woocommerce_currency', 'BRL');
-                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-                $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
-                $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-                $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
-
-                $exchange_rate_value = null;
-                if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
-                    // Exibe a cotação apenas se não for BRL
-                    if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
-                        $rate = $currency_data['rates'][$order_currency];
-                        // Converte para string, preservando todas as casas decimais
-                        $exchange_rate_value = (string)$rate;
                     }
                 }
 
@@ -656,56 +659,82 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     public function process_refund($order_id, $amount = 0, $reason = '')
     {
         $order = new WC_Order($order_id);
-        $totalAmount = (int) $order->get_meta('_wc_rede_total_amount');
+        if ($order->get_payment_method() === 'rede_credit') {
+            $totalAmount = $order->get_meta('_wc_rede_total_amount');
+            $is_converted = $order->get_meta('_wc_rede_total_amount_is_converted');
+            $exchange_rate = $order->get_meta('_wc_rede_exchange_rate');
+            $decimals = $order->get_meta('_wc_rede_decimal_value');
+            $amount_converted = $order->get_meta('_wc_rede_total_amount_converted');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
+            $amount = $order->get_total();
 
-        if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-            return new WP_Error(
-                'rede_refund_error',
-                esc_attr__('Reembolso total já realizado, verifique no bloco observações do pedido.', 'woo-rede')
-            );
-        }
-
-        if (! $order || ! $order->get_transaction_id()) {
-            return false;
-        }
-
-        if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-            $tid = $order->get_transaction_id();
-            $amount = wc_format_decimal($amount, 2);
-
-            try {
-                if ($amount > 0) {
-                    if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
-                        return new WP_Error(
-                            'rede_refund_error',
-                            esc_attr__('Reembolsos parciais não são permitidos. Você deve reembolsar o valor total do pedido.', 'woo-rede')
-                        );
-                        $transaction = $this->api->do_transaction_cancellation($tid, $amount);
-                    } elseif ($order->get_total() == $amount) {
-                        $transaction = $this->api->do_transaction_cancellation($tid, $amount);
-                    }
-
-                    update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
-                    if ($transaction->getCancelId() === null) {
-                        update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getTid());
-                    } else {
-                        update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
-                    }
-                    update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
-
-                    $order->add_order_note(esc_attr__('Id da transação de reembolso da Rede: ', 'woo-rede') . $transaction->getRefundId());
-                    $order->add_order_note(esc_attr__('Valor reembolsado: ', 'woo-rede') . wc_price($amount));
-                } else {
-                    return true;
-                }
-            } catch (Exception $e) {
-                return new WP_Error('rede_refund_error', sanitize_text_field($e->getMessage()));
+            if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
+                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
+                $order->save();
+                return false;
             }
 
-            return true;
-        }
+            if (! $order || ! $order->get_transaction_id()) {
+                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'woo-rede'));
+                $order->save();
+                return false;
+            }
 
-        return false;
+            if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
+                $tid = $order->get_transaction_id();
+                $amount = wc_format_decimal($amount, 2);
+
+                // Se conversão está ativa, usa o valor convertido
+                if ($is_converted && $exchange_rate) {
+                    $amount_brl = floatval($amount) / floatval($exchange_rate);
+                    $amount_brl = number_format($amount_brl, (int)$decimals, '.', '');
+                    $amount = $amount_brl;
+                } else if ($amount == $order->get_total()) {
+                    $amount = $totalAmount;
+                }
+
+                try {
+                    if ($amount > 0) {
+                        if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
+                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
+                            $order->save();
+                            return false;
+                        } elseif ($order->get_total() == $amount || $is_converted) {
+                            $transaction = $this->api->do_transaction_cancellation($tid, $amount);
+                        }
+
+                        update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
+                        if ($transaction->getCancelId() === null) {
+                            update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getTid());
+                        } else {
+                            update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
+                        }
+                        update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
+
+                        // Formata o valor conforme moeda
+                        if ($is_converted) {
+                            $formatted_amount = wc_price($amount, array('currency' => 'BRL'));
+                        } else {
+                            $formatted_amount = wc_price($amount, array('currency' => $order_currency));
+                        }
+                        $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
+                        $order->save();
+                    } else {
+                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Invalid refund amount.', 'woo-rede'));
+                        $order->save();
+                        return false;
+                    }
+                } catch (Exception $e) {
+                    $order->add_order_note('Rede[Refund Error] ' . sanitize_text_field($e->getMessage()));
+                    $order->save();
+                    return false;
+                }
+
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     protected function getCheckoutForm($order_total = 0): void
