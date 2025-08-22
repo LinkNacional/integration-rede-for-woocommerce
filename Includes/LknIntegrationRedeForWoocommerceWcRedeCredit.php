@@ -564,7 +564,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 }
             }
 
-            $order->update_meta_data('_transaction_id', $transaction->getTid());
+            // Removed update to internal meta key '_transaction_id'.
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
             $order->update_meta_data('_wc_rede_transaction_return_message', $transaction->getReturnMessage());
             $order->update_meta_data('_wc_rede_transaction_installments', $installments);
@@ -609,17 +609,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             if ('yes' == $this->debug) {
                 $tId = null;
                 $returnCode = null;
-                if ($brand === null && $transaction) {
-                    $brand = null;
-                    if (method_exists($transaction, 'getTid')) {
-                        $tId = $transaction->getTid();
-                    }
-                    if (method_exists($transaction, 'getReturnCode')) {
-                        $returnCode = $transaction->getReturnCode();
-                    }
-                    if ($tId) {
-                        $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
-                    }
+                $brandDetails = null;
+                if (method_exists($transaction, 'getTid')) {
+                    $tId = $transaction->getTid();
+                }
+                if (method_exists($transaction, 'getReturnCode')) {
+                    $returnCode = $transaction->getReturnCode();
+                }
+                if ($tId) {
+                    $brandDetails = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
                 }
 
                 $this->log->log('info', $this->id, array(
@@ -631,7 +629,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                         'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
                         'exchangeRateValue' => $exchange_rate_value,
                         'status' => $order->get_status(),
-                        'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
+                        'brand' => isset($brandDetails['brand']) ? $brandDetails['brand'] : null,
                         'returnCode' => isset($returnCode) ? $returnCode : null,
                     ),
                 ));

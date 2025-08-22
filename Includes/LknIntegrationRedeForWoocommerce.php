@@ -192,134 +192,50 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('add_meta_boxes', $this->LknIntegrationRedeForWoocommerceHelperClass, 'showOrderLogs');
         
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
+
+        // Adiciona endpoint AJAX para parcelas Rede Credit
+        $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
     }
 
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        $order = new WC_Order($order_id);
-        if ($order->get_payment_method() === 'maxipago_credit') {
-            
-            $totalAmount = $order->get_meta('_wc_maxipago_total_amount');
-            $environment = $this->get_option('environment');
-            $orderId = $order->get_meta('_wc_maxipago_transaction_id');
-            $referenceNum = $order->get_meta('_wc_maxipago_transaction_reference_num');
-            $merchantId = sanitize_text_field($this->get_option('merchant_id'));
-            $merchantKey = sanitize_text_field($this->get_option('merchant_key'));
-
-            // Get conversion meta
-            $is_converted = $order->get_meta('_wc_maxipago_total_amount_is_converted');
-            $exchange_rate = $order->get_meta('_wc_maxipago_exchange_rate');
-            $decimals = $order->get_meta('_wc_maxipago_decimal_value');
-            $amount = $order->get_total();
-            $amount_converted = $order->get_meta('_wc_maxipago_total_amount_converted');
-
-            if (empty($order->get_meta('_wc_maxipago_transaction_canceled'))) {
-                $amount = wc_format_decimal($amount);
-
-                try {
-                    if ($order->get_total() == $amount) {
-                        $amount = $totalAmount;
-                    }
-
-                    // If converted, calculate refund in BRL using exchange rate
-                    if ($is_converted && $exchange_rate) {
-                        $amount_brl = floatval($amount) / floatval($exchange_rate);
-                        // Format with correct decimals
-                        $amount_brl = number_format($amount_brl, (int)$decimals, '.', '');
-                        $amount = $amount_brl;
-                    }
-
-                    if ('production' === $environment) {
-                        $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
-                    } else {
-                        $apiUrl = 'https://testapi.maxipago.net/UniversalAPI/postXML';
-                    }
-
-                    $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
-                        <transaction-request>
-                            <version>3.1.1.15</version>
-                            <verification>
-                                <merchantId>$merchantId</merchantId>
-                                <merchantKey>$merchantKey</merchantKey>
-                            </verification>
-                            <order>
-                                <return>
-                                    <orderID>$orderId</orderID>
-                                    <referenceNum>$referenceNum</referenceNum>
-                                    <payment>
-                                        <chargeTotal>$amount</chargeTotal>
-                                    </payment>
-                                </return>
-                            </order>
-                        </transaction-request>
-                    ";
-
-                    $args = array(
-                        'body' => $xmlData,
-                        'headers' => array(
-                            'Content-Type' => 'application/xml'
-                        ),
-                        'sslverify' => false // Desativa a verificação do certificado SSL
-                    );
-
-                    $response = wp_remote_post($apiUrl, $args);
-
-                    if (is_wp_error($response)) {
-                        $error_message = $response->get_error_message();
-                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr($error_message));
-                        $order->save();
-                        return false;
-                    } else {
-                        $response_body = wp_remote_retrieve_body($response);
-                        $xml = simplexml_load_string($response_body);
-                    }
-
-                    //Reconstruindo o $xml para facilitar o uso da variavel
-                    $xml_encode = wp_json_encode($xml);
-                    $xml_decode = json_decode($xml_encode, true);
-
-                    if ("APPROVED" == $xml_decode['processorMessage']) {
-                        update_post_meta($order_id, '_wc_maxipago_transaction_refund_id', $xml_decode['transactionID']);
-                        update_post_meta($order_id, '_wc_maxipago_transaction_cancel_id', $xml_decode['transactionID']);
-                        update_post_meta($order_id, '_wc_maxipago_transaction_canceled', true);
-                        $order->add_order_note(__('Refunded:', 'woo-rede') . ' ' . wc_price($amount));
-                    }
-
-                    if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
-                        $order->add_order_note('Maxipago[Refund Error] ' . ($xml_decode['errorMessage'] ?? 'Erro desconhecido.'));
-                        $order->save();
-                        return false;
-                    }
-
-                    $order->save();
-
-                    $this->log->log('info', $this->id, array(
-                        'order' => array(
-                            'amount' => $amount,
-                            'totalAmount' => $totalAmount,
-                            'totalOrder' => $order->get_total(),
-                            'is_converted' => $is_converted,
-                            'exchange_rate' => $exchange_rate,
-                            'decimals' => $decimals,
-                        ),
-                    ));
-                } catch (Exception $e) {
-                    $order->add_order_note('Maxipago[Refund Error] ' . sanitize_text_field($e->getMessage()));
-                    $order->save();
-                    return false;
-                }
-
-                return true;
-            } else {
-                $order->add_order_note(
-                    'Maxipago[Refund Error] ' . esc_attr__('Reembolso total já realizado, verifique no bloco observações do pedido.', 'woo-rede')
-                );
-                $order->save();
-                return false;
-            }
-        } else {
-            return false;
+    /**
+     * Endpoint AJAX para retornar dados de parcelas do Rede Credit
+     */
+    public function ajax_get_rede_credit_data() {
+        $cart_total = 0;
+        if (function_exists('WC') && WC()->cart) {
+            $cart_total = floatval(WC()->cart->get_total('edit'));
         }
+        // Busca o valor diretamente do objeto do gateway
+        $max_installments = 12;
+        if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
+            $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
+            if ($max_installments < 1) {
+                $max_installments = 12;
+            }
+        }
+        $data = [
+            'title' => __('Pague com o Rede Credit', 'woo-rede'),
+            'description' => __('Pay for your purchase with a credit card through', 'woo-rede'),
+            'nonceRedeCredit' => wp_create_nonce('rede_credit_nonce'),
+            'minInstallmentsRede' => '',
+            'maxInstallmentsRede' => $max_installments,
+            'cartTotal' => $cart_total,
+            'translations' => [
+                'fieldsNotFilled' => __('Preencha todos os campos corretamente.', 'woo-rede'),
+                'cardNumber' => __('Número do cartão', 'woo-rede'),
+                'cardExpiringDate' => __('Validade do cartão', 'woo-rede'),
+                'securityCode' => __('Código de segurança', 'woo-rede'),
+                'nameOnCard' => __('Nome impresso no cartão', 'woo-rede'),
+                'installments' => __('Parcelas', 'woo-rede'),
+                'interestFree' => __(' sem juros', 'woo-rede'),
+            ],
+        ];
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $installment_value = $cart_total / $i;
+            $data["{$i}x"] = sprintf("%dx de %s", $i, wc_price($installment_value));
+        }
+        wp_send_json($data);
     }
 
     public function lkn_admin_notice()
