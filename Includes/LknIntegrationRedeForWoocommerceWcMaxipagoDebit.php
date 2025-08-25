@@ -415,6 +415,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         if ($convert_to_brl_enabled) {
             $order->add_order_note(
                 sprintf(
+                    // translators: %s is the original order currency code (e.g., USD, EUR, etc.)
                     __('Order currency %s converted to BRL.', 'woo-rede'),
                     $order_currency,
                 )
