@@ -9,7 +9,7 @@ window.jQuery(function ($) {
   // Fallback para quando o evento não é disparado
   lknRedeCreditCardRender()
 
-  function lknRedeCreditCardRender () {
+  function lknRedeCreditCardRender() {
     // Não carrega para formulário em bloco
     if (!document.querySelector('.wc-block-checkout')) {
       // Verifica se é página de fatura ou se é página de checkout
@@ -73,6 +73,9 @@ window.jQuery(function ($) {
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
     }
-    document.querySelector('.payment_box.payment_method_rede_credit p').style.display = 'none'
+    const paymentBoxP = document.querySelector('.payment_box.payment_method_rede_credit p');
+    if (paymentBoxP) {
+      paymentBoxP.style.display = 'none';
+    }
   }
 })

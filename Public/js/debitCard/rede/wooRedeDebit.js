@@ -9,7 +9,7 @@ window.jQuery(function ($) {
   // Fallback para quando o evento não é disparado
   lknRedeDebitCardRender()
 
-  function lknRedeDebitCardRender () {
+  function lknRedeDebitCardRender() {
     if (!document.querySelector('.wc-block-checkout')) {
       // Cria o card somente quando a requisição for concluida
       let $form = $('.woocommerce .woocommerce-checkout')
@@ -72,6 +72,9 @@ window.jQuery(function ($) {
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
     }
-    document.querySelector('.payment_box.payment_method_rede_debit p').style.display = 'none'
+    const paymentBoxP = document.querySelector('.payment_box.payment_method_rede_debit p');
+    if (paymentBoxP) {
+      paymentBoxP.style.display = 'none';
+    }
   }
 })

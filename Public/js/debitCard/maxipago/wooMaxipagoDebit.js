@@ -9,10 +9,10 @@ window.jQuery(function ($) {
   // Fallback para quando o evento não é disparado
   lknMaxipagoDebitCardRender()
 
-  function lknMaxipagoDebitCardRender () {
+  function lknMaxipagoDebitCardRender() {
     if (!document.querySelector('.wc-block-checkout')) {
-    // Cria o card somente quando a requisição for concluida
-      function formatarCPF (cpf) {
+      // Cria o card somente quando a requisição for concluida
+      function formatarCPF(cpf) {
         cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
         cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
         cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
@@ -89,6 +89,9 @@ window.jQuery(function ($) {
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('focus'))
       $(inputSelectors.numberInput)[0]?.dispatchEvent(new CustomEvent('blur'))
     }
-    document.querySelector('.payment_box.payment_method_maxipago_debit p').style.display = 'none'
+    const paymentBoxP = document.querySelector('.payment_box.payment_method_maxipago_debit p');
+    if (paymentBoxP) {
+      paymentBoxP.style.display = 'none';
+    }
   }
 })
