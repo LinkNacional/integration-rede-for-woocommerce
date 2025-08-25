@@ -72,6 +72,10 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 4.0.0 - 2025/08/25
+* Addition of the currency conversion field.
+* Bug and warning fixes.
+
 # 3.11.0 - 2025/07/23
 * Add PRO configuration to display the "Finalize and Generate PIX" button at checkout.
 * Add links in settings to guide users to documentation and tutorials.
