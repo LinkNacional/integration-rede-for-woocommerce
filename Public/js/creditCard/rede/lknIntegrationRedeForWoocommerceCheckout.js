@@ -35,7 +35,6 @@ const ContentRedeCredit = props => {
   // Função para buscar dados atualizados do backend e gerar as opções de installments
   const generateInstallmentOptions = async () => {
     try {
-      // Chama o endpoint AJAX do backend via jQuery
       window.jQuery.ajax({
         url: window.ajaxurl || '/wp-admin/admin-ajax.php',
         type: 'POST',
@@ -44,17 +43,17 @@ const ContentRedeCredit = props => {
           action: 'lkn_get_rede_credit_data'
         },
         success: function (response) {
-          if (response && response.maxInstallmentsRede) {
-            const newOptions = [];
-            for (let index = 1; index <= response.maxInstallmentsRede; index++) {
-              if (response[`${index}x`] !== undefined) {
-                newOptions.push({
-                  key: index,
-                  label: response[`${index}x`]
-                });
-              }
-            }
-            setOptions(newOptions);
+          if (response && Array.isArray(response.installments)) {
+            // Remove tags HTML do label para exibir texto plano
+            const plainOptions = response.installments.map(opt => {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = opt.label;
+              return {
+                ...opt,
+                label: tempDiv.textContent || tempDiv.innerText || ''
+              };
+            });
+            setOptions(plainOptions);
           }
         },
         error: function () {
@@ -69,24 +68,45 @@ const ContentRedeCredit = props => {
   // Intercepta window.fetch para WooCommerce Blocks e atualiza parcelas após requisições relevantes
   window.wp.element.useEffect(() => {
     generateInstallmentOptions();
+    // Intercepta fetch
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
       const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
       const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate');
       const response = await originalFetch.apply(this, args);
       if (isWooBlocksRequest) {
-        // Aguarda a resposta ser processada
         response.clone().json().then(() => {
           generateInstallmentOptions();
         }).catch(() => {
-          // Se não for JSON, apenas atualiza
           generateInstallmentOptions();
         });
       }
       return response;
     };
+
+    // Intercepta XMLHttpRequest
+    const originalOpen = window.XMLHttpRequest.prototype.open;
+    window.XMLHttpRequest.prototype.open = function (...args) {
+      this._url = args[1];
+      return originalOpen.apply(this, args);
+    };
+    const originalSend = window.XMLHttpRequest.prototype.send;
+    window.XMLHttpRequest.prototype.send = function (...args) {
+      this.addEventListener('load', function () {
+        if (this._url && (
+          this._url.includes('/wp-json/wc/store/v1/batch') ||
+          this._url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')
+        )) {
+          generateInstallmentOptions();
+        }
+      });
+      return originalSend.apply(this, args);
+    };
+
     return () => {
       window.fetch = originalFetch;
+      window.XMLHttpRequest.prototype.open = originalOpen;
+      window.XMLHttpRequest.prototype.send = originalSend;
     };
   }, []);
 
@@ -223,7 +243,7 @@ const ContentRedeCredit = props => {
             readOnly={false}
           >
             {options.map(opt => (
-              <option key={opt.key} value={opt.key} dangerouslySetInnerHTML={{ __html: opt.label }} />
+              <option key={opt.key} value={opt.key}>{opt.label}</option>
             ))}
           </select>
         </div>

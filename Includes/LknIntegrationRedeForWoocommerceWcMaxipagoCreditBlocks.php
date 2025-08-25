@@ -77,13 +77,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             ($settings['installment_interest'] === 'yes' || $settings['installment_discount']) &&
             is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
         ) {
-
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue) {
+                if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
-
                     if($customLabel){
                         $phpArray[$i . 'x'] = $customLabel;
                     }
