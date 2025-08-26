@@ -111,6 +111,18 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'production' => esc_attr__('Production', 'woo-rede'),
                         ),
                     ),
+                    'fake_convert_to_brl' => array(
+                        'title' => __('Currency Converter', 'woo-rede'),
+                        'type' => 'checkbox',
+                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
+                        'desc_tip' => true,
+                        'label' => __('Convert to BRL', 'woo-rede'),
+                        'default' => 'no',
+                        'custom_attributes' => array(
+                            'readonly' => 'readonly',
+                            'disabled' => 'disabled'
+                        )
+                    ),
                     'expiration_count' => array(
                         'title' => esc_attr__('PIX validity in hours', 'woo-rede'),
                         'type' => 'number',

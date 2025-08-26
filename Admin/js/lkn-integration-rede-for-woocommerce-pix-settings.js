@@ -61,6 +61,20 @@
       })
     }
 
+    const $convertToBrl = $('#woocommerce_integration_rede_pix_convert_to_brl')
+
+    if ($convertToBrl.length) {
+      const $convertFieldset = $convertToBrl.closest('fieldset')
+
+      $convertFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
+
+      $convertFieldset.css({
+        display: 'flex',
+        'flex-wrap': 'wrap',
+        gap: '6px'
+      })
+    }
+
     $(document).ready(function () {
       function applyStyle() {
         $('.select2-container').css('width', 'fit-content')
