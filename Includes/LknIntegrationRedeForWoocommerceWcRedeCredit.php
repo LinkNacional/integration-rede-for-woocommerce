@@ -229,7 +229,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'min_parcels_value' => array(
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'text',
-                'default' => '0',
+                'default' => '5',
                 'description' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
                 'desc_tip' => true,
             ),
@@ -296,21 +296,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
     }
 
-    public function get_installment_text($quantity, $order_total)
-    {
-        $installments = $this->getInstallments($order_total);
-
-        if (isset($installments[ $quantity - 1 ])) {
-            return $installments[ $quantity - 1 ]['label'];
-        }
-
-        if (isset($installments[ $quantity ])) {
-            return $installments[ $quantity ]['label'];
-        }
-
-        return $quantity;
-    }
-
     public function getInstallments($order_total = 0)
     {
         $installments = array();
@@ -334,6 +319,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
             if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+
                 $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
             }
 
@@ -743,10 +729,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $wc_get_template = 'wc_get_template';
         }
 
+        $session = null;
+        $installments_number = 1;
+        if (function_exists('WC') && WC()->session) {
+            $session = WC()->session;
+            $installments_number = $session->get('lkn_installments_number_rede_credit');
+            if (empty($installments_number)) {
+                $installments_number = 1;
+            }
+        }
+
         $wc_get_template(
             'creditCard/redePaymentCreditForm.php',
             array(
                 'installments' => $this->getInstallments($order_total),
+                'installments_number' => $installments_number,
             ),
             'woocommerce/rede/',
             LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()

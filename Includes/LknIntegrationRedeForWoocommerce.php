@@ -194,101 +194,12 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
         // Adiciona endpoint AJAX para parcelas Rede Credit
-        $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
-        $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
+        $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this->LknIntegrationRedeForWoocommerceHelperClass, 'ajax_get_rede_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this->LknIntegrationRedeForWoocommerceHelperClass, 'ajax_get_rede_credit_data');
 
         // Adiciona endpoint AJAX para parcelas Maxipago
-        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-    }
-
-     /**
-     * Endpoint AJAX para retornar dados de parcelas do Maxipago
-     */
-    public function ajax_get_maxipago_credit_data() {
-        $cart_total = 0;
-        if (function_exists('WC') && WC()->cart) {
-            $cart_total = floatval(WC()->cart->get_total('edit'));
-        }
-        $max_installments = 12;
-        $maxipagoSettings = get_option('woocommerce_maxipago_credit_settings', []);
-        $has_interest = isset($maxipagoSettings['installment_interest']) && $maxipagoSettings['installment_interest'] === 'yes';
-        $has_discount = isset($maxipagoSettings['installment_discount']) && $maxipagoSettings['installment_discount'] === 'yes';
-        if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
-            $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
-            if ($max_installments < 1) {
-                $max_installments = 12;
-            }
-        }
-        $data = [
-            'maxInstallmentsMaxipago' => $max_installments,
-            'cartTotal' => $cart_total,
-        ];
-        for ($i = 1; $i <= $max_installments; $i++) {
-            $installment_value = $cart_total / $i;
-            // Aplica juros se configurado
-            if ($has_interest && isset($maxipagoSettings[$i . 'x'])) {
-                $interest_percent = floatval($maxipagoSettings[$i . 'x']);
-                if ($interest_percent > 0) {
-                    $installment_value = ($cart_total * (1 + ($interest_percent / 100))) / $i;
-                }
-            }
-            // Aplica desconto se configurado
-            if ($has_discount && isset($maxipagoSettings[$i . 'x_discount'])) {
-                $discount_percent = floatval($maxipagoSettings[$i . 'x_discount']);
-                if ($discount_percent > 0) {
-                    $installment_value = ($cart_total * (1 - ($discount_percent / 100))) / $i;
-                }
-            }
-            $data["{$i}x"] = sprintf("%dx de %s", $i, wc_price($installment_value));
-        }
-        wp_send_json($data);
-    }
-
-    /**
-     * Endpoint AJAX para retornar dados de parcelas do Rede Credit
-     */
-    public function ajax_get_rede_credit_data() {
-        $cart_total = 0;
-        if (function_exists('WC') && WC()->cart) {
-            $cart_total = floatval(WC()->cart->get_total('edit'));
-        }
-        $max_installments = 12;
-        $redeSettings = get_option('woocommerce_rede_credit_settings', []);
-        $has_interest = isset($redeSettings['installment_interest']) && $redeSettings['installment_interest'] === 'yes';
-        $has_discount = isset($redeSettings['installment_discount']) && $redeSettings['installment_discount'] === 'yes';
-        if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
-            $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
-            if ($max_installments < 1) {
-                $max_installments = 12;
-            }
-        }
-        $installments = [];
-        for ($i = 1; $i <= $max_installments; $i++) {
-            $installment_value = $cart_total / $i;
-            // Aplica juros se configurado
-            if ($has_interest && isset($redeSettings[$i . 'x'])) {
-                $interest_percent = floatval($redeSettings[$i . 'x']);
-                if ($interest_percent > 0) {
-                    $installment_value = ($cart_total * (1 + ($interest_percent / 100))) / $i;
-                }
-            }
-            // Aplica desconto se configurado
-            if ($has_discount && isset($redeSettings[$i . 'x_discount'])) {
-                $discount_percent = floatval($redeSettings[$i . 'x_discount']);
-                if ($discount_percent > 0) {
-                    $installment_value = ($cart_total * (1 - ($discount_percent / 100))) / $i;
-                }
-            }
-            $installments[] = [
-                'key' => $i,
-                'label' => sprintf("%dx de %s", $i, wc_price($installment_value))
-            ];
-        }
-        wp_send_json([
-            'cartTotal' => $cart_total,
-            'installments' => $installments
-        ]);
+        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this->LknIntegrationRedeForWoocommerceHelperClass, 'ajax_get_maxipago_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this->LknIntegrationRedeForWoocommerceHelperClass, 'ajax_get_maxipago_credit_data');
     }
 
     public function lkn_admin_notice()

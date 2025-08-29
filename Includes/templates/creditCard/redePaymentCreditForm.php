@@ -255,9 +255,11 @@ $option = get_option('woocommerce_rede_credit_settings');
                     autocomplete="off"
                 >
                     <?php
-                            foreach ($installments as $installment) {
-                                printf('<option value="%d">%s</option>', esc_attr($installment['num']), esc_html($installment['label']));
-                            }
+                        $default_installment = isset($installments_number) ? (int)$installments_number : 1;
+                        foreach ($installments as $installment) {
+                            $selected = ($installment['num'] == $default_installment) ? 'selected' : '';
+                            printf('<option value="%d" %s>%s</option>', esc_attr($installment['num']), $selected, esc_html($installment['label']));
+                        }
                     ?>
                 </select>
                 <?php }?>

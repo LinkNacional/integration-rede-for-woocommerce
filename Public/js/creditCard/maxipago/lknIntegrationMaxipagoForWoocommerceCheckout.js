@@ -73,7 +73,7 @@ const ContentMaxipagoCredit = props => {
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
       const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
-      const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate');
+      const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate') || url.includes('/wp-json/wc/store/v1/cart');
       const response = await originalFetch.apply(this, args);
       if (isWooBlocksRequest) {
         response.clone().json().then(() => {
