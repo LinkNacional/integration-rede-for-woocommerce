@@ -9,11 +9,14 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 {
     public function registerorderRedeCaptureEndPoint(): void
     {
-        register_rest_route('redeIntegration', '/pixListener', array(
-            'methods' => 'POST',
-            'callback' => array($this, 'pixListener'),
-            'permission_callback' => '__return_true',
-        ));
+        // Só registra a rota redePixListener se o plugin PRO não estiver ativo
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            register_rest_route('redePRO', '/redePixListener', array(
+                'methods' => 'POST',
+                'callback' => array($this, 'redePixListener'),
+                'permission_callback' => '__return_true',
+            ));
+        }
 
         register_rest_route('redeIntegration', '/verifyPixRedeStatus', array(
             'methods' => 'GET',
@@ -93,27 +96,26 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         return new WP_REST_Response('', 200);
     }
 
-    public function pixListener($request)
-    {
-        add_option('LknIntegrationRedeForWoocommerceEndpointStatus', true);
-        update_option('LknIntegrationRedeForWoocommerceEndpointStatus', true);
+    public function redePixListener($request) {
+        add_option('lknRedeForWoocommerceProEndpointStatus', true);
+        update_option('lknRedeForWoocommerceProEndpointStatus', true);
         $requestParams = $request->get_params();
 
-        $redePixOptions = get_option('woocommerce_integration_rede_pix_settings');
+        $redePixOptions = get_option('woocommerce_rede_pix_settings');
         $tid = $requestParams['data']['id'];
 
         // Argumentos para buscar todos os pedidos
         $args = array(
             'limit' => -1,
-            'status' => array_keys(wc_get_order_statuses()),
-            'meta_key' => '_wc_rede_integration_pix_transaction_tid',
+            'status' => array_keys( wc_get_order_statuses() ),
+            'meta_key' => '_wc_rede_pix_transaction_tid',
             'meta_value' => $tid,
         );
 
         // Usa wc_get_orders para buscar os pedidos
-        $order = wc_get_orders($args)[0];
+        $order = wc_get_orders( $args )[0];
 
-        if (! empty($order)) {
+        if ( ! empty($order)) {
             if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
                 $paymentCompleteStatus = $redePixOptions['payment_complete_status'];
                 if ("" == $paymentCompleteStatus) {
@@ -122,7 +124,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 $order->update_status($paymentCompleteStatus);
             }
         }
-
+        
         return new WP_REST_Response('', 200);
     }
 

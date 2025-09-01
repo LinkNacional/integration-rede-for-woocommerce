@@ -46,7 +46,7 @@
     const redeEndpointElement = document.querySelector('#woocommerce_integration_rede_pix_endpoint')
     const maxipagoDebitEndpointElement = document.querySelector('#woocommerce_maxipago_debit_endpoint')
 
-    handleEndpoint(redeEndpointElement, baseUrl, 'redeintegration/pixlistener', lknRedeForWoocommerceProSettings)
-    handleEndpoint(maxipagoDebitEndpointElement, baseUrl, 'redeintegration/maxipagoDebitListener', lknRedeForWoocommerceProSettings)
+    handleEndpoint(redeEndpointElement, baseUrl, 'redePRO/pixlistener', lknRedeForWoocommerceProSettings)
+    handleEndpoint(maxipagoDebitEndpointElement, baseUrl, 'redeIntegration/maxipagoDebitListener', lknRedeForWoocommerceProSettings)
   })
 })(jQuery)
