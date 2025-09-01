@@ -163,6 +163,18 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'disabled' => 'disabled',
                         ),
                     ),
+                    'fake_convert_to_brl' => array(
+                        'title' => __('Currency Converter', 'rede-for-woocommerce-pro'),
+                        'type' => 'checkbox',
+                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'rede-for-woocommerce-pro'),
+                        'desc_tip' => true,
+                        'label' => __('Convert to BRL', 'rede-for-woocommerce-pro'),
+                        'default' => 'no',
+                        'custom_attributes' => array(
+                            'readonly' => 'readonly',
+                            'disabled' => 'disabled'
+                        )
+                    ),
                     'developers' => array(
                         'title' => esc_attr__('Developer', 'woo-rede'),
                         'type' => 'title',
@@ -387,12 +399,17 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
     public function process_admin_options()
     {
+        
         if (isset($_POST['woocommerce_integration_rede_pix_expiration_count'])) {
             $_POST['woocommerce_integration_rede_pix_expiration_count'] = '24';
         }
 
         if (isset($_POST['woocommerce_integration_rede_pix_payment_complete_status'])) {
             $_POST['woocommerce_integration_rede_pix_payment_complete_status'] = 'processing';
+        }
+
+        if (isset($_POST['woocommerce_integration_rede_pix_fake_convert_to_brl'])) {
+            $_POST['woocommerce_integration_rede_pix_fake_convert_to_brl'] = 'no';
         }
 
         parent::process_admin_options();
