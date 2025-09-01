@@ -44,20 +44,18 @@ const ContentMaxipagoCredit = props => {
           action: 'lkn_get_maxipago_credit_data'
         },
         success: function (response) {
-          if (response && response.maxInstallmentsMaxipago) {
-            const newOptions = [];
-            for (let index = 1; index <= response.maxInstallmentsMaxipago; index++) {
-              if (response[`${index}x`] !== undefined) {
-                // Extrai o texto plano do HTML (remove tags)
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = response[`${index}x`];
-                const plainText = tempDiv.textContent || tempDiv.innerText || '';
-                newOptions.push({
-                  key: index,
-                  label: plainText
-                });
-              }
-            }
+          if (response && response.installments) {
+            const newOptions = response.installments.map(installment => {
+              // Extrai o texto plano do HTML (remove tags)
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = installment.label;
+              const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+              return {
+                key: installment.key,
+                label: plainText
+              };
+            });
             setOptions(newOptions);
           }
         }

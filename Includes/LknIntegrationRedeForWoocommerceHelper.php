@@ -274,61 +274,6 @@ class LknIntegrationRedeForWoocommerceHelper
         return json_decode($json, true);
     }
 
-    /**
-     * Endpoint AJAX para retornar dados de parcelas do Maxipago
-     */
-    public function ajax_get_maxipago_credit_data() {
-        $cart_total = 0;
-        if (function_exists('WC') && WC()->cart) {
-            $cart_total = floatval(WC()->cart->get_total('edit'));
-        }
-        $max_installments = 12;
-        if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
-            $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
-            if ($max_installments < 1) {
-                $max_installments = 12;
-            }
-        }
-        $data = [
-            'maxInstallmentsMaxipago' => $max_installments,
-            'cartTotal' => $cart_total,
-        ];
-        for ($i = 1; $i <= $max_installments; $i++) {
-            $installment_value = $cart_total / $i;
-            $data["{$i}x"] = sprintf("%dx de %s", $i, wc_price($installment_value));
-        }
-        wp_send_json($data);
-    }
-
-    /**
-     * Endpoint AJAX para retornar dados de parcelas do Rede Credit
-     */
-    public function ajax_get_rede_credit_data() {
-        $cart_total = 0;
-        if (function_exists('WC') && WC()->cart) {
-            $cart_total = floatval(WC()->cart->get_total('edit'));
-        }
-        $max_installments = 12;
-        if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
-            $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
-            if ($max_installments < 1) {
-                $max_installments = 12;
-            }
-        }
-        $installments = [];
-        for ($i = 1; $i <= $max_installments; $i++) {
-            $installment_value = $cart_total / $i;
-            $installments[] = [
-                'key' => $i,
-                'label' => sprintf("%dx de %s", $i, wc_price($installment_value))
-            ];
-        }
-        wp_send_json([
-            'cartTotal' => $cart_total,
-            'installments' => $installments
-        ]);
-    }
-
     public function showLogsContent($object): void
     {
         // Obter o objeto WC_Order
