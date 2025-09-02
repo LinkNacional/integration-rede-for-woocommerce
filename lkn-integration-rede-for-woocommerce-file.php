@@ -17,7 +17,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Rename this for your plugin and update it as you release new versions.
  */
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
-    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '3.11.0');
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '4.0.0');
 }
 
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
@@ -42,6 +42,14 @@ if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME')) {
 
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_BASE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
+}
+
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API', 'https://api.linknacional.com');
+}
+
+if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY')) {
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY', 'lkn_currency_rates_cache');
 }
 /**
  * The code that runs during plugin activation.

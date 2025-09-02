@@ -1,3 +1,7 @@
+# 4.0.0 - 25/08/2025
+* Adição do campo de conversão de moeda.
+* Correções de bugs e warnings.
+
 # 3.11.0 - 23/07/2025
 * Adição de configuração PRO para exibir botão "Finalizar e Gerar PIX" no checkout.
 * Adição de links nas configurações para direcionar o usuário para documentações e tutoriais.

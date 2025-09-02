@@ -78,10 +78,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
 
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue) {
+                if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
-                    
                     if($customLabel){
                         $phpArray[$i . 'x'] = $customLabel;
                     }

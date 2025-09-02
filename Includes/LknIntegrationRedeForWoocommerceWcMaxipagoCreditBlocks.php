@@ -49,15 +49,15 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
     public function get_payment_method_data()
     {
         $cart_total = LknIntegrationRedeForWoocommerceHelper::getCartTotal();
-        $settings = get_option('woocommerce_maxipago_credit_settings');
-        $maxParcels = $settings['max_parcels_number'];
-        $minParcelValue = (float) $settings['min_parcels_value'];
+        $settings = get_option('woocommerce_maxipago_credit_settings', array());
+        $maxParcels = isset($settings['max_parcels_number']) ? (int)$settings['max_parcels_number'] : 12;
+        $minParcelValue = isset($settings['min_parcels_value']) ? (int)$settings['min_parcels_value'] : 5;
 
         $phpArray = array(
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceMaxipagoCredit' => wp_create_nonce('maxipagoCardNonce'),
-            'minInstallmentsMaxipago' => get_option('woocommerce_maxipago_credit_settings')['min_parcels_value'],
+            'minInstallmentsMaxipago' => $minParcelValue,
             'maxInstallmentsMaxipago' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
@@ -77,13 +77,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             ($settings['installment_interest'] === 'yes' || $settings['installment_discount']) &&
             is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
         ) {
-
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue) {
+                if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
-
                     if($customLabel){
                         $phpArray[$i . 'x'] = $customLabel;
                     }

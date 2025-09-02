@@ -61,6 +61,34 @@
       })
     }
 
+    const $convertToBrl = $('#woocommerce_integration_rede_pix_convert_to_brl')
+
+    if ($convertToBrl.length) {
+      const $convertFieldset = $convertToBrl.closest('fieldset')
+
+      $convertFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
+
+      $convertFieldset.css({
+        display: 'flex',
+        'flex-wrap': 'wrap',
+        gap: '6px'
+      })
+    }
+
+    const $fakeConvertToBrl = $('#woocommerce_integration_rede_pix_fake_convert_to_brl')
+
+    if ($fakeConvertToBrl.length) {
+      const $fakeConvertFieldset = $fakeConvertToBrl.closest('fieldset')
+
+      $fakeConvertFieldset.append('<p class="pro-version-info">Disponível no <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/">PRO</a>.</p>')
+
+      $fakeConvertFieldset.css({
+        display: 'flex',
+        'flex-wrap': 'wrap',
+        gap: '6px'
+      })
+    }
+
     $(document).ready(function () {
       function applyStyle() {
         $('.select2-container').css('width', 'fit-content')

@@ -1,5 +1,13 @@
 (function ($) {
     $(window).load(function () {
+
+        // Hidden 'currency_quote'
+        document.querySelectorAll('input[type="text"]').forEach(function (input) {
+            if ((input.name && input.name.includes('currency_quote')) || (input.id && input.id.includes('currency_quote'))) {
+                input.style.display = 'none';
+            }
+        });
+
         // Selecionar os elementos
         let lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar = 1
         const mainForm = document.querySelector('#mainform')

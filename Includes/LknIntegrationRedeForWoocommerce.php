@@ -161,6 +161,7 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
 
         $this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_rede_credit_class, 'process_refund');
+        $this->loader->add_action('woocommerce_order_status_cancelled', $this->wc_maxipago_credit_class, 'process_refund');
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'process_admin_options');
         $this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_credit_class, 'check_return');
@@ -191,6 +192,207 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('add_meta_boxes', $this->LknIntegrationRedeForWoocommerceHelperClass, 'showOrderLogs');
         
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
+
+        // Adiciona endpoint AJAX para parcelas Rede Credit
+        $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
+
+        // Adiciona endpoint AJAX para parcelas Maxipago
+        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+    }
+
+    /**
+     * Endpoint AJAX para retornar dados de parcelas do Maxipago
+     */
+    public function ajax_get_maxipago_credit_data() {
+        $cart_total = 0;
+        if (function_exists('WC') && WC()->cart) {
+            // Soma dos produtos + taxa de entrega (sem fees PRO)
+            $cart_total = floatval(WC()->cart->get_cart_contents_total());
+            $cart_total += floatval(WC()->cart->get_shipping_total());
+        }
+        $max_installments = 12;
+        if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
+            $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
+            if ($max_installments < 1) {
+                $max_installments = 12;
+            }
+        }
+
+        // Verificar se a licença PRO está ativa
+        $is_pro_active = false;
+        if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                $is_pro_active = (strpos($license_data, 'active') !== false);
+            }
+        }
+
+        $installments = [];
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $installment_value = $cart_total / $i;
+            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+            
+            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
+            if ($is_pro_active) {
+                $label = $this->get_installment_label_with_interest($i, $base_label, 'maxipago_credit');
+            } else {
+                $label = $base_label;
+            }
+            
+            $installments[] = [
+                'key' => $i,
+                'label' => $label
+            ];
+        }
+        wp_send_json([
+            'cartTotal' => $cart_total,
+            'installments' => $installments
+        ]);
+    }
+
+    /**
+     * Endpoint AJAX para retornar dados de parcelas do Rede Credit
+     */
+    public function ajax_get_rede_credit_data() {
+        $cart_total = 0;
+        if (function_exists('WC') && WC()->cart) {
+            // Soma dos produtos + taxa de entrega (sem fees PRO)
+            $cart_total = floatval(WC()->cart->get_cart_contents_total());
+            $cart_total += floatval(WC()->cart->get_shipping_total());
+        }
+        $max_installments = 12;
+        if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
+            $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
+
+            if ($max_installments < 1) {
+                $max_installments = 12;
+            }
+        }
+
+        // Verificar se a licença PRO está ativa
+        $is_pro_active = false;
+        if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                $is_pro_active = (strpos($license_data, 'active') !== false);
+            }
+        }
+
+        $installments = [];
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $installment_value = $cart_total / $i;
+            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+            
+            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
+            if ($is_pro_active) {
+                $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_credit');
+            } else {
+                $label = $base_label;
+            }
+            
+            $installments[] = [
+                'key' => $i,
+                'label' => $label
+            ];
+        }
+        wp_send_json([
+            'cartTotal' => $cart_total,
+            'installments' => $installments
+        ]);
+    }
+
+    /**
+     * Gera o label da parcela com informações de juros/desconto (funcionalidade PRO)
+     */
+    private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit') {
+        // Obter todas as configurações do gateway
+        $gatewaySettings = get_option('woocommerce_' . $gateway . '_settings', array());
+        if (!is_array($gatewaySettings)) {
+            return $base_label;
+        }
+        
+        // Obter soma dos produtos + taxa de entrega (sem fees PRO)
+        $cartTotal = 0;
+        if (function_exists('WC') && WC()->cart) {
+            // Soma dos produtos
+            $cartTotal = floatval(WC()->cart->get_cart_contents_total());
+            // Adicionar taxa de entrega
+            $cartTotal += floatval(WC()->cart->get_shipping_total());
+        }
+        
+        // Calcular o valor da parcela individual
+        $installmentValue = $cartTotal / $installment_number;
+        
+        // Verificar valor mínimo para aplicar juros
+        $minInterest = isset($gatewaySettings['min_interest']) ? floatval($gatewaySettings['min_interest']) : 0;
+        $ignoreInterest = ($minInterest > 0 && $installmentValue > $minInterest);
+        
+        // Verificar se há checkbox "sem juros" marcado
+        $no_interest_key = "{$installment_number}x_no_interest";
+        if (isset($gatewaySettings[$no_interest_key]) && $gatewaySettings[$no_interest_key] === 'yes') {
+            return $base_label . ' sem juros';
+        }
+
+        // Verificar o valor de juros/desconto
+        $value_key = "{$installment_number}x";
+        $discount_key = "{$installment_number}x_discount";
+        
+        $value = 0;
+        $is_discount = false;
+        
+        // Verificar se existe valor de desconto
+        if (isset($gatewaySettings[$discount_key]) && !empty($gatewaySettings[$discount_key])) {
+            $value = floatval($gatewaySettings[$discount_key]);
+            $is_discount = true;
+            
+            // Se valor for negativo, corrigir para 0 e salvar
+            if ($value < 0) {
+                $value = 0;
+                $gatewaySettings[$discount_key] = '0';
+                update_option('woocommerce_' . $gateway . '_settings', $gatewaySettings);
+            }
+        }
+        // Senão, verificar se existe valor normal (juros)
+        elseif (isset($gatewaySettings[$value_key]) && !empty($gatewaySettings[$value_key])) {
+            $value = floatval($gatewaySettings[$value_key]);
+            $is_discount = false;
+            
+            // Se valor for negativo, corrigir para 0 e salvar
+            if ($value < 0) {
+                $value = 0;
+                $gatewaySettings[$value_key] = '0';
+                update_option('woocommerce_' . $gateway . '_settings', $gatewaySettings);
+            }
+        }
+        
+        // Se o valor for 0 ou vazio, adicionar "sem juros"
+        if ($value === 0) {
+            return $base_label . ' sem juros';
+        }
+
+        // Calcular novo valor da parcela com juros/desconto
+        $newInstallmentValue = $installmentValue;
+        
+        if ($is_discount) {
+            // Aplicar desconto
+            $newInstallmentValue = $installmentValue * (1 - ($value / 100));
+            $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
+            return $new_label . " ({$value}% de desconto)";
+        } else {
+            // Para juros, verificar se deve ignorar devido ao valor mínimo da parcela
+            if ($ignoreInterest) {
+                return $base_label . ' sem juros';
+            } else {
+                // Aplicar juros
+                $newInstallmentValue = $installmentValue * (1 + ($value / 100));
+                $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
+                return $new_label . " ({$value}% de juros)";
+            }
+        }
     }
 
     public function lkn_admin_notice()

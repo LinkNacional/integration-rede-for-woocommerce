@@ -6,7 +6,6 @@ const labelMaxipagoCredit = window.wp.htmlEntities.decodeEntities(settingsMaxipa
 // Obtendo o nonce da variável global
 const nonceMaxipagoCredit = settingsMaxipagoCredit.nonceMaxipagoCredit;
 const translationsMaxipagoCredit = settingsMaxipagoCredit.translations;
-const minInstallmentsMaxipago = settingsMaxipagoCredit.minInstallmentsMaxipago.replace(',', '.');
 const ContentMaxipagoCredit = props => {
   const totalAmountFloat = settingsMaxipagoCredit.cartTotal;
   const [selectedValue, setSelectedValue] = window.wp.element.useState('');
@@ -32,15 +31,83 @@ const ContentMaxipagoCredit = props => {
     maxipago_credit_neighborhood: ''
   });
   const [focus, setFocus] = window.wp.element.useState('');
-  const options = [];
-  for (let index = 1; index <= settingsMaxipagoCredit.maxInstallmentsMaxipago; index++) {
-    if (settingsMaxipagoCredit[`${index}x`] !== undefined) {
-      options.push({
-        key: index,
-        label: settingsMaxipagoCredit[`${index}x`]
+  const [options, setOptions] = window.wp.element.useState([]);
+
+  // Função para buscar dados atualizados do backend e gerar as opções de installments
+  const generateInstallmentOptions = async () => {
+    try {
+      window.jQuery.ajax({
+        url: window.ajaxurl || '/wp-admin/admin-ajax.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          action: 'lkn_get_maxipago_credit_data'
+        },
+        success: function (response) {
+          if (response && response.installments) {
+            const newOptions = response.installments.map(installment => {
+              // Extrai o texto plano do HTML (remove tags)
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = installment.label;
+              const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+              return {
+                key: installment.key,
+                label: plainText
+              };
+            });
+            setOptions(newOptions);
+          }
+        }
       });
-    } 
-  }
+    } catch (error) { }
+  };
+
+  // Intercepta fetch e XMLHttpRequest para WooCommerce Blocks e atualiza parcelas após requisições relevantes
+  window.wp.element.useEffect(() => {
+    generateInstallmentOptions();
+
+    // Intercepta fetch
+    const originalFetch = window.fetch;
+    window.fetch = async function (...args) {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+      const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate') || url.includes('/wp-json/wc/store/v1/cart');
+      const response = await originalFetch.apply(this, args);
+      if (isWooBlocksRequest) {
+        response.clone().json().then(() => {
+          generateInstallmentOptions();
+        }).catch(() => {
+          generateInstallmentOptions();
+        });
+      }
+      return response;
+    };
+
+    // Intercepta XMLHttpRequest
+    const originalOpen = window.XMLHttpRequest.prototype.open;
+    window.XMLHttpRequest.prototype.open = function (...args) {
+      this._url = args[1];
+      return originalOpen.apply(this, args);
+    };
+    const originalSend = window.XMLHttpRequest.prototype.send;
+    window.XMLHttpRequest.prototype.send = function (...args) {
+      this.addEventListener('load', function () {
+        if (this._url && (
+          this._url.includes('/wp-json/wc/store/v1/batch') ||
+          this._url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')
+        )) {
+          generateInstallmentOptions();
+        }
+      });
+      return originalSend.apply(this, args);
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+      window.XMLHttpRequest.prototype.open = originalOpen;
+      window.XMLHttpRequest.prototype.send = originalSend;
+    };
+  }, []);
   const formatCreditCardNumber = value => {
     if (value?.length > 19) return creditObject.maxipago_credit_number;
     // Remove caracteres não numéricos
@@ -125,8 +192,8 @@ const ContentMaxipagoCredit = props => {
       unsubscribe();
     };
   }, [creditObject,
-  // Adiciona creditObject como dependência
-  emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
+    // Adiciona creditObject como dependência
+    emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsMaxipagoCredit // Adicione translationsMaxipagoCredit como dependência
   ]);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
     number: creditObject.maxipago_credit_number,

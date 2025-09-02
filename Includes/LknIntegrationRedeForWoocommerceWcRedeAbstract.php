@@ -11,7 +11,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 {
     public $debug = 'no';
     public $auto_capture = true;
-    public $min_parcels_value = 0;
+    public $min_parcels_value = 5;
     public $max_parcels_number = 12;
     public $configs = array();
     public $api = null;
@@ -103,10 +103,12 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 'label' => esc_attr__('Authorization code', 'woo-rede'),
                 'value' => $authorization_code,
             );
-            $items['installments'] = array(
-                'label' => esc_attr__('Installments', 'woo-rede'),
-                'value' => $installments,
-            );
+            if($installments){
+                $items['installments'] = array(
+                    'label' => esc_attr__('Installments', 'woo-rede'),
+                    'value' => $installments,
+                );
+            }
 
             $items[] = $last;
         }
