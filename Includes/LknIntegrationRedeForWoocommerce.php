@@ -222,10 +222,12 @@ final class LknIntegrationRedeForWoocommerce
 
         // Verificar se a licença PRO está ativa
         $is_pro_active = false;
-        $pro_license = get_option('lknRedeForWoocommerceProLicense');
-        if ($pro_license) {
-            $license_data = base64_decode($pro_license);
-            $is_pro_active = (strpos($license_data, 'active') !== false);
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                $is_pro_active = (strpos($license_data, 'active') !== false);
+            }
         }
 
         $installments = [];
@@ -272,10 +274,12 @@ final class LknIntegrationRedeForWoocommerce
 
         // Verificar se a licença PRO está ativa
         $is_pro_active = false;
-        $pro_license = get_option('lknRedeForWoocommerceProLicense');
-        if ($pro_license) {
-            $license_data = base64_decode($pro_license);
-            $is_pro_active = (strpos($license_data, 'active') !== false);
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                $is_pro_active = (strpos($license_data, 'active') !== false);
+            }
         }
 
         $installments = [];
