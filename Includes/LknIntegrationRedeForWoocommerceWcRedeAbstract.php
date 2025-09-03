@@ -133,7 +133,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             echo wp_kses_post(wpautop($description));
         }
 
-        $this->getCheckoutForm($this->get_order_total());
+        $this->getCheckoutForm($this->get_cart_subtotal_without_taxes());
     }
 
     abstract protected function getCheckoutForm($order_total = 0);
@@ -158,6 +158,30 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         return $order_total;
+    }
+
+    final public function get_cart_subtotal_without_taxes()
+    {
+        global $woocommerce;
+
+        $subtotal = 0;
+
+        if (defined('WC_VERSION') && version_compare(WC_VERSION, '2.1', '>=')) {
+            $order_id = absint(get_query_var('order-pay'));
+        } else {
+            $order_id = isset($_GET['order_id']) ? absint(wp_unslash($_GET['order_id'])) : 0;
+        }
+
+        if (0 < $order_id) {
+            $order = new WC_Order($order_id);
+            // Para pedidos existentes, calcula subtotal + frete sem taxas
+            $subtotal = (float) $order->get_subtotal() + (float) $order->get_shipping_total();
+        } elseif (isset($woocommerce->cart) && $woocommerce->cart) {
+            // Para carrinho, pega subtotal + frete sem taxas
+            $subtotal = (float) $woocommerce->cart->get_subtotal() + (float) $woocommerce->cart->get_shipping_total();
+        }
+
+        return $subtotal;
     }
 
     final public function consult_order($order, $id, $tid, $status): void
