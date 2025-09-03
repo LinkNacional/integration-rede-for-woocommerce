@@ -1,5 +1,5 @@
 # 4.0.1 - 03/09/2025
-* Correção no calculo das parcelas no modo legacy
+* Correção no calculo das parcelas no modo legacy.
 
 # 4.0.0 - 25/08/2025
 * Adição do campo de conversão de moeda.
