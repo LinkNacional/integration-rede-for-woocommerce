@@ -72,6 +72,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 4.0.1 - 2025/09/03
+* Legacy mode installment calculation fix
+
 # 4.0.0 - 2025/08/25
 * Addition of the currency conversion field.
 * Bug and warning fixes.
