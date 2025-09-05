@@ -190,7 +190,7 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_pix_name', 10, 2);
 
         $this->loader->add_action('add_meta_boxes', $this->LknIntegrationRedeForWoocommerceHelperClass, 'showOrderLogs');
-        
+
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
         // Adiciona endpoint AJAX para parcelas Rede Credit
@@ -205,7 +205,8 @@ final class LknIntegrationRedeForWoocommerce
     /**
      * Endpoint AJAX para retornar dados de parcelas do Maxipago
      */
-    public function ajax_get_maxipago_credit_data() {
+    public function ajax_get_maxipago_credit_data()
+    {
         $cart_total = 0;
         if (function_exists('WC') && WC()->cart) {
             // Soma dos produtos + taxa de entrega (sem fees PRO)
@@ -234,14 +235,14 @@ final class LknIntegrationRedeForWoocommerce
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
-            
+
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
             if ($is_pro_active) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'maxipago_credit');
             } else {
                 $label = $base_label;
             }
-            
+
             $installments[] = [
                 'key' => $i,
                 'label' => $label
@@ -256,7 +257,8 @@ final class LknIntegrationRedeForWoocommerce
     /**
      * Endpoint AJAX para retornar dados de parcelas do Rede Credit
      */
-    public function ajax_get_rede_credit_data() {
+    public function ajax_get_rede_credit_data()
+    {
         $cart_total = 0;
         if (function_exists('WC') && WC()->cart) {
             // Soma dos produtos + taxa de entrega (sem fees PRO)
@@ -286,14 +288,14 @@ final class LknIntegrationRedeForWoocommerce
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
-            
+
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
             if ($is_pro_active) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_credit');
             } else {
                 $label = $base_label;
             }
-            
+
             $installments[] = [
                 'key' => $i,
                 'label' => $label
@@ -308,13 +310,14 @@ final class LknIntegrationRedeForWoocommerce
     /**
      * Gera o label da parcela com informações de juros/desconto (funcionalidade PRO)
      */
-    private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit') {
+    private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit')
+    {
         // Obter todas as configurações do gateway
         $gatewaySettings = get_option('woocommerce_' . $gateway . '_settings', array());
         if (!is_array($gatewaySettings)) {
             return $base_label;
         }
-        
+
         // Obter soma dos produtos + taxa de entrega (sem fees PRO)
         $cartTotal = 0;
         if (function_exists('WC') && WC()->cart) {
@@ -323,14 +326,14 @@ final class LknIntegrationRedeForWoocommerce
             // Adicionar taxa de entrega
             $cartTotal += floatval(WC()->cart->get_shipping_total());
         }
-        
+
         // Calcular o valor da parcela individual
         $installmentValue = $cartTotal / $installment_number;
-        
+
         // Verificar valor mínimo para aplicar juros
         $minInterest = isset($gatewaySettings['min_interest']) ? floatval($gatewaySettings['min_interest']) : 0;
         $ignoreInterest = ($minInterest > 0 && $installmentValue > $minInterest);
-        
+
         // Verificar se há checkbox "sem juros" marcado
         $no_interest_key = "{$installment_number}x_no_interest";
         if (isset($gatewaySettings[$no_interest_key]) && $gatewaySettings[$no_interest_key] === 'yes') {
@@ -340,15 +343,15 @@ final class LknIntegrationRedeForWoocommerce
         // Verificar o valor de juros/desconto
         $value_key = "{$installment_number}x";
         $discount_key = "{$installment_number}x_discount";
-        
+
         $value = 0;
         $is_discount = false;
-        
+
         // Verificar se existe valor de desconto
         if (isset($gatewaySettings[$discount_key]) && !empty($gatewaySettings[$discount_key])) {
             $value = floatval($gatewaySettings[$discount_key]);
             $is_discount = true;
-            
+
             // Se valor for negativo, corrigir para 0 e salvar
             if ($value < 0) {
                 $value = 0;
@@ -360,7 +363,7 @@ final class LknIntegrationRedeForWoocommerce
         elseif (isset($gatewaySettings[$value_key]) && !empty($gatewaySettings[$value_key])) {
             $value = floatval($gatewaySettings[$value_key]);
             $is_discount = false;
-            
+
             // Se valor for negativo, corrigir para 0 e salvar
             if ($value < 0) {
                 $value = 0;
@@ -368,7 +371,7 @@ final class LknIntegrationRedeForWoocommerce
                 update_option('woocommerce_' . $gateway . '_settings', $gatewaySettings);
             }
         }
-        
+
         // Se o valor for 0 ou vazio, adicionar "sem juros"
         if ($value === 0) {
             return $base_label . ' sem juros';
@@ -376,7 +379,7 @@ final class LknIntegrationRedeForWoocommerce
 
         // Calcular novo valor da parcela com juros/desconto
         $newInstallmentValue = $installmentValue;
-        
+
         if ($is_discount) {
             // Aplicar desconto
             $newInstallmentValue = $installmentValue * (1 - ($value / 100));
@@ -424,7 +427,7 @@ final class LknIntegrationRedeForWoocommerce
     public static function lknIntegrationRedeForWoocommercePluginRowMetaPro($plugin_meta, $plugin_file)
     {
         // Defina o URL e o texto do link
-        $url = 'https://www.linknacional.com.br/wordpress/plugins/';
+        $url = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
             __('Be pro', 'woo-rede')

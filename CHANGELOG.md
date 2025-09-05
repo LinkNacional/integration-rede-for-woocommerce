@@ -1,3 +1,6 @@
+# 4.0.2 - 05/09/2025
+* Atualização nos links de venda
+
 # 4.0.1 - 03/09/2025
 * Correção no calculo das parcelas no modo legacy.
 
