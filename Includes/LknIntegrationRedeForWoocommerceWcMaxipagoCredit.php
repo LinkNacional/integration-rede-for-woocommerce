@@ -11,8 +11,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function __construct()
     {
         $this->id = 'maxipago_credit';
-        $this->method_title = esc_attr__('Pay with the Maxipago Credit', 'woo-rede');
-        $this->method_description = esc_attr__('Enables and configures payments with Maxipago Credit', 'woo-rede');
+        $this->method_title = esc_attr__('Pay with the Maxipago Credit', 'integration-rede-for-woocommerce');
+        $this->method_description = esc_attr__('Enables and configures payments with Maxipago Credit', 'integration-rede-for-woocommerce');
         $this->title = 'Maxipago';
         $this->has_fields = true;
         $this->supports = array(
@@ -51,41 +51,41 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function validate_fields()
     {
         if (empty(sanitize_text_field(wp_unslash($_POST['maxipago_credit_card_cpf']))) && empty(sanitize_text_field(wp_unslash($_POST['billing_cpf']))) && empty(sanitize_text_field(wp_unslash($_POST['billing_cnpj'])))) {
-            wc_add_notice(esc_attr__('CPF is a required field', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('CPF is a required field', 'integration-rede-for-woocommerce'), 'error');
 
             return false;
         }
 
         if (empty($_POST['maxipago_credit_number'])) {
-            wc_add_notice(esc_attr__('Card number is a required field', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card number is a required field', 'integration-rede-for-woocommerce'), 'error');
 
             return false;
         }
 
         if (empty($_POST['maxipago_credit_expiry'])) {
-            wc_add_notice(esc_attr__('Card expiration is a required field', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card expiration is a required field', 'integration-rede-for-woocommerce'), 'error');
 
             return false;
         }
 
         if (empty($_POST['maxipago_credit_cvc'])) {
-            wc_add_notice(esc_attr__('Card security code is a required field', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card security code is a required field', 'integration-rede-for-woocommerce'), 'error');
 
             return false;
         }
 
         if (! ctype_digit(sanitize_text_field(wp_unslash($_POST['maxipago_credit_cvc'])))) {
-            wc_add_notice(esc_attr__('Card security code must be a numeric value', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card security code must be a numeric value', 'integration-rede-for-woocommerce'), 'error');
             return false;
         }
 
         if (strlen(sanitize_text_field(wp_unslash($_POST['maxipago_credit_cvc']))) < 3) {
-            wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'integration-rede-for-woocommerce'), 'error');
             return false;
         }
 
         if (empty($_POST['maxipago_credit_holder_name'])) {
-            wc_add_notice(esc_attr__('Cardholder name is a required field', 'woo-rede'), 'error');
+            wc_add_notice(esc_attr__('Cardholder name is a required field', 'integration-rede-for-woocommerce'), 'error');
 
             return false;
         }
@@ -100,8 +100,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             && $this->is_available()
         ) {
             $fields['billing']['billing_neighborhood'] = array(
-                'label' => __('District', 'woo-rede'),
-                'placeholder' => __('District', 'woo-rede'),
+                'label' => __('District', 'integration-rede-for-woocommerce'),
+                'placeholder' => __('District', 'integration-rede-for-woocommerce'),
                 'required' => true,
                 'class' => array('form-row-wide'),
                 'clear' => true,
@@ -140,89 +140,89 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         $this->form_fields = array(
             'enabled' => array(
-                'title' => __('Enable/Disable', 'woo-rede'),
+                'title' => __('Enable/Disable', 'integration-rede-for-woocommerce'),
                 'type' => 'checkbox',
-                'label' => __('Enables payment with Maxipago', 'woo-rede'),
+                'label' => __('Enables payment with Maxipago', 'integration-rede-for-woocommerce'),
                 'default' => 'no'
             ),
             'title' => array(
-                'title' => __('Title', 'woo-rede'),
+                'title' => __('Title', 'integration-rede-for-woocommerce'),
                 'type' => 'text',
-                'description' => __('This controls the title which the user sees during checkout.', 'woo-rede'),
-                'default' => __('Pay with the Maxipago Credit', 'woo-rede'),
+                'description' => __('This controls the title which the user sees during checkout.', 'integration-rede-for-woocommerce'),
+                'default' => __('Pay with the Maxipago Credit', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
             ),
             'description' => array(
-                'title' => __('Description', 'woo-rede'),
+                'title' => __('Description', 'integration-rede-for-woocommerce'),
                 'type' => 'textarea',
-                'default' => __('Pay for your purchase with a credit card through ', 'woo-rede'),
+                'default' => __('Pay for your purchase with a credit card through ', 'integration-rede-for-woocommerce'),
             ),
             'maxipago' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
+                'title' => esc_attr__('General', 'integration-rede-for-woocommerce'),
                 'type' => 'title',
             ),
 
             'company_name' => array(
-                'title' => __('Seller Company Name', 'woo-rede'),
+                'title' => __('Seller Company Name', 'integration-rede-for-woocommerce'),
                 'type' => 'text',
                 'desc_tip' => true,
             ),
 
             'environment' => array(
-                'title' => esc_attr__('Environment', 'woo-rede'),
+                'title' => esc_attr__('Environment', 'integration-rede-for-woocommerce'),
                 'type' => 'select',
-                'description' => esc_attr__('Choose the environment', 'woo-rede'),
+                'description' => esc_attr__('Choose the environment', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
                 'class' => 'wc-enhanced-select',
-                'default' => esc_attr__('test', 'woo-rede'),
+                'default' => esc_attr__('test', 'integration-rede-for-woocommerce'),
                 'options' => array(
-                    'test' => esc_attr__('Tests', 'woo-rede'),
-                    'production' => esc_attr__('Production', 'woo-rede'),
+                    'test' => esc_attr__('Tests', 'integration-rede-for-woocommerce'),
+                    'production' => esc_attr__('Production', 'integration-rede-for-woocommerce'),
                 ),
             ),
 
             'description' => array(
-                'title' => __('Description', 'woo-rede'),
+                'title' => __('Description', 'integration-rede-for-woocommerce'),
                 'type' => 'textarea',
-                'description' => __('This controls the description which the user sees during checkout.', 'woo-rede'),
-                'default' => __('Pay securely with Maxipago.', 'woo-rede'),
+                'description' => __('This controls the description which the user sees during checkout.', 'integration-rede-for-woocommerce'),
+                'default' => __('Pay securely with Maxipago.', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
             ),
             'merchant_id' => array(
-                'title' => __('Merchant ID', 'woo-rede'),
+                'title' => __('Merchant ID', 'integration-rede-for-woocommerce'),
                 'type' => 'password',
-                'description' => __('Your Maxipago Merchant ID.', 'woo-rede'),
+                'description' => __('Your Maxipago Merchant ID.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
             ),
             'merchant_key' => array(
-                'title' => __('Merchant Key', 'woo-rede'),
+                'title' => __('Merchant Key', 'integration-rede-for-woocommerce'),
                 'type' => 'password',
-                'description' => __('Your Maxipago Merchant Key.', 'woo-rede'),
+                'description' => __('Your Maxipago Merchant Key.', 'integration-rede-for-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
             ),
             'enabled_fix_load_script' => array(
-                'title' => __('Load on checkout', 'woo-rede'),
+                'title' => __('Load on checkout', 'integration-rede-for-woocommerce'),
                 'type' => 'checkbox',
-                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'woo-rede'),
+                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
-                'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
+                'label' => __('Load plugin on checkout. Default (enabled)', 'integration-rede-for-woocommerce'),
                 'default' => 'yes',
             ),
             'credit_options' => array(
-                'title' => esc_attr__('Credit Card', 'woo-rede'),
+                'title' => esc_attr__('Credit Card', 'integration-rede-for-woocommerce'),
                 'type' => 'title',
             ),
             'min_parcels_value' => array(
-                'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
+                'title' => esc_attr__('Value of the smallest installment', 'integration-rede-for-woocommerce'),
                 'type' => 'text',
                 'default' => '5',
-                'description' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
+                'description' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
             ),
             'max_parcels_number' => array(
-                'title' => esc_attr__('Max installments', 'woo-rede'),
+                'title' => esc_attr__('Max installments', 'integration-rede-for-woocommerce'),
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'default' => '12',
@@ -240,34 +240,34 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     '11' => '11x',
                     '12' => '12x',
                 ),
-                'description' => esc_attr__('Set the maximum number of installments allowed in credit transactions.', 'woo-rede'),
+                'description' => esc_attr__('Set the maximum number of installments allowed in credit transactions.', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
             ),
 
             'developers' => array(
-                'title' => esc_attr__('Developer', 'woo-rede'),
+                'title' => esc_attr__('Developer', 'integration-rede-for-woocommerce'),
                 'type' => 'title',
             ),
 
             'debug' => array(
-                'title' => esc_attr__('Debug', 'woo-rede'),
+                'title' => esc_attr__('Debug', 'integration-rede-for-woocommerce'),
                 'type' => 'checkbox',
-                'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+                'label' => esc_attr__('Enable debug logs.', 'integration-rede-for-woocommerce') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'integration-rede-for-woocommerce') . '</a>'),
                 'default' => 'no',
-                'description' => esc_attr__('Enable transaction logging.', 'woo-rede'),
+                'description' => esc_attr__('Enable transaction logging.', 'integration-rede-for-woocommerce'),
                 'desc_tip' => true,
             )
         );
 
         if ($this->get_option('debug') == 'yes') {
             $this->form_fields['show_order_logs'] =  array(
-                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'title' => __('Visualizar Log no Pedido', 'integration-rede-for-woocommerce'),
                 'type' => 'checkbox',
-                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
+                'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'integration-rede-for-woocommerce'),
                 'default' => 'no',
             );
             $this->form_fields['clear_order_records'] =  array(
-                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'title' => __('Limpar logs nos Pedidos', 'integration-rede-for-woocommerce'),
                 'type' => 'button',
                 'id' => 'validateLicense',
                 'class' => 'woocommerce-save-button components-button is-primary'
@@ -468,7 +468,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $order->add_order_note(
                 sprintf(
                     // translators: %s is the original order currency code (e.g., USD, EUR, etc.)
-                    __('Order currency %s converted to BRL.', 'woo-rede'),
+                    __('Order currency %s converted to BRL.', 'integration-rede-for-woocommerce'),
                     $order_currency,
                 )
             );
@@ -540,21 +540,21 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
             $valid = $this->validate_card_number($cardData['card_number']);
             if (false === $valid) {
-                throw new Exception(__('Please enter a valid credit card number', 'woo-rede'));
+                throw new Exception(__('Please enter a valid credit card number', 'integration-rede-for-woocommerce'));
             }
 
             $valid = $this->validate_card_fields($_POST);
             if (false === $valid) {
-                throw new Exception(__('One or more invalid fields', 'woo-rede'), 500);
+                throw new Exception(__('One or more invalid fields', 'integration-rede-for-woocommerce'), 500);
             }
 
             $valid = $this->validate_installments($_POST, $order->get_total());
             if (false === $valid) {
-                throw new Exception(__('Invalid number of installments', 'woo-rede'));
+                throw new Exception(__('Invalid number of installments', 'integration-rede-for-woocommerce'));
             }
 
             if (! $this->validateCpfCnpj($clientData['billing_cpf'])) {
-                throw new Exception(__("Please enter a valid cpf number", 'woo-rede'));
+                throw new Exception(__("Please enter a valid cpf number", 'integration-rede-for-woocommerce'));
             }
             if ('production' === $environment) {
                 $apiUrl = 'https://api.maxipago.net/UniversalAPI/postXML';
@@ -746,7 +746,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             }
             //Caso não exista nenhuma das Message, o Merchant ID ou Merchant Key estão invalidos
             if (! isset($xml_decode['processorMessage']) && ! isset($xml_decode['processorMessage'])) {
-                throw new Exception(__("Merchant ID or Merchant Key is invalid!", 'woo-rede'));
+                throw new Exception(__("Merchant ID or Merchant Key is invalid!", 'integration-rede-for-woocommerce'));
             }
 
             $order->save();
@@ -860,11 +860,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                         } else {
                             $formatted_amount = wc_price($amount, array('currency' => $order_currency));
                         }
-                        $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
+                        $order->add_order_note(esc_attr__('Refunded:', 'integration-rede-for-woocommerce') . ' ' . $formatted_amount);
                     }
 
                     if ("INVALID REQUEST" == $xml_decode['responseMessage']) {
-                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr__('Unknown error.', 'woo-rede'));
+                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr__('Unknown error.', 'integration-rede-for-woocommerce'));
                         $order->save();
                         return false;
                     }
@@ -890,7 +890,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 return true;
             } else {
                 $order->add_order_note(
-                    'Maxipago[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede')
+                    'Maxipago[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'integration-rede-for-woocommerce')
                 );
                 $order->save();
                 return false;
@@ -971,17 +971,17 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     {
         if ($order->get_payment_method() === 'maxipago_credit') {
             $metaKeys = array(
-                '_wc_maxipago_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
-                '_wc_maxipago_transaction_return_message' => esc_attr__('Return Message', 'woo-rede'),
-                '_wc_maxipago_transaction_id' => esc_attr__('Transaction ID', 'woo-rede'),
-                '_wc_maxipago_transaction_nsu' => esc_attr__('Nsu', 'woo-rede'),
-                '_wc_maxipago_transaction_authorization_code' => esc_attr__('Authorization Code', 'woo-rede'),
-                '_wc_maxipago_transaction_bin' => esc_attr__('Bin', 'woo-rede'),
-                '_wc_maxipago_transaction_last4' => esc_attr__('Last 4', 'woo-rede'),
-                '_wc_maxipago_transaction_installments' => esc_attr__('Installments', 'woo-rede'),
-                '_wc_maxipago_transaction_holder' => esc_attr__('Cardholder', 'woo-rede'),
-                '_wc_maxipago_transaction_expiration' => esc_attr__('Card Expiration', 'woo-rede'),
-                '_wc_maxipago_transaction_reference_num' => esc_attr__('Reference Number', 'woo-rede')
+                '_wc_maxipago_transaction_environment' => esc_attr__('Environment', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_return_message' => esc_attr__('Return Message', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_id' => esc_attr__('Transaction ID', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_nsu' => esc_attr__('Nsu', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_authorization_code' => esc_attr__('Authorization Code', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_bin' => esc_attr__('Bin', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_last4' => esc_attr__('Last 4', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_installments' => esc_attr__('Installments', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_holder' => esc_attr__('Cardholder', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_expiration' => esc_attr__('Card Expiration', 'integration-rede-for-woocommerce'),
+                '_wc_maxipago_transaction_reference_num' => esc_attr__('Reference Number', 'integration-rede-for-woocommerce')
             );
 
             $this->generateMetaTable($order, $metaKeys, 'Maxipago');

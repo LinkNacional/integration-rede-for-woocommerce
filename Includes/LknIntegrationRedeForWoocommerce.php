@@ -408,7 +408,7 @@ final class LknIntegrationRedeForWoocommerce
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = __('basic pix', 'woo-rede');
+            $title = __('basic pix', 'integration-rede-for-woocommerce');
         }
         return $title;
     }
@@ -418,7 +418,7 @@ final class LknIntegrationRedeForWoocommerce
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
-            __('Settings', 'woo-rede')
+            __('Settings', 'integration-rede-for-woocommerce')
         );
 
         return array_merge($plugin_meta, $new_meta_links);
@@ -430,7 +430,7 @@ final class LknIntegrationRedeForWoocommerce
         $url = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
-            __('Be pro', 'woo-rede')
+            __('Be pro', 'integration-rede-for-woocommerce')
         );
 
         // Crie o novo link de meta

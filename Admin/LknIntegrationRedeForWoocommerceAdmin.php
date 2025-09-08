@@ -98,19 +98,19 @@ final class LknIntegrationRedeForWoocommerceAdmin
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
 
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
-            'proSettings' => __('PRO Settings', 'woo-rede'),
-            'license' => __('License', 'woo-rede'),
-            'autoCapture' => __('Auto Capture', 'woo-rede'),
-            'autoCaptureLabel' => __('Enables auto capture', 'woo-rede'),
-            'customCssShortcode' => __('Custom CSS (Shortcode)', 'woo-rede'),
-            'customCssBlockEditor' => __('Custom CSS (Block Editor)', 'woo-rede'),
-            'interestOnInstallments' => __('Interest on installments', 'woo-rede'),
-            'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'woo-rede'),
-            'licenseDescription' => __('License for Rede for WooCommerce plugin extensions.', 'woo-rede'),
-            'autoCaptureDescription' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'woo-rede'),
-            'customCssShortcodeDescription' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'customCssBlockEditorDescription' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'becomePRO' => __('Become PRO', 'woo-rede')
+            'proSettings' => __('PRO Settings', 'integration-rede-for-woocommerce'),
+            'license' => __('License', 'integration-rede-for-woocommerce'),
+            'autoCapture' => __('Auto Capture', 'integration-rede-for-woocommerce'),
+            'autoCaptureLabel' => __('Enables auto capture', 'integration-rede-for-woocommerce'),
+            'customCssShortcode' => __('Custom CSS (Shortcode)', 'integration-rede-for-woocommerce'),
+            'customCssBlockEditor' => __('Custom CSS (Block Editor)', 'integration-rede-for-woocommerce'),
+            'interestOnInstallments' => __('Interest on installments', 'integration-rede-for-woocommerce'),
+            'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'integration-rede-for-woocommerce'),
+            'licenseDescription' => __('License for Rede for WooCommerce plugin extensions.', 'integration-rede-for-woocommerce'),
+            'autoCaptureDescription' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'integration-rede-for-woocommerce'),
+            'customCssShortcodeDescription' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'integration-rede-for-woocommerce'),
+            'customCssBlockEditorDescription' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'integration-rede-for-woocommerce'),
+            'becomePRO' => __('Become PRO', 'integration-rede-for-woocommerce')
         ));
 
         if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
@@ -131,9 +131,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
         $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
-        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede'). 2.1;
+        $versions = __('Plugin Rede API v', 'integration-rede-for-woocommerce') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'integration-rede-for-woocommerce') . 2.1;
         if (defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')) {
-            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
+            $versions = __('Plugin Rede API v', 'integration-rede-for-woocommerce') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'integration-rede-for-woocommerce') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
         if (isset($_GET['section']) && sanitize_text_field(wp_unslash($_GET['section'])) === 'integration_rede_pix') {
@@ -186,22 +186,22 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 plugin_dir_path(__FILE__) . '../Includes/templates/'
             );
             wp_localize_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', 'lknWcRedeTranslations', array(
-                'clearLogs' => __('Limpar Logs', 'woo-rede'),
-                'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
+                'clearLogs' => __('Limpar Logs', 'integration-rede-for-woocommerce'),
+                'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'integration-rede-for-woocommerce')
             ));
         }
 
         // Localize the script with custom data
         wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
-            'title' => __('Get new features with Rede Pro', 'woo-rede'),
-            'desc' => __('Discover and purchase the PRO plugin', 'woo-rede'),
-            'capture' => __('Manual capture of transaction/order', 'woo-rede'),
-            'tax' => __('Adjust interest rate based on installment', 'woo-rede'),
-            'css' => __('Custom CSS for payment forms', 'woo-rede'),
-            'pix' => __('Enable payment with Pix', 'woo-rede'),
-            'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
+            'title' => __('Get new features with Rede Pro', 'integration-rede-for-woocommerce'),
+            'desc' => __('Discover and purchase the PRO plugin', 'integration-rede-for-woocommerce'),
+            'capture' => __('Manual capture of transaction/order', 'integration-rede-for-woocommerce'),
+            'tax' => __('Adjust interest rate based on installment', 'integration-rede-for-woocommerce'),
+            'css' => __('Custom CSS for payment forms', 'integration-rede-for-woocommerce'),
+            'pix' => __('Enable payment with Pix', 'integration-rede-for-woocommerce'),
+            'descriptionError' => __('Feature with error, disable to fix.', 'integration-rede-for-woocommerce'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
+            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'integration-rede-for-woocommerce')
         ));
     }
 }

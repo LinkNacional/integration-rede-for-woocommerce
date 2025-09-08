@@ -60,13 +60,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             'maxInstallmentsRede' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
-                'cardNumber' => __('Card Number', 'woo-rede'),
-                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
-                'securityCode' => __('Security Code', 'woo-rede'),
-                'nameOnCard' => __('Name on Card', 'woo-rede'),
-                'installments' => __('Installments', 'woo-rede'),
-                'interestFree' => ' ' . __('interest-free', 'woo-rede'),
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
+                'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
+                'cardExpiringDate' => __('Card Expiring Date', 'integration-rede-for-woocommerce'),
+                'securityCode' => __('Security Code', 'integration-rede-for-woocommerce'),
+                'nameOnCard' => __('Name on Card', 'integration-rede-for-woocommerce'),
+                'installments' => __('Installments', 'integration-rede-for-woocommerce'),
+                'interestFree' => ' ' . __('interest-free', 'integration-rede-for-woocommerce'),
             )
         );
 
@@ -81,7 +81,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
                 if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = apply_filters('integrationRedeGetInterest', $cart_total, $interest, $i, 'label', $this->gateway);
-                    if($customLabel){
+                    if ($customLabel) {
                         $phpArray[$i . 'x'] = $customLabel;
                     }
                 }
