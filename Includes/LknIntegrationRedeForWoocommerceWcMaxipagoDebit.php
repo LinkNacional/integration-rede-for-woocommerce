@@ -18,6 +18,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'products',
         );
 
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
+
         // Define os campos de configuração
         $this->initFormFields();
         $this->init_settings();
@@ -91,8 +93,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
     public function addNeighborhoodFieldToCheckout($fields)
     {
-        if (! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
-            && $this->is_available()) {
+        if (
+            ! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
+            && $this->is_available()
+        ) {
             $fields['billing']['billing_neighborhood'] = array(
                 'label' => __('District', 'woo-rede'),
                 'placeholder' => __('District', 'woo-rede'),
@@ -106,8 +110,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
             // Insere o campo de bairro após o campo de endereço
             $fields['billing'] = array_slice($fields['billing'], 0, $address_position + 2, true) +
-                                 array('billing_neighborhood' => $fields['billing']['billing_neighborhood']) +
-                                 array_slice($fields['billing'], $address_position + 2, null, true);
+                array('billing_neighborhood' => $fields['billing']['billing_neighborhood']) +
+                array_slice($fields['billing'], $address_position + 2, null, true);
         }
         return $fields;
     }
@@ -268,7 +272,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         );
     }
 
-    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null){
+    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null)
+    {
         if ('yes' == $this->debug) {
             $default_currency = get_option('woocommerce_currency', 'BRL');
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;

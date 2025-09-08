@@ -23,6 +23,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'refunds',
         );
 
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
+
         $this->initFormFields();
 
         $this->init_settings();
@@ -680,7 +682,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 try {
                     if ($amount > 0) {
                         if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
-                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
+                            $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
                             $order->save();
                             return false;
                         } elseif ($order->get_total() == $amount || $is_converted) {

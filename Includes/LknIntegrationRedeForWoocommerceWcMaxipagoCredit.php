@@ -20,6 +20,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'refunds',
         );
 
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
         // Define os campos de configuração
         $this->initFormFields();
         $this->init_settings();
@@ -94,8 +95,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
     public function addNeighborhoodFieldToCheckout($fields)
     {
-        if (! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
-            && $this->is_available()) {
+        if (
+            ! is_plugin_active('woocommerce-extra-checkout-fields-for-brazil/woocommerce-extra-checkout-fields-for-brazil.php')
+            && $this->is_available()
+        ) {
             $fields['billing']['billing_neighborhood'] = array(
                 'label' => __('District', 'woo-rede'),
                 'placeholder' => __('District', 'woo-rede'),
@@ -109,8 +112,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
             // Insere o campo de bairro após o campo de endereço
             $fields['billing'] = array_slice($fields['billing'], 0, $address_position + 2, true) +
-                                 array('billing_neighborhood' => $fields['billing']['billing_neighborhood']) +
-                                 array_slice($fields['billing'], $address_position + 2, null, true);
+                array('billing_neighborhood' => $fields['billing']['billing_neighborhood']) +
+                array_slice($fields['billing'], $address_position + 2, null, true);
         }
         return $fields;
     }
@@ -152,7 +155,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'description' => array(
                 'title' => __('Description', 'woo-rede'),
                 'type' => 'textarea',
-                'default' => __( 'Pay for your purchase with a credit card through ', 'woo-rede' ),
+                'default' => __('Pay for your purchase with a credit card through ', 'woo-rede'),
             ),
             'maxipago' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
@@ -336,7 +339,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 $this->get_option('installment_interest') === 'yes' ||
                 $this->get_option('installment_discount') === 'yes'
             );
-            
+
             if (
                 ($has_interest_or_discount && $customLabel !== null) ||
                 !$has_interest_or_discount
@@ -351,7 +354,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         return $installments;
     }
 
-    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null){
+    public function regOrderLogs($xmlData, $xml, $orderId, $order, $apiUrl, $orderTotal = null)
+    {
         if ('yes' == $this->debug) {
             $default_currency = get_option('woocommerce_currency', 'BRL');
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
@@ -431,7 +435,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
 
-            
+
 
             $order->save();
         }
@@ -482,7 +486,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $referenceNum = uniqid('order_', true);
 
         $installments = isset($_POST['maxipago_credit_installments']) ?
-        absint(sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments']))) : 1;
+            absint(sanitize_text_field(wp_unslash($_POST['maxipago_credit_installments']))) : 1;
 
         $interest = round((float) $this->get_option($installments . 'x'), 2);
         if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
@@ -765,7 +769,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     {
         $order = new WC_Order($order_id);
         if ($order->get_payment_method() === 'maxipago_credit') {
-            
+
             $totalAmount = $order->get_meta('_wc_maxipago_total_amount');
             $environment = $this->get_option('environment');
             $orderId = $order->get_meta('_wc_maxipago_transaction_id');

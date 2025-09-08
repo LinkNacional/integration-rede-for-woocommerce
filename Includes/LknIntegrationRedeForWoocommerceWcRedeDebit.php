@@ -22,6 +22,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'refunds',
         );
 
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
+
         $this->initFormFields();
 
         $this->init_settings();
