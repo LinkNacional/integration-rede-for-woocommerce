@@ -1,6 +1,7 @@
 # 4.0.2 - 08/09/2025
 * Atualização nos links de venda.
 * Correção no textdomain do plugin.
+* Icone do plugin nas confgurações do gateway
 
 # 4.0.1 - 03/09/2025
 * Correção no calculo das parcelas no modo legacy.

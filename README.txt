@@ -75,6 +75,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 # 4.0.2 - 2025/09/05
 * Update to the sales links.
 * Fix in the plugin's textdomain.
+* Plugin icon in the gateway settings
 
 # 4.0.1 - 2025/09/03
 * Legacy mode installment calculation fix
