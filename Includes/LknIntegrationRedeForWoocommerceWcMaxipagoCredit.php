@@ -1041,7 +1041,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function render_payment_fields_with_total($order_total = null): void
     {
         if ($description = $this->get_description()) {
-            echo wpautop(wptexturize($description));
+            echo wp_kses_post(wpautop($description));
         }
 
         if ($order_total === null) {
