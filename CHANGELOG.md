@@ -1,3 +1,6 @@
+# 4.0.2 - 09/09/2025
+* Correção em atualização de valors das parcelas.
+
 # 4.0.1 - 03/09/2025
 * Correção no calculo das parcelas no modo legacy.
 
