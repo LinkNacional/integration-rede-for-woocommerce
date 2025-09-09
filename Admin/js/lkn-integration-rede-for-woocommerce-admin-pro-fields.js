@@ -13,7 +13,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                   ${lknPhpProFieldsVariables.licenseDescription}
                 </span>
               </label>
-              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
             </th>
             <td class="forminp">
               <fieldset>
@@ -31,7 +31,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                     ${lknPhpProFieldsVariables.autoCaptureDescription}
                   </span>
                 </label>
-                <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
               </th>
               <td class="forminp">
                 <fieldset>
@@ -40,7 +40,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 </fieldset>
               </td>
             </tr>` : ''
-          }
+    }
           <tr valign="top">
             <th scope="row" class="titledesc">
               <label for="woocommerce_rede_credit_custom_css_short_code"><span class="lowOpacity">${lknPhpProFieldsVariables.customCssShortcode}</span>
@@ -49,7 +49,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                   ${lknPhpProFieldsVariables.customCssShortcodeDescription}
                 </span>
               </label>
-              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
             </th>
             <td class="forminp">
               <fieldset>
@@ -65,7 +65,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                   ${lknPhpProFieldsVariables.customCssBlockEditorDescription}
                 </span>
               </label>
-              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
             </th>
             <td class="forminp">
               <fieldset>
@@ -79,7 +79,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <th scope="row" class="titledesc">
                     <label for="woocommerce_rede_credit_license"><span class="lowOpacity">Configurações de Parcelamento</span>
                     </label>
-                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
                   </th>
                 <td class="forminp">
                     <fieldset>
@@ -97,7 +97,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                         Defina o valor mínimo de cada parcela para que a venda seja considerada sem juros. Se o valor total da compra for maior que o limite definido para parcelamento sem juros, mas se for inferior a este valor mínimo, juros serão aplicados automaticamente.
                       </span>
                     </label>
-                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                    <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
                   </th>
                 <td class="forminp">
                     <fieldset>
@@ -109,7 +109,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
             <tr valign="top">
               <th scope="row" class="titledesc">
                 <label class="lowOpacity" for="woocommerce_rede_credit_installment_interest">${lknPhpProFieldsVariables.interestOnInstallments}</label>
-                <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+                <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
               </th>
               <td class="forminp">
                 <fieldset>
@@ -121,7 +121,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 </fieldset>
               </td>
             </tr>` : ''
-          }
+    }
         </tbody>
       </table>
     </div>

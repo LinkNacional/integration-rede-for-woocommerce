@@ -98,7 +98,7 @@ class LknIntegrationRedeForWoocommerceHelper
         $response_body = wp_remote_retrieve_body($response);
         $response_body = json_decode($response_body, true);
 
-        return($response_body['authorization']['brand']['name']);
+        return ($response_body['authorization']['brand']['name']);
     }
 
     final public static function censorString($string, $censorLength)
@@ -136,8 +136,8 @@ class LknIntegrationRedeForWoocommerceHelper
                 $options = get_option('woocommerce_' . $payment_method_id . '_settings');
                 if (isset($options['show_order_logs']) && $orderLogs && 'yes' === $options['show_order_logs']) {
                     $screen = class_exists('\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController')->custom_orders_table_usage_is_enabled()
-                    ? wc_get_page_screen_id('shop-order')
-                    : 'shop_order';
+                        ? wc_get_page_screen_id('shop-order')
+                        : 'shop_order';
 
                     add_meta_box(
                         'showOrderLogs',
@@ -155,7 +155,8 @@ class LknIntegrationRedeForWoocommerceHelper
      * Checks if BRL conversion is enabled via pro plugin license and option.
      * @return bool
      */
-    public static function is_convert_to_brl_enabled($id) {
+    public static function is_convert_to_brl_enabled($id)
+    {
         if (function_exists('is_plugin_active') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
             $pro_license = get_option('lknRedeForWoocommerceProLicense');
             if ($pro_license) {
@@ -177,7 +178,8 @@ class LknIntegrationRedeForWoocommerceHelper
      * @param bool $convert_to_brl_enabled
      * @return float|string Converted order total or original if not converted
      */
-    public static function convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled) {
+    public static function convert_order_total_to_brl($order_total, $order, $convert_to_brl_enabled)
+    {
         if ($convert_to_brl_enabled) {
             $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
             // Garante que o diretório e arquivo existem
@@ -200,7 +202,8 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     // Update currency rates from JSON file
-    public static function lkn_update_currency_rates($json_path) {
+    public static function lkn_update_currency_rates($json_path)
+    {
         $url = INTEGRATION_REDE_FOR_WOOCOMMERCE_LINK_URL_API . '/cotacao/cotacao-BRL.json';
         $response = wp_remote_get($url);
         if (is_wp_error($response)) {
@@ -231,7 +234,8 @@ class LknIntegrationRedeForWoocommerceHelper
      * Ensures the currency JSON directory and file exist, creating them if necessary.
      * Uses WordPress filesystem APIs for permissions.
      */
-    public static function ensure_currency_json_path($json_path) {
+    public static function ensure_currency_json_path($json_path)
+    {
         $dir = dirname($json_path);
         global $wp_filesystem;
         if (empty($wp_filesystem)) {
@@ -267,7 +271,8 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     // Get currency rates from JSON file
-    public static function lkn_get_currency_rates($json_path) {
+    public static function lkn_get_currency_rates($json_path)
+    {
         if (!file_exists($json_path)) return false;
         $json = file_get_contents($json_path);
         if (empty($json)) return false;
@@ -290,21 +295,26 @@ class LknIntegrationRedeForWoocommerceHelper
             $response = isset($decodedLogs['response']) ? json_encode($decodedLogs['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : 'N/A';
 
             // Exibir as seções formatadas
-            ?>
-<div id="lknWcRedeOrderLogs">
-    <div>
-        <h3>URL:</h3>
-        <pre class="wc-pre"><?php echo esc_html($url); ?></pre>
-    </div>
+?>
+            <div id="lknWcRedeOrderLogs">
+                <div>
+                    <h3>URL:</h3>
+                    <pre class="wc-pre"><?php echo esc_html($url); ?></pre>
+                </div>
 
-    <h3>Body:</h3>
-    <pre class="wc-pre"><?php echo esc_html($body); ?></pre>
+                <h3>Body:</h3>
+                <pre class="wc-pre"><?php echo esc_html($body); ?></pre>
 
-    <h3>Response:</h3>
-    <pre class="wc-pre"><?php echo esc_html($response); ?></pre>
-</div>
+                <h3>Response:</h3>
+                <pre class="wc-pre"><?php echo esc_html($response); ?></pre>
+            </div>
 <?php
         }
+    }
+
+    public static function getUrlIcon()
+    {
+        return plugin_dir_url(__DIR__) . "Includes/assets/WordpressAssets/icon.svg";
     }
 }
 ?>

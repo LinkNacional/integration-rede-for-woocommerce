@@ -23,3 +23,8 @@
     width: 60px;
     margin-left: 10px;
 }
+
+#rede_credit_holder_name {
+    margin-left: 0px !important;
+    padding-left: 8px !important;
+}

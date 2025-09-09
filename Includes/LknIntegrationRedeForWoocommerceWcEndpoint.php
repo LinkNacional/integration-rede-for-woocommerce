@@ -37,7 +37,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         ));
     }
 
-    public function clearOrderLogs($request) {
+    public function clearOrderLogs($request)
+    {
         $args = array(
             'limit' => -1, // Sem limite, pega todas as ordens
             'meta_key' => 'lknWcRedeOrderLogs', // Meta key específica
@@ -54,7 +55,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         return new WP_REST_Response($orders, 200);
     }
 
-    public function maxipagoDebitListener($request) {
+    public function maxipagoDebitListener($request)
+    {
         add_option('LknIntegrationRedeForWoocommerceMaxipagoDebitEndpointStatus', true);
         update_option('LknIntegrationRedeForWoocommerceMaxipagoDebitEndpointStatus', true);
         $requestBody = $request->get_body();
@@ -63,7 +65,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $xmlString = urldecode($parsedBody['xml']);
         $xmlObject = simplexml_load_string($xmlString, "SimpleXMLElement", LIBXML_NOCDATA);
         $notification = $xmlObject->{'transaction-event'};
-        
+
         // Converte o valor de orderID para string
         $referenceNumber = (string) $notification->referenceNumber;
         $transactionStatus = (string) $notification->transactionStatus;
@@ -71,11 +73,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         $args = array(
             'limit' => -1,
-            'status' => array_keys( wc_get_order_statuses() ),
+            'status' => array_keys(wc_get_order_statuses()),
             'meta_key' => '_wc_maxipago_transaction_reference_num',
             'meta_value' => $referenceNumber,
         );
-        $order = wc_get_orders( $args )[0];
+        $order = wc_get_orders($args)[0];
 
         switch ($transactionStatus) {
             case '3':
@@ -96,7 +98,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         return new WP_REST_Response('', 200);
     }
 
-    public function redePixListener($request) {
+    public function redePixListener($request)
+    {
         add_option('lknRedeForWoocommerceProEndpointStatus', true);
         update_option('lknRedeForWoocommerceProEndpointStatus', true);
         $requestParams = $request->get_params();
@@ -107,15 +110,15 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Argumentos para buscar todos os pedidos
         $args = array(
             'limit' => -1,
-            'status' => array_keys( wc_get_order_statuses() ),
+            'status' => array_keys(wc_get_order_statuses()),
             'meta_key' => '_wc_rede_pix_transaction_tid',
             'meta_value' => $tid,
         );
 
         // Usa wc_get_orders para buscar os pedidos
-        $order = wc_get_orders( $args )[0];
+        $order = wc_get_orders($args)[0];
 
-        if ( ! empty($order)) {
+        if (! empty($order)) {
             if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
                 $paymentCompleteStatus = $redePixOptions['payment_complete_status'];
                 if ("" == $paymentCompleteStatus) {
@@ -124,7 +127,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 $order->update_status($paymentCompleteStatus);
             }
         }
-        
+
         return new WP_REST_Response('', 200);
     }
 
@@ -134,7 +137,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $order = wc_get_order($parameters['donationId']);
         $tId = $order->get_meta('_wc_rede_integration_pix_transaction_tid');
         if (empty($order)) {
-            return new WP_Error('order_not_found', __('Order not found', 'woo-rede'), array('status' => 404));
+            return new WP_Error('order_not_found', __('Order not found', 'integration-rede-for-woocommerce'), array('status' => 404));
         }
 
         $pixOptions = get_option('woocommerce_integration_rede_pix_settings');
