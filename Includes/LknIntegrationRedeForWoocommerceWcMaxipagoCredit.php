@@ -1045,7 +1045,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         if ($order_total === null) {
-            $order_total = WC()->cart ? WC()->cart->total : 0;
+            $order_total = $this->get_cart_subtotal_without_taxes();
         }
 
         $this->getCheckoutForm($order_total);

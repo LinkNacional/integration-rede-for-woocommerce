@@ -79,6 +79,17 @@ window.jQuery(function ($) {
     }
   }
   $(document).on('updated_checkout', function () {
+    updatedCheckout()
+  });
+
+  // Event delegation para capturar mudanças em radios criados dinamicamente
+  document.addEventListener('change', function(event) {
+    if (event.target.type === 'radio') {
+      updatedCheckout()
+    }
+  })
+
+  function updatedCheckout(){
     const $container = $('#rede-credit-payment-form');
     if ($container.length) {
       $.post(wooRedeVars.ajaxurl, {
@@ -94,5 +105,5 @@ window.jQuery(function ($) {
         }
       });
     }
-  });
+  }
 })

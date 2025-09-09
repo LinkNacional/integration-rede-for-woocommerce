@@ -761,7 +761,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         if ($order_total === null) {
-            $order_total = $this->get_order_total();
+            $order_total = $this->get_cart_subtotal_without_taxes();
         }
 
         $this->getCheckoutForm($order_total);
