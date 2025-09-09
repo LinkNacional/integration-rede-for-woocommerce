@@ -62,7 +62,7 @@ window.jQuery(function ($) {
         /**
            * Debug
            */
-        debug: Boolean(window.wooRede.debug)
+        debug: Boolean(wooRedeVars.debug)
       })
 
       // Workaround to maintain the card data rendered after checkout updates
@@ -78,4 +78,21 @@ window.jQuery(function ($) {
       paymentBoxP.style.display = 'none';
     }
   }
+  $(document).on('updated_checkout', function () {
+    const $container = $('#rede-credit-payment-form');
+    if ($container.length) {
+      $.post(wooRedeVars.ajaxurl, {
+        action: 'rede_refresh_payment_fields',
+        nonce: wooRedeVars.nonce,
+      }, function (response) {
+        if (response.success) {
+          // Remove todos os <p> filhos diretos do elemento pai antes de substituir
+          $container.parent().children('p').remove();
+          $container.replaceWith(response.data.html);
+          // Depois de reinserir, recria a animação/cart
+          lknRedeCreditCardRender();
+        }
+      });
+    }
+  });
 })

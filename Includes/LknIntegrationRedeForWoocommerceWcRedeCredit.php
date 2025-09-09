@@ -368,11 +368,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         wp_enqueue_style('woo-rede-style', $plugin_url . 'Public/css/rede/styleRedeCredit.css', array(), '1.0.0', 'all');
 
         wp_enqueue_script('woo-rede-js', $plugin_url . 'Public/js/creditCard/rede/wooRedeCredit.js', array(), '1.0.0', true);
+        wp_localize_script('woo-rede-js', 'wooRedeVars', array(
+            'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('rede_payment_fields_nonce'),
+        ));
         wp_enqueue_script('woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-rede-js'), '2.5.0', true);
 
-        wp_localize_script('woo-rede-js', 'wooRede', array(
-            'debug' => defined('WP_DEBUG') && WP_DEBUG,
-        ));
 
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
     }
@@ -748,5 +750,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'woocommerce/rede/',
             LknIntegrationRedeForWoocommerceWcRede::getTemplatesPath()
         );
+    }
+    /**
+     * Renderiza os campos de pagamento com total atualizado (para AJAX)
+     */
+    public function render_payment_fields_with_total($order_total = null): void
+    {
+        if ($description = $this->get_description()) {
+            echo wp_kses_post(wpautop($description));
+        }
+
+        if ($order_total === null) {
+            $order_total = $this->get_order_total();
+        }
+
+        $this->getCheckoutForm($order_total);
     }
 }

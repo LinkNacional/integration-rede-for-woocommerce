@@ -1008,8 +1008,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         wp_enqueue_script('woo-maxipago-js', $plugin_url . 'Public/js/creditCard/maxipago/wooMaxipagoCredit.js', array(), '1.0.0', true);
         wp_enqueue_script('woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-maxipago-js'), '2.5.0', true);
 
-        wp_localize_script('woo-maxipago-js', 'wooMaxipago', array(
+         wp_localize_script('woo-maxipago-js', 'wooMaxipagoVars', array(
             'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('maxipago_payment_fields_nonce'),
         ));
 
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_short_code'] ?? false);
@@ -1027,8 +1029,25 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         wp_enqueue_script('woo-maxipago-js', $plugin_url . 'Public/js/creditCard/maxipago/wooMaxipagoCredit.js', array(), '1.0.0', true);
         wp_enqueue_script('woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-maxipago-js'), '2.5.0', true);
 
-        wp_localize_script('woo-maxipago-js', 'wooMaxipago', array(
+        wp_localize_script('woo-maxipago-js', 'wooMaxipagoVars', array(
             'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('maxipago_payment_fields_nonce'),
         ));
+    }
+    /**
+     * Renderiza os campos de pagamento com total atualizado (para AJAX)
+     */
+    public function render_payment_fields_with_total($order_total = null): void
+    {
+        if ($description = $this->get_description()) {
+            echo wpautop(wptexturize($description));
+        }
+
+        if ($order_total === null) {
+            $order_total = WC()->cart ? WC()->cart->total : 0;
+        }
+
+        $this->getCheckoutForm($order_total);
     }
 }
