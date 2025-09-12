@@ -1,3 +1,6 @@
+# 4.0.3 - 12/09/2025
+* Correção em função de reembolso.
+
 # 4.0.2 - 08/09/2025
 * Atualização nos links de venda.
 * Correção no textdomain do plugin.

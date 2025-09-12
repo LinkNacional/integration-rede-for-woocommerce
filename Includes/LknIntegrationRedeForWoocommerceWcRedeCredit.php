@@ -660,14 +660,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 return false;
             }
 
-            if (! $order || ! $order->get_transaction_id()) {
+            if (! $order || ! $order->get_meta('_wc_rede_transaction_id')) {
                 $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'integration-rede-for-woocommerce'));
                 $order->save();
                 return false;
             }
 
             if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-                $tid = $order->get_transaction_id();
+                $tid = $order->get_meta('_wc_rede_transaction_id');
                 $amount = wc_format_decimal($amount, 2);
 
                 // Se conversão está ativa, usa o valor convertido
