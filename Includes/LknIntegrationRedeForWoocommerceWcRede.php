@@ -93,9 +93,9 @@ final class LknIntegrationRedeForWoocommerceWcRede
             $message = '
                 <div class="notice notice-error" id="lknIntegrationRedeForWoocommerceSoftDescriptorErrorDiv">
                     <p>'
-                . __('There was an error in the transaction, disable the', 'integration-rede-for-woocommerce') . ' ' .
+                . __('There was an error in the transaction, disable the', 'woo-rede') . ' ' .
                 wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=checkout'))
-                    . '" target="_blank">' . __('Payment Description.', 'integration-rede-for-woocommerce') . '</a>') .
+                    . '" target="_blank">' . __('Payment Description.', 'woo-rede') . '</a>') .
                 '</p>
                 </div>
             ';

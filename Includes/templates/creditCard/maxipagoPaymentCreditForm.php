@@ -48,7 +48,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
     id="maxipago-credit-payment-form"
     class="maxipago-payment-form">
     <div class="payment-method-description">
-        <p><?php echo esc_html($option['description'] ?? __('Pay for your purchase with a credit card through ', 'integration-rede-for-woocommerce')); ?>
+        <p><?php echo esc_html($option['description'] ?? __('Pay for your purchase with a credit card through ', 'woo-rede')); ?>
         </p>
         <img
             id="logo-maxipago"
@@ -113,7 +113,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                 <label
                     id="labels-with-icons"
                     for="maxipago-card-holder-name">
-                    <?php esc_attr_e('Name on Card', 'integration-rede-for-woocommerce'); ?><span
+                    <?php esc_attr_e('Name on Card', 'woo-rede'); ?><span
                         class="required">*</span>
                     <div class="icon-maxipago-input">
                         <svg
@@ -146,7 +146,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                     name="maxipago_credit_holder_name"
                     class="input-text"
                     type="text"
-                    placeholder="<?php esc_attr_e('Name', 'integration-rede-for-woocommerce'); ?>"
+                    placeholder="<?php esc_attr_e('Name', 'woo-rede'); ?>"
                     maxlength="30"
                     autocomplete="off"
                     style="font-size: 1.5em; padding: 8px 45px;" />
@@ -156,7 +156,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                 <label
                     id="labels-with-icons"
                     for="maxipago-card-number">
-                    <?php esc_attr_e('Card Number', 'integration-rede-for-woocommerce'); ?>
+                    <?php esc_attr_e('Card Number', 'woo-rede'); ?>
                     <span class="required">*</span>
                     <div class="icon-maxipago-input">
                         <svg
@@ -214,7 +214,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                 <label
                     id="labels-with-icons"
                     for="maxipago-card-expiry">
-                    <?php esc_attr_e('Card Expiring Date', 'integration-rede-for-woocommerce'); ?><span
+                    <?php esc_attr_e('Card Expiring Date', 'woo-rede'); ?><span
                         class="required">*</span>
                     <div class="icon-maxipago-input">
                         <svg
@@ -242,14 +242,14 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                     class="input-text wc-credit-card-form-card-expiry"
                     type="tel"
                     autocomplete="off"
-                    placeholder="<?php esc_attr_e('MM / YEAR', 'integration-rede-for-woocommerce'); ?>"
+                    placeholder="<?php esc_attr_e('MM / YEAR', 'woo-rede'); ?>"
                     style="font-size: 1.5em; padding: 8px 30px 8px 35px;" />
             </div>
 
             <div class="form-row form-row">
                 <label
                     id="labels-with-icons"
-                    for="maxipago-card-cvc"><?php esc_attr_e('Security Code', 'integration-rede-for-woocommerce'); ?><span
+                    for="maxipago-card-cvc"><?php esc_attr_e('Security Code', 'woo-rede'); ?><span
                         class="required">*</span>
                     <div class="icon-maxipago-input">
                         <svg
@@ -277,7 +277,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                     class="input-text wc-credit-card-form-card-cvc"
                     type="tel"
                     autocomplete="off"
-                    placeholder="<?php esc_attr_e('CVC', 'integration-rede-for-woocommerce'); ?>"
+                    placeholder="<?php esc_attr_e('CVC', 'woo-rede'); ?>"
                     style="font-size: 1.5em; padding: 8px 30px 8px 35px;" />
             </div>
 
@@ -285,7 +285,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                 <?php if (is_array($installments) && count($installments) > 1) { ?>
 
                     <label for="installments">
-                        <?php esc_attr_e('Installments', 'integration-rede-for-woocommerce'); ?>
+                        <?php esc_attr_e('Installments', 'woo-rede'); ?>
                         <span class="required">*</span>
                     </label>
                     <select

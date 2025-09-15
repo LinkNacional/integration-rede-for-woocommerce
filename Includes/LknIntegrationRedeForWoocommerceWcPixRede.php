@@ -18,8 +18,8 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         $this->id = 'integration_rede_pix';
         $this->title = 'Integration Rede Pix';
         $this->has_fields = true;
-        $this->method_title = esc_attr__('Pay with the Rede Pix FREE', 'integration-rede-for-woocommerce');
-        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'integration-rede-for-woocommerce') . '<a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__('Documentation', 'integration-rede-for-woocommerce') . '</a>';
+        $this->method_title = esc_attr__('Pay with the Rede Pix FREE', 'woo-rede');
+        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede') . '<a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__('Documentation', 'woo-rede') . '</a>';
         $this->supports = array(
             'products',
             'refunds',
@@ -52,73 +52,73 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 wp_localize_script('lkn-integration-rede-for-woocommerce-endpoint', 'lknRedeForWoocommerceProSettings', array(
                     'endpointStatus' => get_option('LknIntegrationRedeForWoocommerceEndpointStatus', false),
                     'translations' => array(
-                        'endpointSuccess' => __('Request received!', 'integration-rede-for-woocommerce'),
-                        'endpointError' => __('No requests received!', 'integration-rede-for-woocommerce'),
-                        'howToConfigure' => __('How to Configure', 'integration-rede-for-woocommerce'),
+                        'endpointSuccess' => __('Request received!', 'woo-rede'),
+                        'endpointError' => __('No requests received!', 'woo-rede'),
+                        'howToConfigure' => __('How to Configure', 'woo-rede'),
                     ),
                 ));
 
                 $this->form_fields = array(
                     'enabled' => array(
-                        'title' => esc_attr__('Payment with Rede Pix', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Payment with Rede Pix', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => __('Enable', 'integration-rede-for-woocommerce'),
+                        'label' => __('Enable', 'woo-rede'),
                         'default' => 'no'
                     ),
                     'rede' => array(
-                        'title' => esc_attr__('General', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('General', 'woo-rede'),
                         'type' => 'title',
                     ),
                     'title' => array(
-                        'title' => esc_attr__('Title', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Title', 'woo-rede'),
                         'type' => 'text',
-                        'description' => __('The payment name that the user sees at checkout.', 'integration-rede-for-woocommerce'),
-                        'default' => __('Pay with the Rede Pix', 'integration-rede-for-woocommerce'),
+                        'description' => __('The payment name that the user sees at checkout.', 'woo-rede'),
+                        'default' => __('Pay with the Rede Pix', 'woo-rede'),
                         'desc_tip' => true,
                     ),
                     'description' => array(
-                        'title' => __('Description', 'integration-rede-for-woocommerce'),
+                        'title' => __('Description', 'woo-rede'),
                         'type' => 'textarea',
-                        'default' => __('Pay for your purchase with a pix through ', 'integration-rede-for-woocommerce'),
+                        'default' => __('Pay for your purchase with a pix through ', 'woo-rede'),
                     ),
                     'endpoint' => array(
-                        'title' => esc_attr__('Endpoint', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Endpoint', 'woo-rede'),
                         'type' => 'text',
-                        'description' => esc_attr__('Return URL to automatically update the status of orders paid via PIX on the Rede portal.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Return URL to automatically update the status of orders paid via PIX on the Rede portal.', 'woo-rede'),
                         'desc_tip' => true,
                     ),
                     'pv' => array(
-                        'title' => esc_attr__('PV', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('PV', 'woo-rede'),
                         'type' => 'password',
-                        'description' => esc_attr__('Enter the establishment affiliation number provided by Rede.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Enter the establishment affiliation number provided by Rede.', 'woo-rede'),
                         'desc_tip' => true,
                         'default' => '',
                     ),
                     'token' => array(
-                        'title' => esc_attr__('Token', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Token', 'woo-rede'),
                         'type' => 'password',
-                        'description' => esc_attr__('Enter the integration key provided by Rede.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Enter the integration key provided by Rede.', 'woo-rede'),
                         'desc_tip' => true,
                         'default' => '',
                     ),
                     'environment' => array(
-                        'title' => esc_attr__('Environment', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Environment', 'woo-rede'),
                         'type' => 'select',
-                        'description' => esc_attr__('Enable test or production environment.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Enable test or production environment.', 'woo-rede'),
                         'desc_tip' => true,
                         'class' => 'wc-enhanced-select',
-                        'default' => esc_attr__('test', 'integration-rede-for-woocommerce'),
+                        'default' => esc_attr__('test', 'woo-rede'),
                         'options' => array(
-                            'test' => esc_attr__('Tests', 'integration-rede-for-woocommerce'),
-                            'production' => esc_attr__('Production', 'integration-rede-for-woocommerce'),
+                            'test' => esc_attr__('Tests', 'woo-rede'),
+                            'production' => esc_attr__('Production', 'woo-rede'),
                         ),
                     ),
                     'fake_convert_to_brl' => array(
-                        'title' => __('Currency Converter', 'integration-rede-for-woocommerce'),
+                        'title' => __('Currency Converter', 'woo-rede'),
                         'type' => 'checkbox',
-                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'integration-rede-for-woocommerce'),
+                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
                         'desc_tip' => true,
-                        'label' => __('Convert to BRL', 'integration-rede-for-woocommerce'),
+                        'label' => __('Convert to BRL', 'woo-rede'),
                         'default' => 'no',
                         'custom_attributes' => array(
                             'readonly' => 'readonly',
@@ -126,9 +126,9 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         )
                     ),
                     'expiration_count' => array(
-                        'title' => esc_attr__('PIX validity in hours', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('PIX validity in hours', 'woo-rede'),
                         'type' => 'number',
-                        'description' => esc_attr__('Enter the validity time of Pix in hours.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Enter the validity time of Pix in hours.', 'woo-rede'),
                         'desc_tip' => true,
                         'default' => '24',
                         'required' => true,
@@ -139,15 +139,15 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ),
                     ),
                     'payment_complete_status' => array(
-                        'title' => esc_attr__('Payment Complete Status', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
                         'type' => 'select',
                         'class' => 'wc-enhanced-select',
                         'desc_tip' => true,
-                        'description' => esc_attr__('Select the order status after payment confirmation.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Select the order status after payment confirmation.', 'woo-rede'),
                         'options' => array(
-                            'processing' => _x('Processing', 'Order status', 'integration-rede-for-woocommerce'),
-                            'on-hold' => _x('On hold', 'Order status', 'integration-rede-for-woocommerce'),
-                            'completed' => _x('Completed', 'Order status', 'integration-rede-for-woocommerce'),
+                            'processing' => _x('Processing', 'Order status', 'woo-rede'),
+                            'on-hold' => _x('On hold', 'Order status', 'woo-rede'),
+                            'completed' => _x('Completed', 'Order status', 'woo-rede'),
                         ),
                         'default' => 'processing',
                         'custom_attributes' => array(
@@ -155,22 +155,22 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ),
                     ),
                     'show_button' => array(
-                        'title' => esc_attr__('Botão Gerar PIX', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Botão Gerar PIX', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => __('Habilitar', 'integration-rede-for-woocommerce'),
+                        'label' => __('Habilitar', 'woo-rede'),
                         'desc_tip' => true,
-                        'description' => esc_attr__('Exibe o botão "Finalizar e Gerar PIX" no checkout.', 'integration-rede-for-woocommerce'),
+                        'description' => esc_attr__('Exibe o botão "Finalizar e Gerar PIX" no checkout.', 'woo-rede'),
                         'default' => 'no',
                         'custom_attributes' => array(
                             'disabled' => 'disabled',
                         ),
                     ),
                     'fake_convert_to_brl' => array(
-                        'title' => __('Currency Converter', 'integration-rede-for-woocommerce'),
+                        'title' => __('Currency Converter', 'woo-rede'),
                         'type' => 'checkbox',
-                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'integration-rede-for-woocommerce'),
+                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
                         'desc_tip' => true,
-                        'label' => __('Convert to BRL', 'integration-rede-for-woocommerce'),
+                        'label' => __('Convert to BRL', 'woo-rede'),
                         'default' => 'no',
                         'custom_attributes' => array(
                             'readonly' => 'readonly',
@@ -178,26 +178,26 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         )
                     ),
                     'developers' => array(
-                        'title' => esc_attr__('Developer', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Developer', 'woo-rede'),
                         'type' => 'title',
                     ),
                     'debug' => array(
-                        'title' => esc_attr__('Debug', 'integration-rede-for-woocommerce'),
+                        'title' => esc_attr__('Debug', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => esc_attr__('Enable debug logs.', 'integration-rede-for-woocommerce') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'integration-rede-for-woocommerce') . '</a>'),
+                        'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                         'default' => 'no',
                     )
                 );
 
                 if ($this->get_option('debug') == 'yes') {
                     $this->form_fields['show_order_logs'] =  array(
-                        'title' => __('Visualizar Log no Pedido', 'integration-rede-for-woocommerce'),
+                        'title' => __('Visualizar Log no Pedido', 'woo-rede'),
                         'type' => 'checkbox',
-                        'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'integration-rede-for-woocommerce'),
+                        'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
                         'default' => 'no',
                     );
                     $this->form_fields['clear_order_records'] =  array(
-                        'title' => __('Limpar logs nos Pedidos', 'integration-rede-for-woocommerce'),
+                        'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
                         'type' => 'button',
                         'id' => 'validateLicense',
                         'class' => 'woocommerce-save-button components-button is-primary'
@@ -249,7 +249,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
-                    throw new Exception(__('PV or Token is invalid!', 'integration-rede-for-woocommerce'));
+                    throw new Exception(__('PV or Token is invalid!', 'woo-rede'));
                 }
                 if ("00" != $pix['returnCode']) {
                     if ('yes' == $this->debug) {
@@ -259,7 +259,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             ),
                         ));
                     }
-                    throw new Exception(__('An error occurred while processing the payment.', 'integration-rede-for-woocommerce'));
+                    throw new Exception(__('An error occurred while processing the payment.', 'woo-rede'));
                 }
 
                 $pixReference = $pix['reference'];
@@ -346,8 +346,8 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
     {
         if ($order->get_payment_method() === 'integration_rede_pix') {
             $metaKeys = array(
-                '_wc_rede_pix_integration_transaction_reference' => esc_attr__('Reference Number', 'integration-rede-for-woocommerce'),
-                '_wc_rede_integration_pix_transaction_tid' => esc_attr__('TID', 'integration-rede-for-woocommerce'),
+                '_wc_rede_pix_integration_transaction_reference' => esc_attr__('Reference Number', 'woo-rede'),
+                '_wc_rede_integration_pix_transaction_tid' => esc_attr__('TID', 'woo-rede'),
             );
 
             LknIntegrationRedeForWoocommerceWcPixHelper::generateMetaTable($order, $metaKeys, 'Rede');
@@ -388,13 +388,13 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
             wp_enqueue_script('integration-rede-pix-js', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Public/js/pix/LknIntegrationRedeForWoocommercePix.js', array(), '1.0.0', 'all');
             wp_localize_script('integration-rede-pix-js', 'currentTheme', wp_get_theme()->get('Name'));
             wp_localize_script('integration-rede-pix-js', 'phpVarsPix', array(
-                'copied' => __('COPIED', 'integration-rede-for-woocommerce'),
-                'copy' => __('COPY', 'integration-rede-for-woocommerce'),
-                'shareError' => __('Sharing is not supported in this browser.', 'integration-rede-for-woocommerce'),
-                'pixButton' => __('I have already paid the PIX', 'integration-rede-for-woocommerce'),
-                'successPayment' => __('Payment successfully completed!', 'integration-rede-for-woocommerce'),
-                'nextVerify' => __('Next verification in (N. attempts', 'integration-rede-for-woocommerce'),
-                'shareTitle' => __('Payment via PIX', 'integration-rede-for-woocommerce')
+                'copied' => __('COPIED', 'woo-rede'),
+                'copy' => __('COPY', 'woo-rede'),
+                'shareError' => __('Sharing is not supported in this browser.', 'woo-rede'),
+                'pixButton' => __('I have already paid the PIX', 'woo-rede'),
+                'successPayment' => __('Payment successfully completed!', 'woo-rede'),
+                'nextVerify' => __('Next verification in (N. attempts', 'woo-rede'),
+                'shareTitle' => __('Payment via PIX', 'woo-rede')
             ));
         }
     }

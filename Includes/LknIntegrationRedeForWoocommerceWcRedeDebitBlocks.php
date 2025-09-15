@@ -54,11 +54,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             'nonceRedeDebit' => wp_create_nonce('redeCardNonce'),
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'integration-rede-for-woocommerce'),
-                'cardNumber' => __('Card Number', 'integration-rede-for-woocommerce'),
-                'cardExpiringDate' => __('Card Expiring Date', 'integration-rede-for-woocommerce'),
-                'securityCode' => __('Security Code', 'integration-rede-for-woocommerce'),
-                'nameOnCard' => __('Name on Card', 'integration-rede-for-woocommerce'),
+                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
+                'cardNumber' => __('Card Number', 'woo-rede'),
+                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
+                'securityCode' => __('Security Code', 'woo-rede'),
+                'nameOnCard' => __('Name on Card', 'woo-rede'),
             )
         );
     }

@@ -137,7 +137,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $order = wc_get_order($parameters['donationId']);
         $tId = $order->get_meta('_wc_rede_integration_pix_transaction_tid');
         if (empty($order)) {
-            return new WP_Error('order_not_found', __('Order not found', 'integration-rede-for-woocommerce'), array('status' => 404));
+            return new WP_Error('order_not_found', __('Order not found', 'woo-rede'), array('status' => 404));
         }
 
         $pixOptions = get_option('woocommerce_integration_rede_pix_settings');

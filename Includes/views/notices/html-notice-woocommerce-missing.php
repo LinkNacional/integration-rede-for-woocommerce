@@ -32,7 +32,7 @@ if (current_user_can('install_plugins')) {
                 'This plugin depends on the last version of %s to work!',
                 'integration-rede-for-woocommerce'
             ),
-            '<a href="' . esc_url($url) . '">' . esc_attr__('WooCommerce', 'integration-rede-for-woocommerce') . '</a>'
+            '<a href="' . esc_url($url) . '">' . esc_attr__('WooCommerce', 'woo-rede') . '</a>'
         );
         ?>
     </p>
