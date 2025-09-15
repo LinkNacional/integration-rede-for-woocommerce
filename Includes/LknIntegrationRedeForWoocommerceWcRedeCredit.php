@@ -516,10 +516,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 );
             }
 
-            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
-                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this, $order_id);
-            }
-
             $order_total = wc_format_decimal($order_total, $decimals);
 
             try {
