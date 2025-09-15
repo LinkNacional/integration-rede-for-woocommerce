@@ -1,3 +1,6 @@
+# 4.0.5 - 15/09/2025
+* Correção na rota do PIX.
+
 # 4.0.4 - 15/09/2025
 * Correção em atualização de valors das parcelas.
 * Correção nos reembolsos dos pagamentos.

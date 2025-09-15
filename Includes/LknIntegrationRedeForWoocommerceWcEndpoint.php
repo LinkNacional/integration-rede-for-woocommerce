@@ -18,7 +18,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             ));
         }
 
-        register_rest_route('redeIntegration', '/redePixListener', array(
+        register_rest_route('redeintegration', '/pixlistener', array(
             'methods' => 'POST',
             'callback' => array($this, 'redePixListener'),
             'permission_callback' => '__return_true',
