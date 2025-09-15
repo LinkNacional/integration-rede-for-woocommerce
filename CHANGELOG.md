@@ -1,3 +1,6 @@
+# 4.0.4 - 15/09/2025
+* Correção em atualização de valors das parcelas.
+
 # 4.0.3 - 12/09/2025
 * Correção em função de reembolso.
 
@@ -5,6 +8,9 @@
 * Atualização nos links de venda.
 * Correção no textdomain do plugin.
 * Icone do plugin nas confgurações do gateway
+
+# 4.0.2 - 09/09/2025
+* Correção em atualização de valors das parcelas.
 
 # 4.0.1 - 03/09/2025
 * Correção no calculo das parcelas no modo legacy.

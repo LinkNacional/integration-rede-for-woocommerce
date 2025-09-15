@@ -1,6 +1,6 @@
 # Integration Rede for WooCommerce
 
-[Integration Rede for WooCommerce](https://www.linknacional.com/wordpress/plugins/) is a plugin designed to seamlessly integrate Rede or Maxipago into your WooCommerce store, enabling your customers to make payments using credit or debit cards.
+[Integration Rede for WooCommerce](https://www.linknacional.com.br/wordpress/woocommerce/rede/) is a plugin designed to seamlessly integrate Rede or Maxipago into your WooCommerce store, enabling your customers to make payments using credit or debit cards.
 
 Plugin at WordPress marketplace
 https://wordpress.org/plugins/woo-rede/

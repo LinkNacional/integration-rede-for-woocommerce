@@ -469,6 +469,18 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod');
+    
+        // Adiciona endpoint AJAX para parcelas Maxipago
+        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+        
+        // Adiciona endpoint AJAX para refresh dos campos de pagamento
+        $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
+        $this->loader->add_action('wp_ajax_nopriv_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
+        
+        // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago
+        $this->loader->add_action('wp_ajax_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
+        $this->loader->add_action('wp_ajax_nopriv_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
     }
 
     public function wcEditorBlocksActive(): void
@@ -548,5 +560,75 @@ final class LknIntegrationRedeForWoocommerce
         );
 
         return $plugin_meta;
+    }
+
+    /**
+     * Método AJAX para refresh dos campos de pagamento Rede Credit
+     */
+    public function rede_refresh_payment_fields()
+    {
+        try {
+            // Verifica o nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'rede_payment_fields_nonce')) {
+                wp_send_json_error(['message' => 'Invalid nonce']);
+                return;
+            }
+
+            // Carrega a classe do gateway
+            $gateways = WC()->payment_gateways()->payment_gateways();
+            ob_start();
+            
+            // Usa o novo método que renderiza com o total atualizado incluindo cupons
+            $gateways['rede_credit']->render_payment_fields_with_total();
+            
+            $html = ob_get_clean();
+            wp_send_json_success(['html' => $html]);
+            return;
+
+            wp_send_json_error(['message' => 'Gateway not found or method not available']);
+        } catch (\Throwable $th) {
+            wp_send_json_error([
+                'message' => $th->getMessage(),
+                'line'    => $th->getLine(),
+                'file'    => $th->getFile(),
+                'trace'   => $th->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Método AJAX para refresh dos campos de pagamento Maxipago Credit
+     */
+    public function maxipago_refresh_payment_fields()
+    {
+        try {
+            // Verifica o nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'maxipago_payment_fields_nonce')) {
+                wp_send_json_error(['message' => 'Invalid nonce']);
+                return;
+            }
+
+            // Carrega a classe do gateway
+            $gateways = WC()->payment_gateways()->payment_gateways();
+            if (isset($gateways['maxipago_credit']) && method_exists($gateways['maxipago_credit'], 'render_payment_fields_with_total')) {
+                ob_start();
+                
+                // Usa o novo método que renderiza com o total atualizado incluindo cupons
+                $gateways['maxipago_credit']->render_payment_fields_with_total();
+                
+                $html = ob_get_clean();
+                wp_send_json_success(['html' => $html]);
+                return;
+            }
+
+            wp_send_json_error(['message' => 'Gateway not found or method not available']);
+        } catch (\Throwable $th) {
+            wp_send_json_error([
+                'message' => $th->getMessage(),
+                'line'    => $th->getLine(),
+                'file'    => $th->getFile(),
+                'trace'   => $th->getTraceAsString(),
+            ]);
+        }
     }
 }

@@ -62,7 +62,7 @@ window.jQuery(function ($) {
         /**
            * Debug
            */
-        debug: Boolean(window.wooRede.debug)
+        debug: Boolean(wooRedeVars.debug)
       })
 
       // Workaround to maintain the card data rendered after checkout updates
@@ -76,6 +76,34 @@ window.jQuery(function ($) {
     const paymentBoxP = document.querySelector('.payment_box.payment_method_rede_credit p');
     if (paymentBoxP) {
       paymentBoxP.style.display = 'none';
+    }
+  }
+  $(document).on('updated_checkout', function () {
+    updatedCheckout()
+  });
+
+  // Event delegation para capturar mudanças em radios criados dinamicamente
+  document.addEventListener('change', function(event) {
+    if (event.target.type === 'radio') {
+      updatedCheckout()
+    }
+  })
+
+  function updatedCheckout(){
+    const $container = $('#rede-credit-payment-form');
+    if ($container.length) {
+      $.post(wooRedeVars.ajaxurl, {
+        action: 'rede_refresh_payment_fields',
+        nonce: wooRedeVars.nonce,
+      }, function (response) {
+        if (response.success) {
+          // Remove todos os <p> filhos diretos do elemento pai antes de substituir
+          $container.parent().children('p').remove();
+          $container.replaceWith(response.data.html);
+          // Depois de reinserir, recria a animação/cart
+          lknRedeCreditCardRender();
+        }
+      });
     }
   }
 })
