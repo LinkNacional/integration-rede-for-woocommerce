@@ -103,7 +103,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 'label' => esc_attr__('Authorization code', 'woo-rede'),
                 'value' => $authorization_code,
             );
-            if($installments){
+            if ($installments) {
                 $items['installments'] = array(
                     'label' => esc_attr__('Installments', 'woo-rede'),
                     'value' => $installments,

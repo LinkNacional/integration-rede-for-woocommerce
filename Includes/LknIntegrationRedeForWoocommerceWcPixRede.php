@@ -19,11 +19,13 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         $this->title = 'Integration Rede Pix';
         $this->has_fields = true;
         $this->method_title = esc_attr__('Pay with the Rede Pix FREE', 'woo-rede');
-        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede') . '<a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__( 'Documentation', 'woo-rede' ) . '</a>';
+        $this->method_description = esc_attr__('Enables and configures payments with Rede Pix', 'woo-rede') . '<a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__('Documentation', 'woo-rede') . '</a>';
         $this->supports = array(
             'products',
             'refunds',
         );
+
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
 
         // Define os campos de configuração do método de pagamento
         $this->init_form_fields();
@@ -46,7 +48,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
                     false
                 );
-        
+
                 wp_localize_script('lkn-integration-rede-for-woocommerce-endpoint', 'lknRedeForWoocommerceProSettings', array(
                     'endpointStatus' => get_option('LknIntegrationRedeForWoocommerceEndpointStatus', false),
                     'translations' => array(
@@ -55,7 +57,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'howToConfigure' => __('How to Configure', 'woo-rede'),
                     ),
                 ));
-                
+
                 $this->form_fields = array(
                     'enabled' => array(
                         'title' => esc_attr__('Payment with Rede Pix', 'woo-rede'),
@@ -77,7 +79,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     'description' => array(
                         'title' => __('Description', 'woo-rede'),
                         'type' => 'textarea',
-                        'default' => __( 'Pay for your purchase with a pix through ', 'woo-rede' ),
+                        'default' => __('Pay for your purchase with a pix through ', 'woo-rede'),
                     ),
                     'endpoint' => array(
                         'title' => esc_attr__('Endpoint', 'woo-rede'),
@@ -164,11 +166,11 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ),
                     ),
                     'fake_convert_to_brl' => array(
-                        'title' => __('Currency Converter', 'rede-for-woocommerce-pro'),
+                        'title' => __('Currency Converter', 'woo-rede'),
                         'type' => 'checkbox',
-                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'rede-for-woocommerce-pro'),
+                        'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
                         'desc_tip' => true,
-                        'label' => __('Convert to BRL', 'rede-for-woocommerce-pro'),
+                        'label' => __('Convert to BRL', 'woo-rede'),
                         'default' => 'no',
                         'custom_attributes' => array(
                             'readonly' => 'readonly',
@@ -399,7 +401,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
     public function process_admin_options()
     {
-        
+
         if (isset($_POST['woocommerce_integration_rede_pix_expiration_count'])) {
             $_POST['woocommerce_integration_rede_pix_expiration_count'] = '24';
         }

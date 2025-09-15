@@ -23,6 +23,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'refunds',
         );
 
+        $this->icon = LknIntegrationRedeForWoocommerceHelper::getUrlIcon();
+
         $this->initFormFields();
 
         $this->init_settings();
@@ -514,10 +516,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 );
             }
 
-            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
-                $order_total = apply_filters('integrationRedeGetInterest', $order_total, $interest, $installments, 'total', $this, $order_id);
-            }
-
             $order_total = wc_format_decimal($order_total, $decimals);
 
             try {
@@ -660,14 +658,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 return false;
             }
 
-            if (! $order || ! $order->get_transaction_id()) {
+            if (! $order || ! $order->get_meta('_wc_rede_transaction_id')) {
                 $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'woo-rede'));
                 $order->save();
                 return false;
             }
 
             if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-                $tid = $order->get_transaction_id();
+                $tid = $order->get_meta('_wc_rede_transaction_id');
                 $amount = wc_format_decimal($amount, 2);
 
                 // Se conversão está ativa, usa o valor convertido
@@ -682,7 +680,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 try {
                     if ($amount > 0) {
                         if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
-                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
+                            $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
                             $order->save();
                             return false;
                         } elseif ($order->get_total() == $amount || $is_converted) {

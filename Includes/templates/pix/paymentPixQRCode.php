@@ -1,12 +1,11 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
     exit();
 }
 ?>
 <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
->
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <div id="pix_integration_new_content">
     <div class="container_pix">
         <div class="span_title_container">
@@ -25,8 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="payment_check_container">
             <button
                 class="payment_check_button"
-                disabled
-            ><?php echo esc_attr__('I have already paid the PIX', 'woo-rede'); ?></button>
+                disabled><?php echo esc_attr__('I have already paid the PIX', 'woo-rede'); ?></button>
         </div>
         <span class="payment_check_text"><?php echo esc_attr__('? - By clicking this button, we will check if the payment has been successfully confirmed.', 'woo-rede'); ?></span>
     </div>
@@ -35,8 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <span class="span_title_value"><?php echo esc_attr__('Total', 'woo-rede'); ?></span>
             <span
                 class="span_total_value"
-                id="pix_page_currency_text"
-            ><?php echo wp_kses_post($currencyTxt); ?></span>
+                id="pix_page_currency_text"><?php echo wp_kses_post($currencyTxt); ?></span>
             <span class="span_date"><?php echo esc_attr($dueDateMsg); ?></span>
         </div>
         <div id="copy_container">
@@ -45,32 +42,27 @@ if ( ! defined( 'ABSPATH' ) ) {
                 class="input_copy_code"
                 readonly
                 style="border: none; background-color: #D9D9D9;"
-                value="<?php echo esc_attr(htmlspecialchars($donKey, ENT_QUOTES, 'UTF-8')); ?>"
-            >
+                value="<?php echo esc_attr(htmlspecialchars($donKey, ENT_QUOTES, 'UTF-8')); ?>">
 
             <input
                 type="hidden"
                 id="donationId"
-                value=<?php echo esc_attr($donationId); ?>
-            >
+                value=<?php echo esc_attr($donationId); ?>>
             <button class="button_copy_code"><?php echo esc_attr__('COPY', 'woo-rede'); ?></button>
         </div>
         <div id="pix_page_qr_code">
             <img
                 src="data:image/png;base64,<?php echo esc_attr($donQrCode); ?>"
-                class="pix_img"
-            >
+                class="pix_img">
         </div>
     </div>
     <div class="share_container">
         <button
             class="share_button"
-            style="background-color: transparent"
-        >
+            style="background-color: transparent">
             <img
                 src=<?php echo esc_attr($filePath); ?>
-                alt="icon"
-            >
+                alt="icon">
         </button>
     </div>
 </div>

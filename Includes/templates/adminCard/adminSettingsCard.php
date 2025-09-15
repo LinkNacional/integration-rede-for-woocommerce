@@ -7,9 +7,11 @@ if (!defined('ABSPATH')) {
 <div id="lknIntegrationRedeForWoocommerceSettingsCard" style="background-image: url('<?php echo esc_url($backgrounds['right']); ?>'), url('<?php echo esc_url($backgrounds['left']); ?>'); display:none;">
     <div id="lknIntegrationRedeForWoocommerceDivLogo">
         <div>
-            <?php //phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage ?>
+            <?php //phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage 
+            ?>
             <img src=<?php echo esc_url($logo); ?> alt="Logo">
-            <?php //phpcs:enable ?>
+            <?php //phpcs:enable 
+            ?>
         </div>
         <p><?php echo esc_attr($versions); ?></p>
     </div>
@@ -36,9 +38,11 @@ if (!defined('ABSPATH')) {
             <a target="_blank" href=<?php echo esc_url('https://wordpress.org/support/plugin/woo-rede/reviews/#new-post'); ?>>
                 <p><?php echo esc_attr_e('Rate Plugin', 'woo-rede'); ?></p>
                 <div>
-                    <?php //phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage ?>
+                    <?php //phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage 
+                    ?>
                     <img src=<?php echo esc_url($stars); ?> alt="Logo">
-                    <?php //phpcs:enable ?>
+                    <?php //phpcs:enable 
+                    ?>
                 </div>
             </a>
         </div>

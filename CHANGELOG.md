@@ -1,3 +1,16 @@
+# 4.0.4 - 15/09/2025
+* Correção em atualização de valors das parcelas.
+* Correção nos reembolsos dos pagamentos.
+* Correção no endpoint da rota de verificação de PIX.
+
+# 4.0.3 - 12/09/2025
+* Correção em função de reembolso.
+
+# 4.0.2 - 08/09/2025
+* Atualização nos links de venda.
+* Correção no textdomain do plugin.
+* Icone do plugin nas confgurações do gateway
+
 # 4.0.2 - 09/09/2025
 * Correção em atualização de valors das parcelas.
 
