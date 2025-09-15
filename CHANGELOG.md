@@ -1,3 +1,6 @@
+# 4.0.6 - 15/09/2025
+* Correção na rota do PIX.
+
 # 4.0.5 - 15/09/2025
 * Correção na rota do PIX.
 
