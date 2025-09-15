@@ -72,6 +72,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 4.0.5 - 2025/09/15
+* Fix in the PIX route.
+
 # 4.0.4 - 2025/09/15
 * Fix installment values update
 * Fixed payment refunds.
