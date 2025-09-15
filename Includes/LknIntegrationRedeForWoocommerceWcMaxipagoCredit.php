@@ -777,7 +777,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             $is_converted = $order->get_meta('_wc_maxipago_total_amount_is_converted');
             $exchange_rate = $order->get_meta('_wc_maxipago_exchange_rate');
             $decimals = $order->get_meta('_wc_maxipago_decimal_value');
-            $amount = $order->get_total();
             $amount_converted = $order->get_meta('_wc_maxipago_total_amount_converted');
 
             if (empty($order->get_meta('_wc_maxipago_transaction_canceled'))) {
