@@ -650,7 +650,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $decimals = $order->get_meta('_wc_rede_decimal_value');
             $amount_converted = $order->get_meta('_wc_rede_total_amount_converted');
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
-            $amount = $order->get_total();
 
             if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
                 $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
@@ -679,11 +678,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
                 try {
                     if ($amount > 0) {
-                        if (isset($amount) && $amount > 0 && $amount < $totalAmount) {
+                        if (isset($amount) && ($amount > 0 && $amount < $totalAmount) || ($is_converted && $amount > 0 && $amount < $amount_converted)) {
                             $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
                             $order->save();
                             return false;
-                        } elseif ($order->get_total() == $amount || $is_converted) {
+                        } elseif ($order->get_total() == $amount || ($is_converted && $amount == $amount_converted)) {
                             $transaction = $this->api->do_transaction_cancellation($tid, $amount);
                         }
 
