@@ -1,6 +1,9 @@
 (function ($) {
     $(window).load(function () {
 
+        const titleField = document.querySelector('#woocommerce_rede_credit_description');
+        const description = titleField.getAttribute('data-title-description');
+        console.log(description);
         // Hidden 'currency_quote'
         document.querySelectorAll('input[type="text"]').forEach(function (input) {
             if ((input.name && input.name.includes('currency_quote')) || (input.id && input.id.includes('currency_quote'))) {
@@ -25,7 +28,7 @@
 
             // Mover fistH1 e todos os elementos entre fistH1 e submitP para a nova div
             while (currentElement && currentElement !== submitP.nextElementSibling) {
-                const nextElement = currentElement.nextElementSibling // Armazenar o próximo elemento antes de mover
+                const nextElement = currentElement.nextElementSibling // Armazenar o próximo elemento antes de mover    
                 newDiv.appendChild(currentElement) // Mover o elemento atual para a nova div
                 currentElement = nextElement // Atualizar currentElement para o próximo
             }
@@ -153,5 +156,57 @@
             const hrElement = document.createElement('hr')
             divElement.parentElement.insertBefore(hrElement, divElement.nextSibling)
         }
+
+        document.querySelectorAll('.form-table > tbody > tr').forEach(tr => {
+            const td = tr.querySelector('td');
+            const th = tr.querySelector('th');
+            if (td && th) {
+                const span = th.querySelector("span")
+                if (span) {
+                    if (span.classList.contains("woocommerce-help-tip")) {
+                        const ariaLabel = span.getAttribute('aria-label');
+                        let desc = document.createElement('p');
+                        desc.innerHTML = ariaLabel;
+                        th.appendChild(desc);
+                        span.style.display = 'none';
+                    } else {
+                        const novaSpan = th.querySelector(".lknIntegrationRedeForWoocommerceTooltiptext");
+                        if (novaSpan) {
+                            let desc = document.createElement('p');
+                            desc.innerHTML = novaSpan.innerHTML.trim();
+                            let lastChild = th.lastElementChild;
+                            th.insertBefore(desc, lastChild);
+                            novaSpan.previousElementSibling.style.display = 'none';
+                        }
+                    }
+                }
+                let headerCart = document.createElement('div');
+                let titleHeader = document.createElement('div');
+                let descriptionTitle = document.createElement('div');
+                let divHR = document.createElement('div');
+
+                const titleTh = th.querySelector('label');
+                const textContent = titleTh.childNodes[0].textContent.trim();
+                titleHeader.innerText = textContent;
+
+                const fieldId = titleTh.getAttribute('for');
+                if (fieldId) {
+                    const fieldConfig = document.getElementById(fieldId);
+                    const dataTitleDescription = fieldConfig.getAttribute('data-title-description');
+                    descriptionTitle.innerHTML = dataTitleDescription ?? null;
+                }
+
+                divHR.style.borderTop = '1px solid rgb(204, 204, 204)';
+                divHR.style.margin = '8px 0px';
+                divHR.style.width = '100%';
+
+                headerCart.appendChild(titleHeader);
+                headerCart.appendChild(descriptionTitle);
+                headerCart.appendChild(divHR);
+
+                const fieldset = td.firstElementChild;
+                fieldset.insertBefore(headerCart, fieldset.firstElementChild);
+            }
+        })
     })
 })(jQuery)

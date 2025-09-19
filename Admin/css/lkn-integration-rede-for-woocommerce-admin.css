@@ -49,7 +49,6 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
     padding: 10px 24px;
-    background-color: #FFFFFF;
     border-radius: 10px;
 }
 
@@ -149,6 +148,12 @@ textarea:disabled {
     align-items: center;
 }
 
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr {}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td {
+    background-color: #fff;
+}
+
 #lknIntegrationRedeForWoocommerStarsDiv img {
     height: 10px;
 }
@@ -196,8 +201,7 @@ textarea:disabled {
 #woocommerce_rede_credit_clear_order_records,
 #woocommerce_rede_debit_clear_order_records,
 #woocommerce_maxipago_credit_clear_order_records,
-#woocommerce_maxipago_debit_clear_order_records
-{
+#woocommerce_maxipago_debit_clear_order_records {
     display: flex;
     justify-content: center;
     width: fit-content;
@@ -213,7 +217,7 @@ textarea:disabled {
     white-space: pre-wrap
 }
 
-#lknWcRedeOrderLogs pre{
+#lknWcRedeOrderLogs pre {
     padding: 10px;
     background-color: #D9D9D9 !important;
     width: fit-content;
@@ -224,19 +228,19 @@ textarea:disabled {
     overflow-x: auto;
 }
 
-#lknWcRedeOrderLogs h3{
+#lknWcRedeOrderLogs h3 {
     color: #333;
     font-size: 14px;
     font-weight: bold;
 }
 
-#lknWcRedeOrderLogs div{
+#lknWcRedeOrderLogs div {
     display: flex;
     gap: 6px;
     align-items: center;
 }
 
-#lknWcRedeOrderLogs pre{
+#lknWcRedeOrderLogs pre {
     padding: 10px;
     background-color: #D9D9D9 !important;
     width: fit-content;
@@ -247,13 +251,13 @@ textarea:disabled {
     overflow-x: auto;
 }
 
-#lknWcRedeOrderLogs h3{
+#lknWcRedeOrderLogs h3 {
     color: #333;
     font-size: 14px;
     font-weight: bold;
 }
 
-#lknWcRedeOrderLogs div{
+#lknWcRedeOrderLogs div {
     display: flex;
     gap: 6px;
     align-items: center;
