@@ -53,7 +53,7 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
-    height: 27px;
+    height: 37px;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:first-of-type {
@@ -65,6 +65,7 @@ textarea:disabled {
     border: none;
     background-color: #F0F0F1;
     color: #9A9A9A;
+    padding: 7px 30px;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:hover {
@@ -74,6 +75,7 @@ textarea:disabled {
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab.nav-tab-active {
     margin-top: 1.5px !important;
     color: black;
+    background-color: #FFFFFF;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
@@ -146,12 +148,57 @@ textarea:disabled {
 #lknIntegrationRedeForWoocommerceSettingsCardTable {
     display: flex;
     align-items: center;
+
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCardTable>*:first-child {
+    flex: 1;
+    /* ou flex-grow: 1; */
+}
+
+/* Segundo filho - 30% do espaço */
+#lknIntegrationRedeForWoocommerceSettingsCardTable>*:last-child {
+    flex: 0 0 30%;
+    margin-left: 10px
+        /* flex-grow: 0, flex-shrink: 0, flex-basis: 30% */
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr {}
 
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th label {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th p {
+    margin: 5px 0px 10px;
+    color: rgb(52, 59, 69);
+}
+
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td {
-    background-color: #fff;
+    background-color: #FFFFFF;
+    border: 1px solid rgb(223, 223, 223);
+    padding: 10px 30px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 6px 4px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-description {
+    margin-left: 4px
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    margin-left: 4px;
+    min-height: 120px;
+    color: rgb(44, 51, 56);
 }
 
 #lknIntegrationRedeForWoocommerStarsDiv img {

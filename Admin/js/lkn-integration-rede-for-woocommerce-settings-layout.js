@@ -1,9 +1,6 @@
 (function ($) {
     $(window).load(function () {
 
-        const titleField = document.querySelector('#woocommerce_rede_credit_description');
-        const description = titleField.getAttribute('data-title-description');
-        console.log(description);
         // Hidden 'currency_quote'
         document.querySelectorAll('input[type="text"]').forEach(function (input) {
             if ((input.name && input.name.includes('currency_quote')) || (input.id && input.id.includes('currency_quote'))) {
@@ -154,7 +151,13 @@
             }
 
             const hrElement = document.createElement('hr')
+            hrElement.style.margin = "2px 0px 40px"
             divElement.parentElement.insertBefore(hrElement, divElement.nextSibling)
+            let descriptionP = hrElement.nextElementSibling;
+            let menu = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutMenu');
+            if (descriptionP && menu) {
+                menu.parentElement.insertBefore(descriptionP, menu);
+            }
         }
 
         document.querySelectorAll('.form-table > tbody > tr').forEach(tr => {
@@ -185,6 +188,9 @@
                 let descriptionTitle = document.createElement('div');
                 let divHR = document.createElement('div');
 
+                titleHeader.className = 'lkn-field-title';
+                descriptionTitle.className = 'lkn-field-description';
+
                 const titleTh = th.querySelector('label');
                 const textContent = titleTh.childNodes[0].textContent.trim();
                 titleHeader.innerText = textContent;
@@ -206,6 +212,13 @@
 
                 const fieldset = td.firstElementChild;
                 fieldset.insertBefore(headerCart, fieldset.firstElementChild);
+
+                const divBody = document.createElement('div');
+                divBody.className = 'lkn-rede-field-body';
+                while (fieldset.childNodes.length > 2) {
+                    divBody.appendChild(fieldset.childNodes[2]);
+                }
+                fieldset.appendChild(divBody);
             }
         })
     })
