@@ -174,11 +174,11 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
         if (0 < $order_id) {
             $order = new WC_Order($order_id);
-            // Para pedidos existentes, calcula subtotal + frete - desconto de cupons
-            $subtotal = (float) $order->get_subtotal() + (float) $order->get_shipping_total() - (float) $order->get_discount_total();
+            // Para pedidos existentes, calcula subtotal + frete + impostos - desconto de cupons
+            $subtotal = (float) $order->get_subtotal() + (float) $order->get_shipping_total() + (float) $order->get_total_tax() - (float) $order->get_discount_total();
         } elseif (isset($woocommerce->cart) && $woocommerce->cart) {
-            // Para carrinho, pega subtotal + frete - desconto de cupons
-            $subtotal = (float) $woocommerce->cart->get_subtotal() + (float) $woocommerce->cart->get_shipping_total() - (float) $woocommerce->cart->get_discount_total();
+            // Para carrinho, pega subtotal + frete + impostos - desconto de cupons
+            $subtotal = (float) $woocommerce->cart->get_subtotal() + (float) $woocommerce->cart->get_shipping_total() + (float) $woocommerce->cart->get_taxes_total() - (float) $woocommerce->cart->get_discount_total();
         }
 
         return $subtotal;
