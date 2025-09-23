@@ -200,6 +200,14 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+        $this->loader->add_action('woocommerce_cart_calculate_fees', $this, 'lkn_custom', 10, 1);
+    }
+
+    public function lkn_custom($cart) {
+        // Exemplo: adiciona uma taxa fixa de R$ 5,00 chamada "Taxa Extra"
+        $fee_amount = 5.00;
+        $label = __('Taxa Extra', 'rede-for-woocommerce-pro');
+        $cart->add_fee($label, $fee_amount, false);
     }
 
     /**
@@ -219,6 +227,19 @@ final class LknIntegrationRedeForWoocommerce
             $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
             if ($max_installments < 1) {
                 $max_installments = 12;
+            }
+        }
+
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
             }
         }
 
@@ -273,6 +294,20 @@ final class LknIntegrationRedeForWoocommerce
 
             if ($max_installments < 1) {
                 $max_installments = 12;
+            }
+        }
+
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                error_log($product_limit);
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
             }
         }
 
