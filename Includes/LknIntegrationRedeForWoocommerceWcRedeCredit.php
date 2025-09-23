@@ -373,29 +373,19 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
-            if ($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') {
+            if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
 
-                $customLabel = apply_filters('integrationRedeGetInterest', $order_total, $interest, $i, 'label', $this);
+                $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
             }
 
             if (gettype($customLabel) === 'string' && $customLabel) {
                 $label = $customLabel;
             }
 
-            $has_interest_or_discount = (
-                $this->get_option('installment_interest') === 'yes' ||
-                $this->get_option('installment_discount') === 'yes'
+            $installments[] = array(
+                'num'   => $i,
+                'label' => $label,
             );
-
-            if (
-                ($has_interest_or_discount && $customLabel !== null) ||
-                !$has_interest_or_discount
-            ) {
-                $installments[] = array(
-                    'num'   => $i,
-                    'label' => $label,
-                );
-            }
         }
 
         return $installments;
