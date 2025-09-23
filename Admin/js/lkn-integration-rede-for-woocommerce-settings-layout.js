@@ -221,5 +221,13 @@
                 fieldset.appendChild(divBody);
             }
         })
+
+        const divGeral = document.createElement('div');
+        const card = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard');
+        const divSettingsLayout = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
+        divSettingsLayout.parentElement.appendChild(divGeral);
+        divGeral.appendChild(divSettingsLayout);
+        divGeral.appendChild(card);
+        divGeral.className = 'lknIntegrationRedeForWoocommerceDivGeral';
     })
 })(jQuery)

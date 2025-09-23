@@ -145,22 +145,24 @@ textarea:disabled {
     height: 25px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCardTable {
+.lknIntegrationRedeForWoocommerceDivGeral {
     display: flex;
-    align-items: center;
-
+    gap: 25px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCardTable>*:first-child {
-    flex: 1;
+.lknIntegrationRedeForWoocommerceDivGeral>*:first-child {
+    flex-grow: 1;
     /* ou flex-grow: 1; */
 }
 
 /* Segundo filho - 30% do espaço */
-#lknIntegrationRedeForWoocommerceSettingsCardTable>*:last-child {
+.lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
     flex: 0 0 30%;
-    margin-left: 10px
-        /* flex-grow: 0, flex-shrink: 0, flex-basis: 30% */
+    position: sticky;
+    top: 102px;
+    /* Distância do topo quando "grudado" */
+    align-self: flex-start;
+    /* Alinha no topo do container */
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr {}
@@ -320,6 +322,12 @@ textarea:disabled {
         margin-top: 25px;
         margin-bottom: 15px;
     }
+
+    .lknIntegrationRedeForWoocommerceDivGeral {
+        display: block;
+    }
+
+    .lknIntegrationRedeForWoocommerceDivGeral>*:first-child {}
 
 }
 

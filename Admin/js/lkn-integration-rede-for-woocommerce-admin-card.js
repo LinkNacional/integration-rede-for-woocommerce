@@ -48,10 +48,10 @@
       wcForm.appendChild(noticeDiv)
 
       if (window.innerWidth <= 1205) {
-        wcForm.appendChild(cardDiv)
+        //wcForm.appendChild(cardDiv)
       } else {
         secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
-        secondFormTable.appendChild(cardDiv)
+        //secondFormTable.appendChild(cardDiv)
       }
 
       cardDiv.style.display = 'flex'
@@ -60,8 +60,10 @@
         if (window.innerWidth <= 1205) {
           wcForm.appendChild(cardDiv)
         } else {
+          const divGeral = document.querySelector('.lknIntegrationRedeForWoocommerceDivGeral')
+          divGeral.appendChild(cardDiv)
           secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
-          secondFormTable.appendChild(cardDiv)
+          //secondFormTable.appendChild(cardDiv)
         }
       }
 
