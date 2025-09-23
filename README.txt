@@ -74,6 +74,7 @@ The Integration Rede for WooCommerce plugin is now live and working.
 == Changelog ==
 # 4.0.8 - 2025/09/22
 * Fix in tax calculation for installments.
+* Fixed installment limit per product.
 
 # 4.0.7 - 2025/09/19
 * Fix in version release.

@@ -1,5 +1,6 @@
 # 4.0.8 - 22/09/2025
 * Correção em calculo de impostos nas parcelas.
+* Correção no limite de parcelas por produto.
 
 # 4.0.7 - 19/09/2025
 * Correção em lançamento de versão.
