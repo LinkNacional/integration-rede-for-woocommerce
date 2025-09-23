@@ -301,7 +301,6 @@ final class LknIntegrationRedeForWoocommerce
             foreach (WC()->cart->get_cart() as $cart_item) {
                 $product_id = $cart_item['product_id'];
                 $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
-                error_log($product_limit);
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
                     if ($product_limit < $max_installments) {
