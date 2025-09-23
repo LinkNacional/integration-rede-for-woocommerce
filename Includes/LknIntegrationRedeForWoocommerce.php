@@ -209,9 +209,10 @@ final class LknIntegrationRedeForWoocommerce
     {
         $cart_total = 0;
         if (function_exists('WC') && WC()->cart) {
-            // Soma dos produtos + taxa de entrega (sem fees PRO)
+            // Soma dos produtos + taxa de entrega + impostos
             $cart_total = floatval(WC()->cart->get_cart_contents_total());
             $cart_total += floatval(WC()->cart->get_shipping_total());
+            $cart_total += floatval(WC()->cart->get_taxes_total());
         }
         $max_installments = 12;
         if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
@@ -261,9 +262,10 @@ final class LknIntegrationRedeForWoocommerce
     {
         $cart_total = 0;
         if (function_exists('WC') && WC()->cart) {
-            // Soma dos produtos + taxa de entrega (sem fees PRO)
+            // Soma dos produtos + taxa de entrega + impostos
             $cart_total = floatval(WC()->cart->get_cart_contents_total());
             $cart_total += floatval(WC()->cart->get_shipping_total());
+            $cart_total += floatval(WC()->cart->get_taxes_total());
         }
         $max_installments = 12;
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
@@ -318,13 +320,15 @@ final class LknIntegrationRedeForWoocommerce
             return $base_label;
         }
 
-        // Obter soma dos produtos + taxa de entrega (sem fees PRO)
+        // Obter soma dos produtos + taxa de entrega + impostos
         $cartTotal = 0;
         if (function_exists('WC') && WC()->cart) {
             // Soma dos produtos
             $cartTotal = floatval(WC()->cart->get_cart_contents_total());
             // Adicionar taxa de entrega
             $cartTotal += floatval(WC()->cart->get_shipping_total());
+            // Adicionar impostos
+            $cartTotal += floatval(WC()->cart->get_taxes_total());
         }
 
         // Calcular o valor da parcela individual
