@@ -328,7 +328,7 @@ class LknIntegrationRedeForWoocommerceHelper
             case 'label':
                 // Verificar se existe um limite de parcelas por produto
                 $max_installments = $i;
-
+                $extra_fees = 0;
                 if (WC()->cart && !WC()->cart->is_empty()) {
                     foreach (WC()->cart->get_cart() as $cart_item) {
                         $product_id = $cart_item['product_id'];
@@ -349,7 +349,6 @@ class LknIntegrationRedeForWoocommerceHelper
                     WC()->cart->calculate_totals();
 
                     $fees_objects = WC()->cart->get_fees();
-                    $extra_fees = 0;
 
                     foreach ($fees_objects as $fee) {
                         if (
