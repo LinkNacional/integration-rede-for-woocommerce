@@ -42,7 +42,7 @@
             if (subTitles && descriptionElement) {
                 // Criar a div que irá conter os novos elementos <p>
                 divElement.id = 'lknIntegrationRedeForWoocommerceSettingsLayoutMenu'
-                aElements = []
+                let aElements = []
                 subTitles.forEach((subTitle, index) => {
                     // Criar um novo elemento <a> e adicionar o elemento <p> a ele
                     const aElement = document.createElement('a')
@@ -198,8 +198,12 @@
                 const fieldId = titleTh.getAttribute('for');
                 if (fieldId) {
                     const fieldConfig = document.getElementById(fieldId);
-                    const dataTitleDescription = fieldConfig.getAttribute('data-title-description');
-                    descriptionTitle.innerHTML = dataTitleDescription ?? null;
+                    if (fieldConfig) {
+                        const dataTitleDescription = fieldConfig.getAttribute('data-title-description');
+                        descriptionTitle.innerHTML = dataTitleDescription ?? '';
+                    } else {
+                        descriptionTitle.innerHTML = '';
+                    }
                 }
 
                 divHR.style.borderTop = '1px solid rgb(204, 204, 204)';
@@ -224,7 +228,6 @@
 
         const divGeral = document.createElement('div');
         const card = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCardContainer');
-        console.log(card);
         const divSettingsLayout = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
         divSettingsLayout.parentElement.appendChild(divGeral);
         divGeral.appendChild(divSettingsLayout);

@@ -59,15 +59,15 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 ));
 
                 $this->form_fields = array(
+                    'rede' => array(
+                        'title' => esc_attr__('General', 'woo-rede'),
+                        'type' => 'title',
+                    ),
                     'enabled' => array(
                         'title' => esc_attr__('Payment with Rede Pix', 'woo-rede'),
                         'type' => 'checkbox',
                         'label' => __('Enable', 'woo-rede'),
                         'default' => 'no'
-                    ),
-                    'rede' => array(
-                        'title' => esc_attr__('General', 'woo-rede'),
-                        'type' => 'title',
                     ),
                     'title' => array(
                         'title' => esc_attr__('Title', 'woo-rede'),
@@ -80,18 +80,22 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'title' => __('Description', 'woo-rede'),
                         'type' => 'textarea',
                         'default' => __('Pay for your purchase with a pix through ', 'woo-rede'),
+                        // ADICIONAR:
+                        'description' => __('Payment method description that the customer will see on your checkout.', 'woo-rede'),
+                        'desc_tip' => true,
                     ),
                     'endpoint' => array(
                         'title' => esc_attr__('Endpoint', 'woo-rede'),
                         'type' => 'text',
                         'description' => esc_attr__('Return URL to automatically update the status of orders paid via PIX on the Rede portal.', 'woo-rede'),
-                        'desc_tip' => true,
+                        'desc_tip' => false,
+                        'default' => site_url('/wp-json/rede/v1/webhook')
                     ),
                     'pv' => array(
                         'title' => esc_attr__('PV', 'woo-rede'),
                         'type' => 'password',
                         'description' => esc_attr__('Enter the establishment affiliation number provided by Rede.', 'woo-rede'),
-                        'desc_tip' => true,
+                        'desc_tip' => esc_attr__('Enter the establishment affiliation number provided by Rede.', 'woo-rede'),
                         'default' => '',
                     ),
                     'token' => array(
@@ -165,7 +169,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'disabled' => 'disabled',
                         ),
                     ),
-                    'fake_convert_to_brl' => array(
+                    /*'fake_convert_to_brl' => array(
                         'title' => __('Currency Converter', 'woo-rede'),
                         'type' => 'checkbox',
                         'description' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
@@ -176,7 +180,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             'readonly' => 'readonly',
                             'disabled' => 'disabled'
                         )
-                    ),
+                    ),*/
                     'developers' => array(
                         'title' => esc_attr__('Developer', 'woo-rede'),
                         'type' => 'title',
