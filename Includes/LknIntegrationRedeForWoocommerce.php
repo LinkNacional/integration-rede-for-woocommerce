@@ -213,6 +213,21 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total = floatval(WC()->cart->get_cart_contents_total());
             $cart_total += floatval(WC()->cart->get_shipping_total());
             $cart_total += floatval(WC()->cart->get_taxes_total());
+
+            $fees_objects = WC()->cart->get_fees();
+            $extra_fees = 0;
+            foreach ($fees_objects as $fee) {
+                if (
+                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                ) {
+                    $extra_fees += floatval($fee->amount);
+                }
+            }
+
+            WC()->cart->calculate_totals();
+
+            $cart_total += $extra_fees;
         }
         $max_installments = 12;
         if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
@@ -280,8 +295,6 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += floatval(WC()->cart->get_shipping_total());
             $cart_total += floatval(WC()->cart->get_taxes_total());
 
-            WC()->cart->calculate_totals();
-
             $fees_objects = WC()->cart->get_fees();
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
@@ -292,6 +305,10 @@ final class LknIntegrationRedeForWoocommerce
                     $extra_fees += floatval($fee->amount);
                 }
             }
+
+            WC()->cart->calculate_totals();
+
+            $cart_total += $extra_fees;
         }
         $max_installments = 12;
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
@@ -368,6 +385,19 @@ final class LknIntegrationRedeForWoocommerce
             $cartTotal += floatval(WC()->cart->get_shipping_total());
             // Adicionar impostos
             $cartTotal += floatval(WC()->cart->get_taxes_total());
+
+            $fees_objects = WC()->cart->get_fees();
+            $extra_fees = 0;
+            foreach ($fees_objects as $fee) {
+                if (
+                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                ) {
+                    $extra_fees += floatval($fee->amount);
+                }
+            }
+
+            WC()->cart->calculate_totals();
         }
 
         // Calcular o valor da parcela individual
