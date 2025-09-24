@@ -22,6 +22,7 @@
       const lknCieloNoticeDiv = document.createElement('div')
       lknCieloNoticeDiv.setAttribute('style', 'padding: 10px 5px;background-color: #fcf9e8;color: #646970;border: solid 1px lightgrey;border-left-color: #dba617;border-left-width: 4px;font-size: 14px;margin-top: 10px;')
       lknCieloNoticeDiv.setAttribute('id', 'lkn-cielo-pro-notice')
+      const cardContainer = document.getElementById('lknIntegrationRedeForWoocommerceSettingsCardContainer')
       if (adminPage !== 'integration_rede_pix') {
         lknCieloNoticeDiv.innerHTML = '<div style="font-size: 21px;padding: 6px 0px 10px 0px;">' + lknPhpVariables.title + '</div>' +
           '<a href="https://www.linknacional.com.br/wordpress/plugins/" target="_blank">' + lknPhpVariables.desc + '</a>' +
@@ -31,7 +32,7 @@
           '<li>' + lknPhpVariables.css + '</li>' +
           '<li>' + lknPhpVariables.pix + '</li>' +
           '</ul>'
-        wcForm.append(lknCieloNoticeDiv)
+        cardContainer.append(lknCieloNoticeDiv)
 
         const submitButton = wcForm.querySelector('button[type="submit"]').parentElement
         if (submitButton) {
@@ -39,7 +40,7 @@
         }
       }
 
-      wcForm.append(noticeDiv)
+      cardContainer.append(noticeDiv)
     }
 
     function lknFindGetParameter(parameterName) {

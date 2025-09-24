@@ -223,7 +223,8 @@
         })
 
         const divGeral = document.createElement('div');
-        const card = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard');
+        const card = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCardContainer');
+        console.log(card);
         const divSettingsLayout = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv');
         divSettingsLayout.parentElement.appendChild(divGeral);
         divGeral.appendChild(divSettingsLayout);

@@ -28,6 +28,7 @@
       const wcForm = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsLayoutDiv')
       const noticeDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsNoticeDiv')
       const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard')
+      const cardContainer = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCardContainer')
       const formTables = wcForm ? wcForm.querySelectorAll('.form-table') : []
 
       if (!wcForm) {
@@ -45,9 +46,9 @@
 
       const secondFormTable = formTables[1]
 
-      wcForm.appendChild(noticeDiv)
+      cardContainer.appendChild(noticeDiv)
 
-      if (window.innerWidth <= 1205) {
+      if (window.innerWidth <= 1225) {
         //wcForm.appendChild(cardDiv)
       } else {
         secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
@@ -57,11 +58,11 @@
       cardDiv.style.display = 'flex'
 
       const adjustCardDivPosition = () => {
-        if (window.innerWidth <= 1205) {
-          wcForm.appendChild(cardDiv)
+        if (window.innerWidth <= 1225) {
+          wcForm.appendChild(cardContainer)
         } else {
           const divGeral = document.querySelector('.lknIntegrationRedeForWoocommerceDivGeral')
-          divGeral.appendChild(cardDiv)
+          divGeral.appendChild(cardContainer)
           secondFormTable.id = 'lknIntegrationRedeForWoocommerceSettingsCardTable'
           //secondFormTable.appendChild(cardDiv)
         }

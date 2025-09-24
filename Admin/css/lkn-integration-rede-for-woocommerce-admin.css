@@ -81,7 +81,6 @@ textarea:disabled {
 #lknIntegrationRedeForWoocommerceSettingsCard {
     color: white;
     max-width: 370px;
-    width: fit-content;
     height: fit-content;
     background-color: #121519;
     border-radius: 10px;
@@ -157,7 +156,8 @@ textarea:disabled {
 
 /* Segundo filho - 30% do espaço */
 .lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
-    flex: 0 0 30%;
+    flex: 0 0 28%;
+    min-width: 320px;
     position: sticky;
     top: 102px;
     /* Distância do topo quando "grudado" */
@@ -203,6 +203,16 @@ textarea:disabled {
     color: rgb(44, 51, 56);
 }
 
+/*Campos filhos ocupam toda largura disponível */
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body input:not([type="checkbox"]):not([type="radio"]):not([type="button"]),
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body select,
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body textarea,
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body .select2-container {
+    width: 100% !important;
+    min-width: 0px !important;
+    box-sizing: border-box;
+}
+
 #lknIntegrationRedeForWoocommerStarsDiv img {
     height: 10px;
 }
@@ -230,7 +240,7 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
-    margin-bottom: 125px;
+    margin-bottom: 5px;
     gap: 25px;
 }
 
@@ -312,7 +322,7 @@ textarea:disabled {
     align-items: center;
 }
 
-@media (max-width: 1205px) {
+@media (max-width: 1225px) {
     #lknIntegrationRedeForWoocommerceSettingsCardTable {
         flex-direction: column;
         align-items: flex-start;
@@ -326,8 +336,6 @@ textarea:disabled {
     .lknIntegrationRedeForWoocommerceDivGeral {
         display: block;
     }
-
-    .lknIntegrationRedeForWoocommerceDivGeral>*:first-child {}
 
 }
 
