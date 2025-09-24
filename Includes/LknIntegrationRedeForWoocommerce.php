@@ -279,6 +279,19 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total = floatval(WC()->cart->get_cart_contents_total());
             $cart_total += floatval(WC()->cart->get_shipping_total());
             $cart_total += floatval(WC()->cart->get_taxes_total());
+
+            WC()->cart->calculate_totals();
+
+            $fees_objects = WC()->cart->get_fees();
+            $extra_fees = 0;
+            foreach ($fees_objects as $fee) {
+                if (
+                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                ) {
+                    $extra_fees += floatval($fee->amount);
+                }
+            }
         }
         $max_installments = 12;
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
@@ -412,7 +425,8 @@ final class LknIntegrationRedeForWoocommerce
 
         if ($is_discount) {
             // Aplicar desconto
-            $newInstallmentValue = $installmentValue * (1 - ($value / 100));
+            $total_with_discount = ($cartTotal * (1 - ($value / 100))) + $extra_fees;
+            $newInstallmentValue = $total_with_discount / $installment_number;
             $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
             return $new_label . " ({$value}% de desconto)";
         } else {
@@ -421,7 +435,8 @@ final class LknIntegrationRedeForWoocommerce
                 return $base_label . ' sem juros';
             } else {
                 // Aplicar juros
-                $newInstallmentValue = $installmentValue * (1 + ($value / 100));
+                $total_with_interest = ($cartTotal * (1 + ($value / 100))) + $extra_fees;
+                $newInstallmentValue = $total_with_interest / $installment_number;
                 $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
                 return $new_label . " ({$value}% de juros)";
             }
