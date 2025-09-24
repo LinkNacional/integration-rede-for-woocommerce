@@ -214,6 +214,8 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += floatval(WC()->cart->get_shipping_total());
             $cart_total += floatval(WC()->cart->get_taxes_total());
 
+            WC()->cart->calculate_totals();
+
             $fees_objects = WC()->cart->get_fees();
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
@@ -224,8 +226,6 @@ final class LknIntegrationRedeForWoocommerce
                     $extra_fees += floatval($fee->amount);
                 }
             }
-
-            WC()->cart->calculate_totals();
 
             $cart_total += $extra_fees;
         }
@@ -295,6 +295,8 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += floatval(WC()->cart->get_shipping_total());
             $cart_total += floatval(WC()->cart->get_taxes_total());
 
+            WC()->cart->calculate_totals();
+
             $fees_objects = WC()->cart->get_fees();
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
@@ -306,7 +308,9 @@ final class LknIntegrationRedeForWoocommerce
                 }
             }
 
-            WC()->cart->calculate_totals();
+            if (function_exists('WC') && WC()->cart) {
+                $cart_total = WC()->cart->get_total('edit');
+            }
 
             $cart_total += $extra_fees;
         }
@@ -386,6 +390,8 @@ final class LknIntegrationRedeForWoocommerce
             // Adicionar impostos
             $cartTotal += floatval(WC()->cart->get_taxes_total());
 
+            WC()->cart->calculate_totals();
+
             $fees_objects = WC()->cart->get_fees();
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
@@ -396,8 +402,6 @@ final class LknIntegrationRedeForWoocommerce
                     $extra_fees += floatval($fee->amount);
                 }
             }
-
-            WC()->cart->calculate_totals();
         }
 
         // Calcular o valor da parcela individual

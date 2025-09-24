@@ -33,38 +33,43 @@ const ContentMaxipagoCredit = props => {
   const [focus, setFocus] = window.wp.element.useState('');
   const [options, setOptions] = window.wp.element.useState([]);
 
-  // Função para buscar dados atualizados do backend e gerar as opções de installments
+  // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
+  let installmentTimeout = null;
   const generateInstallmentOptions = async () => {
-    try {
-      window.jQuery.ajax({
-        url: window.ajaxurl || '/wp-admin/admin-ajax.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-          action: 'lkn_get_maxipago_credit_data'
-        },
-        success: function (response) {
-          if (response && response.installments) {
-            const newOptions = response.installments.map(installment => {
-              // Extrai o texto plano do HTML (remove tags)
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = installment.label;
-              const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    if (installmentTimeout) clearTimeout(installmentTimeout);
+    installmentTimeout = setTimeout(() => {
+      try {
+        window.jQuery.ajax({
+          url: window.ajaxurl || '/wp-admin/admin-ajax.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            action: 'lkn_get_maxipago_credit_data'
+          },
+          success: function (response) {
+            if (response && response.installments) {
+              const newOptions = response.installments.map(installment => {
+                // Extrai o texto plano do HTML (remove tags)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = installment.label;
+                const plainText = tempDiv.textContent || tempDiv.innerText || '';
 
-              return {
-                key: installment.key,
-                label: plainText
-              };
-            });
-            setOptions(newOptions);
+                return {
+                  key: installment.key,
+                  label: plainText
+                };
+              });
+              setOptions(newOptions);
+            }
           }
-        }
-      });
-    } catch (error) { }
+        });
+      } catch (error) { }
+    }, 400); // 400ms de debounce
   };
 
   // Intercepta fetch e XMLHttpRequest para WooCommerce Blocks e atualiza parcelas após requisições relevantes
   window.wp.element.useEffect(() => {
+    // Chama só uma vez ao carregar a página
     generateInstallmentOptions();
 
     // Intercepta fetch
@@ -102,10 +107,14 @@ const ContentMaxipagoCredit = props => {
       return originalSend.apply(this, args);
     };
 
+    // Observa evento de atualização do checkout (WooCommerce clássico)
+    document.body.addEventListener('updated_checkout', generateInstallmentOptions);
+
     return () => {
       window.fetch = originalFetch;
       window.XMLHttpRequest.prototype.open = originalOpen;
       window.XMLHttpRequest.prototype.send = originalSend;
+      document.body.removeEventListener('updated_checkout', generateInstallmentOptions);
     };
   }, []);
   const formatCreditCardNumber = value => {

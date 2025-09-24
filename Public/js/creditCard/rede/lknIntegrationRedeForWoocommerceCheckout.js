@@ -32,42 +32,48 @@ const ContentRedeCredit = props => {
   const [focus, setFocus] = window.wp.element.useState('');
   const [options, setOptions] = window.wp.element.useState([]);
 
-  // Função para buscar dados atualizados do backend e gerar as opções de installments
+  // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
+  let installmentTimeout = null;
   const generateInstallmentOptions = async () => {
-    try {
-      window.jQuery.ajax({
-        url: window.ajaxurl || '/wp-admin/admin-ajax.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-          action: 'lkn_get_rede_credit_data'
-        },
-        success: function (response) {
-          if (response && Array.isArray(response.installments)) {
-            // Remove tags HTML do label para exibir texto plano
-            const plainOptions = response.installments.map(opt => {
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = opt.label;
-              return {
-                ...opt,
-                label: tempDiv.textContent || tempDiv.innerText || ''
-              };
-            });
-            setOptions(plainOptions);
+    if (installmentTimeout) clearTimeout(installmentTimeout);
+    installmentTimeout = setTimeout(() => {
+      try {
+        window.jQuery.ajax({
+          url: window.ajaxurl || '/wp-admin/admin-ajax.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            action: 'lkn_get_rede_credit_data'
+          },
+          success: function (response) {
+            if (response && Array.isArray(response.installments)) {
+              // Remove tags HTML do label para exibir texto plano
+              const plainOptions = response.installments.map(opt => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = opt.label;
+                return {
+                  ...opt,
+                  label: tempDiv.textContent || tempDiv.innerText || ''
+                };
+              });
+              setOptions(plainOptions);
+            }
+          },
+          error: function () {
+            // Se falhar, mantém as opções atuais
           }
-        },
-        error: function () {
-          // Se falhar, mantém as opções atuais
-        }
-      });
-    } catch (error) {
-      // Se falhar, mantém as opções atuais
-    }
+        });
+      } catch (error) {
+        // Se falhar, mantém as opções atuais
+      }
+    }, 400); // 400ms de debounce
   };
 
   // Intercepta window.fetch para WooCommerce Blocks e atualiza parcelas após requisições relevantes
   window.wp.element.useEffect(() => {
+    // Chama só uma vez ao carregar a página
     generateInstallmentOptions();
+
     // Intercepta fetch
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
@@ -103,10 +109,14 @@ const ContentRedeCredit = props => {
       return originalSend.apply(this, args);
     };
 
+    // Observa evento de atualização do checkout (WooCommerce clássico)
+    document.body.addEventListener('updated_checkout', generateInstallmentOptions);
+
     return () => {
       window.fetch = originalFetch;
       window.XMLHttpRequest.prototype.open = originalOpen;
       window.XMLHttpRequest.prototype.send = originalSend;
+      document.body.removeEventListener('updated_checkout', generateInstallmentOptions);
     };
   }, []);
 
