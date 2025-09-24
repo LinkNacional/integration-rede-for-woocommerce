@@ -200,14 +200,6 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        $this->loader->add_action('woocommerce_cart_calculate_fees', $this, 'lkn_custom', 10, 1);
-    }
-
-    public function lkn_custom($cart) {
-        // Exemplo: adiciona uma taxa fixa de R$ 5,00 chamada "Taxa Extra"
-        $fee_amount = 5.00;
-        $label = __('Taxa Extra', 'rede-for-woocommerce-pro');
-        $cart->add_fee($label, $fee_amount, false);
     }
 
     /**
