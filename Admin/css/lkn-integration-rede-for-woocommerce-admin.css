@@ -151,6 +151,9 @@ textarea:disabled {
 
 .lknIntegrationRedeForWoocommerceDivGeral>*:first-child {
     flex-grow: 1;
+
+    width: 100%;
+    min-width: 0;
     /* ou flex-grow: 1; */
 }
 
@@ -165,7 +168,23 @@ textarea:disabled {
     /* Alinha no topo do container */
 }
 
-#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr {}
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
+    padding: 10px 24px;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th {
+    width: 200px !important;
+}
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th label {
     font-size: 20px;
@@ -177,10 +196,23 @@ textarea:disabled {
     color: rgb(52, 59, 69);
 }
 
+.form-table tbody,
+.form-table tbody tr td {
+    width: 100% !important;
+}
+
+.form-table tr {
+    display: table;
+    width: 100% !important;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCardTable tr td,
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td {
     background-color: #FFFFFF;
     border: 1px solid rgb(223, 223, 223);
     padding: 10px 30px;
+    width: 100% !important;
+    box-sizing: border-box;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-title {
@@ -247,7 +279,7 @@ textarea:disabled {
 /* Endpoint */
 #integrationwoocommerceRedePixEndpointField {
     display: flex;
-    gap: 40px;
+    flex-direction: column;
 }
 
 #integrationwoocommerceRedePixEndpointAlert {
