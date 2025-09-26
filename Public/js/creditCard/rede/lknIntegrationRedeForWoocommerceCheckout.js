@@ -32,82 +32,66 @@ const ContentRedeCredit = props => {
   const [focus, setFocus] = window.wp.element.useState('');
   const [options, setOptions] = window.wp.element.useState([]);
 
-  // Função para buscar dados atualizados do backend e gerar as opções de installments
-  const generateInstallmentOptions = async () => {
-    try {
-      window.jQuery.ajax({
-        url: window.ajaxurl || '/wp-admin/admin-ajax.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-          action: 'lkn_get_rede_credit_data'
-        },
-        success: function (response) {
-          if (response && Array.isArray(response.installments)) {
-            // Remove tags HTML do label para exibir texto plano
-            const plainOptions = response.installments.map(opt => {
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = opt.label;
-              return {
-                ...opt,
-                label: tempDiv.textContent || tempDiv.innerText || ''
-              };
-            });
-            setOptions(plainOptions);
+  // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
+  let installmentTimeout = null;
+  const generateRedeInstallmentOptions = async () => {
+    if (installmentTimeout) clearTimeout(installmentTimeout);
+    installmentTimeout = setTimeout(() => {
+      try {
+        window.jQuery.ajax({
+          url: window.ajaxurl || '/wp-admin/admin-ajax.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            action: 'lkn_get_rede_credit_data'
+          },
+          success: function (response) {
+            if (response && Array.isArray(response.installments)) {
+              // Remove tags HTML do label para exibir texto plano
+              const plainOptions = response.installments.map(opt => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = opt.label;
+                return {
+                  ...opt,
+                  label: tempDiv.textContent || tempDiv.innerText || ''
+                };
+              });
+              setOptions(plainOptions);
+            }
+          },
+          error: function () {
+            // Se falhar, mantém as opções atuais
           }
-        },
-        error: function () {
-          // Se falhar, mantém as opções atuais
-        }
-      });
-    } catch (error) {
-      // Se falhar, mantém as opções atuais
-    }
+        });
+      } catch (error) {
+        // Se falhar, mantém as opções atuais
+      }
+    }, 400); // 400ms de debounce
   };
 
   // Intercepta window.fetch para WooCommerce Blocks e atualiza parcelas após requisições relevantes
   window.wp.element.useEffect(() => {
-    generateInstallmentOptions();
-    // Intercepta fetch
-    const originalFetch = window.fetch;
-    window.fetch = async function (...args) {
-      const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
-      const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate') || url.includes('/wp-json/wc/store/v1/cart');
-      const response = await originalFetch.apply(this, args);
-      if (isWooBlocksRequest) {
-        response.clone().json().then(() => {
-          generateInstallmentOptions();
-        }).catch(() => {
-          generateInstallmentOptions();
-        });
-      }
-      return response;
-    };
+    // Chama só uma vez ao carregar a página
+    generateRedeInstallmentOptions();
+    const targetNode = document.querySelector('body');
 
-    // Intercepta XMLHttpRequest
-    const originalOpen = window.XMLHttpRequest.prototype.open;
-    window.XMLHttpRequest.prototype.open = function (...args) {
-      this._url = args[1];
-      return originalOpen.apply(this, args);
-    };
-    const originalSend = window.XMLHttpRequest.prototype.send;
-    window.XMLHttpRequest.prototype.send = function (...args) {
-      this.addEventListener('load', function () {
-        if (this._url && (
-          this._url.includes('/wp-json/wc/store/v1/batch') ||
-          this._url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')
-        )) {
-          generateInstallmentOptions();
+    // Configura o observer
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if ('wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value' == mutation.target.parentElement.className) {
+          generateRedeInstallmentOptions()
         }
-      });
-      return originalSend.apply(this, args);
-    };
+      }
+    });
 
-    return () => {
-      window.fetch = originalFetch;
-      window.XMLHttpRequest.prototype.open = originalOpen;
-      window.XMLHttpRequest.prototype.send = originalSend;
-    };
+    // Opções de observação
+    observer.observe(targetNode, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+
+    window.lknSetCartRequestRede = true;
   }, []);
 
   // Observa eventos de atualização do WooCommerce Blocks (cart/checkout)

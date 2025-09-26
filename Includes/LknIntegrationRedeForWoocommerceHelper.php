@@ -316,5 +316,84 @@ class LknIntegrationRedeForWoocommerceHelper
     {
         return plugin_dir_url(__DIR__) . "Includes/assets/WordpressAssets/icon.svg";
     }
+
+    public static function lknIntegrationRedeProRedeInterest($order_total, $interest, $i, $option, $instance, $order_id = null) 
+    {
+
+        $installments = isset($_POST[$instance->id . '_installments']) ?
+        absint(sanitize_text_field(wp_unslash($_POST[$instance->id . '_installments']))) : 1;
+        $interest = round((float) $instance->get_option($i . 'x'), 2);
+
+        switch ($option) {
+            case 'label':
+                // Verificar se existe um limite de parcelas por produto
+                $max_installments = $i;
+                $extra_fees = 0;
+                if (WC()->cart && !WC()->cart->is_empty()) {
+                    foreach (WC()->cart->get_cart() as $cart_item) {
+                        $product_id = $cart_item['product_id'];
+                        if ($instance->id == 'rede_credit') {
+                            $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                        } else {
+                            $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
+                        }
+
+                        if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                            $product_limit = (int) $product_limit;
+                            // Limita ao menor valor encontrado entre os produtos
+                            if ($product_limit < $max_installments) {
+                                $max_installments = $product_limit;
+                            }
+                        }
+                    }
+                    WC()->cart->calculate_totals();
+
+                    $fees_objects = WC()->cart->get_fees();
+
+                    foreach ($fees_objects as $fee) {
+                        if (
+                            strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
+                            strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                        ) {
+                            $extra_fees += floatval($fee->amount);
+                        }
+                    }
+                }
+
+                // Se o número de parcelas solicitado for maior que o permitido, não prossegue
+                if ($i > $max_installments) {
+                    return null;
+                }
+
+                if ($instance->get_option('installment_interest') == 'yes') {
+                    $total = $order_total / $i;
+                    if ($total > $instance->get_option('min_interest') && $instance->get_option('min_interest') > 0) {
+                        $interest = 0;
+                    }
+                    if ($interest >= 1) {
+                        $total = $order_total + ($order_total * ($interest * 0.01)) + $extra_fees;
+                        if ($instance->get_option('interest_show_percent') == 'yes') {
+                            return html_entity_decode(sprintf('%dx de %s (%s%% de juros)', $i, wp_strip_all_tags( wc_price( $total / $i)), $interest));
+                        }
+                            return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                    } else {
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $total)))) . ' ' . __("interest-free", 'rede-for-woocommerce-pro');
+                    }
+                } else {
+                    $discount = round((float) $instance->get_option($i . 'x_discount'), 0);
+                    $total = $order_total - ($order_total * ($discount * 0.01)) + $extra_fees;
+                    if ($discount >= 1) {
+                        if ($instance->get_option('interest_show_percent') == 'yes') {
+                            return html_entity_decode(sprintf( '%dx de %s (%s%% de desconto)', $i, wp_strip_all_tags( wc_price(($total / $i))), $discount));
+                        }
+                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                    } else {
+                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                    }
+                }
+
+                break;
+        }
+    }
 }
 ?>
