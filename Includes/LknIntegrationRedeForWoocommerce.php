@@ -308,10 +308,6 @@ final class LknIntegrationRedeForWoocommerce
                 }
             }
 
-            if (function_exists('WC') && WC()->cart) {
-                $cart_total = WC()->cart->get_total('edit');
-            }
-
             $cart_total += $extra_fees;
         }
         $max_installments = 12;

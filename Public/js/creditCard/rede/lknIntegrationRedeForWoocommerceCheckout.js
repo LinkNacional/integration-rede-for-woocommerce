@@ -73,51 +73,25 @@ const ContentRedeCredit = props => {
   window.wp.element.useEffect(() => {
     // Chama só uma vez ao carregar a página
     generateInstallmentOptions();
+    const targetNode = document.querySelector('body');
 
-    // Intercepta fetch
-    const originalFetch = window.fetch;
-    window.fetch = async function (...args) {
-      const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
-      const isWooBlocksRequest = url.includes('/wp-json/wc/store/v1/batch') || url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate') || url.includes('/wp-json/wc/store/v1/cart');
-      const response = await originalFetch.apply(this, args);
-      if (isWooBlocksRequest) {
-        response.clone().json().then(() => {
-          generateInstallmentOptions();
-        }).catch(() => {
-          generateInstallmentOptions();
-        });
-      }
-      return response;
-    };
-
-    // Intercepta XMLHttpRequest
-    const originalOpen = window.XMLHttpRequest.prototype.open;
-    window.XMLHttpRequest.prototype.open = function (...args) {
-      this._url = args[1];
-      return originalOpen.apply(this, args);
-    };
-    const originalSend = window.XMLHttpRequest.prototype.send;
-    window.XMLHttpRequest.prototype.send = function (...args) {
-      this.addEventListener('load', function () {
-        if (this._url && (
-          this._url.includes('/wp-json/wc/store/v1/batch') ||
-          this._url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')
-        )) {
-          generateInstallmentOptions();
+    // Configura o observer
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if ('wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value' == mutation.target.parentElement.className) {
+          generateInstallmentOptions()
         }
-      });
-      return originalSend.apply(this, args);
-    };
+      }
+    });
 
-    // Observa evento de atualização do checkout (WooCommerce clássico)
-    document.body.addEventListener('updated_checkout', generateInstallmentOptions);
+    // Opções de observação
+    observer.observe(targetNode, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
 
-    return () => {
-      window.fetch = originalFetch;
-      window.XMLHttpRequest.prototype.open = originalOpen;
-      window.XMLHttpRequest.prototype.send = originalSend;
-      document.body.removeEventListener('updated_checkout', generateInstallmentOptions);
-    };
+    window.lknSetCartRequestRede = true;
   }, []);
 
   // Observa eventos de atualização do WooCommerce Blocks (cart/checkout)
