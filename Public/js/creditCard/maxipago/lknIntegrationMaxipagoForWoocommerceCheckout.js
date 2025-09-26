@@ -35,7 +35,7 @@ const ContentMaxipagoCredit = props => {
 
   // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
   let installmentTimeout = null;
-  const generateInstallmentOptions = async () => {
+  const generateMaxipagoInstallmentOptions = async () => {
     if (installmentTimeout) clearTimeout(installmentTimeout);
     installmentTimeout = setTimeout(() => {
       try {
@@ -70,14 +70,14 @@ const ContentMaxipagoCredit = props => {
   // Intercepta fetch e XMLHttpRequest para WooCommerce Blocks e atualiza parcelas após requisições relevantes
   window.wp.element.useEffect(() => {
     // Chama só uma vez ao carregar a página
-    generateInstallmentOptions();
+    generateMaxipagoInstallmentOptions();
     const targetNode = document.querySelector('body');
 
     // Configura o observer
     const observer = new MutationObserver((mutationsList) => {
       for (const mutation of mutationsList) {
         if ('wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value' == mutation.target.parentElement.className) {
-          generateInstallmentOptions()
+          generateMaxipagoInstallmentOptions()
         }
       }
     });
