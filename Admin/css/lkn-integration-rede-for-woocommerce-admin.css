@@ -72,6 +72,10 @@ textarea:disabled {
     color: black;
 }
 
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab {
+    line-height: normal;
+}
+
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab.nav-tab-active {
     margin-top: 1.5px !important;
     color: black;

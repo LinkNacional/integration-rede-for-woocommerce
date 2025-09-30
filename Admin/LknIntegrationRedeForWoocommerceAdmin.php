@@ -113,9 +113,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'becomePRO' => __('Become PRO', 'woo-rede')
         ));
 
-        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-            wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
-        }
+        //if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
+        //}
 
         $gateways = array(
             'maxipago_credit',
@@ -201,7 +201,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'pix' => __('Enable payment with Pix', 'woo-rede'),
             'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
             'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede')
+            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede'),
+            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php'),
         ));
     }
 }

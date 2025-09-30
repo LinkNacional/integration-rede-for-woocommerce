@@ -30,7 +30,7 @@
       const cardDiv = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCard')
       const cardContainer = document.querySelector('#lknIntegrationRedeForWoocommerceSettingsCardContainer')
       const formTables = wcForm ? wcForm.querySelectorAll('.form-table') : []
-
+      cardDiv.style.display = 'flex';
       if (!wcForm) {
         return
       }
