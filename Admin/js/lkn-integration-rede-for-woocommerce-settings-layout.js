@@ -215,13 +215,22 @@
                     const fieldConfig = document.getElementById(fieldId);
                     if (fieldConfig) {
                         const elementoPai = fieldConfig.getAttribute('merge-top') ? "woocommerce_rede_credit_" + fieldConfig.getAttribute('merge-top') : false;
-                        if (elementoPai) {
-                            const input = document.getElementById(elementoPai);
+                        const input = document.getElementById(elementoPai) ?? false;
+                        if (elementoPai && input) {
                             const label = input.parentElement;
                             const divBody = label.parentElement;
                             const fieldsetPai = divBody.parentElement;
                             const fieldsetFilho = td.querySelector('fieldset');
-                            fieldsetPai.append(fieldsetFilho);
+
+                            let containerCampos = fieldsetPai.querySelector('.lkn-rede-container-campos');
+
+                            if (!containerCampos) {
+                                containerCampos = document.createElement('div');
+                                fieldsetPai.appendChild(containerCampos);
+                                containerCampos.classList.add('lkn-rede-container-campos');
+                            }
+
+                            containerCampos.append(fieldsetFilho);
                             tr.style.display = 'none';
                         }
                     }
