@@ -84,7 +84,6 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
     color: white;
-    max-width: 370px;
     height: fit-content;
     background-color: #121519;
     border-radius: 10px;
@@ -155,21 +154,18 @@ textarea:disabled {
 
 .lknIntegrationRedeForWoocommerceDivGeral>*:first-child {
     flex-grow: 1;
-
     width: 100%;
     min-width: 0;
-    /* ou flex-grow: 1; */
 }
 
 /* Segundo filho - 30% do espaço */
 .lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
-    flex: 0 0 28%;
+    flex: 0 0 30%;
     min-width: 320px;
     position: sticky;
     top: 102px;
-    /* Distância do topo quando "grudado" */
+    padding: 30px 24px;
     align-self: flex-start;
-    /* Alinha no topo do container */
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
