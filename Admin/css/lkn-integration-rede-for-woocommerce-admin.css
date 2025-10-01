@@ -184,6 +184,7 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th {
     width: 200px !important;
+    vertical-align: middle;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th label {
@@ -244,6 +245,10 @@ textarea:disabled {
     min-width: 0px !important;
     max-width: 400px;
     box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td p.description {
+    margin-top: 8px;
 }
 
 .pro-version-info {

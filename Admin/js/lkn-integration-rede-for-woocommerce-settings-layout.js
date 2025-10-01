@@ -83,35 +83,23 @@
 
                 function changeLayout() {
                     tables.forEach((table, index) => {
-                        switch (lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar) {
-                            case 1:
-                                if (index == 0 || index == 1) {
-                                    table.style.display = 'flex'
-                                } else {
-                                    table.style.display = 'none'
-                                }
-                                break
-                            case 2:
-                                if (index == 2) {
-                                    table.style.display = 'flex'
-                                } else {
-                                    table.style.display = 'none'
-                                }
-                                break
-                            case 3:
-                                if (index == 3) {
-                                    table.style.display = 'flex'
-                                } else {
-                                    table.style.display = 'none'
-                                }
-                                break
-                            case 4:
-                                if (index == 4) {
-                                    table.style.display = 'flex'
-                                } else {
-                                    table.style.display = 'none'
-                                }
-                                break
+                        const currentSection = lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar;
+
+                        if (currentSection === 1) {
+                            // Primeira seção (General) mostra tabelas 0 e 1
+                            if (index === 0 || index === 1) {
+                                table.style.display = 'flex';
+                            } else {
+                                table.style.display = 'none';
+                            }
+                        } else {
+                            // Outras seções mostram apenas sua tabela correspondente
+                            // Seção 2 → tabela 2, Seção 3 → tabela 3, etc.
+                            if (index === currentSection) {  // ← CORRIGIDO: remover o "- 1"
+                                table.style.display = 'flex';
+                            } else {
+                                table.style.display = 'none';
+                            }
                         }
                     })
                 }
@@ -223,6 +211,21 @@
                     divBody.appendChild(fieldset.childNodes[2]);
                 }
                 fieldset.appendChild(divBody);
+                if (fieldId) {
+                    const fieldConfig = document.getElementById(fieldId);
+                    if (fieldConfig) {
+                        const elementoPai = fieldConfig.getAttribute('merge-top') ? "woocommerce_rede_credit_" + fieldConfig.getAttribute('merge-top') : false;
+                        if (elementoPai) {
+                            const input = document.getElementById(elementoPai);
+                            const label = input.parentElement;
+                            const divBody = label.parentElement;
+                            const fieldsetPai = divBody.parentElement;
+                            const fieldsetFilho = td.querySelector('fieldset');
+                            fieldsetPai.append(fieldsetFilho);
+                            tr.style.display = 'none';
+                        }
+                    }
+                }
             }
         })
 
