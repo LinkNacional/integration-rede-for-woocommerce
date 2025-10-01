@@ -174,7 +174,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__('Description', 'woo-rede'),
                 'type' => 'textarea',
                 'default' => esc_attr__('Pay for your purchase with a credit card through ', 'woo-rede'),
-                'desc_tip' => esc_attr__('Enter the title that will be shown to customers during the checkout process.', 'woo-rede'),
+                'desc_tip' => esc_attr__('This description appears below the payment method title at checkout. Use it to inform your customers about the payment processing details.', 'woo-rede'),
                 'description' => esc_attr__('Payment method description that the customer will see on your checkout.', 'woo-rede'),
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Provide a brief message that informs the customer how the payment will be processed. For example: “Your payment will be securely processed by Rede.”', 'woo-rede')
