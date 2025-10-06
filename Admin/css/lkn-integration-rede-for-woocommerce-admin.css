@@ -202,7 +202,7 @@ textarea:disabled {
     width: 100% !important;
 }
 
-.form-table tr {
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv .form-table tr {
     display: table;
     width: 100% !important;
 }
