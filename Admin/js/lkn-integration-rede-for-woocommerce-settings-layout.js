@@ -214,7 +214,7 @@
                 if (fieldId) {
                     const fieldConfig = document.getElementById(fieldId);
                     if (fieldConfig) {
-                        const elementoPai = fieldConfig.getAttribute('merge-top') ? "woocommerce_rede_credit_" + fieldConfig.getAttribute('merge-top') : false;
+                        const elementoPai = fieldConfig.getAttribute('merge-top') ? fieldConfig.getAttribute('merge-top') : false;
                         const input = document.getElementById(elementoPai) ?? false;
                         if (elementoPai && input) {
                             const label = input.parentElement;

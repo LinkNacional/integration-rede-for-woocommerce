@@ -242,7 +242,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ),
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Payment description sent to Rede.', 'woo-rede'),
-                    'merge-top' => 'enabled_soft_descriptor'
+                    'merge-top' => 'woocommerce_rede_credit_enabled_soft_descriptor'
                 )
             ),
 
