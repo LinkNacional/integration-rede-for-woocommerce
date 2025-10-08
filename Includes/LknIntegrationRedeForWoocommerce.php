@@ -222,6 +222,19 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
+            }
+        }
+
         // Verificar se a licença PRO está ativa
         $is_pro_active = false;
         if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
@@ -273,6 +286,19 @@ final class LknIntegrationRedeForWoocommerce
 
             if ($max_installments < 1) {
                 $max_installments = 12;
+            }
+        }
+
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
             }
         }
 
