@@ -1,3 +1,7 @@
+# 4.1.0 - 08/10/2025
+* Novo estilo nas configurações dos gateways
+* Descrições mais detalhadas nas configurações
+
 # 4.0.8 - 22/09/2025
 * Correção em calculo de impostos nas parcelas.
 

@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce,payment,card,credit
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 4.0.8
+Stable tag: 4.1.0
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -72,6 +72,10 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * Have installed the WooCommerce plugin.
 
 == Changelog ==
+# 4.1.0 - 2025/10/08
+* New style for gateway settings.
+* More detailed descriptions in the settings.
+
 # 4.0.8 - 2025/09/22
 * Fix in tax calculation for installments.
 
