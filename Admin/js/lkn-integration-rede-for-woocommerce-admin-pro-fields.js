@@ -22,6 +22,42 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               </fieldset>
             </td>
           </tr>
+          <tr valign="top">
+            <th scope="row" class="titledesc">
+              <label for="woocommerce_rede_credit_license"><span class="lowOpacity">${lknPhpProFieldsVariables.currency}</span>
+                <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
+                </span>
+                <span class="lknIntegrationRedeForWoocommerceTooltiptext">
+                  ${lknPhpProFieldsVariables.currencyDescription}
+                </span>
+              </label>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+            </th>
+            <td class="forminp">
+              <fieldset>
+                <legend class="screen-reader-text"><span>Licença</span></legend>
+                <input disabled class="input-text regular-input " type="password" name="woocommerce_rede_credit_license" id="woocommerce_rede_credit_license">
+              </fieldset>
+            </td>
+          </tr>
+          <tr valign="top">
+            <th scope="row" class="titledesc">
+              <label for="woocommerce_rede_credit_license"><span class="lowOpacity">${lknPhpProFieldsVariables.currencyQuote}</span>
+                <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
+                </span>
+                <span class="lknIntegrationRedeForWoocommerceTooltiptext">
+                  ${lknPhpProFieldsVariables.currencyQuoteDescription}
+                </span>
+              </label>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+            </th>
+            <td class="forminp">
+              <fieldset>
+                <legend class="screen-reader-text"><span>Licença</span></legend>
+                <p><a onclick="return false;" class="lowOpacity" style="cursor: default; pointer-events: none;" href="#" target="_blank">View Currencies and Quotes</a></p>
+              </fieldset>
+            </td>
+          </tr>
           ${(page === 'rede_credit' || page === 'maxipago_credit') ? `
             <tr valign="top">
               <th scope="row" class="titledesc">
