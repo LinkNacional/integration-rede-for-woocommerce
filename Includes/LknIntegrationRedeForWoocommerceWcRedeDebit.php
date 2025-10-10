@@ -144,6 +144,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
 
         $this->form_fields = array(
+            'rede' => array(
+                'title' => esc_attr__('General', 'woo-rede'),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => esc_attr__('Enable/Disable', 'woo-rede'),
                 'type' => 'checkbox',
@@ -164,11 +168,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('This text will appear as the payment method title during checkout. Choose something your customers will easily understand, like “Pay with debit card (Rede)”.', 'woo-rede')
                 )
-            ),
-
-            'rede' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
-                'type' => 'title',
             ),
             'description' => array(
                 'title' => __('Description', 'woo-rede'),

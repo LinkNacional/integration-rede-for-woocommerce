@@ -139,6 +139,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
 
         $this->form_fields = array(
+            'maxipago' => array(
+                'title' => esc_attr__('General', 'woo-rede'),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-rede'),
                 'type' => 'checkbox',
@@ -170,11 +174,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                     'data-title-description' => esc_attr__("Provide a brief message that informs the customer how the payment will be processed. For example: “Your payment will be securely processed by Maxipago.”", 'woo-rede')
                 ),
             ),
-            'maxipago' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
-                'type' => 'title',
-            ),
-
             'company_name' => array(
                 'title' => __('Seller Company Name', 'woo-rede'),
                 'type' => 'text',
