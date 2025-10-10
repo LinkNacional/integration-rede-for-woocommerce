@@ -107,14 +107,20 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'customCssShortcode' => __('Custom CSS (Shortcode)', 'woo-rede'),
             'customCssBlockEditor' => __('Custom CSS (Block Editor)', 'woo-rede'),
             'interestOnInstallments' => __('Interest on installments', 'woo-rede'),
+            'interestOnInstallmentsDescTip' => __('Select the option interest or discount. Save to continue configuration.', 'woo-rede'),
+            'licenseDescTip' => __('License for Rede for WooCommerce plugin extensions.', 'woo-rede'),
+            'currencyDescTip' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
+            'currencyQuoteDescTip' => __('These are the real-time exchange rates, indicating the value of each listed foreign currency in Brazilian Reais (BRL).', 'woo-rede'),
+            'autoCaptureDescTip' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'woo-rede'),
+            'customCssShortcodeDescTip' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
+            'customCssBlockEditorDescTip' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
+            'becomePRO' => __('Become PRO', 'woo-rede'),
+            'licenseDescription' => __('License for Rede plugin extensions.', 'woo-rede'),
+            'currencyDescription' => __('Automatically converts payment amounts to BRL.', 'woo-rede'),
+            'autoCaptureDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
+            'customCssShortcodeDescription' => __('Define CSS rules for the shortcode.', 'woo-rede'),
+            'customCssBlockEditorDescription' => __('Define CSS rules for the block editor.', 'woo-rede'),
             'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'woo-rede'),
-            'licenseDescription' => __('License for Rede for WooCommerce plugin extensions.', 'woo-rede'),
-            'currencyDescription' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
-            'currencyQuoteDescription' => __('These are the real-time exchange rates, indicating the value of each listed foreign currency in Brazilian Reais (BRL).', 'woo-rede'),
-            'autoCaptureDescription' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'woo-rede'),
-            'customCssShortcodeDescription' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'customCssBlockEditorDescription' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'becomePRO' => __('Become PRO', 'woo-rede')
         ));
 
         //if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {

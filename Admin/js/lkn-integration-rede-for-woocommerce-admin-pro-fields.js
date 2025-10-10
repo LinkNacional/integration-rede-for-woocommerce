@@ -10,7 +10,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
                 </span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                  ${lknPhpProFieldsVariables.licenseDescription}
+                  ${lknPhpProFieldsVariables.licenseDescTip}
                 </span>
               </label>
               <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -19,6 +19,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               <fieldset>
                 <legend class="screen-reader-text"><span>Licença</span></legend>
                 <input disabled class="input-text regular-input " type="password" name="woocommerce_rede_credit_license" id="woocommerce_rede_credit_license">
+                <p class="description lowOpacity">${lknPhpProFieldsVariables.licenseDescription}</p>
               </fieldset>
             </td>
           </tr>
@@ -28,7 +29,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
                 </span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                  ${lknPhpProFieldsVariables.currencyDescription}
+                  ${lknPhpProFieldsVariables.currencyDescTip}
                 </span>
               </label>
               <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -37,6 +38,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               <fieldset>
                 <legend class="screen-reader-text"><span>Licença</span></legend>
                 <input disabled class="input-text regular-input " type="password" name="woocommerce_rede_credit_license" id="woocommerce_rede_credit_license">
+                <p class="description lowOpacity">${lknPhpProFieldsVariables.currencyDescription}</p>
               </fieldset>
             </td>
           </tr>
@@ -46,7 +48,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
                 </span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                  ${lknPhpProFieldsVariables.currencyQuoteDescription}
+                  ${lknPhpProFieldsVariables.currencyQuoteDescTip}
                 </span>
               </label>
               <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -64,7 +66,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <label for="woocommerce_rede_credit_auto_capture"><span class="lowOpacity">${lknPhpProFieldsVariables.autoCapture}</span>
                   <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0"></span>
                   <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                    ${lknPhpProFieldsVariables.autoCaptureDescription}
+                    ${lknPhpProFieldsVariables.autoCaptureDescTip}
                   </span>
                 </label>
                 <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -73,6 +75,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                 <fieldset>
                   <label for="woocommerce_rede_credit_auto_capture">
                   <input disabled class="" type="checkbox" name="woocommerce_rede_credit_auto_capture" id="woocommerce_rede_credit_auto_capture" value="1" checked="checked"><span class="lowOpacity">${lknPhpProFieldsVariables.autoCaptureLabel}</span></label><br>
+                  <p class="description lowOpacity">${lknPhpProFieldsVariables.autoCaptureDescription}</p>
                 </fieldset>
               </td>
             </tr>` : ''
@@ -82,7 +85,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               <label for="woocommerce_rede_credit_custom_css_short_code"><span class="lowOpacity">${lknPhpProFieldsVariables.customCssShortcode}</span>
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0"></span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                  ${lknPhpProFieldsVariables.customCssShortcodeDescription}
+                  ${lknPhpProFieldsVariables.customCssShortcodeDescTip}
                 </span>
               </label>
               <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -90,6 +93,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
             <td class="forminp">
               <fieldset>
                 <textarea disabled rows="3" cols="20" class="input-text wide-input " type="textarea" name="woocommerce_rede_credit_custom_css_short_code" id="woocommerce_rede_credit_custom_css_short_code"></textarea>
+                <p class="description lowOpacity">${lknPhpProFieldsVariables.customCssShortcodeDescription}</p> 
               </fieldset>
             </td>
           </tr>
@@ -98,7 +102,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               <label for="woocommerce_rede_credit_custom_css_block_editor"><span class="lowOpacity">${lknPhpProFieldsVariables.customCssBlockEditor}</span>
                 <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0"></span>
                 <span class="lknIntegrationRedeForWoocommerceTooltiptext">
-                  ${lknPhpProFieldsVariables.customCssBlockEditorDescription}
+                  ${lknPhpProFieldsVariables.customCssBlockEditorDescTip}
                 </span>
               </label>
               <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
@@ -106,6 +110,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
             <td class="forminp">
               <fieldset>
                 <textarea disabled rows="3" cols="20" class="input-text wide-input " type="textarea" name="woocommerce_rede_credit_custom_css_block_editor" id="woocommerce_rede_credit_custom_css_block_editor"></textarea>
+                <p class="description lowOpacity">${lknPhpProFieldsVariables.customCssBlockEditorDescription}</p>
               </fieldset>
             </td>
           </tr>
@@ -144,8 +149,14 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
             </tr>
             <tr valign="top">
               <th scope="row" class="titledesc">
-                <label class="lowOpacity" for="woocommerce_rede_credit_installment_interest">${lknPhpProFieldsVariables.interestOnInstallments}</label>
-                <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
+              <label for="woocommerce_rede_credit_license"><span class="lowOpacity">${lknPhpProFieldsVariables.interestOnInstallments}</span>
+                <span class="woocommerce-help-tip lowOpacity" id="lknIntegrationRedeForWoocommerceTooltipSpan" tabindex="0">
+                </span>
+                <span class="lknIntegrationRedeForWoocommerceTooltiptext">
+                  ${lknPhpProFieldsVariables.interestOnInstallmentsDescTip}
+                </span>
+              </label>
+              <a class="lknIntegrationRedeForWoocommerceBecomePRO" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/" target="_blank">${lknPhpProFieldsVariables.becomePRO}</a>
               </th>
               <td class="forminp">
                 <fieldset>
@@ -163,3 +174,18 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
     </div>
   `)
 }
+$(window).on('load', function () {
+  const adminPage = lknFindGetParameter('section')
+  const pluginPages = [
+    'maxipago_credit',
+    'maxipago_debit',
+    'maxipago_pix',
+    'rede_credit',
+    'rede_debit',
+    'rede_pix',
+    'integration_rede_pix'
+  ]
+  if (adminPage && pluginPages.includes(adminPage)) {
+
+  }
+});
