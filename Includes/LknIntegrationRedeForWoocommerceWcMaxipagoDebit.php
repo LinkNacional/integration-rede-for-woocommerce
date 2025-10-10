@@ -154,6 +154,10 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         ));
 
         $this->form_fields = array(
+            'maxipago' => array(
+                'title' => esc_attr__('General', 'woo-rede'),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-rede'),
                 'type' => 'checkbox',
@@ -180,10 +184,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'title' => esc_attr__('Endpoint', 'woo-rede'),
                 'type' => 'text',
                 'desc_tip' => esc_attr__('Return URL to automatically update the status of orders paid via debit on the Maxipago.', 'woo-rede'),
-            ),
-            'maxipago' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
-                'type' => 'title',
             ),
 
             'company_name' => array(
