@@ -121,6 +121,12 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'customCssShortcodeDescription' => __('Define CSS rules for the shortcode.', 'woo-rede'),
             'customCssBlockEditorDescription' => __('Define CSS rules for the block editor.', 'woo-rede'),
             'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'woo-rede'),
+            'licenseDataDescription' => __('Save to enable other options.', 'woo-rede'),
+            'quoteDataDescription' => __('These are the real-time exchange rates, indicating the value of each listed foreign currency in Brazilian Reais (BRL).', 'woo-rede'),
+            'autoCaptureDataDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
+            'cssShortcodeDataDescription' => __('Customize the Shortcode CSS using selectors and rules.', 'woo-rede'),
+            'cssBlockEditorDataDescription' => __('Customize the Block Editor CSS using selectors and rules.', 'woo-rede'),
+            'installmentInterestDataDescription' => __('Applies an interest rate to each installment. Use this if you want to charge extra per installment.', 'woo-rede')
         ));
 
         //if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {

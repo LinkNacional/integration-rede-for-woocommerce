@@ -166,7 +166,7 @@
                             let desc = document.createElement('p');
                             desc.innerHTML = novaSpan.innerHTML.trim();
                             let lastChild = th.lastElementChild;
-                            th.insertBefore(desc, lastChild);
+                            th.querySelector('label').appendChild(desc);
                             novaSpan.previousElementSibling.style.display = 'none';
                         }
                     }
