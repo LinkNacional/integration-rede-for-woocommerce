@@ -154,42 +154,52 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         ));
 
         $this->form_fields = array(
+            'maxipago' => array(
+                'title' => esc_attr__('General', 'woo-rede'),
+                'type' => 'title',
+            ),
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-rede'),
                 'type' => 'checkbox',
                 'label' => __('Enables payment with Maxipago', 'woo-rede'),
-                'default' => 'no'
+                'default' => 'no',
+                'desc_tip' => esc_attr__('Check this box and save to enable debit card settings', 'woo-rede'),
+                'description' => esc_attr__('Enable or disable the debit card payment method.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Enable this option to allow customers to pay with debit cards using maxipago API.", 'woo-rede')
+                ),
             ),
             'title' => array(
                 'title' => __('Title', 'woo-rede'),
                 'type' => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'woo-rede'),
-                'default' => __('Pay with the Maxipago Debit', 'woo-rede'),
-                'desc_tip' => true,
+                'desc_tip' => esc_attr__('Enter the title that will be shown to customers during the checkout process.', 'woo-rede'),
+                'description' => esc_attr__('This controls the title which the user sees during checkout.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("This text will appear as the payment method title during checkout. Choose something your customers will easily understand, like “Pay with debit card”.", 'woo-rede')
+                ),
             ),
 
             'endpoint' => array(
                 'title' => esc_attr__('Endpoint', 'woo-rede'),
                 'type' => 'text',
-                'description' => esc_attr__('Return URL to automatically update the status of orders paid via debit on the Maxipago.', 'woo-rede'),
-                'desc_tip' => true,
-            ),
-            'maxipago' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
-                'type' => 'title',
+                'desc_tip' => esc_attr__('Return URL to automatically update the status of orders paid via debit on the Maxipago.', 'woo-rede'),
             ),
 
             'company_name' => array(
                 'title' => __('Seller Company Name', 'woo-rede'),
                 'type' => 'text',
-                'desc_tip' => true,
+                'desc_tip' => esc_attr__("Name that appears on the cardholder's statement.", 'woo-rede'),
             ),
 
             'environment' => array(
                 'title' => esc_attr__('Environment', 'woo-rede'),
                 'type' => 'select',
+                'desc_tip' => esc_attr__('Choose between production or development mode for Rede API.', 'woo-rede'),
                 'description' => esc_attr__('Choose the environment', 'woo-rede'),
-                'desc_tip' => true,
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Select 'Tests' to test transactions in sandbox mode. Use 'Production' for real transactions.", 'woo-rede')
+                ),
                 'class' => 'wc-enhanced-select',
                 'default' => esc_attr__('test', 'woo-rede'),
                 'options' => array(
@@ -202,26 +212,40 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'title' => __('Description', 'woo-rede'),
                 'type' => 'textarea',
                 'default' => __('Pay for your purchase with a debit card through ', 'woo-rede'),
+                'desc_tip' => esc_attr__('This description appears below the payment method title at checkout. Use it to inform your customers about the payment processing details.', 'woo-rede'),
+                'description' => esc_attr__('Payment method description that the customer will see on your checkout.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Provide a brief message that informs the customer how the payment will be processed. For example: “Your payment will be securely processed by Rede.”", 'woo-rede')
+                ),
             ),
             'merchant_id' => array(
                 'title' => __('Merchant ID', 'woo-rede'),
                 'type' => 'password',
-                'description' => __('Your Maxipago Merchant ID.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Your Maxipago Merchant ID.', 'woo-rede'),
+                'description' => esc_attr__('Maxipago credentials.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Your Merchant ID should be provided here.", 'woo-rede')
+                ),
                 'default' => '',
-                'desc_tip' => true,
             ),
             'merchant_key' => array(
                 'title' => __('Merchant Key', 'woo-rede'),
                 'type' => 'password',
-                'description' => __('Your Maxipago Merchant Key.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Your Maxipago Merchant Key.', 'woo-rede'),
+                'description' => esc_attr__('Maxipago credentials.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Your Merchant Key should be provided here.", 'woo-rede')
+                ),
                 'default' => '',
-                'desc_tip' => true,
             ),
             'enabled_fix_load_script' => array(
                 'title' => __('Load on checkout', 'woo-rede'),
                 'type' => 'checkbox',
-                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'woo-rede'),
-                'desc_tip' => true,
+                'desc_tip' => esc_attr__('Disable to load the plugin during checkout. Enable to prevent infinite loading errors.', 'woo-rede'),
+                'description' => esc_attr__('Selecione a posição onde o layout PIX será exibido na página de checkout.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("This feature controls the plugin's loading on the checkout page. It's enabled by default to prevent infinite loading errors and should only be disabled if you're experiencing issues with the gateway.", 'woo-rede')
+                ),
                 'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
                 'default' => 'yes',
             ),
@@ -235,8 +259,11 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'type' => 'checkbox',
                 'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
-                'description' => esc_attr__('Enable transaction logging.', 'woo-rede'),
-                'desc_tip' => true,
+                'desc_tip' => esc_attr__('Enable transaction logging.', 'woo-rede'),
+                'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("When enabled, all Rede transactions will be logged.", 'woo-rede')
+                ),
             )
         );
 
@@ -246,12 +273,19 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 'type' => 'checkbox',
                 'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
                 'default' => 'no',
+                'desc_tip' => esc_attr__('Useful for quickly viewing payment log data without accessing the system log files.', 'woo-rede'),
+                'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Enable this to show the transaction details for Rede payments directly in each order’s admin panel.", 'woo-rede')
+                ),
             );
             $this->form_fields['clear_order_records'] =  array(
                 'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
                 'type' => 'button',
                 'id' => 'validateLicense',
-                'class' => 'woocommerce-save-button components-button is-primary'
+                'class' => 'woocommerce-save-button components-button is-primary',
+                'desc_tip' => esc_attr__('Use only if you no longer need the Rede transaction logs for past orders.', 'woo-rede'),
+                'description' => esc_attr__('Click this button to delete all Rede log data stored in orders.', 'woo-rede'),
             );
         }
 

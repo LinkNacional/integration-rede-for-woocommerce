@@ -153,16 +153,32 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'checkbox',
                 'label' => esc_attr__('Enables payment with Rede', 'woo-rede'),
                 'default' => $options['enabled'] ?? 'no',
+                'desc_tip'    => esc_attr__('Check this box and save to enable credit card settings.', 'woo-rede'),
+                'description' => esc_attr__('Enable or disable the credit card payment method.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Enable this option to allow customers to pay with credit cards using Rede API.', 'woo-rede')
+                )
             ),
             'title' => array(
                 'title' => esc_attr__('Title', 'woo-rede'),
                 'type' => 'text',
                 'default' => esc_attr__('Pay with the Rede Credit', 'woo-rede'),
+                'desc_tip' => esc_attr__('Enter the title that will be shown to customers during the checkout process.', 'woo-rede'),
+                'description' => esc_attr__('This controls the title which the user sees during checkout.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('This text will appear as the payment method title during checkout. Choose something your customers will easily understand, like “Pay with credit card (Rede)”.', 'woo-rede')
+                )
+
             ),
             'description' => array(
-                'title' => __('Description', 'woo-rede'),
+                'title' => esc_attr__('Description', 'woo-rede'),
                 'type' => 'textarea',
-                'default' => __('Pay for your purchase with a credit card through ', 'woo-rede'),
+                'default' => esc_attr__('Pay for your purchase with a credit card through ', 'woo-rede'),
+                'desc_tip' => esc_attr__('This description appears below the payment method title at checkout. Use it to inform your customers about the payment processing details.', 'woo-rede'),
+                'description' => esc_attr__('Payment method description that the customer will see on your checkout.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Provide a brief message that informs the customer how the payment will be processed. For example: “Your payment will be securely processed by Rede.”', 'woo-rede')
+                )
             ),
             'rede' => array(
                 'title' => esc_attr__('General', 'woo-rede'),
@@ -172,55 +188,74 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__('Environment', 'woo-rede'),
                 'type' => 'select',
                 'description' => esc_attr__('Choose the environment', 'woo-rede'),
-                'desc_tip' => true,
+                'desc_tip' => esc_attr__('Choose between production or development mode for Rede API.', 'woo-rede'),
                 'class' => 'wc-enhanced-select',
                 'default' => esc_attr__('test', 'woo-rede'),
                 'options' => array(
                     'test' => esc_attr__('Tests', 'woo-rede'),
                     'production' => esc_attr__('Production', 'woo-rede'),
                 ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Select "Tests" to test transactions in sandbox mode. Use "Production" for real transactions.', 'woo-rede')
+                )
             ),
             'pv' => array(
                 'title' => esc_attr__('PV', 'woo-rede'),
                 'type' => 'password',
-                'description' => esc_attr__('Your Rede PV (affiliation number).', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Rede credentials.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Your Rede PV (affiliation number).', 'woo-rede'),
                 'default' => $options['pv'] ?? '',
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Your Rede PV (affiliation number) should be provided here.', 'woo-rede')
+                )
             ),
             'token' => array(
                 'title' => esc_attr__('Token', 'woo-rede'),
                 'type' => 'password',
-                'description' => esc_attr__('Your Rede Token.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Rede credentials.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Your Rede Token.', 'woo-rede'),
                 'default' => $options['token'] ?? '',
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Your Rede Token should be placed here.', 'woo-rede')
+                )
             ),
 
             'enabled_soft_descriptor' => array(
                 'title' => __('Payment Description', 'woo-rede'),
                 'type' => 'checkbox',
-                'description' => __('Check this option to send the payment description in requests to Rede. If fatal errors occur due to the description, disable this option to ensure the correct processing of transactions.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Enable sending the payment description to Rede.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Send payment description to the Rede. If errors occur, disable this option to ensure correct transaction processing.', 'woo-rede'),
                 'label' => __('I have enabled the payment description feature in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . '. ' . __('Default (Disabled)', 'woo-rede'),
                 'default' => 'no',
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Send payment description to Rede. Disable if it causes errors.', 'woo-rede')
+                )
             ),
 
             'soft_descriptor' => array(
                 'title' => esc_attr__('Payment Description', 'woo-rede'),
                 'type' => 'text',
-                'description' => esc_attr__('Set the description to be sent to Rede along with the payment transaction.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Description to be sent to Rede.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Set the description to be sent to Rede along with the payment transaction.', 'woo-rede'),
                 'custom_attributes' => array(
                     'maxlength' => 20,
                 ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Payment description sent to Rede.', 'woo-rede'),
+                    'merge-top' => 'woocommerce_rede_credit_enabled_soft_descriptor'
+                )
             ),
 
             'enabled_fix_load_script' => array(
                 'title' => __('Load on checkout', 'woo-rede'),
                 'type' => 'checkbox',
-                'description' => __('By disabling this feature, the plugin will be loaded during the checkout process. This feature, when enabled, prevents infinite loading errors on the checkout page. Only disable it if you are experiencing difficulties with the gateway loading.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => __('Disable to load the plugin during checkout.', 'woo-rede'),
+                'desc_tip' => __('Disable to load the plugin during checkout. Enable to prevent infinite loading errors.', 'woo-rede'),
                 'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
                 'default' => 'yes',
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("This feature controls the plugin's loading on the checkout page. It's enabled by default to prevent infinite loading errors and should only be disabled if you're experiencing issues with the gateway.", 'woo-rede')
+                )
             ),
 
             'credit_options' => array(
@@ -232,8 +267,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'text',
                 'default' => '5',
-                'description' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Set the minimum installment value for credit card payments.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede')
+                )
             ),
             'max_parcels_number' => array(
                 'title' => esc_attr__('Max installments', 'woo-rede'),
@@ -254,8 +292,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     '11' => '11x',
                     '12' => '12x',
                 ),
-                'description' => esc_attr__('Set the maximum number of installments allowed in credit transactions.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Define the maximum number of credit installments.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Set the maximum number of installments allowed in credit transactions.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Choose the maximum number of installments per order.', 'woo-rede')
+                )
             ),
 
             'developers' => array(
@@ -268,8 +309,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'checkbox',
                 'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
                 'default' => 'no',
-                'description' => esc_attr__('Enable transaction logging.', 'woo-rede'),
-                'desc_tip' => true,
+                'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Enable transaction logging.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('When enabled, all Rede transactions will be logged.', 'woo-rede')
+                )
             )
         );
 
@@ -279,12 +323,22 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type' => 'checkbox',
                 'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
                 'default' => 'no',
+                'description' => esc_attr__('Displays Rede transaction logs inside WooCommerce order details.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Useful for quickly viewing payment log data without accessing the system log files.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Enable this to show the transaction details for Rede payments directly in each order’s admin panel.', 'woo-rede')
+                )
             );
             $this->form_fields['clear_order_records'] =  array(
                 'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
                 'type' => 'button',
                 'id' => 'validateLicense',
-                'class' => 'woocommerce-save-button components-button is-primary'
+                'class' => 'woocommerce-save-button components-button is-primary',
+                'description' => esc_attr__('Click this button to delete all Rede log data stored in orders.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Use only if you no longer need the Rede transaction logs for past orders.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Choose the maximum number of installments per order.', 'woo-rede')
+                )
             );
         }
 

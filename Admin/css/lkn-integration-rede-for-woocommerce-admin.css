@@ -4,7 +4,7 @@
  */
 
 .lowOpacity {
-    opacity: 0.5;
+    opacity: 0.7;
 }
 
 textarea:disabled {
@@ -49,12 +49,14 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
     padding: 10px 24px;
-    background-color: #FFFFFF;
     border-radius: 10px;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
-    height: 27px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    height: fit-content;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:first-of-type {
@@ -62,25 +64,32 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 22px !important;
     border: none;
     background-color: #F0F0F1;
     color: #9A9A9A;
+    padding: 7px 30px;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:hover {
     color: black;
 }
 
+#lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab {
+    line-height: normal;
+}
+
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a.nav-tab.nav-tab-active {
     margin-top: 1.5px !important;
     color: black;
+    background-color: #FFFFFF;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
     color: white;
-    max-width: 370px;
-    width: fit-content;
     height: fit-content;
     background-color: #121519;
     border-radius: 10px;
@@ -144,9 +153,114 @@ textarea:disabled {
     height: 25px;
 }
 
-#lknIntegrationRedeForWoocommerceSettingsCardTable {
+.lknIntegrationRedeForWoocommerceDivGeral {
     display: flex;
-    align-items: center;
+    gap: 25px;
+}
+
+.lknIntegrationRedeForWoocommerceDivGeral>*:first-child {
+    flex-grow: 1;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Segundo filho - 30% do espaço */
+.lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
+    flex: 0 0 30%;
+    min-width: 320px;
+    position: sticky;
+    top: 102px;
+    padding: 30px 24px;
+    align-self: flex-start;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv {
+    padding: 10px 24px;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th {
+    width: 200px !important;
+    vertical-align: middle;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th label {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr th p {
+    margin: 5px 0px 10px;
+    color: rgb(52, 59, 69);
+}
+
+.form-table tbody,
+.form-table tbody tr td {
+    width: 100% !important;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv .form-table tr {
+    display: table;
+    width: 100% !important;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsCardTable tr td,
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td {
+    background-color: #FFFFFF;
+    border: 1px solid rgb(223, 223, 223);
+    padding: 10px 30px;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 6px 4px;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-description {
+    margin-left: 4px
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    margin-left: 4px;
+    min-height: 120px;
+    color: rgb(44, 51, 56);
+}
+
+/*Campos filhos ocupam toda largura disponível */
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body input:not([type="checkbox"]):not([type="radio"]):not([type="button"]),
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body select,
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body textarea,
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-rede-field-body .select2-container {
+    width: 100% !important;
+    min-width: 0px !important;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+#lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td p.description {
+    margin-top: 8px;
+}
+
+.pro-version-info {
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
 }
 
 #lknIntegrationRedeForWoocommerStarsDiv img {
@@ -176,14 +290,14 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
-    margin-bottom: 125px;
+    margin-bottom: 5px;
     gap: 25px;
 }
 
 /* Endpoint */
 #integrationwoocommerceRedePixEndpointField {
     display: flex;
-    gap: 40px;
+    flex-direction: column;
 }
 
 #integrationwoocommerceRedePixEndpointAlert {
@@ -196,8 +310,7 @@ textarea:disabled {
 #woocommerce_rede_credit_clear_order_records,
 #woocommerce_rede_debit_clear_order_records,
 #woocommerce_maxipago_credit_clear_order_records,
-#woocommerce_maxipago_debit_clear_order_records
-{
+#woocommerce_maxipago_debit_clear_order_records {
     display: flex;
     justify-content: center;
     width: fit-content;
@@ -213,7 +326,7 @@ textarea:disabled {
     white-space: pre-wrap
 }
 
-#lknWcRedeOrderLogs pre{
+#lknWcRedeOrderLogs pre {
     padding: 10px;
     background-color: #D9D9D9 !important;
     width: fit-content;
@@ -224,19 +337,19 @@ textarea:disabled {
     overflow-x: auto;
 }
 
-#lknWcRedeOrderLogs h3{
+#lknWcRedeOrderLogs h3 {
     color: #333;
     font-size: 14px;
     font-weight: bold;
 }
 
-#lknWcRedeOrderLogs div{
+#lknWcRedeOrderLogs div {
     display: flex;
     gap: 6px;
     align-items: center;
 }
 
-#lknWcRedeOrderLogs pre{
+#lknWcRedeOrderLogs pre {
     padding: 10px;
     background-color: #D9D9D9 !important;
     width: fit-content;
@@ -247,19 +360,19 @@ textarea:disabled {
     overflow-x: auto;
 }
 
-#lknWcRedeOrderLogs h3{
+#lknWcRedeOrderLogs h3 {
     color: #333;
     font-size: 14px;
     font-weight: bold;
 }
 
-#lknWcRedeOrderLogs div{
+#lknWcRedeOrderLogs div {
     display: flex;
     gap: 6px;
     align-items: center;
 }
 
-@media (max-width: 1205px) {
+@media (max-width: 1225px) {
     #lknIntegrationRedeForWoocommerceSettingsCardTable {
         flex-direction: column;
         align-items: flex-start;
@@ -270,11 +383,22 @@ textarea:disabled {
         margin-bottom: 15px;
     }
 
+    .lknIntegrationRedeForWoocommerceDivGeral {
+        display: block;
+    }
+
 }
 
 @media (max-width: 782px) {
     .lknIntegrationRedeForWoocommerceTooltiptext {
         transform: translateX(-20%);
         margin-left: 0px;
+    }
+}
+
+@media (max-width: 400px) {
+    #lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
+        display: flex;
+        flex-direction: column;
     }
 }

@@ -18,7 +18,7 @@
 
       $countFieldset.css({
         display: 'flex',
-        'flex-wrap': 'wrap',
+        'flex-direction': 'column',
         gap: '6px'
       })
     }
@@ -32,7 +32,7 @@
 
       $countFieldset.css({
         display: 'flex',
-        'flex-wrap': 'wrap',
+        'flex-direction': 'column',
         gap: '6px'
       })
     }
@@ -55,7 +55,7 @@
 
       $selectFieldset.css({
         display: 'flex',
-        'flex-wrap': 'wrap',
+        'flex-direction': 'column',
         gap: '6px',
         width: '100% !important'
       })
@@ -70,7 +70,7 @@
 
       $convertFieldset.css({
         display: 'flex',
-        'flex-wrap': 'wrap',
+        'flex-direction': 'column',
         gap: '6px'
       })
     }
@@ -84,7 +84,7 @@
 
       $fakeConvertFieldset.css({
         display: 'flex',
-        'flex-wrap': 'wrap',
+        'flex-direction': 'column',
         gap: '6px'
       })
     }
