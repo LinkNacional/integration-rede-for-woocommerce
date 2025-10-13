@@ -53,7 +53,10 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
-    height: 37px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    height: fit-content;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a:first-of-type {
@@ -61,6 +64,9 @@ textarea:disabled {
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutMenu a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 22px !important;
     border: none;
     background-color: #F0F0F1;
@@ -387,5 +393,12 @@ textarea:disabled {
     .lknIntegrationRedeForWoocommerceTooltiptext {
         transform: translateX(-20%);
         margin-left: 0px;
+    }
+}
+
+@media (max-width: 400px) {
+    #lknIntegrationRedeForWoocommerceSettingsLayoutMenu {
+        display: flex;
+        flex-direction: column;
     }
 }
