@@ -2,6 +2,9 @@
 * Novo estilo nas configurações dos gateways
 * Descrições mais detalhadas nas configurações
 
+# 4.0.9 - 09/10/2025
+* Correção em exibição de icones.
+
 # 4.0.8 - 22/09/2025
 * Correção em calculo de impostos nas parcelas.
 

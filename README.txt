@@ -76,6 +76,9 @@ The Integration Rede for WooCommerce plugin is now live and working.
 * New style for gateway settings.
 * More detailed descriptions in the settings.
 
+# 4.0.9 - 2025/10/09
+* Fix in icons display.
+
 # 4.0.8 - 2025/09/22
 * Fix in tax calculation for installments.
 
