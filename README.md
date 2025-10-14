@@ -1,5 +1,9 @@
-# Integration Rede for WooCommerce — Advanced Technical README
+# Integration Rede Itaú for WooCommerce — Payment PIX, cartão de crédito e débito
 
+This WordPress plugin for WooCommerce provides a payment gateway that enables credit card, debit card and PIX payments. It supports single and installment payments, card tokenization for returning customers, 3DS/strong customer authentication, sandbox and production environments, webhooks for asynchronous events, captures, refunds and configurable order status mapping. Full technical documentation follows below.
+
+
+## Rede for WooCommerce — Advanced Technical README
 This README provides a technical, developer-oriented and user-facing reference for the "Integration Rede for WooCommerce" plugin. It complements the user-facing docs and describes installation, configuration, runtime behaviour, troubleshooting, developer extension points and recommendations for production deployment.
 
 Table of contents
