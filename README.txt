@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: woocommerce, payment, credit card, debit card, PIX  
 Requires at least: 5.0  
 Tested up to: 6.8  
-Stable tag: 4.1.0  
+Stable tag: 4.1.1  
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -112,6 +112,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 4.1.1 - 2025/10/08
+- New custom configuration attributes.
+
 ### 4.1.0 - 2025/10/08
 - New style for gateway settings.
 - More detailed descriptions in the settings.
@@ -163,7 +166,7 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.0 — Improved settings interface and updated descriptions for easier configuration.
+- 4.1.1 — custom attributes that help the look and feel of configurations.
 - See ChangeLog for full details of earlier releases and fixes.
 
 ---
