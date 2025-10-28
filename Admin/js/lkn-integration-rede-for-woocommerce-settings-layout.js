@@ -238,6 +238,15 @@
                             fieldConfig.style.marginRight = '10px'
                             fieldConfig.outerHTML = `<div style="display: flex;">${fieldConfig.outerHTML}<label style="color: #2C3338;">${numberLabel}</label></div>`;
                         }
+                        const mergeCheckbox = fieldConfig.getAttribute('merge-checkbox') ? fieldConfig.getAttribute('merge-checkbox') : false;
+                        if (mergeCheckbox) {
+                            const parentInput = document.getElementById(mergeCheckbox).closest('div.lkn-rede-field-body');
+                            if (parentInput) {
+                                const labelCheckbox = fieldConfig.closest('label');
+                                fieldConfig.closest('tr').style.display = 'none';
+                                parentInput.appendChild(labelCheckbox);
+                            }
+                        }
                     }
                 }
             }
