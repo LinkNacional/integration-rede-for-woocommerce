@@ -2,7 +2,7 @@
 
 Contributors: linknacional, MarcosAlexandre  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
-Tags: woocommerce, payment, credit card, debit card, PIX  
+Tags: rede, PIX, credit card, debit card, payment  
 Requires at least: 5.0  
 Tested up to: 6.8  
 Stable tag: 4.1.1  
@@ -12,9 +12,9 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
 ---
 
-## Transform Your WooCommerce Store with Seamless Payments
+## Transform Your WooCommerce Store with Seamless Payments with PIX and Debit and credit card
 
-Integration Rede for WooCommerce is the ultimate solution for enabling secure and efficient payment options in your online store. With support for credit cards, debit cards, and PIX payments, this plugin empowers your business to offer a seamless checkout experience. Whether you want to enable installment payments, tokenized card storage for returning customers, or 3DS authentication, this plugin has you covered.
+[WordPress](https://www.linknacional.com.br/wordpress/)  Integration [Rede for WooCommerce plugin](https://www.linknacional.com.br/wordpress/woocommerce/rede/) is the ultimate solution for enabling secure and efficient payment options in your online store with [Rede](https://www.userede.com.br/) and [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede). With support for credit cards, debit cards, and PIX payments, this plugin empowers your business to offer a seamless checkout experience. Whether you want to enable installment payments, tokenized card storage for returning customers, or 3DS authentication, this plugin has you covered.
 
 ### Why Choose Integration Rede for WooCommerce?
 
@@ -40,13 +40,20 @@ Integration Rede for WooCommerce is the ultimate solution for enabling secure an
 
 ---
 
+[youtube https://www.youtube.com/watch?v=g8IA3QUiV8o]
+
+** Recommended Plugins **
+* [Link Invoice Payment for WooCommerce](https://wordpress.org/plugins/invoice-payment-for-woocommerce/) - Integrate custom payment methods and offer invoice-based payments in your WooCommerce store.
+* [Shipping Calculator for Brazil](https://wordpress.org/plugins/woo-better-shipping-calculator-for-brazil/) - Provide accurate freight calculation for Brazilian addresses directly in your WooCommerce checkout.
+
+
 ## Installation
 
 ### 1. Using the WordPress Admin Dashboard (Recommended)
 1. Navigate to Plugins → Add New.
 2. Click Upload Plugin and select the `integration-rede-for-woocommerce-master.zip` file.
 3. Click Install Now and then Activate.
-4. Go to WooCommerce → Settings → Payments to configure the plugin.
+4. Go to [WooCommerce plugin](https://www.linknacional.com.br/wordpress/woocommerce/)  → Settings → Payments to configure the plugin.
 
 ### 2. Manual Installation via FTP
 1. Extract the plugin ZIP file.
