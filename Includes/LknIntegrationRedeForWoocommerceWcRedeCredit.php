@@ -355,7 +355,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     public function getInstallments($order_total = 0)
     {
         $installments = array();
-        $customLabel = null;
         $defaults = array(
             'min_value' => str_replace(',', '.', $this->min_parcels_value),
             'max_parcels' => $this->max_parcels_number,
@@ -371,6 +370,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 break;
             }
 
+            $customLabel = null; // Resetar a variável a cada iteração
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
