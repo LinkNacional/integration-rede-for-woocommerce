@@ -339,7 +339,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     public function getInstallments($order_total = 0)
     {
         $installments = array();
-        $customLabel = null;
         $defaults = array(
             'min_value' => str_replace(',', '.', $this->get_option('min_parcels_value')),
             'max_parcels' => $this->get_option('max_parcels_number'),
@@ -354,6 +353,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             if (($order_total / $i) < $min_value) {
                 break;
             }
+            $customLabel = null; // Resetar a variável a cada iteração
             $interest = round((float) $this->get_option($i . 'x'), 2);
             $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
             if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
