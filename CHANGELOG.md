@@ -1,3 +1,6 @@
+# 4.1.1 - 30/10/2025
+* Correção em calculo de parcelas no formulário por shortcode.
+
 # 4.1.0 - 08/10/2025
 * Novo estilo nas configurações dos gateways
 * Descrições mais detalhadas nas configurações
