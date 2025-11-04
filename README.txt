@@ -100,6 +100,14 @@ A: Yes — the plugin includes a Sandbox Mode for testing transactions.
 Q: Is 3DS authentication supported?  
 A: Yes, the plugin supports 3DS authentication for secure transactions.
 
+== Changelog ==
+# 4.1.1 - 2025/11/04
+* Fix installment calculation in shortcode form.
+
+# 4.1.0 - 2025/10/08
+* New style for gateway settings.
+* More detailed descriptions in the settings.
+
 Q: Can I process refunds through the plugin?  
 A: Yes, refunds can be processed directly from the WooCommerce admin dashboard.
 
