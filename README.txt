@@ -1,4 +1,4 @@
-# Rede for WooCommerce PIX, Credit card and Debit card
+# Integration Rede for WooCommerce
 
 Contributors: linknacional, MarcosAlexandre  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
