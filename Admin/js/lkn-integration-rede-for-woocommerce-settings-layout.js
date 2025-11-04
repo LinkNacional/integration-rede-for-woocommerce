@@ -215,7 +215,7 @@
                     const fieldConfig = document.getElementById(fieldId);
                     if (fieldConfig) {
                         const elementoPai = fieldConfig.getAttribute('merge-top') ? fieldConfig.getAttribute('merge-top') : false;
-                        const input = document.getElementById(elementoPai) ?? false;
+                        let input = document.getElementById(elementoPai) ?? false;
                         if (elementoPai && input) {
                             const label = input.parentElement;
                             const divBody = label.parentElement;
@@ -232,6 +232,20 @@
 
                             containerCampos.append(fieldsetFilho);
                             tr.style.display = 'none';
+                        }
+                        const numberLabel = fieldConfig.getAttribute('type-number-label') ? fieldConfig.getAttribute('type-number-label') : false;
+                        if (numberLabel) {
+                            fieldConfig.style.marginRight = '10px'
+                            fieldConfig.outerHTML = `<div style="display: flex;">${fieldConfig.outerHTML}<label style="color: #2C3338;">${numberLabel}</label></div>`;
+                        }
+                        const mergeCheckbox = fieldConfig.getAttribute('merge-checkbox') ? fieldConfig.getAttribute('merge-checkbox') : false;
+                        if (mergeCheckbox) {
+                            const parentInput = document.getElementById(mergeCheckbox).closest('div.lkn-rede-field-body');
+                            if (parentInput) {
+                                const labelCheckbox = fieldConfig.closest('label');
+                                fieldConfig.closest('tr').style.display = 'none';
+                                parentInput.appendChild(labelCheckbox);
+                            }
                         }
                     }
                 }

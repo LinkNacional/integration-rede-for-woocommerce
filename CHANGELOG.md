@@ -1,9 +1,11 @@
+# 4.1.2 - 04/11/2025
+* Novos atributos customizados de configuração.
 # 4.1.1 - 30/10/2025
 * Correção em calculo de parcelas no formulário por shortcode.
 
 # 4.1.0 - 08/10/2025
-* Novo estilo nas configurações dos gateways
-* Descrições mais detalhadas nas configurações
+* Novo estilo nas configurações dos gateways.
+* Descrições mais detalhadas nas configurações.
 
 # 4.0.9 - 09/10/2025
 * Correção em exibição de icones.
