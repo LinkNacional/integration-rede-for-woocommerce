@@ -1,4 +1,4 @@
-# 4.1.1 - 28/10/2025
+# 4.1.2 - 28/10/2025
 * Novos atributos customizados de configuração.
 
 # 4.1.0 - 08/10/2025
