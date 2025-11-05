@@ -544,18 +544,21 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod');
-    
+
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        
+
         // Adiciona endpoint AJAX para refresh dos campos de pagamento
         $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
-        
+
         // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago
         $this->loader->add_action('wp_ajax_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
+
+        // Adiciona o nome do gateway nas notas do pedido
+        $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
     }
 
     public function wcEditorBlocksActive(): void
@@ -652,10 +655,10 @@ final class LknIntegrationRedeForWoocommerce
             // Carrega a classe do gateway
             $gateways = WC()->payment_gateways()->payment_gateways();
             ob_start();
-            
+
             // Usa o novo método que renderiza com o total atualizado incluindo cupons
             $gateways['rede_credit']->render_payment_fields_with_total();
-            
+
             $html = ob_get_clean();
             wp_send_json_success(['html' => $html]);
             return;
@@ -687,10 +690,10 @@ final class LknIntegrationRedeForWoocommerce
             $gateways = WC()->payment_gateways()->payment_gateways();
             if (isset($gateways['maxipago_credit']) && method_exists($gateways['maxipago_credit'], 'render_payment_fields_with_total')) {
                 ob_start();
-                
+
                 // Usa o novo método que renderiza com o total atualizado incluindo cupons
                 $gateways['maxipago_credit']->render_payment_fields_with_total();
-                
+
                 $html = ob_get_clean();
                 wp_send_json_success(['html' => $html]);
                 return;
@@ -705,5 +708,39 @@ final class LknIntegrationRedeForWoocommerce
                 'trace'   => $th->getTraceAsString(),
             ]);
         }
+    }
+
+    public function add_gateway_name_to_notes_global($note_data, $args)
+    {
+        if (isset($note_data['comment_post_ID'])) {
+            $order_id = $note_data['comment_post_ID'];
+            $order = wc_get_order($order_id);
+
+            if ($order && is_a($order, 'WC_Order')) {
+
+                $payment_method = $order->get_payment_method();
+
+                if (
+                    strpos($payment_method, 'rede_') === 0 ||
+                    strpos($payment_method, 'maxipago_') === 0 ||
+                    strpos($payment_method, 'integration_rede_pix') === 0
+                ) {
+
+                    $payment_gateways = WC()->payment_gateways->payment_gateways();
+                    $gateway_title = 'Rede'; // Fallback
+
+                    if (isset($payment_gateways[$payment_method])) {
+                        $gateway_title = $payment_gateways[$payment_method]->get_title();
+                    }
+
+                    $prefix = $gateway_title . ' — ';
+                    if (strpos($note_data['comment_content'], $prefix) === false) {
+                        $note_data['comment_content'] = $prefix . $note_data['comment_content'];
+                    }
+                }
+            }
+        }
+
+        return $note_data;
     }
 }
