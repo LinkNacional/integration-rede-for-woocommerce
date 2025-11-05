@@ -1,5 +1,9 @@
+# 4.1.3 - 05/11/2025
+* Correção em calculos de taxas.
+
 # 4.1.2 - 04/11/2025
 * Novos atributos customizados de configuração.
+
 # 4.1.1 - 30/10/2025
 * Correção em calculo de parcelas no formulário por shortcode.
 
