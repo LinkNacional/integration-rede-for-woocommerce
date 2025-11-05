@@ -649,6 +649,11 @@ final class LknIntegrationRedeForWoocommerce
                 return;
             }
 
+            // Garantir que o carrinho está inicializado e as taxas calculadas
+            if (function_exists('WC') && WC()->cart) {
+                WC()->cart->calculate_totals();
+            }
+
             // Carrega a classe do gateway
             $gateways = WC()->payment_gateways()->payment_gateways();
             ob_start();

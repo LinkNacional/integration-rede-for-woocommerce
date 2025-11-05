@@ -347,17 +347,6 @@ class LknIntegrationRedeForWoocommerceHelper
                         }
                     }
                     WC()->cart->calculate_totals();
-
-                    $fees_objects = WC()->cart->get_fees();
-
-                    foreach ($fees_objects as $fee) {
-                        if (
-                            strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                            strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
-                        ) {
-                            $extra_fees += floatval($fee->amount);
-                        }
-                    }
                 }
 
                 // Se o número de parcelas solicitado for maior que o permitido, não prossegue
@@ -371,7 +360,7 @@ class LknIntegrationRedeForWoocommerceHelper
                         $interest = 0;
                     }
                     if ($interest >= 1) {
-                        $total = $order_total + ($order_total * ($interest * 0.01)) + $extra_fees;
+                        $total = $order_total + ($order_total * ($interest * 0.01));
                         if ($instance->get_option('interest_show_percent') == 'yes') {
                             return html_entity_decode(sprintf('%dx de %s (%s%% de juros)', $i, wp_strip_all_tags( wc_price( $total / $i)), $interest));
                         }
@@ -381,7 +370,7 @@ class LknIntegrationRedeForWoocommerceHelper
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);
-                    $total = $order_total - ($order_total * ($discount * 0.01)) + $extra_fees;
+                    $total = $order_total - ($order_total * ($discount * 0.01));
                     if ($discount >= 1) {
                         if ($instance->get_option('interest_show_percent') == 'yes') {
                             return html_entity_decode(sprintf( '%dx de %s (%s%% de desconto)', $i, wp_strip_all_tags( wc_price(($total / $i))), $discount));
