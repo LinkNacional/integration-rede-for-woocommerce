@@ -317,13 +317,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     {
         $session = null;
         $installments_number = 1;
-        if (function_exists('WC') && WC()->session) {
-            $session = WC()->session;
-            $installments_number = $session->get('lkn_installments_number_maxipago_credit');
-            if (empty($installments_number)) {
-                $installments_number = 1;
-            }
-        }
 
         wc_get_template(
             'creditCard/maxipagoPaymentCreditForm.php',
@@ -349,7 +342,29 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         $min_value = (float) $installments_result['min_value'];
         $max_parcels = (int) $installments_result['max_parcels'];
 
-        for ($i = 1; $i <= $max_parcels; ++$i) {
+        // Verificar limites de parcelamento por produto
+        $max_installments = $max_parcels;
+        if (WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                if ($this->id == 'rede_credit') {
+                    $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                } else {
+                    $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
+                }
+
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    // Limita ao menor valor encontrado entre os produtos
+                    if ($product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
+            }
+            WC()->cart->calculate_totals();
+        }
+
+        for ($i = 1; $i <= $max_installments; ++$i) {
             if (($order_total / $i) < $min_value) {
                 break;
             }

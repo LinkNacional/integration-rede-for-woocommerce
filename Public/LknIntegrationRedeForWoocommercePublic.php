@@ -90,5 +90,26 @@ final class LknIntegrationRedeForWoocommercePublic {
          * class.
          */
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
+
+        // Enqueue installment label script for WooCommerce Blocks
+        if (has_block('woocommerce/checkout') && !wp_script_is('lkn-installment-label', 'enqueued') && !wp_script_is('lkn-installment-label', 'done')) {
+            wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);
+            
+            // Configuração de tradução para o script de label de parcelamento
+            // TODO resolver tradução
+            wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(
+                'payment' => 'Pagamento',
+                'installment' => 'Parcelamento',
+                'loading' => 'Carregando...',
+                'calculatingInstallments' => 'Calculando parcelas...',
+                'cashPayment' => 'À vista',
+                'noInterest' => 'sem juros',
+                'noDiscount' => 'sem desconto',
+                'withDiscount' => '% de desconto',
+                'withInterest' => '% de juros',
+                'fallbackInstallment' => '2x parcelas',
+                'loadingPrice' => 'Carregando preço...'
+            ));
+        }
     }
 }

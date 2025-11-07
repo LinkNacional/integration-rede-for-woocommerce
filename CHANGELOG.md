@@ -1,3 +1,7 @@
+# 4.1.4 - 07/11/2025
+* Ajuste no limite de parcelas por produto.
+* Ajuste no calculo final das parcelas de pagamento.
+
 # 4.1.3 - 05/11/2025
 * Correção em calculos de taxas.
 

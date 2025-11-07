@@ -365,6 +365,25 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $min_value = (float) $installments_result['min_value'];
         $max_parcels = (int) $installments_result['max_parcels'];
 
+        // Limita ao menor valor de parcelas permitido entre os produtos do carrinho
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                if ($this->id == 'rede_credit') {
+                    $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                } else {
+                    $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
+                }
+                
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit < $max_parcels) {
+                        $max_parcels = $product_limit;
+                    }
+                }
+            }
+        }
+
         for ($i = 1; $i <= $max_parcels; ++$i) {
             if (($order_total / $i) < $min_value) {
                 break;
@@ -778,13 +797,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $session = null;
         $installments_number = 1;
-        if (function_exists('WC') && WC()->session) {
-            $session = WC()->session;
-            $installments_number = $session->get('lkn_installments_number_rede_credit');
-            if (empty($installments_number)) {
-                $installments_number = 1;
-            }
-        }
 
         $wc_get_template(
             'creditCard/redePaymentCreditForm.php',

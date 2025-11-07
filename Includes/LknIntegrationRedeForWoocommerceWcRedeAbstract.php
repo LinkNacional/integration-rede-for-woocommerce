@@ -177,9 +177,13 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Para pedidos existentes, calcula subtotal + frete + impostos - desconto de cupons + taxas
             $subtotal = (float) $order->get_subtotal() + (float) $order->get_shipping_total() + (float) $order->get_total_tax() - (float) $order->get_discount_total();
             
-            // Adicionar taxas (fees) do pedido
+            // Adicionar taxas (fees) do pedido, excluindo fees do próprio plugin
             foreach ($order->get_fees() as $fee) {
-                $subtotal += (float) $fee->get_amount();
+                // Ignorar fees criados pelo próprio plugin
+                if ($fee->get_name() !== __('Juros', 'rede-for-woocommerce-pro') && 
+                    $fee->get_name() !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                    $subtotal += (float) $fee->get_amount();
+                }
             }
             
         } elseif (isset($woocommerce->cart) && $woocommerce->cart) {
@@ -189,9 +193,13 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Forçar recálculo do carrinho para garantir que as taxas estejam atualizadas
             $woocommerce->cart->calculate_totals();
             
-            // Adicionar taxas (fees) do carrinho
+            // Adicionar taxas (fees) do carrinho, excluindo fees do próprio plugin
             foreach ($woocommerce->cart->get_fees() as $fee) {
-                $subtotal += (float) $fee->amount;
+                // Ignorar fees criados pelo próprio plugin
+                if ($fee->name !== __('Juros', 'rede-for-woocommerce-pro') && 
+                    $fee->name !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                    $subtotal += (float) $fee->amount;
+                }
             }
         }
 

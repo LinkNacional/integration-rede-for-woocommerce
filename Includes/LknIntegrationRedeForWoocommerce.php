@@ -544,18 +544,24 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod');
-    
+
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        
+
         // Adiciona endpoint AJAX para refresh dos campos de pagamento
         $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
-        
+
         // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago
         $this->loader->add_action('wp_ajax_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
+
+        // Adiciona o nome do gateway nas notas do pedido
+        $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
+
+        // Adiciona informações de parcelamento na revisão do pedido
+        $this->loader->add_action('woocommerce_review_order_after_order_total', $this, 'display_payment_installment_info');
     }
 
     public function wcEditorBlocksActive(): void
@@ -657,10 +663,10 @@ final class LknIntegrationRedeForWoocommerce
             // Carrega a classe do gateway
             $gateways = WC()->payment_gateways()->payment_gateways();
             ob_start();
-            
+
             // Usa o novo método que renderiza com o total atualizado incluindo cupons
             $gateways['rede_credit']->render_payment_fields_with_total();
-            
+
             $html = ob_get_clean();
             wp_send_json_success(['html' => $html]);
             return;
@@ -692,10 +698,10 @@ final class LknIntegrationRedeForWoocommerce
             $gateways = WC()->payment_gateways()->payment_gateways();
             if (isset($gateways['maxipago_credit']) && method_exists($gateways['maxipago_credit'], 'render_payment_fields_with_total')) {
                 ob_start();
-                
+
                 // Usa o novo método que renderiza com o total atualizado incluindo cupons
                 $gateways['maxipago_credit']->render_payment_fields_with_total();
-                
+
                 $html = ob_get_clean();
                 wp_send_json_success(['html' => $html]);
                 return;
@@ -710,5 +716,111 @@ final class LknIntegrationRedeForWoocommerce
                 'trace'   => $th->getTraceAsString(),
             ]);
         }
+    }
+
+    public function add_gateway_name_to_notes_global($note_data, $args)
+    {
+        if (isset($note_data['comment_post_ID'])) {
+            $order_id = $note_data['comment_post_ID'];
+            $order = wc_get_order($order_id);
+
+            if ($order && is_a($order, 'WC_Order')) {
+
+                // Metodos do plugin integration rede e integration rede pro
+                $methods = ['maxipago_credit', 'maxipago_debit', 'integration_rede_pix', 'rede_credit', 'rede_debit', 'maxipago_pix', 'rede_pix'];
+                $payment_method = $order->get_payment_method();
+
+                if (in_array($payment_method, $methods)) {
+
+                    $payment_gateways = WC()->payment_gateways->payment_gateways();
+                    $gateway_title = 'Rede'; // Fallback
+
+                    if (isset($payment_gateways[$payment_method])) {
+                        $gateway_title = $payment_gateways[$payment_method]->get_title();
+                    }
+
+                    $prefix = $gateway_title . ' — ';
+                    if (strpos($note_data['comment_content'], $prefix) === false) {
+                        $note_data['comment_content'] = $prefix . $note_data['comment_content'];
+                    }
+                }
+            }
+        }
+
+        return $note_data;
+    }
+
+    /**
+     * Exibe informações sobre o pagamento parcelado na revisão do pedido
+     */
+    public function display_payment_installment_info()
+    {
+        // TODO traduzir para o inglês
+        // Verificar se WooCommerce está ativo e a sessão existe
+        if (!function_exists('WC') || !WC()->session) {
+            return;
+        }
+
+        $chosen_payment_method = WC()->session->get('chosen_payment_method');
+
+        // Verificar se é um método de pagamento Rede ou Maxipago
+        if (!in_array($chosen_payment_method, ['rede_credit', 'maxipago_credit'])) {
+            return;
+        }
+
+        // Obter a parcela selecionada da sessão baseada no método de pagamento
+        $installment_session_key = '';
+        if ($chosen_payment_method === 'rede_credit') {
+            $installment_session_key = 'lkn_installments_number_rede_credit';
+        } elseif ($chosen_payment_method === 'maxipago_credit') {
+            $installment_session_key = 'lkn_installments_number_maxipago_credit';
+        }
+
+        $installment = WC()->session->get($installment_session_key);
+
+        if (!$installment || $installment <= 0) {
+            return;
+        }
+
+        // Obter o total do carrinho
+        $cart_total = WC()->cart->get_total('raw');
+
+        if ($cart_total <= 0) {
+            return;
+        }
+
+        // Obter configurações do gateway para verificar o tipo de juros/desconto
+        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
+
+        // Determinar o nome do método de pagamento
+        $payment_method_name = '';
+        if ($chosen_payment_method === 'rede_credit') {
+            $payment_method_name = 'Cartão de Crédito Rede';
+        } elseif ($chosen_payment_method === 'maxipago_credit') {
+            $payment_method_name = 'Cartão de Crédito Maxipago';
+        }
+
+        // Gerar a informação de pagamento e label dinâmico
+        if ($installment == 1) {
+            $payment_label = 'Pagamento';
+            $payment_info = 'À vista';
+        } else {
+            $payment_label = 'Parcelamento';
+            // Calcular valor da parcela (simples divisão)
+            $installment_value = $cart_total / $installment;
+            $formatted_value = wc_price($installment_value);
+
+            $payment_info = sprintf(
+                '%dx de %s',
+                $installment,
+                $formatted_value
+            );
+        }
+
+        // Exibir a informação
+        echo '<tr>';
+        echo '<th>' . esc_html($payment_label) . '</th>';
+        echo '<td>' . wp_kses_post($payment_info) . '</td>';
+        echo '</tr>';
     }
 }

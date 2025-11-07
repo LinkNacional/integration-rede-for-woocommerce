@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, credit card, debit card, payment  
 Requires at least: 5.0  
 Tested up to: 6.8  
-Stable tag: 4.1.3  
+Stable tag: 4.1.4
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -126,6 +126,10 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 4.1.4 - 2025/11/07
+- Adjustment in product installment limit.
+- Adjustment in final payment installment calculation.
+
 ### 4.1.3 - 2025/11/05
 - Fix in tax calculation for installments.
 
@@ -183,7 +187,7 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.2 — custom attributes that help the look and feel of configurations.
+- 4.1.4 — custom attributes that help the look and feel of configurations.
 - See ChangeLog for full details of earlier releases and fixes.
 
 ---
