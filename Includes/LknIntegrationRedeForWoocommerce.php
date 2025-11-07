@@ -726,13 +726,11 @@ final class LknIntegrationRedeForWoocommerce
 
             if ($order && is_a($order, 'WC_Order')) {
 
+                // Metodos do plugin integration rede e integration rede pro
+                $methods = ['maxipago_credit', 'maxipago_debit', 'integration_rede_pix', 'rede_credit', 'rede_debit', 'maxipago_pix', 'rede_pix'];
                 $payment_method = $order->get_payment_method();
 
-                if (
-                    strpos($payment_method, 'rede_') === 0 ||
-                    strpos($payment_method, 'maxipago_') === 0 ||
-                    strpos($payment_method, 'integration_rede_pix') === 0
-                ) {
+                if (in_array($payment_method, $methods)) {
 
                     $payment_gateways = WC()->payment_gateways->payment_gateways();
                     $gateway_title = 'Rede'; // Fallback
@@ -764,7 +762,7 @@ final class LknIntegrationRedeForWoocommerce
         }
 
         $chosen_payment_method = WC()->session->get('chosen_payment_method');
-        
+
         // Verificar se é um método de pagamento Rede ou Maxipago
         if (!in_array($chosen_payment_method, ['rede_credit', 'maxipago_credit'])) {
             return;
@@ -779,14 +777,14 @@ final class LknIntegrationRedeForWoocommerce
         }
 
         $installment = WC()->session->get($installment_session_key);
-        
+
         if (!$installment || $installment <= 0) {
             return;
         }
 
         // Obter o total do carrinho
         $cart_total = WC()->cart->get_total('raw');
-        
+
         if ($cart_total <= 0) {
             return;
         }
