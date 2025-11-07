@@ -126,6 +126,10 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 4.1.4 - 2025/11/07
+- Adjustment in product installment limit.
+- Adjustment in final payment installment calculation.
+
 ### 4.1.3 - 2025/11/05
 - Fix in tax calculation for installments.
 
