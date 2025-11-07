@@ -317,13 +317,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     {
         $session = null;
         $installments_number = 1;
-        if (function_exists('WC') && WC()->session) {
-            $session = WC()->session;
-            $installments_number = $session->get('lkn_installments_number_maxipago_credit');
-            if (empty($installments_number)) {
-                $installments_number = 1;
-            }
-        }
 
         wc_get_template(
             'creditCard/maxipagoPaymentCreditForm.php',
