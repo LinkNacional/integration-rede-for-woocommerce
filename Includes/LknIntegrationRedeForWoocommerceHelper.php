@@ -324,60 +324,102 @@ class LknIntegrationRedeForWoocommerceHelper
         absint(sanitize_text_field(wp_unslash($_POST[$instance->id . '_installments']))) : 1;
         $interest = round((float) $instance->get_option($i . 'x'), 2);
 
+        // Usar o subtotal + frete como base para cálculo de juros
+        $base_amount = $order_total;
+        $additional_fees = 0;
+        $discount_amount = 0;
+        $tax_amount = 0;
+        
+        if (WC()->cart && !WC()->cart->is_empty()) {
+            $cart_subtotal = WC()->cart->get_subtotal();
+            $cart_shipping = WC()->cart->get_shipping_total();
+            if ($cart_subtotal > 0) {
+                $base_amount = $cart_subtotal + $cart_shipping;
+                
+                // Pegar fees externos (não criados por este plugin)
+                $additional_fees = 0;
+                foreach (WC()->cart->get_fees() as $fee) {
+                    // Ignorar fees criados pelo próprio plugin
+                    if ($fee->name !== __('Juros', 'rede-for-woocommerce-pro') && 
+                        $fee->name !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                        $additional_fees += $fee->total;
+                    }
+                }
+                
+                // Pegar desconto de cupom
+                $discount_amount = WC()->cart->get_discount_total();
+                
+                // Pegar taxes
+                $tax_amount = WC()->cart->get_total_tax();
+            }
+        } elseif ($order_id && function_exists('wc_get_order')) {
+            // Se estivermos processando um pedido, usar dados do pedido
+            $order = wc_get_order($order_id);
+            if ($order) {
+                $order_subtotal = $order->get_subtotal();
+                $order_shipping = $order->get_shipping_total();
+                if ($order_subtotal > 0) {
+                    $base_amount = $order_subtotal + $order_shipping;
+                    
+                    // Pegar fees externos do pedido (não criados por este plugin)
+                    $additional_fees = 0;
+                    foreach ($order->get_fees() as $fee) {
+                        // Ignorar fees criados pelo próprio plugin
+                        if ($fee->get_name() !== __('Juros', 'rede-for-woocommerce-pro') && 
+                            $fee->get_name() !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                            $additional_fees += $fee->get_total();
+                        }
+                    }
+                    
+                    // Pegar desconto de cupom do pedido
+                    $discount_amount = $order->get_total_discount();
+                    
+                    // Pegar taxes do pedido
+                    $tax_amount = $order->get_total_tax();
+                }
+            }
+        }
+
         switch ($option) {
             case 'label':
                 // Verificar se existe um limite de parcelas por produto
-                $max_installments = $i;
                 $extra_fees = 0;
-                if (WC()->cart && !WC()->cart->is_empty()) {
-                    foreach (WC()->cart->get_cart() as $cart_item) {
-                        $product_id = $cart_item['product_id'];
-                        if ($instance->id == 'rede_credit') {
-                            $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
-                        } else {
-                            $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
-                        }
-
-                        if ($product_limit !== 'default' && is_numeric($product_limit)) {
-                            $product_limit = (int) $product_limit;
-                            // Limita ao menor valor encontrado entre os produtos
-                            if ($product_limit < $max_installments) {
-                                $max_installments = $product_limit;
-                            }
-                        }
-                    }
-                    WC()->cart->calculate_totals();
-                }
-
-                // Se o número de parcelas solicitado for maior que o permitido, não prossegue
-                if ($i > $max_installments) {
-                    return null;
-                }
 
                 if ($instance->get_option('installment_interest') == 'yes') {
-                    $total = $order_total / $i;
+                    $total = $base_amount / $i;
                     if ($total > $instance->get_option('min_interest') && $instance->get_option('min_interest') > 0) {
                         $interest = 0;
                     }
                     if ($interest >= 1) {
-                        $total = $order_total + ($order_total * ($interest * 0.01));
+                        // Calcular juros apenas sobre a base (subtotal + shipping)
+                        $total_with_interest = $base_amount + ($base_amount * ($interest * 0.01));
+                        
+                        // Adicionar outros valores: fees externos - cupom + taxes
+                        $final_total = $total_with_interest + $additional_fees - $discount_amount + $tax_amount;
+                        
                         if ($instance->get_option('interest_show_percent') == 'yes') {
-                            return html_entity_decode(sprintf('%dx de %s (%s%% de juros)', $i, wp_strip_all_tags( wc_price( $total / $i)), $interest));
+                            return html_entity_decode(sprintf('%dx de %s (%s%% de juros)', $i, wp_strip_all_tags( wc_price( $final_total / $i)), $interest));
                         }
-                            return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                            return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     } else {
-                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $total)))) . ' ' . __("interest-free", 'rede-for-woocommerce-pro');
+                        // Sem juros, mas ainda aplicar outros valores
+                        $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-fre", 'rede-for-woocommerce-pro');
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);
-                    $total = $order_total - ($order_total * ($discount * 0.01));
+                    $total_with_discount = $base_amount - ($base_amount * ($discount * 0.01));
+                    
+                    // Adicionar outros valores: fees externos - cupom + taxes
+                    $final_total = $total_with_discount + $additional_fees - $discount_amount + $tax_amount;
+                    
                     if ($discount >= 1) {
                         if ($instance->get_option('interest_show_percent') == 'yes') {
-                            return html_entity_decode(sprintf( '%dx de %s (%s%% de desconto)', $i, wp_strip_all_tags( wc_price(($total / $i))), $discount));
+                            return html_entity_decode(sprintf( '%dx de %s (%s%% de desconto)', $i, wp_strip_all_tags( wc_price(($final_total / $i))), $discount));
                         }
-                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     } else {
-                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($total / $i)))));
+                        return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     }
                 }
 

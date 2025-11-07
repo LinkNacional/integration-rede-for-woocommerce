@@ -559,6 +559,9 @@ final class LknIntegrationRedeForWoocommerce
 
         // Adiciona o nome do gateway nas notas do pedido
         $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
+
+        // Adiciona informações de parcelamento na revisão do pedido
+        $this->loader->add_action('woocommerce_review_order_after_order_total', $this, 'display_payment_installment_info');
     }
 
     public function wcEditorBlocksActive(): void
@@ -747,5 +750,78 @@ final class LknIntegrationRedeForWoocommerce
         }
 
         return $note_data;
+    }
+
+    /**
+     * Exibe informações sobre o pagamento parcelado na revisão do pedido
+     */
+    public function display_payment_installment_info()
+    {
+        // Verificar se WooCommerce está ativo e a sessão existe
+        if (!function_exists('WC') || !WC()->session) {
+            return;
+        }
+
+        $chosen_payment_method = WC()->session->get('chosen_payment_method');
+        
+        // Verificar se é um método de pagamento Rede ou Maxipago
+        if (!in_array($chosen_payment_method, ['rede_credit', 'maxipago_credit'])) {
+            return;
+        }
+
+        // Obter a parcela selecionada da sessão baseada no método de pagamento
+        $installment_session_key = '';
+        if ($chosen_payment_method === 'rede_credit') {
+            $installment_session_key = 'lkn_installments_number_rede_credit';
+        } elseif ($chosen_payment_method === 'maxipago_credit') {
+            $installment_session_key = 'lkn_installments_number_maxipago_credit';
+        }
+
+        $installment = WC()->session->get($installment_session_key);
+        
+        if (!$installment || $installment <= 0) {
+            return;
+        }
+
+        // Obter o total do carrinho
+        $cart_total = WC()->cart->get_total('raw');
+        
+        if ($cart_total <= 0) {
+            return;
+        }
+
+        // Obter configurações do gateway para verificar o tipo de juros/desconto
+        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
+
+        // Determinar o nome do método de pagamento
+        $payment_method_name = '';
+        if ($chosen_payment_method === 'rede_credit') {
+            $payment_method_name = __('Rede Credit Card', 'woo-rede');
+        } elseif ($chosen_payment_method === 'maxipago_credit') {
+            $payment_method_name = __('Maxipago Credit Card', 'woo-rede');
+        }
+
+        // Gerar a informação de pagamento e label dinâmico
+        if ($installment == 1) {
+            $payment_label = __('Payment', 'woo-rede');
+            $payment_info = __('Cash Payment', 'woo-rede');
+        } else {
+            $payment_label = __('Installment', 'woo-rede');
+            // Calcular valor da parcela (simples divisão)
+            $installment_value = $cart_total / $installment;
+            $formatted_value = wc_price($installment_value);
+
+            $payment_info = sprintf(
+                __('%dx of %s', 'woo-rede'),
+                $installment,
+                $formatted_value
+            );
+        }
+
+        // Exibir a informação
+        echo '<tr>';
+        echo '<th>' . esc_html($payment_label) . '</th>';
+        echo '<td>' . wp_kses_post($payment_info) . '</td>';
+        echo '</tr>';
     }
 }

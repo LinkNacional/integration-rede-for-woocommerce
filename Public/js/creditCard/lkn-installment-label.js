@@ -1,0 +1,480 @@
+/**
+ * Script otimizado para testar hooks do WooCommerce Blocks - Rede/Maxipago Credit Payment Gateway
+ */
+document.addEventListener('DOMContentLoaded', function () {
+
+    let isInitialized = false;
+    let lastSelectedMethod = null;
+
+    function isRedeMethodSelected() {
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+
+        if (selectedPaymentRadio) {
+            const selectedMethod = selectedPaymentRadio.value;
+            const isRede = selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit';
+            return isRede;
+        }
+
+        return false;
+    }
+
+    function getInstallmentInfo() {
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+
+        if (redeSelectContainers.length === 0) {
+            return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+        }
+
+        for (let container of redeSelectContainers) {
+            const skeleton = container.querySelector('.wc-block-components-skeleton__element');
+            if (skeleton) {
+                return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+            }
+
+            const select = container.querySelector('select');
+
+            if (!select) {
+                return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+            }
+
+            if (select.options.length === 0) {
+                return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+            }
+
+            if (select) {
+                const selectedOption = select.options[select.selectedIndex];
+
+                if (selectedOption) {
+                    const optionText = selectedOption.textContent || selectedOption.innerText;
+                    const selectedValue = selectedOption.value;
+
+                    if (optionText.includes('Calculando parcelas') || optionText.includes('🔄') || selectedValue === 'loading') {
+                        return { text: lknInstallmentLabelTranslations.calculatingInstallments, isLoading: true };
+                    }
+
+                    let cleanText = optionText
+                        .replace(/\s*\(.*?\)\s*/g, '')
+                        .replace(/\s*sem\s+juros\s*/gi, '')
+                        .replace(/\s*sem\s+desconto\s*/gi, '')
+                        .replace(/\s*à\s+vista\s*/gi, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/🔄/g, '')
+                        .trim();
+
+                    if (selectedValue === '1') {
+                        return { text: lknInstallmentLabelTranslations.cashPayment, isLoading: false, value: selectedValue };
+                    } else {
+                        return { text: cleanText, isLoading: false, value: selectedValue };
+                    }
+                }
+            }
+        }
+
+        const fallbackSelects = document.querySelectorAll(
+            'select[name*="installments"], select[name*="parcelas"], ' +
+            '.rede_credit_select select, .maxipago_credit_select select, ' +
+            'select[id*="rede"], select[id*="maxipago"]'
+        );
+
+        for (let select of fallbackSelects) {
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption) {
+                const optionText = selectedOption.textContent || selectedOption.innerText;
+                const selectedValue = selectedOption.value;
+
+                if (optionText && !optionText.includes('Calculando') && !optionText.includes('🔄')) {
+                    let cleanText = optionText
+                        .replace(/\s*\(.*?\)\s*/g, '')
+                        .replace(/\s*sem\s+juros\s*/gi, '')
+                        .replace(/\s*sem\s+desconto\s*/gi, '')
+                        .replace(/\s*à\s+vista\s*/gi, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/🔄/g, '')
+                        .trim();
+
+                    if (selectedValue === '1') {
+                        return { text: lknInstallmentLabelTranslations.cashPayment, isLoading: false, value: selectedValue };
+                    } else {
+                        return { text: cleanText, isLoading: false, value: selectedValue };
+                    }
+                }
+            }
+        }
+
+        return { text: lknInstallmentLabelTranslations.fallbackInstallment, isLoading: false, value: '2' };
+    }
+
+    function insertLoadingSkeleton(totalDiv) {
+        if (totalDiv.parentNode.querySelector('.rede-payment-info-blocks')) {
+            return;
+        }
+
+        const loadingSkeleton = document.createElement('div');
+        loadingSkeleton.className = 'wc-block-components-totals-item wc-block-components-totals-footer-item rede-payment-info-blocks loading-skeleton';
+        loadingSkeleton.style.fontSize = 'small';
+
+        const animationStyle = document.createElement('style');
+        if (!document.getElementById('rede-loading-animation')) {
+            animationStyle.id = 'rede-loading-animation';
+            animationStyle.textContent = `
+                @keyframes rede-pulse {
+                    0%, 100% { 
+                        opacity: 0.6;
+                        transform: scale(1);
+                    }
+                    50% { 
+                        opacity: 1;
+                        transform: scale(1.02);
+                    }
+                }
+                
+                @keyframes rede-shimmer {
+                    0% {
+                        background-position: -200px 0;
+                    }
+                    100% {
+                        background-position: calc(200px + 100%) 0;
+                    }
+                }
+                
+                .rede-payment-info-blocks.loading-skeleton {
+                    animation: rede-pulse 1.5s ease-in-out infinite;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                    background-size: 200px 100%;
+                    animation: rede-shimmer 1.5s infinite;
+                }
+                
+                .rede-payment-info-blocks.loading-skeleton .wc-block-components-skeleton__element {
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                    background-size: 200% 100%;
+                    animation: rede-shimmer 1.2s infinite;
+                    border-radius: 4px;
+                }
+            `;
+            document.head.appendChild(animationStyle);
+        }
+
+        loadingSkeleton.innerHTML = `
+            <span class="wc-block-components-totals-item__label">${lknInstallmentLabelTranslations.installment}</span>
+            <div class="wc-block-components-totals-item__value">
+                <div class="wc-block-components-skeleton__element" aria-live="polite" aria-label="${lknInstallmentLabelTranslations.loadingPrice}" style="width: 80px; height: 1em;"></div>
+            </div>
+            <div class="wc-block-components-totals-item__description"></div>
+        `;
+
+        totalDiv.parentNode.insertBefore(loadingSkeleton, totalDiv.nextSibling);
+    }
+
+    function insertRedeInfo() {
+        const totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item:not(.rede-processed)');
+
+        if (totalItemDivs.length === 0) {
+            return;
+        }
+
+        totalItemDivs.forEach((totalDiv) => {
+            totalDiv.classList.add('rede-processed');
+
+            const existingInfo = totalDiv.parentNode.querySelector('.rede-payment-info-blocks:not(.loading-skeleton)');
+            if (existingInfo) {
+                return;
+            }
+
+            const redeSelected = isRedeMethodSelected();
+            if (!redeSelected) {
+                return;
+            }
+
+            const installmentInfo = getInstallmentInfo();
+
+            if (installmentInfo.isLoading) {
+                insertLoadingSkeleton(totalDiv);
+                return;
+            }
+
+            let labelText = lknInstallmentLabelTranslations.installment;
+            if (installmentInfo.value === '1') {
+                labelText = lknInstallmentLabelTranslations.payment;
+            }
+
+            const redeInfo = document.createElement('div');
+            redeInfo.className = 'wc-block-components-totals-item wc-block-components-totals-footer-item rede-payment-info-blocks';
+            redeInfo.style.fontSize = 'small';
+            redeInfo.setAttribute('data-installment-value', installmentInfo.value);
+
+            redeInfo.innerHTML = `
+                <span class="wc-block-components-totals-item__label">${labelText}</span>
+                <div class="wc-block-components-totals-item__value">
+                    <span class="wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value">${installmentInfo.text}</span>
+                </div>
+                <div class="wc-block-components-totals-item__description"></div>
+            `;
+
+            totalDiv.parentNode.insertBefore(redeInfo, totalDiv.nextSibling);
+        });
+    }
+
+    function removeRedeInfo() {
+        const existingInfos = document.querySelectorAll('.rede-payment-info-blocks');
+
+        existingInfos.forEach(function (existingInfo) {
+            existingInfo.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                if (existingInfo && existingInfo.parentNode) {
+                    existingInfo.remove();
+                }
+            }, 300);
+        });
+
+        const processedTotals = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item.rede-processed');
+        processedTotals.forEach(function (total) {
+            total.classList.remove('rede-processed');
+        });
+    }
+
+    function updateLoadingSkeletons() {
+        const loadingSkeletons = document.querySelectorAll('.rede-payment-info-blocks.loading-skeleton');
+        const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
+        const totalElements = loadingSkeletons.length + existingParcelamentos.length;
+
+        if (totalElements > 0) {
+            const installmentInfo = getInstallmentInfo();
+
+            if (!installmentInfo.isLoading) {
+                function updateElement(element) {
+                    let labelText = lknInstallmentLabelTranslations.installment;
+                    if (installmentInfo.value === '1') {
+                        labelText = lknInstallmentLabelTranslations.payment;
+                    }
+
+                    element.className = 'wc-block-components-totals-item wc-block-components-totals-footer-item rede-payment-info-blocks';
+                    element.setAttribute('data-installment-value', installmentInfo.value);
+
+                    element.innerHTML = `
+                        <span class="wc-block-components-totals-item__label">${labelText}</span>
+                        <div class="wc-block-components-totals-item__value">
+                            <span class="wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value">${installmentInfo.text}</span>
+                        </div>
+                        <div class="wc-block-components-totals-item__description"></div>
+                    `;
+                }
+
+                loadingSkeletons.forEach(function (skeleton) {
+                    updateElement(skeleton);
+                });
+
+                existingParcelamentos.forEach(function (parcelamento) {
+                    updateElement(parcelamento);
+                });
+            }
+        }
+    }
+
+    function activateLoadingSkeleton() {
+        if (!isRedeMethodSelected()) {
+            return;
+        }
+
+        const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
+
+        if (existingParcelamentos.length > 0) {
+            existingParcelamentos.forEach(function (parcelamento) {
+                parcelamento.classList.add('loading-skeleton');
+
+                parcelamento.innerHTML = `
+                    <span class="wc-block-components-totals-item__label">${lknInstallmentLabelTranslations.installment}</span>
+                    <div class="wc-block-components-totals-item__value">
+                        <div class="wc-block-components-skeleton__element" aria-live="polite" aria-label="${lknInstallmentLabelTranslations.loadingPrice}" style="width: 80px; height: 1em;"></div>
+                    </div>
+                    <div class="wc-block-components-totals-item__description"></div>
+                `;
+            });
+        } else {
+            const totalComponents = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item:not(.rede-processed)');
+
+            if (totalComponents.length > 0) {
+                totalComponents.forEach(function (totalComponent) {
+                    insertLoadingSkeleton(totalComponent);
+                    totalComponent.classList.add('rede-processed');
+                });
+            }
+        }
+    }
+
+    function observeTotalChanges() {
+        const totalElement = document.querySelector('.wc-block-components-totals-item.wc-block-components-totals-footer-item .wc-block-formatted-money-amount');
+
+        if (!totalElement) {
+            return;
+        }
+
+        if (totalElement.dataset.observerAdded) {
+            return;
+        }
+
+        let lastTotal = null;
+        let observerTimeout = null;
+        let checkCount = 0;
+        const maxChecks = 30;
+
+        function checkAndUpdate() {
+            checkCount++;
+            const currentTotal = totalElement.textContent || totalElement.innerText;
+
+            if (currentTotal !== lastTotal) {
+                lastTotal = currentTotal;
+                const installmentInfo = getInstallmentInfo();
+
+                if (installmentInfo.isLoading) {
+                    activateLoadingSkeleton();
+                } else {
+                    updateLoadingSkeletons();
+                }
+            }
+
+            if (checkCount < maxChecks) {
+                if (checkCount <= 10) {
+                    observerTimeout = setTimeout(checkAndUpdate, 300);
+                }
+            }
+        }
+
+        const totalObserver = new MutationObserver(function (mutations) {
+            let hasChanges = false;
+
+            mutations.forEach(function (mutation) {
+                if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                    hasChanges = true;
+                }
+            });
+
+            if (hasChanges) {
+                checkCount = 0;
+
+                if (observerTimeout) {
+                    clearTimeout(observerTimeout);
+                }
+
+                checkAndUpdate();
+            }
+        });
+
+        totalObserver.observe(totalElement, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        totalElement.dataset.observerAdded = 'true';
+        checkAndUpdate();
+    }
+
+    function checkPaymentMethod() {
+        const checkedInput = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        const selectedMethod = checkedInput ? checkedInput.value : null;
+
+        if (selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit') {
+            insertRedeInfo();
+            updateLoadingSkeletons();
+
+            setTimeout(() => {
+                addSelectChangeListeners();
+            }, 200);
+
+            setTimeout(() => {
+                observeTotalChanges();
+            }, 500);
+
+            lastSelectedMethod = selectedMethod;
+        } else if (selectedMethod !== lastSelectedMethod) {
+            removeRedeInfo();
+            lastSelectedMethod = selectedMethod;
+        }
+    }
+
+    function initializePaymentListeners() {
+        const paymentInputs = document.querySelectorAll('input[name="radio-control-wc-payment-method-options"]');
+
+        if (paymentInputs.length > 0 && !isInitialized) {
+            paymentInputs.forEach(function (input) {
+                input.addEventListener('change', checkPaymentMethod);
+            });
+
+            isInitialized = true;
+        }
+
+        checkPaymentMethod();
+    }
+
+    const observer = new MutationObserver(function (mutations) {
+        let shouldCheckPayments = false;
+        let shouldCheckTotals = false;
+        let shouldCheckSelects = false;
+
+        for (let mutation of mutations) {
+            if (mutation.type === 'childList') {
+                for (let node of mutation.addedNodes) {
+                    if (node.nodeType === 1) {
+                        if ((node.querySelector && node.querySelector('input[name="radio-control-wc-payment-method-options"]')) ||
+                            (node.name && node.name === 'radio-control-wc-payment-method-options')) {
+                            shouldCheckPayments = true;
+                        }
+
+                        if ((node.classList && node.classList.contains('wc-block-components-totals-item')) ||
+                            (node.querySelector && node.querySelector('.wc-block-components-totals-item'))) {
+                            shouldCheckTotals = true;
+                        }
+
+                        if ((node.classList && node.classList.contains('lknIntegrationRedeForWoocommerceSelectBlocks')) ||
+                            (node.querySelector && node.querySelector('.lknIntegrationRedeForWoocommerceSelectBlocks'))) {
+                            shouldCheckSelects = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (shouldCheckPayments) {
+            initializePaymentListeners();
+        }
+
+        if (shouldCheckTotals) {
+            setTimeout(() => {
+                checkPaymentMethod();
+            }, 300);
+        }
+
+        if (shouldCheckSelects) {
+            setTimeout(() => {
+                updateLoadingSkeletons();
+                addSelectChangeListeners();
+            }, 500);
+        }
+    });
+
+    function addSelectChangeListeners() {
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+
+        redeSelectContainers.forEach(container => {
+            const select = container.querySelector('select');
+            if (select && !select.dataset.listenerAdded) {
+                select.addEventListener('change', function () {
+                    setTimeout(() => {
+                        updateLoadingSkeletons();
+                    }, 100);
+                });
+
+                select.dataset.listenerAdded = 'true';
+            }
+        });
+    }
+
+    const checkoutArea = document.querySelector('.wc-block-checkout') || document.body;
+
+    observer.observe(checkoutArea, {
+        childList: true,
+        subtree: true
+    });
+
+    initializePaymentListeners();
+});
