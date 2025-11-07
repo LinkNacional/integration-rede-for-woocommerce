@@ -96,18 +96,19 @@ final class LknIntegrationRedeForWoocommercePublic {
             wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);
             
             // Configuração de tradução para o script de label de parcelamento
+            // TODO resolver tradução
             wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(
-                'payment' => __('Payment', 'woo-rede'),
-                'installment' => __('Installment', 'woo-rede'),
-                'loading' => __('Loading...', 'woo-rede'),
-                'calculatingInstallments' => __('Calculating installments...', 'woo-rede'),
-                'cashPayment' => __('Cash payment', 'woo-rede'),
-                'noInterest' => __('no interest', 'woo-rede'),
-                'noDiscount' => __('no discount', 'woo-rede'),
-                'withDiscount' => __('% discount', 'woo-rede'),
-                'withInterest' => __('% interest', 'woo-rede'),
-                'fallbackInstallment' => __('2x installments', 'woo-rede'),
-                'loadingPrice' => __('Loading price...', 'woo-rede')
+                'payment' => 'Pagamento',
+                'installment' => 'Parcelamento',
+                'loading' => 'Carregando...',
+                'calculatingInstallments' => 'Calculando parcelas...',
+                'cashPayment' => 'À vista',
+                'noInterest' => 'sem juros',
+                'noDiscount' => 'sem desconto',
+                'withDiscount' => '% de desconto',
+                'withInterest' => '% de juros',
+                'fallbackInstallment' => '2x parcelas',
+                'loadingPrice' => 'Carregando preço...'
             ));
         }
     }

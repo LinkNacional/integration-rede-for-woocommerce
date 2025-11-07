@@ -757,6 +757,7 @@ final class LknIntegrationRedeForWoocommerce
      */
     public function display_payment_installment_info()
     {
+        // TODO traduzir para o inglês
         // Verificar se WooCommerce está ativo e a sessão existe
         if (!function_exists('WC') || !WC()->session) {
             return;
@@ -796,23 +797,23 @@ final class LknIntegrationRedeForWoocommerce
         // Determinar o nome do método de pagamento
         $payment_method_name = '';
         if ($chosen_payment_method === 'rede_credit') {
-            $payment_method_name = __('Rede Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Rede';
         } elseif ($chosen_payment_method === 'maxipago_credit') {
-            $payment_method_name = __('Maxipago Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Maxipago';
         }
 
         // Gerar a informação de pagamento e label dinâmico
         if ($installment == 1) {
-            $payment_label = __('Payment', 'woo-rede');
-            $payment_info = __('Cash Payment', 'woo-rede');
+            $payment_label = 'Pagamento';
+            $payment_info = 'À vista';
         } else {
-            $payment_label = __('Installment', 'woo-rede');
+            $payment_label = 'Parcelamento';
             // Calcular valor da parcela (simples divisão)
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
             $payment_info = sprintf(
-                __('%dx of %s', 'woo-rede'),
+                '%dx de %s',
                 $installment,
                 $formatted_value
             );
