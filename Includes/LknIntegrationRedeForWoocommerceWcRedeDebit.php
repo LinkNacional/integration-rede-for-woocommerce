@@ -9,8 +9,6 @@ use WP_Error;
 
 final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForWoocommerceWcRedeAbstract
 {
-    public $api = null;
-
     public function __construct()
     {
         $this->id = 'rede_debit';
@@ -42,7 +40,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
         }
 
-        $this->auto_capture = 1;
+        $this->auto_capture = true;
         $this->max_parcels_number = $this->get_option('max_parcels_number');
         $this->min_parcels_value = $this->get_option('min_parcels_value');
 
@@ -53,7 +51,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         $this->log = $this->get_logger();
 
-        $this->api = new LknIntegrationRedeForWoocommerceWcRedeAPI($this);
         $this->configs = $this->getConfigsRedeDebit();
     }
 
@@ -99,6 +96,171 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         return true;
+    }
+
+    /**
+     * Obtém token de autenticação OAuth2 usando sistema de cache específico do gateway
+     */
+    private function get_oauth_token()
+    {
+        $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id);
+        
+        if ($token === null) {
+            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . $this->id);
+        }
+        
+        return $token;
+    }
+
+    /**
+     * Processa o status do pedido para transações da API v2
+     */
+    private function process_order_status_v2($order, $transaction_response, $note = '')
+    {
+        $return_code = $transaction_response['returnCode'] ?? '';
+        $return_message = $transaction_response['returnMessage'] ?? '';
+        
+        $status_note = sprintf('Rede[%s]', $return_message);
+        $order->add_order_note($status_note . ' ' . $note);
+
+        if ($return_code == '00') {
+            $order->update_status('processing');
+            apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+        } else {
+            $order->update_status('failed', $status_note);
+            $order->update_status('cancelled', $status_note);
+        }
+
+        WC()->cart->empty_cart();
+    }
+
+    /**
+     * Processa transação de cartão de débito usando API v2
+     */
+    private function process_debit_transaction_v2($reference, $order_total, $cardData)
+    {
+        $access_token = $this->get_oauth_token();
+        
+        $amount = str_replace(".", "", number_format($order_total, 2, '.', ''));
+        
+        if ($this->environment === 'production') {
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+        }
+
+        $body = array(
+            'capture' => $this->auto_capture,
+            'kind' => 'debit',
+            'reference' => (string)$reference,
+            'amount' => (int)$amount,
+            'cardholderName' => $cardData['card_holder'],
+            'cardNumber' => $cardData['card_number'],
+            'expirationMonth' => (int)$cardData['card_expiration_month'],
+            'expirationYear' => (int)$cardData['card_expiration_year'],
+            'securityCode' => $cardData['card_cvv'],
+            'subscription' => false,
+            'origin' => 1,
+            'distributorAffiliation' => 0
+        );
+        
+        if ($this->get_option('enabled_soft_descriptor') === 'yes' && !empty($this->soft_descriptor)) {
+            $body['softDescriptor'] = $this->soft_descriptor;
+        }
+
+        $response = wp_remote_post($apiUrl, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token
+            ),
+            'body' => wp_json_encode($body),
+            'timeout' => 60
+        ));
+
+        error_log(json_encode($response));
+
+        if (is_wp_error($response)) {
+            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($response_body, true);
+        
+        if ($response_code !== 200 && $response_code !== 201) {
+            $error_message = 'Erro na transação';
+            if (isset($response_data['message'])) {
+                $error_message = $response_data['message'];
+            } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
+                $error_message = implode(', ', $response_data['errors']);
+            }
+            throw new Exception($error_message);
+        }
+        
+        if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
+            $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
+            throw new Exception($error_message);
+        }
+        
+        return $response_data;
+    }
+
+    public function regOrderLogs($orderId, $order_total, $cardData, $transaction, $order, $brand = null): void
+    {
+        if ('yes' == $this->debug) {
+            $tId = null;
+            $returnCode = null;
+            
+            if ($brand === null && $transaction) {
+                $brand = null;
+                if (is_array($transaction)) {
+                    $tId = $transaction['tid'] ?? null;
+                    $returnCode = $transaction['returnCode'] ?? null;
+                }
+                
+                if ($tId) {
+                    $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
+                }
+            }
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
+
+            $exchange_rate_value = 1;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
+
+            $bodyArray = array(
+                'orderId' => $orderId,
+                'amount' => $order_total,
+                'orderCurrency' => $order_currency,
+                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchangeRateValue' => $exchange_rate_value,
+                'cardData' => $cardData,
+                'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
+                'returnCode' => isset($returnCode) ? $returnCode : null,
+            );
+
+            $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
+
+            $orderLogsArray = array(
+                'body' => $bodyArray,
+                'response' => $transaction
+            );
+
+            $orderLogs = json_encode($orderLogsArray);
+            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            $order->save();
+        }
     }
 
     public function displayMeta($order): void
@@ -328,66 +490,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_short_code'] ?? false);
     }
 
-    public function regOrderLogs($orderId, $amount, $cardData, $transaction, $order, $brand = null): void
-    {
-        if ('yes' === $this->debug) {
-            $tId = null;
-            $returnCode = null;
-            if ($brand === null && $transaction) {
-                $brand = null;
-                if (method_exists($transaction, 'getTid')) {
-                    $tId = $transaction->getTid();
-                }
-                if (method_exists($transaction, 'getReturnCode')) {
-                    $returnCode = $transaction->getReturnCode();
-                }
-                if ($tId) {
-                    $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
-                }
-            }
-            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
-            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
-
-            $exchange_rate_value = 1;
-            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
-                // Exibe a cotação apenas se não for BRL
-                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
-                    $rate = $currency_data['rates'][$order_currency];
-                    // Converte para string, preservando todas as casas decimais
-                    $exchange_rate_value = (string)$rate;
-                }
-            }
-
-            $bodyArray = array(
-                'orderId' => $orderId,
-                'amount' => $amount,
-                'orderCurrency' => $order_currency,
-                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
-                'exchangeRateValue' => $exchange_rate_value,
-                'cardData' => $cardData,
-                'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
-                'returnCode' => isset($returnCode) ? $returnCode : null
-            );
-
-            $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
-
-            if (gettype($transaction) != 'string' && !is_null($transaction->getCardNumber())) {
-                $transaction->setCardNumber(LknIntegrationRedeForWoocommerceHelper::censorString($transaction->getCardNumber(), 8));
-            }
-
-            $orderLogsArray = array(
-                'body' => $bodyArray,
-                'response' => $transaction
-            );
-
-            $orderLogs = json_encode($orderLogsArray);
-            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
-            $order->save();
-        }
-    }
-
     public function process_payment($order_id)
     {
         if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
@@ -457,93 +559,68 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $order_total = wc_format_decimal($order_total, $decimals);
 
             try {
-                $transaction = $this->api->doTransactionDebitRequest($orderId + time(), $order_total, $cardData);
-                $this->regOrderLogs($orderId, $order_total, $cardData, $transaction, $order);
-            } catch (LknIntegrationRedeForWoocommerceTransactionException $e) {
-
-                $additionalData = $e->getAdditionalData();
-                $tid = $additionalData['tid'] ?? 'N/A';
-
-                $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tid, $this);
-
-                $this->regOrderLogs($orderId, $order_total, $cardData, $e->getMessage(), $order, $brand);
-
-                throw $e;
+                $transaction_response = $this->process_debit_transaction_v2($orderId + time(), $order_total, $cardData);
+                $this->regOrderLogs($orderId, $order_total, $cardData, $transaction_response, $order);
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $cardData, $e->getMessage(), $order);
-
                 throw $e;
             }
 
-            // Use WooCommerce setter for transaction_id to avoid internal meta warning
-            if (method_exists($order, 'set_transaction_id')) {
-                $order->set_transaction_id($transaction->getTid());
-            }
-            $order->update_meta_data('_wc_rede_transaction_return_code', $transaction->getReturnCode());
-            $order->update_meta_data('_wc_rede_transaction_return_message', $transaction->getReturnMessage());
-            $order->update_meta_data('_wc_rede_transaction_id', $transaction->getTid());
-            $order->update_meta_data('_wc_rede_transaction_refund_id', $transaction->getRefundId());
-            $order->update_meta_data('_wc_rede_transaction_cancel_id', $transaction->getCancelId());
-            $order->update_meta_data('_wc_rede_transaction_bin', $transaction->getCardBin());
-            $order->update_meta_data('_wc_rede_transaction_last4', $transaction->getLast4());
-            $order->update_meta_data('_wc_rede_transaction_nsu', $transaction->getNsu());
-            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction->getAuthorizationCode());
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
 
-            $authorization = $transaction->getAuthorization();
-
-            if (! is_null($authorization)) {
-                $order->update_meta_data('_wc_rede_transaction_authorization_status', $authorization->getStatus());
+            $exchange_rate_value = 1;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
             }
 
-            $order->update_meta_data('_wc_rede_transaction_holder', $transaction->getCardHolderName());
+            $order->update_meta_data('_wc_rede_transaction_return_code', $transaction_response['returnCode'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_return_message', $transaction_response['returnMessage'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_id', $transaction_response['tid'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_refund_id', $transaction_response['refundId'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_cancel_id', $transaction_response['cancelId'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_bin', $transaction_response['card']['bin'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_last4', $transaction_response['card']['last4'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['card']['brand'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_nsu', $transaction_response['nsu'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['authorizationCode'] ?? '');
+            $order->update_meta_data('_wc_rede_captured', $transaction_response['capture'] ?? $this->auto_capture);
+            $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
+            $order->update_meta_data('_wc_rede_total_amount_converted', $order_total);
+            $order->update_meta_data('_wc_rede_total_amount_is_converted', $convert_to_brl_enabled ? true : false);
+            $order->update_meta_data('_wc_rede_exchange_rate', $exchange_rate_value);
+            $order->update_meta_data('_wc_rede_decimal_value', $decimals);
+
+            if (isset($transaction_response['authorization'])) {
+                $order->update_meta_data('_wc_rede_transaction_authorization_status', $transaction_response['authorization']['status'] ?? '');
+            }
+
+            $order->update_meta_data('_wc_rede_transaction_holder', $cardData['card_holder']);
             $order->update_meta_data('_wc_rede_transaction_expiration', sprintf('%02d/%d', $expiration[0], (int) ($expiration[1])));
-
-            $order->update_meta_data('_wc_rede_transaction_holder', $transaction->getCardHolderName());
-
-            $authorization = $transaction->getAuthorization();
-
-            if (! is_null($authorization)) {
-                $order->update_meta_data('_wc_rede_transaction_authorization_status', $authorization->getStatus());
-            }
-
             $order->update_meta_data('_wc_rede_transaction_environment', $this->environment);
 
-            $this->process_order_status($order, $transaction, '');
+            $this->process_order_status_v2($order, $transaction_response, '');
 
             $order->save();
 
             if ('yes' == $this->debug) {
-                $tId = null;
-                $returnCode = null;
-                if ($brand === null && $transaction) {
-                    $brand = null;
-                    if (method_exists($transaction, 'getTid')) {
-                        $tId = $transaction->getTid();
-                    }
-                    if (method_exists($transaction, 'getReturnCode')) {
-                        $returnCode = $transaction->getReturnCode();
-                    }
-                    if ($tId) {
-                        $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
-                    }
-                }
-                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-                $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
-                $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-                $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
-
-                $exchange_rate_value = 1;
-                if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
-                    // Exibe a cotação apenas se não for BRL
-                    if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
-                        $rate = $currency_data['rates'][$order_currency];
-                        // Converte para string, preservando todas as casas decimais
-                        $exchange_rate_value = (string)$rate;
-                    }
+                $tId = $transaction_response['tid'] ?? null;
+                $returnCode = $transaction_response['returnCode'] ?? null;
+                $brandDetails = null;
+                
+                if ($tId) {
+                    $brandDetails = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $this);
                 }
 
                 $this->log->log('info', $this->id, array(
-                    'transaction' => $transaction,
+                    'transaction' => $transaction_response,
                     'order' => array(
                         'orderId' => $orderId,
                         'amount' => $order_total,
@@ -551,8 +628,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
                         'exchangeRateValue' => $exchange_rate_value,
                         'status' => $order->get_status(),
-                        'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
-                        'returnCode' => isset($returnCode) ? $returnCode : null
+                        'brand' => isset($brandDetails['brand']) ? $brandDetails['brand'] : ($transaction_response['card']['brand'] ?? null),
+                        'returnCode' => $returnCode,
                     ),
                 ));
             }
@@ -576,34 +653,134 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         );
     }
 
-    public function process_refund($order_id, $amount = null, $reason = '')
+    /**
+     * Processa reembolso usando API v2
+     */
+    private function process_refund_v2($tid, $amount)
+    {
+        $access_token = $this->get_oauth_token();
+        
+        if ($this->environment === 'production') {
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $tid . '/refunds';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions/' . $tid . '/refunds';
+        }
+
+        $amount_int = str_replace(".", "", number_format($amount, 2, '.', ''));
+        
+        $body = array(
+            'amount' => (int)$amount_int
+        );
+
+        $response = wp_remote_post($apiUrl, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token
+            ),
+            'body' => wp_json_encode($body),
+            'timeout' => 60
+        ));
+
+        if (is_wp_error($response)) {
+            throw new Exception('Erro na requisição de reembolso: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($response_body, true);
+        
+        if ($response_code !== 200 && $response_code !== 201) {
+            $error_message = 'Erro no reembolso';
+            if (isset($response_data['message'])) {
+                $error_message = $response_data['message'];
+            } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
+                $error_message = implode(', ', $response_data['errors']);
+            }
+            throw new Exception($error_message);
+        }
+        
+        return $response_data;
+    }
+
+    public function process_refund($order_id, $amount = 0, $reason = '')
     {
         $order = new WC_Order($order_id);
+        if ($order->get_payment_method() === 'rede_debit') {
+            $totalAmount = $order->get_meta('_wc_rede_total_amount');
+            $is_converted = $order->get_meta('_wc_rede_total_amount_is_converted');
+            $exchange_rate = $order->get_meta('_wc_rede_exchange_rate');
+            $decimals = $order->get_meta('_wc_rede_decimal_value');
+            $amount_converted = $order->get_meta('_wc_rede_total_amount_converted');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
 
-        if (! $order || ! $order->get_transaction_id()) {
-            return false;
-        }
-
-        if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-            $tid = $order->get_transaction_id();
-            $amount = wc_format_decimal($amount);
-
-            try {
-                $transaction = $this->api->do_transaction_cancellation($tid, $amount);
-
-                update_post_meta($order_id, '_wc_rede_transaction_refund_id', $transaction->getRefundId());
-                update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $transaction->getCancelId());
-                update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
-
-                $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . wc_price($amount));
-            } catch (Exception $e) {
-                return new WP_Error('rede_refund_error', sanitize_text_field($e->getMessage()));
+            if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
+                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
+                $order->save();
+                return false;
             }
 
-            return true;
-        }
+            if (! $order || ! $order->get_meta('_wc_rede_transaction_id')) {
+                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'woo-rede'));
+                $order->save();
+                return false;
+            }
 
-        return false;
+            if (empty($order->get_meta('_wc_rede_transaction_canceled'))) {
+                $tid = $order->get_meta('_wc_rede_transaction_id');
+                $amount = wc_format_decimal($amount, 2);
+
+                // Se conversão está ativa, usa o valor convertido
+                if ($is_converted && $exchange_rate) {
+                    $amount_brl = floatval($amount) / floatval($exchange_rate);
+                    $amount_brl = number_format($amount_brl, (int)$decimals, '.', '');
+                    $amount = $amount_brl;
+                } else if ($amount == $order->get_total()) {
+                    $amount = $totalAmount;
+                }
+
+                try {
+                    if ($amount > 0) {
+                        if (isset($amount) && ($amount > 0 && $amount < $totalAmount) || ($is_converted && $amount > 0 && $amount < $amount_converted)) {
+                            $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
+                            $order->save();
+                            return false;
+                        } elseif ($order->get_total() == $amount || ($is_converted && $amount == $amount_converted)) {
+                            $refund_response = $this->process_refund_v2($tid, $amount);
+                        }
+
+                        update_post_meta($order_id, '_wc_rede_transaction_refund_id', $refund_response['refundId'] ?? '');
+                        if (empty($refund_response['cancelId'])) {
+                            update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $refund_response['tid'] ?? $tid);
+                        } else {
+                            update_post_meta($order_id, '_wc_rede_transaction_cancel_id', $refund_response['cancelId']);
+                        }
+                        update_post_meta($order_id, '_wc_rede_transaction_canceled', true);
+
+                        // Formata o valor conforme moeda
+                        if ($is_converted) {
+                            $formatted_amount = wc_price($amount, array('currency' => 'BRL'));
+                        } else {
+                            $formatted_amount = wc_price($amount, array('currency' => $order_currency));
+                        }
+                        $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
+                        $order->save();
+                    } else {
+                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Invalid refund amount.', 'woo-rede'));
+                        $order->save();
+                        return false;
+                    }
+                } catch (Exception $e) {
+                    $order->add_order_note('Rede[Refund Error] ' . sanitize_text_field($e->getMessage()));
+                    $order->save();
+                    return false;
+                }
+
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     protected function getCheckoutForm($order_total = 0): void

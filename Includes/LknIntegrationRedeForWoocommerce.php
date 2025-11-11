@@ -200,6 +200,11 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+
+        // Configura sistema de renovação automática de token OAuth2
+        $this->loader->add_action('wp', $this, 'lkn_rede_setup_oauth_cron');
+        $this->loader->add_filter('cron_schedules', $this, 'lkn_rede_add_cron_interval');
+        $this->loader->add_action('lkn_rede_refresh_oauth_token', $this, 'lkn_rede_refresh_oauth_token_cron');
     }
 
     /**
@@ -822,5 +827,36 @@ final class LknIntegrationRedeForWoocommerce
         echo '<th>' . esc_html($payment_label) . '</th>';
         echo '<td>' . wp_kses_post($payment_info) . '</td>';
         echo '</tr>';
+    }
+
+    /**
+     * Configura o cron job para renovação automática do token OAuth2
+     */
+    public function lkn_rede_setup_oauth_cron() 
+    {
+        if (!wp_next_scheduled('lkn_rede_refresh_oauth_token')) {
+            wp_schedule_event(time(), 'lkn_rede_fifteen_minutes', 'lkn_rede_refresh_oauth_token');
+        }
+    }
+
+    /**
+     * Adiciona intervalo customizado de 15 minutos para o cron
+     */
+    public function lkn_rede_add_cron_interval($schedules) 
+    {
+        $schedules['lkn_rede_fifteen_minutes'] = array(
+            'interval' => 900, // 15 minutos em segundos
+            'display'  => esc_html__('A cada 15 minutos', 'woo-rede')
+        );
+        return $schedules;
+    }
+
+    /**
+     * Função executada pelo cron para renovar tokens OAuth2
+     */
+    public function lkn_rede_refresh_oauth_token_cron() 
+    {
+        // Renova tokens para todos os gateways configurados
+        LknIntegrationRedeForWoocommerceHelper::refresh_all_rede_oauth_tokens();
     }
 }
