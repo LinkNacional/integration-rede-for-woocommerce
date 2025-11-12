@@ -85,7 +85,7 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('plugins_loaded', $this, 'define_hooks');
     }
     public $wc_rede_class;
-    public $wc_rede_api_class;
+    // public $wc_rede_api_class; // REMOVIDO: SDK da Rede desmembrado
     public $wc_rede_credit_class;
     public $wc_rede_debit_class;
     public $wc_maxipago_credit_class;
@@ -106,7 +106,6 @@ final class LknIntegrationRedeForWoocommerce
             $this->wc_maxipago_debit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoDebit();
             $this->LknIntegrationRedeForWoocommercePixRedeClass = new LknIntegrationRedeForWoocommerceWcPixRede();
 
-            $this->wc_rede_api_class = $this->wc_rede_credit_class->api;
             $this->define_admin_hooks();
             $this->define_public_hooks();
         } else {
@@ -180,7 +179,7 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_maxipago_debit_class->id, $this->wc_maxipago_debit_class, 'process_admin_options');
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_maxipago_debit_class, 'displayMeta', 10, 1);
-        $this->loader->add_filter('lknRedeAPIorderCapture', $this->wc_rede_api_class, 'do_transaction_capture');
+        // $this->loader->add_filter('lknRedeAPIorderCapture', $this->wc_rede_api_class, 'do_transaction_capture'); // REMOVIDO: SDK da Rede desmembrado
         $this->loader->add_filter('lknRedeGetMerchantAuth', $this->wc_maxipago_credit_class, 'getMerchantAuth');
 
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMeta', 10, 2);

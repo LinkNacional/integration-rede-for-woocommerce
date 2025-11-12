@@ -477,7 +477,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $credentials = self::get_gateway_credentials($gateway_id);
         
         if ($credentials === false) {
-            error_log('Gateway ' . $gateway_id . ' não está habilitado ou credenciais não configuradas');
             return false;
         }
         
@@ -499,7 +498,6 @@ class LknIntegrationRedeForWoocommerceHelper
         ));
         
         if (is_wp_error($oauth_response)) {
-            error_log('Erro ao obter token OAuth2 para ' . $gateway_id . ': ' . $oauth_response->get_error_message());
             return false;
         }
         
@@ -507,7 +505,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $oauth_data = json_decode($oauth_body, true);
         
         if (!isset($oauth_data['access_token'])) {
-            error_log('Token OAuth2 não encontrado na resposta para ' . $gateway_id . ': ' . $oauth_body);
             return false;
         }
         
@@ -566,7 +563,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $credentials = self::get_gateway_credentials($gateway_id);
         
         if ($credentials === false) {
-            error_log('Não foi possível obter credenciais para ' . $gateway_id);
             return null;
         }
         
@@ -587,12 +583,10 @@ class LknIntegrationRedeForWoocommerceHelper
         if ($token_data === false) {
             // Se há um token em cache (mesmo expirado), usa ele como fallback
             if ($cached_token && isset($cached_token['token'])) {
-                error_log('Usando token OAuth2 expirado como fallback para ' . $gateway_id . ' no ambiente: ' . $environment);
                 return $cached_token['token'];
             }
             
             // Se não há token em cache, retorna null para forçar erro na API
-            error_log('Não foi possível obter token OAuth2 para ' . $gateway_id . ' no ambiente: ' . $environment);
             return null;
         }
         
@@ -614,7 +608,6 @@ class LknIntegrationRedeForWoocommerceHelper
             $credentials = self::get_gateway_credentials($gateway_id);
             
             if ($credentials === false) {
-                error_log('Gateway ' . $gateway_id . ' não está configurado - pulando renovação de token');
                 continue;
             }
             
@@ -622,16 +615,13 @@ class LknIntegrationRedeForWoocommerceHelper
             $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
             
             if ($token_data === false) {
-                error_log('Falha ao renovar token OAuth2 para ' . $gateway_id . ' no ambiente: ' . $environment);
                 continue;
             }
             
             self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
-            error_log('Token OAuth2 renovado com sucesso para ' . $gateway_id . ' no ambiente: ' . $environment);
             $renewed_count++;
         }
         
-        error_log('Renovação de tokens OAuth2 concluída: ' . $renewed_count . ' de ' . count($gateways) . ' gateways renovados');
         return $renewed_count;
     }
 
@@ -656,7 +646,6 @@ class LknIntegrationRedeForWoocommerceHelper
         ));
         
         if (is_wp_error($oauth_response)) {
-            error_log('Erro ao obter token OAuth2: ' . $oauth_response->get_error_message());
             return false;
         }
         
@@ -664,7 +653,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $oauth_data = json_decode($oauth_body, true);
         
         if (!isset($oauth_data['access_token'])) {
-            error_log('Token OAuth2 não encontrado na resposta: ' . $oauth_body);
             return false;
         }
         
@@ -751,12 +739,10 @@ class LknIntegrationRedeForWoocommerceHelper
         if ($token_data === false) {
             // Se há um token em cache (mesmo expirado), usa ele como fallback
             if ($cached_token && isset($cached_token['token'])) {
-                error_log('Usando token OAuth2 expirado como fallback para ambiente: ' . $environment);
                 return $cached_token['token'];
             }
             
             // Se não há token em cache, retorna null para forçar erro na API
-            error_log('Não foi possível obter token OAuth2 para ambiente: ' . $environment);
             return null;
         }
         
@@ -776,12 +762,10 @@ class LknIntegrationRedeForWoocommerceHelper
         
         // Se falhou ao gerar novo token, mantém o cache atual
         if ($token_data === false) {
-            error_log('Falha ao renovar token OAuth2 via cron para ambiente: ' . $environment . ' - mantendo cache atual');
             return false;
         }
         
         self::cache_rede_oauth_token($token_data, $environment);
-        error_log('Token OAuth2 renovado com sucesso para ambiente: ' . $environment);
         
         return $token_data['access_token'];
     }

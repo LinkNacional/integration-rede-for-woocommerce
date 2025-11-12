@@ -206,16 +206,22 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         return $subtotal;
     }
 
+    /**
+     * REMOVIDO: Método consult_order dependia do SDK da Rede que foi desmembrado
+     * Se necessário, reimplementar usando wp_remote_get() para consultas HTTP
+     */
+    /*
     final public function consult_order($order, $id, $tid, $status): void
     {
         $transaction = $this->api->do_transaction_consultation($tid);
 
         $this->process_order_status($order, $transaction, esc_attr_e('automatic check', 'woo-rede'));
     }
+    */
 
     /**
      * @param $order
-     * @param \Rede\Transaction $transaction
+     * @param mixed $transaction - Objeto de transação (format pode variar)
      * @param string $note
      */
     final public function process_order_status($order, $transaction, $note = ''): void

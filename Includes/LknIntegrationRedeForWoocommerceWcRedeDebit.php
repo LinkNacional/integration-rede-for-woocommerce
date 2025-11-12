@@ -178,8 +178,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'timeout' => 60
         ));
 
-        error_log(json_encode($response));
-
         if (is_wp_error($response)) {
             throw new Exception('Erro na requisição: ' . $response->get_error_message());
         }

@@ -8,8 +8,6 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
 {
     public static function getPixRede($total, $pixInstance, $reference, $order)
     {
-        error_log('gerou o pix');
-        
         // Determinar o ID do gateway baseado na instância
         $gateway_id = isset($pixInstance->id) ? $pixInstance->id : 'integration_rede_pix';
         
@@ -17,11 +15,8 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
         
         if ($access_token === null) {
-            error_log('Não foi possível obter token OAuth2 para PIX gateway: ' . $gateway_id);
             return false;
         }
-        
-        error_log('Token OAuth2 obtido com sucesso para gateway: ' . $gateway_id);
         
         // Agora usar o token para a requisição de PIX
         $pv = sanitize_text_field($pixInstance->get_option('pv'));
@@ -62,7 +57,6 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         ));
 
         $response_body = wp_remote_retrieve_body($response);
-        error_log(json_encode($response_body));
         $response_body = json_decode($response_body, true);
         
         if ($pixInstance->get_option('debug') == 'yes') {
@@ -88,7 +82,6 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
         
         if ($access_token === null) {
-            error_log('Não foi possível obter token OAuth2 para refund PIX gateway: ' . $gateway_id);
             return false;
         }
         

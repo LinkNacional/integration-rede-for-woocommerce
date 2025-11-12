@@ -123,7 +123,8 @@ final class LknIntegrationRedeForWoocommerceWcRede
 
             if ($payment_gateway instanceof LknIntegrationRedeForWoocommerceWcRedeAbstract) {
                 if ('PENDING' == $status || 'SUBMITTED' == $status) {
-                    $payment_gateway->consult_order($wc_order, $order_id, $tid, $status);
+                    // REMOVIDO: método consult_order dependia do SDK da Rede que foi desmembrado
+                    // $payment_gateway->consult_order($wc_order, $order_id, $tid, $status);
                 }
             }
         }
