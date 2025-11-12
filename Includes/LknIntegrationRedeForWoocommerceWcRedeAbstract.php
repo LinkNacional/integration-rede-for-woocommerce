@@ -207,19 +207,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     }
 
     /**
-     * REMOVIDO: Método consult_order dependia do SDK da Rede que foi desmembrado
-     * Se necessário, reimplementar usando wp_remote_get() para consultas HTTP
-     */
-    /*
-    final public function consult_order($order, $id, $tid, $status): void
-    {
-        $transaction = $this->api->do_transaction_consultation($tid);
-
-        $this->process_order_status($order, $transaction, esc_attr_e('automatic check', 'woo-rede'));
-    }
-    */
-
-    /**
      * @param $order
      * @param mixed $transaction - Objeto de transação (format pode variar)
      * @param string $note
@@ -230,17 +217,21 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
         $order->add_order_note($status_note . ' ' . $note);
 
-        if ($transaction->getReturnCode() == '00') {
-            if ($transaction->getCapture()) {
-                $order->update_status('processing');
-                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+        // Só altera o status se o pedido estiver pendente
+        if ($order->get_status() === 'pending') {
+            if ($transaction->getReturnCode() == '00') {
+                if ($transaction->getCapture()) {
+                    // Status configurável pelo usuário para pagamentos aprovados
+                    $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                    $order->update_status($payment_complete_status);
+                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                } else {
+                    $order->update_status('on-hold');
+                    wc_reduce_stock_levels($order->get_id());
+                }
             } else {
-                $order->update_status('on-hold');
-                wc_reduce_stock_levels($order->get_id());
+                $order->update_status('failed', $status_note);
             }
-        } else {
-            $order->update_status(esc_attr_e('failed', 'woo-rede'), $status_note);
-            $order->update_status(esc_attr_e('cancelled', 'woo-rede'), $status_note);
         }
 
         WC()->cart->empty_cart();
@@ -253,7 +244,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         if (defined('WC_VERSION') && version_compare(WC_VERSION, '2.1', '>=')) {
             $order_url = $order->get_view_order_url();
         } else {
-            // FIXME - This function is depreciated and needs to be updated see alternative for woocommerce_get_page_id
+            // Legacy support for WooCommerce < 2.1
             $order_url = add_query_arg('order', $order_id, get_permalink(woocommerce_get_page_id('view_order')));
         }
 

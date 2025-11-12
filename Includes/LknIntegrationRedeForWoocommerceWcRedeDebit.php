@@ -113,7 +113,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     }
 
     /**
-     * Processa o status do pedido para transações da API v2
+     * Processa status do pedido
      */
     private function process_order_status_v2($order, $transaction_response, $note = '')
     {
@@ -123,19 +123,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note($status_note . ' ' . $note);
 
-        if ($return_code == '00') {
-            $order->update_status('processing');
-            apply_filters("integrationRedeChangeOrderStatus", $order, $this);
-        } else {
-            $order->update_status('failed', $status_note);
-            $order->update_status('cancelled', $status_note);
+        // Só altera o status se o pedido estiver pendente
+        if ($order->get_status() === 'pending') {
+            if ($return_code == '00') {
+                // Status configurável pelo usuário para pagamentos aprovados
+                $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                $order->update_status($payment_complete_status);
+                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+            } else {
+                $order->update_status('failed', $status_note);
+            }
         }
 
         WC()->cart->empty_cart();
     }
 
     /**
-     * Processa transação de cartão de débito usando API v2
+     * Processa transação de débito
      */
     private function process_debit_transaction_v2($reference, $order_total, $cardData)
     {
@@ -410,6 +414,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => 'yes',
             ),
 
+            'payment_complete_status' => array(
+                'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'description' => esc_attr__('Choose what status to set orders after successful payment.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Select the order status that will be applied when payment is successfully processed.', 'woo-rede'),
+                'default' => 'processing',
+                'options' => array(
+                    'processing' => esc_attr__('Processing', 'woo-rede'),
+                    'completed' => esc_attr__('Completed', 'woo-rede'),
+                    'on-hold' => esc_attr__('On Hold', 'woo-rede'),
+                ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
+                )
+            ),
+
             'developers' => array(
                 'title' => esc_attr__('Developer', 'woo-rede'),
                 'type' => 'title',
@@ -652,7 +673,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     }
 
     /**
-     * Processa reembolso usando API v2
+     * Processa reembolso
      */
     private function process_refund_v2($tid, $amount)
     {

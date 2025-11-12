@@ -58,17 +58,6 @@ final class LknIntegrationRedeForWoocommercePublic {
      * @since    1.0.0
      */
     public function enqueue_styles(): void {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/lknIntegrationRedeForWoocommercePublic.css', array(), $this->version, 'all');
     }
 
@@ -78,17 +67,6 @@ final class LknIntegrationRedeForWoocommercePublic {
      * @since    1.0.0
      */
     public function enqueue_scripts(): void {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
 
         // Enqueue installment label script for WooCommerce Blocks

@@ -295,6 +295,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 )
             ),
 
+            'payment_complete_status' => array(
+                'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'description' => esc_attr__('Choose what status to set orders after successful payment.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Select the order status that will be applied when payment is successfully processed.', 'woo-rede'),
+                'default' => 'processing',
+                'options' => array(
+                    'processing' => esc_attr__('Processing', 'woo-rede'),
+                    'completed' => esc_attr__('Completed', 'woo-rede'),
+                    'on-hold' => esc_attr__('On Hold', 'woo-rede'),
+                ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
+                )
+            ),
+
             'developers' => array(
                 'title' => esc_attr__('Developer', 'woo-rede'),
                 'type' => 'title',
@@ -503,7 +520,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     }
 
     /**
-     * Obtém token de autenticação OAuth2 usando sistema de cache específico do gateway
+     * Obtém token OAuth2
      */
     private function get_oauth_token()
     {
@@ -517,7 +534,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     }
 
     /**
-     * Processa o status do pedido para transações da API v2
+     * Processa status do pedido
      */
     private function process_order_status_v2($order, $transaction_response, $note = '')
     {
@@ -528,24 +545,29 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note($status_note . ' ' . $note);
 
-        if ($return_code == '00') {
-            if ($capture) {
-                $order->update_status('processing');
-                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+        // Só altera o status se o pedido estiver pendente
+        if ($order->get_status() === 'pending') {
+            if ($return_code == '00') {
+                if ($capture) {
+                    // Status configurável pelo usuário para pagamentos aprovados com captura
+                    $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                    $order->update_status($payment_complete_status);
+                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                } else {
+                    // Para pagamentos sem captura, sempre aguardando
+                    $order->update_status('on-hold');
+                    wc_reduce_stock_levels($order->get_id());
+                }
             } else {
-                $order->update_status('on-hold');
-                wc_reduce_stock_levels($order->get_id());
+                $order->update_status('failed', $status_note);
             }
-        } else {
-            $order->update_status('failed', $status_note);
-            $order->update_status('cancelled', $status_note);
         }
 
         WC()->cart->empty_cart();
     }
 
     /**
-     * Processa transação de cartão de crédito usando API v2
+     * Processa transação de crédito
      */
     private function process_credit_transaction_v2($reference, $order_total, $installments, $cardData)
     {
@@ -790,7 +812,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     }
 
     /**
-     * Processa reembolso usando API v2
+     * Processa reembolso
      */
     private function process_refund_v2($tid, $amount)
     {
@@ -941,7 +963,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         );
     }
     /**
-     * Renderiza os campos de pagamento com total atualizado (para AJAX)
+     * Renderiza campos de pagamento
      */
     public function render_payment_fields_with_total($order_total = null): void
     {

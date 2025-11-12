@@ -62,17 +62,6 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function enqueue_styles(): void
     {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/lkn-integration-rede-for-woocommerce-admin.css', array(), $this->version, 'all');
     }
 
@@ -83,18 +72,6 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function enqueue_scripts(): void
     {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
-
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
 
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
@@ -129,9 +106,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'installmentInterestDataDescription' => __('Applies an interest rate to each installment. Use this if you want to charge extra per installment.', 'woo-rede')
         ));
 
-        //if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
-        //}
 
         $gateways = array(
             'maxipago_credit',
