@@ -626,6 +626,67 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     /**
+     * Verifica e renova apenas tokens OAuth2 expirados com base em tempo limite
+     * 
+     * @param int $expiry_minutes Minutos após criação para considerar token expirado
+     * @return int Número de tokens renovados
+     */
+    final public static function refresh_expired_rede_oauth_tokens($expiry_minutes = 15)
+    {
+        $gateways = array('rede_credit', 'rede_debit', 'integration_rede_pix', 'rede_pix');
+        $renewed_count = 0;
+        $expiry_seconds = $expiry_minutes * 60;
+        
+        foreach ($gateways as $gateway_id) {
+            $credentials = self::get_gateway_credentials($gateway_id);
+            
+            if ($credentials === false) {
+                continue;
+            }
+            
+            $environment = $credentials['environment'];
+            $token_option_name = 'lkn_rede_oauth_token_' . $gateway_id . '_' . $environment;
+            $cached_data = get_option($token_option_name, false);
+            
+            $should_refresh = false;
+            
+            if ($cached_data === false || empty($cached_data)) {
+                // Token não existe, precisa gerar
+                $should_refresh = true;
+            } else {
+                // Decodifica token do cache
+                $cached_token = json_decode(base64_decode($cached_data), true);
+                
+                if (!$cached_token) {
+                    // Token corrompido, precisa renovar
+                    $should_refresh = true;
+                } else {
+                    // Verifica se token expirou baseado no tempo
+                    $token_created = isset($cached_token['generated_at']) ? $cached_token['generated_at'] : 0;
+                    $time_elapsed = time() - $token_created;
+                    
+                    if ($time_elapsed >= $expiry_seconds) {
+                        $should_refresh = true;
+                    } else {
+                        error_log('ainda tá ativo');
+                    }
+                }
+            }
+            
+            if ($should_refresh) {
+                $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+                
+                if ($token_data !== false) {
+                    self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
+                    $renewed_count++;
+                }
+            }
+        }
+        
+        return $renewed_count;
+    }
+
+    /**
      * Gera token OAuth2 para API Rede v2 (mantido para compatibilidade)
      * @deprecated Use generate_rede_oauth_token_for_gateway() instead
      */

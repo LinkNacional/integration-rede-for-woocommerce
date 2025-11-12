@@ -197,10 +197,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
 
-        // Configura sistema de renovação automática de token OAuth2
-        $this->loader->add_action('wp', $this, 'lkn_rede_setup_oauth_cron');
-        $this->loader->add_filter('cron_schedules', $this, 'lkn_rede_add_cron_interval');
-        $this->loader->add_action('lkn_rede_refresh_oauth_token', $this, 'lkn_rede_refresh_oauth_token_cron');
+        // Hooks para atualizar tokens OAuth2 no checkout (blocks e shortcode)
+        $this->loader->add_action('wp_enqueue_scripts', $this, 'lkn_rede_refresh_oauth_token_on_checkout');
     }
 
     /**
@@ -826,33 +824,19 @@ final class LknIntegrationRedeForWoocommerce
     }
 
     /**
-     * Configura o cron job para renovação automática do token OAuth2
+     * Verifica e renova tokens OAuth2 expirados no checkout (blocks e shortcode)
      */
-    public function lkn_rede_setup_oauth_cron() 
+    public function lkn_rede_refresh_oauth_token_on_checkout() 
     {
-        if (!wp_next_scheduled('lkn_rede_refresh_oauth_token')) {
-            wp_schedule_event(time(), 'lkn_rede_fifteen_minutes', 'lkn_rede_refresh_oauth_token');
+        // Só executa em páginas de checkout
+        if (!is_checkout()) {
+            return;
         }
-    }
 
-    /**
-     * Adiciona intervalo customizado de 15 minutos para o cron
-     */
-    public function lkn_rede_add_cron_interval($schedules) 
-    {
-        $schedules['lkn_rede_fifteen_minutes'] = array(
-            'interval' => 900, // 15 minutos em segundos
-            'display'  => esc_html__('A cada 15 minutos', 'woo-rede')
-        );
-        return $schedules;
-    }
+        // Error log temporário para testes
+        error_log('LKN Rede: Verificando tokens OAuth2 no checkout');
 
-    /**
-     * Função executada pelo cron para renovar tokens OAuth2
-     */
-    public function lkn_rede_refresh_oauth_token_cron() 
-    {
-        // Renova tokens para todos os gateways configurados
-        LknIntegrationRedeForWoocommerceHelper::refresh_all_rede_oauth_tokens();
+        // Verifica e renova tokens expirados (15 minutos)
+        LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(15);
     }
 }

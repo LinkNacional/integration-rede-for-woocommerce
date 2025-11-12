@@ -31,6 +31,7 @@ final class LknIntegrationRedeForWoocommerceDeactivator {
      */
     public static function deactivate(): void {
         wp_clear_scheduled_hook( 'update_rede_orders' );
+        // Limpa cron OAuth2 antigo (removido em favor de verificação em tempo real)
         wp_clear_scheduled_hook( 'lkn_rede_refresh_oauth_token' );
         
         // Limpar cache de tokens OAuth2 para todos os gateways
