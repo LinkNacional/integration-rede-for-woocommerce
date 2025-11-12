@@ -667,8 +667,6 @@ class LknIntegrationRedeForWoocommerceHelper
                     
                     if ($time_elapsed >= $expiry_seconds) {
                         $should_refresh = true;
-                    } else {
-                        error_log('ainda tá ativo');
                     }
                 }
             }

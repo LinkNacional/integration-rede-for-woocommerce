@@ -833,9 +833,6 @@ final class LknIntegrationRedeForWoocommerce
             return;
         }
 
-        // Error log temporário para testes
-        error_log('LKN Rede: Verificando tokens OAuth2 no checkout');
-
         // Verifica e renova tokens expirados (15 minutos)
         LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(15);
     }
