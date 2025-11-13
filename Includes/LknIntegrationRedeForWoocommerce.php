@@ -199,6 +199,102 @@ final class LknIntegrationRedeForWoocommerce
 
         // Hooks para atualizar tokens OAuth2 no checkout (blocks e shortcode)
         $this->loader->add_action('wp_enqueue_scripts', $this, 'lkn_rede_refresh_oauth_token_on_checkout');
+        
+        // Hook para verificação automática de PIX
+        $this->loader->add_action('lkn_verify_pix_payment', $this, 'verify_pix_payment_status', 10, 2);
+        
+        // Registrar intervalo customizado para PIX
+        $this->loader->add_filter('cron_schedules', $this, 'add_pix_cron_interval');
+    }
+
+    /**
+     * Adiciona intervalo customizado para verificação de PIX
+     */
+    public function add_pix_cron_interval($schedules)
+    {
+        if (!isset($schedules['lkn_pix_check_interval'])) {
+            $schedules['lkn_pix_check_interval'] = array(
+                'interval' => 30 * 60, // 30 minutos
+                'display' => __('PIX Check Interval', 'woo-rede')
+            );
+        }
+        return $schedules;
+    }
+
+    /**
+     * Verifica status do pagamento PIX via cron
+     */
+    public function verify_pix_payment_status($order_id, $tid)
+    {
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+
+        // Verificar se passou 24h desde a criação do pedido
+        $order_date = $order->get_date_created();
+        $now = new \DateTime();
+        $diff = $now->getTimestamp() - $order_date->getTimestamp();
+        
+        if ($diff > (24 * 60 * 60)) { // 24 horas
+            // Cancelar este cron específico
+            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
+            return;
+        }
+
+        // Se o pedido não estiver pendente, cancelar cron e ignorar
+        if ($order->get_status() !== 'pending') {
+            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
+            return;
+        }
+
+        // Obter configurações do gateway PIX
+        $pix_settings = get_option('woocommerce_integration_rede_pix_settings');
+        if (!$pix_settings) {
+            return;
+        }
+
+        $environment = $pix_settings['environment'] ?? 'test';
+        
+        // Obter token OAuth2
+        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway('integration_rede_pix');
+        if (!$access_token) {
+            return;
+        }
+
+        // URL da API
+        if ('production' === $environment) {
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+        }
+        
+        // Consultar status
+        $response = wp_remote_get($apiUrl . '/' . $tid, array(
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token
+            ),
+        ));
+        
+        $response_body = wp_remote_retrieve_body($response);
+        $response_body = json_decode($response_body, true);
+
+        // Se pagamento aprovado, atualizar pedido e cancelar cron
+        if (isset($response_body['authorization']['status']) && $response_body['authorization']['status'] === 'Approved') {
+            $payment_status = $pix_settings['payment_complete_status'] ?? 'processing';
+            
+            if (empty($payment_status)) {
+                $payment_status = 'processing';
+            }
+            
+            $order->update_status($payment_status);
+            $order->add_order_note(__('PIX payment confirmed automatically.', 'woo-rede'));
+            $order->save();
+            
+            // Cancelar verificações futuras
+            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
+        }
     }
 
     /**
@@ -482,7 +578,7 @@ final class LknIntegrationRedeForWoocommerce
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = __('basic pix', 'woo-rede');
+            $title = __('Rede Pix FREE', 'woo-rede');
         }
         return $title;
     }

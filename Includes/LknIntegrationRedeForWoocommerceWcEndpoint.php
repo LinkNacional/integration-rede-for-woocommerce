@@ -152,7 +152,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Obter token OAuth2 válido ou renovar se expirado (20 minutos)
         LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
         $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway('integration_rede_pix', $environment);
-        
+
         if (!$token_data || empty($token_data['token'])) {
             return new WP_REST_Response($response_body['authorization']['status'] ?? 'Invalid Auth', 400);
         }
@@ -164,7 +164,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
         
-        $response = wp_remote_get($apiUrl . $tId, array(
+        $response = wp_remote_get($apiUrl . '/' . $tId, array(
             'headers' => array(
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $token_data['token']
@@ -172,6 +172,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         ));
         
         $response_body = wp_remote_retrieve_body($response);
+
         $response_body = json_decode($response_body, true);
 
         if (($response_body['authorization']['status'] ?? 'Accepted') == 'Approved') {

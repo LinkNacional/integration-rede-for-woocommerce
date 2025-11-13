@@ -32,6 +32,9 @@ final class LknIntegrationRedeForWoocommerceDeactivator {
     public static function deactivate(): void {
         wp_clear_scheduled_hook( 'update_rede_orders' );
         
+        // Limpar todos os crons de verificação PIX
+        wp_clear_scheduled_hook( 'lkn_verify_pix_payment' );
+        
         // Limpar cache de tokens OAuth2 para todos os gateways
         $gateways = array('rede_credit', 'rede_debit', 'integration_rede_pix', 'rede_pix');
         $environments = array('test', 'production');
