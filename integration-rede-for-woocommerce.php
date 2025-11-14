@@ -13,7 +13,7 @@
  * @package           LknIntegrationRedeForWoocommerce
  *
  * @wordpress-plugin
- * Plugin Name:       Integration Rede for WooCommerce
+ * Plugin Name:       Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit
  * Description:       Receba pagamentos por meio de cartões de crédito e débito, de diferentes bandeiras, usando a tecnologia de autenticação 3DS e recursos avançados de proteção contra fraudes.
  * Version:           4.1.5
  * Author:            Link Nacional
