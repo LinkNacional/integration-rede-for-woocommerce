@@ -404,7 +404,7 @@ class LknIntegrationRedeForWoocommerceHelper
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
                         $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
-                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-fre", 'rede-for-woocommerce-pro');
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'rede-for-woocommerce-pro');
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);

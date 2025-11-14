@@ -358,6 +358,12 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
+            
+            // Ignora parcelas com valor menor que R$ 5,00
+            if ($installment_value < 5) {
+                continue;
+            }
+            
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
@@ -440,6 +446,12 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
+            
+            // Ignora parcelas com valor menor que R$ 5,00
+            if ($installment_value < 5) {
+                continue;
+            }
+            
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
@@ -648,9 +660,17 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
 
+        // Adiciona endpoint AJAX para refresh dos campos de pagamento Rede Debit
+        $this->loader->add_action('wp_ajax_rede_debit_refresh_payment_fields', $this, 'rede_debit_refresh_payment_fields');
+        $this->loader->add_action('wp_ajax_nopriv_rede_debit_refresh_payment_fields', $this, 'rede_debit_refresh_payment_fields');
+
         // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago
         $this->loader->add_action('wp_ajax_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
+
+        // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago Debit
+        $this->loader->add_action('wp_ajax_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
+        $this->loader->add_action('wp_ajax_nopriv_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
 
         // Adiciona o nome do gateway nas notas do pedido
         $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
@@ -796,6 +816,83 @@ final class LknIntegrationRedeForWoocommerce
 
                 // Usa o novo método que renderiza com o total atualizado incluindo cupons
                 $gateways['maxipago_credit']->render_payment_fields_with_total();
+
+                $html = ob_get_clean();
+                wp_send_json_success(['html' => $html]);
+                return;
+            }
+
+            wp_send_json_error(['message' => 'Gateway not found or method not available']);
+        } catch (\Throwable $th) {
+            wp_send_json_error([
+                'message' => $th->getMessage(),
+                'line'    => $th->getLine(),
+                'file'    => $th->getFile(),
+                'trace'   => $th->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Método AJAX para refresh dos campos de pagamento Rede Debit
+     */
+    public function rede_debit_refresh_payment_fields()
+    {
+        try {
+            // Verifica o nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'rede_payment_fields_nonce')) {
+                wp_send_json_error(['message' => 'Invalid nonce']);
+                return;
+            }
+
+            // Garantir que o carrinho está inicializado e as taxas calculadas
+            if (function_exists('WC') && WC()->cart) {
+                WC()->cart->calculate_totals();
+            }
+
+            // Carrega a classe do gateway
+            $gateways = WC()->payment_gateways()->payment_gateways();
+            if (isset($gateways['rede_debit']) && method_exists($gateways['rede_debit'], 'render_payment_fields_with_total')) {
+                ob_start();
+
+                // Usa o novo método que renderiza com o total atualizado incluindo cupons
+                $gateways['rede_debit']->render_payment_fields_with_total();
+
+                $html = ob_get_clean();
+                wp_send_json_success(['html' => $html]);
+                return;
+            }
+
+            wp_send_json_error(['message' => 'Gateway not found or method not available']);
+        } catch (\Throwable $th) {
+            wp_send_json_error([
+                'message' => $th->getMessage(),
+                'line'    => $th->getLine(),
+                'file'    => $th->getFile(),
+                'trace'   => $th->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Método AJAX para refresh dos campos de pagamento Maxipago Debit
+     */
+    public function maxipago_debit_refresh_payment_fields()
+    {
+        try {
+            // Verifica o nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'maxipago_payment_fields_nonce')) {
+                wp_send_json_error(['message' => 'Invalid nonce']);
+                return;
+            }
+
+            // Carrega a classe do gateway
+            $gateways = WC()->payment_gateways()->payment_gateways();
+            if (isset($gateways['maxipago_debit']) && method_exists($gateways['maxipago_debit'], 'render_payment_fields_with_total')) {
+                ob_start();
+
+                // Usa o novo método que renderiza com o total atualizado incluindo cupons
+                $gateways['maxipago_debit']->render_payment_fields_with_total();
 
                 $html = ob_get_clean();
                 wp_send_json_success(['html' => $html]);

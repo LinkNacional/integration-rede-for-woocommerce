@@ -78,14 +78,14 @@ window.jQuery(function ($) {
       paymentBoxP.style.display = 'none';
     }
   }
-  $(document).on('updated_checkout', function () {
-    updatedCheckout()
-  });
 
   // Event delegation para capturar mudanças em radios criados dinamicamente
   document.addEventListener('change', function(event) {
-    if (event.target.type === 'radio') {
-      updatedCheckout()
+    if (event.target.type === 'radio' && event.target.name === 'payment_method') {
+      // Só atualiza se o método selecionado for rede_credit
+      if (event.target.value === 'rede_credit') {
+        updatedCheckout()
+      }
     }
   })
 

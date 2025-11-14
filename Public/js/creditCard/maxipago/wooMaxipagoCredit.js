@@ -105,7 +105,17 @@ window.jQuery(function ($) {
     }
   }
   
-  $(document).on('updated_checkout', function () {
+  // Event delegation para capturar mudanças em radios criados dinamicamente
+  document.addEventListener('change', function(event) {
+    if (event.target.type === 'radio' && event.target.name === 'payment_method') {
+      // Só atualiza se o método selecionado for maxipago_credit
+      if (event.target.value === 'maxipago_credit') {
+        updatedCheckout()
+      }
+    }
+  })
+
+  function updatedCheckout(){
     const $container = $('#maxipago-credit-payment-form');
     if ($container.length) {
       $.post(wooMaxipagoVars.ajaxurl, {
@@ -121,5 +131,5 @@ window.jQuery(function ($) {
         }
       });
     }
-  });
+  }
 })

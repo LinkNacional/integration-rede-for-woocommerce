@@ -69,6 +69,11 @@ final class LknIntegrationRedeForWoocommercePublic {
     public function enqueue_scripts(): void {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
 
+        // Enqueue shortcode checkout script only on checkout pages
+        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout')) {
+            wp_enqueue_script('lkn-integration-shortcode-checkout', plugin_dir_url(__FILE__) . 'js/lknIntegrationShortcodeCheckout.js', array('jquery'), $this->version, true);
+        }
+
         // Enqueue installment label script for WooCommerce Blocks
         if (has_block('woocommerce/checkout') && !wp_script_is('lkn-installment-label', 'enqueued') && !wp_script_is('lkn-installment-label', 'done')) {
             wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);

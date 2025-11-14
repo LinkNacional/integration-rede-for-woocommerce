@@ -811,6 +811,8 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
         wp_localize_script('woo-maxipago-debit-js', 'wooMaxipago', array(
             'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('maxipago_debit_payment_fields_nonce'),
         ));
 
         apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_debit_settings')['custom_css_short_code'] ?? false);
