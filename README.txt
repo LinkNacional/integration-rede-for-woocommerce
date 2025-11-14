@@ -1,4 +1,4 @@
-# Integration Rede for WooCommerce
+# Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit 
 
 Contributors: linknacional, MarcosAlexandre  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
