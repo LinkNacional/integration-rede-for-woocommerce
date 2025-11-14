@@ -42,6 +42,10 @@ jobs:
           trademarked_term
           textdomain_mismatch
           hidden_files
+          plugin_prefix_namespaces
+          plugin_prefix_hooks
+          plugin_prefix_globals
+          plugin_prefix_functions
         categories: |
           performance
           accessibility
