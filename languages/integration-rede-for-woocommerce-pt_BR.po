@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Integration Rede for WooCommerce\n"
+"Project-Id-Version: Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit\n"
 "POT-Creation-Date: 2020-08-17 03:31+0000\n"
 "PO-Revision-Date: 2020-08-17 03:33+0000\n"
 "Last-Translator: \n"
@@ -449,8 +449,8 @@ msgid "Be pro"
 msgstr "Seja pro"
 
 #: Includes/views/notices/html-notice-woocommerce-missing.php:22
-msgid "Integration Rede for WooCommerce Disabled"
-msgstr "Integration Rede for WooCommerce Disabilitado"
+msgid "Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit Disabled"
+msgstr "Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit Disabilitado"
 
 #: Includes/views/notices/html-notice-woocommerce-missing.php:30
 #, php-format
@@ -642,7 +642,7 @@ msgid "Return URL to automatically update the status of orders paid via debit on
 msgstr "URL de retorno para atualização automática do status dos pedidos pagos via débito no Maxipago"
 
 #. Name of the plugin
-msgid "Integration Rede for WooCommerce"
+msgid "Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit"
 msgstr "Integração da Rede para WooCommerce"
 
 #. Description of the plugin

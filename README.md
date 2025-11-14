@@ -4,7 +4,7 @@ This WordPress plugin for WooCommerce provides a payment gateway that enables cr
 
 
 ## Rede for WooCommerce — Advanced Technical README
-This README provides a technical, developer-oriented and user-facing reference for the "Integration Rede for WooCommerce" plugin. It complements the user-facing docs and describes installation, configuration, runtime behaviour, troubleshooting, developer extension points and recommendations for production deployment.
+This README provides a technical, developer-oriented and user-facing reference for the "Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit" plugin. It complements the user-facing docs and describes installation, configuration, runtime behaviour, troubleshooting, developer extension points and recommendations for production deployment.
 
 Table of contents
 - Overview

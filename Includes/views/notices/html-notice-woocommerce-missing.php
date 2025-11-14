@@ -20,7 +20,7 @@ if (current_user_can('install_plugins')) {
         <strong>
             <?php
             esc_attr_e(
-                'Integration Rede for WooCommerce Disabled',
+                'Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit Disabled',
                 'integration-rede-for-woocommerce'
             );
             ?>

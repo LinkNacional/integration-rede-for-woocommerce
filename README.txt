@@ -16,7 +16,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
 [WordPress](https://www.linknacional.com.br/wordpress/)  Integration [Rede for WooCommerce plugin](https://www.linknacional.com.br/wordpress/woocommerce/rede/) is the ultimate solution for enabling secure and efficient payment options in your online store with [Rede](https://www.userede.com.br/) and [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede). With support for credit cards, debit cards, and PIX payments, this plugin empowers your business to offer a seamless checkout experience. Whether you want to enable installment payments, tokenized card storage for returning customers, or 3DS authentication, this plugin has you covered.
 
-### Why Choose Integration Rede for WooCommerce?
+### Why Choose Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit?
 
 - Multiple Payment Options: Accept payments via credit cards, debit cards, and PIX.
 - Installments: Offer flexible installment plans to your customers.
@@ -201,5 +201,5 @@ For any issues or questions, visit our support page or open a ticket on the Word
 
 ---
 
-Try Integration Rede for WooCommerce Today!  
+Try Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit Today!  
 Enhance your WooCommerce store with a reliable, secure, and feature-rich payment gateway. Start accepting payments with credit cards, debit cards, and PIX today!
