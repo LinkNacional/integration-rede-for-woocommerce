@@ -126,6 +126,13 @@ window.jQuery(function ($) {
           // Remove todos os <p> filhos diretos do elemento pai antes de substituir
           $container.parent().children('p').remove();
           $container.replaceWith(response.data.html);
+          
+          // Setar select de parcelas para valor 1
+          const installmentSelect = $('#maxipago-card-installments');
+          if (installmentSelect.length) {
+            installmentSelect.val('1').trigger('change');
+          }
+          
           // Depois de reinserir, recria a animação/cart
           lknMaxipagoCreditCardRender();
         }

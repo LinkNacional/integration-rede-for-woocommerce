@@ -950,7 +950,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         $session = null;
-        $installments_number = 1;
+        $installments_number = 4;
 
         $wc_get_template(
             'creditCard/redePaymentCreditForm.php',
