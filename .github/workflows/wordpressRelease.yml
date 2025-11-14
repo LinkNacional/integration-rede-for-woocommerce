@@ -6,7 +6,7 @@ on:
 env:
   PLUGIN_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "4.1.4"
+  DEPLOY_TAG: "4.1.5"
 
 jobs:
   deploy-to-wp:
@@ -41,5 +41,5 @@ jobs:
           SLUG: woo-rede
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          ASSETS_DIR: .wordpress-org
+          ASSETS_DIR: build/${{ env.PLUGIN_NAME }}/Includes/assets/WordpressAssets
           BUILD_DIR: build/${{ env.PLUGIN_NAME }}

@@ -1,3 +1,6 @@
+# 4.1.5 - 14/11/2025
+* Correção em titulo e imagens do plugin.
+
 # 4.1.4 - 07/11/2025
 * Ajuste no limite de parcelas por produto.
 * Ajuste no calculo final das parcelas de pagamento.
