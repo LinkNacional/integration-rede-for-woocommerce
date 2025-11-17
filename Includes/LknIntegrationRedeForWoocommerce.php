@@ -672,6 +672,10 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('wp_ajax_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
         $this->loader->add_action('wp_ajax_nopriv_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
 
+        // Adiciona endpoint AJAX para atualizar sessão de parcelas no shortcode
+        $this->loader->add_action('wp_ajax_update_installment_session', $this, 'update_installment_session');
+        $this->loader->add_action('wp_ajax_nopriv_update_installment_session', $this, 'update_installment_session');
+
         // Adiciona o nome do gateway nas notas do pedido
         $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
 
@@ -1013,6 +1017,56 @@ final class LknIntegrationRedeForWoocommerce
         echo '<th>' . esc_html($payment_label) . '</th>';
         echo '<td>' . wp_kses_post($payment_info) . '</td>';
         echo '</tr>';
+    }
+
+    /**
+     * Atualiza sessão de parcelas via AJAX (para shortcode checkout)
+     */
+    public function update_installment_session()
+    {
+        try {
+            // Verifica o nonce
+            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_rede_installment_shortcode_nonce')) {
+                wp_send_json_error(['message' => 'Invalid nonce']);
+                return;
+            }
+
+            // Obtém dados da requisição
+            $gateway = isset($_POST['gateway']) ? sanitize_text_field(wp_unslash($_POST['gateway'])) : '';
+            $installments = isset($_POST['installments']) ? intval(sanitize_text_field(wp_unslash($_POST['installments']))) : 1;
+
+            // Valida gateway
+            if (!in_array($gateway, ['rede_credit', 'maxipago_credit'])) {
+                wp_send_json_error(['message' => 'Invalid gateway']);
+                return;
+            }
+
+            // Valida parcelas
+            if ($installments < 1 || $installments > 12) {
+                wp_send_json_error(['message' => 'Invalid installments']);
+                return;
+            }
+
+            // Atualiza sessão WooCommerce
+            if (function_exists('WC') && WC()->session) {
+                $session_key = 'lkn_installments_number_' . $gateway;
+                WC()->session->set($session_key, $installments);
+                
+                wp_send_json_success([
+                    'message' => 'Installments updated successfully',
+                    'gateway' => $gateway,
+                    'installments' => $installments
+                ]);
+            } else {
+                wp_send_json_error(['message' => 'WooCommerce session not available']);
+            }
+        } catch (\Throwable $th) {
+            wp_send_json_error([
+                'message' => $th->getMessage(),
+                'line' => $th->getLine(),
+                'file' => $th->getFile()
+            ]);
+        }
     }
 
     /**
