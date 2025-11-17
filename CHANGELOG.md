@@ -1,3 +1,10 @@
+# 5.0.0 - 17/11/2025
+* Novo sistema de requisições da Rede (V2).
+* Melhoria na label das parcelas.
+* Sistema de cron para verificação automática de pagamentos PIX.
+* Otimização de scripts JavaScript para melhor performance.
+* Reset automático de parcelas em mudanças do carrinho.
+
 # 4.1.4 - 07/11/2025
 * Ajuste no limite de parcelas por produto.
 * Ajuste no calculo final das parcelas de pagamento.

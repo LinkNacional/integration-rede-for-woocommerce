@@ -126,6 +126,13 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.0.0 - 2025/11/17
+- New Rede API request system (V2).
+- Improvement in installment labels.
+- Cron system for automatic PIX payment verification.
+- JavaScript script optimization for better performance.
+- Automatic installment reset on cart changes.
+
 ### 4.1.4 - 2025/11/07
 - Adjustment in product installment limit.
 - Adjustment in final payment installment calculation.
@@ -187,8 +194,11 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.4 — custom attributes that help the look and feel of configurations.
-- See ChangeLog for full details of earlier releases and fixes.
+- 5.0.0 — New Rede API request system (V2).
+- Improvement in installment labels.
+- Cron system for automatic PIX payment verification.
+- JavaScript script optimization for better performance.
+- Automatic installment reset on cart changes.
 
 ---
 
