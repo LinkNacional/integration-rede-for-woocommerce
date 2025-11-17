@@ -227,9 +227,8 @@ $option = get_option('woocommerce_rede_credit_settings');
                         style="<?php echo esc_attr($selectStyle) ?>"
                         autocomplete="off">
                         <?php
-                        $default_installment = isset($installments_number) ? (int)$installments_number : 1;
                         foreach ($installments as $installment) {
-                            $selected = ($installment['num'] == $default_installment) ? 'selected' : '';
+                            $selected = ($installment['num'] == '1') ? 'selected' : '';
                             printf('<option value="%d" %s>%s</option>', esc_attr($installment['num']), esc_attr($selected), esc_html($installment['label']));
                         }
                         ?>

@@ -404,7 +404,7 @@ class LknIntegrationRedeForWoocommerceHelper
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
                         $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
-                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-fre", 'rede-for-woocommerce-pro');
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'rede-for-woocommerce-pro');
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);
@@ -425,6 +425,408 @@ class LknIntegrationRedeForWoocommerceHelper
 
                 break;
         }
+    }
+
+    /**
+     * Obtém as credenciais de um gateway específico
+     */
+    final public static function get_gateway_credentials($gateway_id)
+    {
+        $gateway_settings = get_option('woocommerce_' . $gateway_id . '_settings', array());
+        
+        // Verificar se o gateway está habilitado
+        if (!isset($gateway_settings['enabled']) || $gateway_settings['enabled'] !== 'yes') {
+            return false;
+        }
+        
+        // Verificar se as credenciais estão configuradas
+        $pv = isset($gateway_settings['pv']) ? trim($gateway_settings['pv']) : '';
+        $token = isset($gateway_settings['token']) ? trim($gateway_settings['token']) : '';
+        $environment = isset($gateway_settings['environment']) ? $gateway_settings['environment'] : 'test';
+        
+        if (empty($pv) || empty($token)) {
+            return false;
+        }
+        
+        return array(
+            'pv' => $pv,
+            'token' => $token,
+            'environment' => $environment
+        );
+    }
+
+    /**
+     * Gera Basic Authorization para um gateway específico
+     */
+    final public static function generate_basic_auth($gateway_id)
+    {
+        $credentials = self::get_gateway_credentials($gateway_id);
+        
+        if ($credentials === false) {
+            return false;
+        }
+        
+        return base64_encode($credentials['pv'] . ':' . $credentials['token']);
+    }
+
+    /**
+     * Gera token OAuth2 para API Rede v2 usando credenciais específicas de um gateway
+     */
+    final public static function generate_rede_oauth_token_for_gateway($gateway_id)
+    {
+        $credentials = self::get_gateway_credentials($gateway_id);
+        
+        if ($credentials === false) {
+            return false;
+        }
+        
+        $basic_auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
+        $environment = $credentials['environment'];
+        
+        $oauth_url = $environment === 'production' 
+            ? 'https://api.userede.com.br/oauth2/token'
+            : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
+
+        $oauth_response = wp_remote_post($oauth_url, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Authorization' => 'Basic ' . $basic_auth,
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ),
+            'body' => 'grant_type=client_credentials',
+            'timeout' => 30
+        ));
+        
+        if (is_wp_error($oauth_response)) {
+            return false;
+        }
+        
+        $oauth_body = wp_remote_retrieve_body($oauth_response);
+        $oauth_data = json_decode($oauth_body, true);
+        
+        if (!isset($oauth_data['access_token'])) {
+            return false;
+        }
+        
+        return $oauth_data;
+    }
+
+    /**
+     * Salva token OAuth2 específico de um gateway no cache
+     */
+    final public static function cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment)
+    {
+        $cache_data = array(
+            'token' => $token_data['access_token'],
+            'expires_in' => $token_data['expires_in'],
+            'generated_at' => time(),
+            'environment' => $environment,
+            'gateway_id' => $gateway_id
+        );
+        
+        // Codifica em base64 para segurança
+        $encoded_data = base64_encode(json_encode($cache_data));
+        
+        $option_name = 'lkn_rede_oauth_token_' . $gateway_id . '_' . $environment;
+        update_option($option_name, $encoded_data);
+        
+        return $cache_data;
+    }
+
+    /**
+     * Recupera token OAuth2 específico de um gateway do cache
+     */
+    final public static function get_cached_rede_oauth_token_for_gateway($gateway_id, $environment)
+    {
+        $option_name = 'lkn_rede_oauth_token_' . $gateway_id . '_' . $environment;
+        $cached_data = get_option($option_name, '');
+        
+        if (empty($cached_data)) {
+            return null;
+        }
+        
+        // Decodifica do base64
+        $decoded_data = json_decode(base64_decode($cached_data), true);
+        
+        if (!$decoded_data || !isset($decoded_data['token']) || !isset($decoded_data['generated_at'])) {
+            return null;
+        }
+        
+        return $decoded_data;
+    }
+
+    /**
+     * Obtém token OAuth2 válido específico de um gateway
+     */
+    final public static function get_rede_oauth_token_for_gateway($gateway_id)
+    {
+        $credentials = self::get_gateway_credentials($gateway_id);
+        
+        if ($credentials === false) {
+            return null;
+        }
+        
+        $environment = $credentials['environment'];
+        
+        // Tenta recuperar do cache
+        $cached_token = self::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
+        
+        // Se token está válido, retorna ele
+        if ($cached_token && self::is_rede_oauth_token_valid($cached_token)) {
+            return $cached_token['token'];
+        }
+        
+        // Token não existe ou expirou, tenta gerar novo
+        $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+        
+        // Se falhou ao gerar novo token
+        if ($token_data === false) {
+            // Se há um token em cache (mesmo expirado), usa ele como fallback
+            if ($cached_token && isset($cached_token['token'])) {
+                return $cached_token['token'];
+            }
+            
+            // Se não há token em cache, retorna null para forçar erro na API
+            return null;
+        }
+        
+        // Salva o novo token no cache
+        self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
+        
+        return $token_data['access_token'];
+    }
+
+    /**
+     * Força renovação dos tokens OAuth2 para todos os gateways configurados
+     */
+    final public static function refresh_all_rede_oauth_tokens()
+    {
+        $gateways = array('rede_credit', 'rede_debit', 'integration_rede_pix', 'rede_pix');
+        $renewed_count = 0;
+        
+        foreach ($gateways as $gateway_id) {
+            $credentials = self::get_gateway_credentials($gateway_id);
+            
+            if ($credentials === false) {
+                continue;
+            }
+            
+            $environment = $credentials['environment'];
+            $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+            
+            if ($token_data === false) {
+                continue;
+            }
+            
+            self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
+            $renewed_count++;
+        }
+        
+        return $renewed_count;
+    }
+
+    /**
+     * Verifica e renova apenas tokens OAuth2 expirados com base em tempo limite
+     * 
+     * @param int $expiry_minutes Minutos após criação para considerar token expirado
+     * @return int Número de tokens renovados
+     */
+    final public static function refresh_expired_rede_oauth_tokens($expiry_minutes = 15)
+    {
+        $gateways = array('rede_credit', 'rede_debit', 'integration_rede_pix', 'rede_pix');
+        $renewed_count = 0;
+        $expiry_seconds = $expiry_minutes * 60;
+        
+        foreach ($gateways as $gateway_id) {
+            $credentials = self::get_gateway_credentials($gateway_id);
+            
+            if ($credentials === false) {
+                continue;
+            }
+            
+            $environment = $credentials['environment'];
+            $token_option_name = 'lkn_rede_oauth_token_' . $gateway_id . '_' . $environment;
+            $cached_data = get_option($token_option_name, false);
+            
+            $should_refresh = false;
+            
+            if ($cached_data === false || empty($cached_data)) {
+                // Token não existe, precisa gerar
+                $should_refresh = true;
+            } else {
+                // Decodifica token do cache
+                $cached_token = json_decode(base64_decode($cached_data), true);
+                
+                if (!$cached_token) {
+                    // Token corrompido, precisa renovar
+                    $should_refresh = true;
+                } else {
+                    // Verifica se token expirou baseado no tempo
+                    $token_created = isset($cached_token['generated_at']) ? $cached_token['generated_at'] : 0;
+                    $time_elapsed = time() - $token_created;
+                    
+                    if ($time_elapsed >= $expiry_seconds) {
+                        $should_refresh = true;
+                    }
+                }
+            }
+            
+            if ($should_refresh) {
+                $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+                
+                if ($token_data !== false) {
+                    self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
+                    $renewed_count++;
+                }
+            }
+        }
+        
+        return $renewed_count;
+    }
+
+    /**
+     * Gera token OAuth2 para API Rede v2 (mantido para compatibilidade)
+     * @deprecated Use generate_rede_oauth_token_for_gateway() instead
+     */
+    final public static function generate_rede_oauth_token($environment = 'test')
+    {
+        $oauth_url = $environment === 'production' 
+            ? 'https://api.userede.com.br/oauth2/token'
+            : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
+
+        $oauth_response = wp_remote_post($oauth_url, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Authorization' => 'Basic MTA2MjQ0MzI6NGY3MzFhYjc3N2VmNDJkY2JjZTIxMTU4MWMzYzYzMDQ=',
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ),
+            'body' => 'grant_type=client_credentials',
+            'timeout' => 30
+        ));
+        
+        if (is_wp_error($oauth_response)) {
+            return false;
+        }
+        
+        $oauth_body = wp_remote_retrieve_body($oauth_response);
+        $oauth_data = json_decode($oauth_body, true);
+        
+        if (!isset($oauth_data['access_token'])) {
+            return false;
+        }
+        
+        return $oauth_data;
+    }
+
+    /**
+     * Salva token OAuth2 no cache com timestamp
+     */
+    final public static function cache_rede_oauth_token($token_data, $environment = 'test')
+    {
+        $cache_data = array(
+            'token' => $token_data['access_token'],
+            'expires_in' => $token_data['expires_in'],
+            'generated_at' => time(),
+            'environment' => $environment
+        );
+        
+        // Codifica em base64 para segurança
+        $encoded_data = base64_encode(json_encode($cache_data));
+        
+        $option_name = 'lkn_rede_oauth_token_' . $environment;
+        update_option($option_name, $encoded_data);
+        
+        return $cache_data;
+    }
+
+    /**
+     * Recupera token OAuth2 do cache
+     */
+    final public static function get_cached_rede_oauth_token($environment = 'test')
+    {
+        $option_name = 'lkn_rede_oauth_token_' . $environment;
+        $cached_data = get_option($option_name, '');
+        
+        if (empty($cached_data)) {
+            return null;
+        }
+        
+        // Decodifica do base64
+        $decoded_data = json_decode(base64_decode($cached_data), true);
+        
+        if (!$decoded_data || !isset($decoded_data['token']) || !isset($decoded_data['generated_at'])) {
+            return null;
+        }
+        
+        return $decoded_data;
+    }
+
+    /**
+     * Verifica se o token está válido (não expirou)
+     */
+    final public static function is_rede_oauth_token_valid($cached_token)
+    {
+        if (!$cached_token || !isset($cached_token['generated_at'])) {
+            return false;
+        }
+        
+        $current_time = time();
+        $token_age_minutes = ($current_time - $cached_token['generated_at']) / 60;
+        
+        // Token é válido se tem menos de 20 minutos (margem de segurança)
+        return $token_age_minutes < 20;
+    }
+
+    /**
+     * Obtém token OAuth2 válido (mantido para compatibilidade)
+     * @deprecated Use get_rede_oauth_token_for_gateway() instead
+     */
+    final public static function get_rede_oauth_token($environment = 'test')
+    {
+        // Tenta recuperar do cache
+        $cached_token = self::get_cached_rede_oauth_token($environment);
+        
+        // Se token está válido, retorna ele
+        if ($cached_token && self::is_rede_oauth_token_valid($cached_token)) {
+            return $cached_token['token'];
+        }
+        
+        // Token não existe ou expirou, tenta gerar novo
+        $token_data = self::generate_rede_oauth_token($environment);
+        
+        // Se falhou ao gerar novo token
+        if ($token_data === false) {
+            // Se há um token em cache (mesmo expirado), usa ele como fallback
+            if ($cached_token && isset($cached_token['token'])) {
+                return $cached_token['token'];
+            }
+            
+            // Se não há token em cache, retorna null para forçar erro na API
+            return null;
+        }
+        
+        // Salva o novo token no cache
+        self::cache_rede_oauth_token($token_data, $environment);
+        
+        return $token_data['access_token'];
+    }
+
+    /**
+     * Força renovação do token OAuth2 (mantido para compatibilidade)
+     * @deprecated Use refresh_all_rede_oauth_tokens() instead
+     */
+    final public static function refresh_rede_oauth_token($environment = 'test')
+    {
+        $token_data = self::generate_rede_oauth_token($environment);
+        
+        // Se falhou ao gerar novo token, mantém o cache atual
+        if ($token_data === false) {
+            return false;
+        }
+        
+        self::cache_rede_oauth_token($token_data, $environment);
+        
+        return $token_data['access_token'];
     }
 }
 ?>

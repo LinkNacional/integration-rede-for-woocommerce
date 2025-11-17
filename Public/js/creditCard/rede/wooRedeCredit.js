@@ -78,14 +78,14 @@ window.jQuery(function ($) {
       paymentBoxP.style.display = 'none';
     }
   }
-  $(document).on('updated_checkout', function () {
-    updatedCheckout()
-  });
 
   // Event delegation para capturar mudanças em radios criados dinamicamente
   document.addEventListener('change', function(event) {
-    if (event.target.type === 'radio') {
-      updatedCheckout()
+    if (event.target.type === 'radio' && event.target.name === 'payment_method') {
+      // Só atualiza se o método selecionado for rede_credit
+      if (event.target.value === 'rede_credit') {
+        updatedCheckout()
+      }
     }
   })
 
@@ -100,6 +100,13 @@ window.jQuery(function ($) {
           // Remove todos os <p> filhos diretos do elemento pai antes de substituir
           $container.parent().children('p').remove();
           $container.replaceWith(response.data.html);
+          
+          // Setar select de parcelas para valor 1
+          const installmentSelect = $('#rede-card-installments');
+          if (installmentSelect.length) {
+            installmentSelect.val('1').trigger('change');
+          }
+          
           // Depois de reinserir, recria a animação/cart
           lknRedeCreditCardRender();
         }

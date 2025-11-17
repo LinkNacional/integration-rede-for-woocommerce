@@ -105,7 +105,17 @@ window.jQuery(function ($) {
     }
   }
   
-  $(document).on('updated_checkout', function () {
+  // Event delegation para capturar mudanças em radios criados dinamicamente
+  document.addEventListener('change', function(event) {
+    if (event.target.type === 'radio' && event.target.name === 'payment_method') {
+      // Só atualiza se o método selecionado for maxipago_credit
+      if (event.target.value === 'maxipago_credit') {
+        updatedCheckout()
+      }
+    }
+  })
+
+  function updatedCheckout(){
     const $container = $('#maxipago-credit-payment-form');
     if ($container.length) {
       $.post(wooMaxipagoVars.ajaxurl, {
@@ -116,10 +126,17 @@ window.jQuery(function ($) {
           // Remove todos os <p> filhos diretos do elemento pai antes de substituir
           $container.parent().children('p').remove();
           $container.replaceWith(response.data.html);
+          
+          // Setar select de parcelas para valor 1
+          const installmentSelect = $('#maxipago-card-installments');
+          if (installmentSelect.length) {
+            installmentSelect.val('1').trigger('change');
+          }
+          
           // Depois de reinserir, recria a animação/cart
           lknMaxipagoCreditCardRender();
         }
       });
     }
-  });
+  }
 })

@@ -270,6 +270,8 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                     $reference = uniqid();
                 }
 
+                $reference = $reference . '-' . time();
+
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
                     throw new Exception(__('PV or Token is invalid!', 'woo-rede'));

@@ -123,7 +123,7 @@ final class LknIntegrationRedeForWoocommerceWcRede
 
             if ($payment_gateway instanceof LknIntegrationRedeForWoocommerceWcRedeAbstract) {
                 if ('PENDING' == $status || 'SUBMITTED' == $status) {
-                    $payment_gateway->consult_order($wc_order, $order_id, $tid, $status);
+                    // Consulta automática de pedidos foi removida
                 }
             }
         }

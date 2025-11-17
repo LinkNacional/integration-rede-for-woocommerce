@@ -58,17 +58,6 @@ final class LknIntegrationRedeForWoocommercePublic {
      * @since    1.0.0
      */
     public function enqueue_styles(): void {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/lknIntegrationRedeForWoocommercePublic.css', array(), $this->version, 'all');
     }
 
@@ -78,37 +67,49 @@ final class LknIntegrationRedeForWoocommercePublic {
      * @since    1.0.0
      */
     public function enqueue_scripts(): void {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
+
+        // Enqueue shortcode checkout script only on checkout pages
+        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout')) {
+            $session = WC()->session;
+            if ($session) {
+                $session->set('lkn_installments_number_rede_credit', 1);
+                $session->set('lkn_installments_number_maxipago_credit', 1);
+            }
+
+            wp_enqueue_script('lkn-integration-shortcode-checkout', plugin_dir_url(__FILE__) . 'js/lknIntegrationShortcodeCheckout.js', array('jquery'), $this->version, true);
+            wp_localize_script('lkn-integration-shortcode-checkout', 'lknInstallmentShortcodeVarsCheckout', array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('lkn_rede_installment_shortcode_nonce')
+            ));
+            
+            // Enqueue installment select script for shortcode checkout only if PRO version is not active
+            if (!is_plugin_active('integration-rede-for-woocommerce-pro/integration-rede-for-woocommerce-pro.php')) {
+                wp_enqueue_script('lkn-integration-installments-shortcode', plugin_dir_url(__FILE__) . 'js/lknIntegrationShortcodeInstallmentsSelectShortcode.js', array('jquery'), $this->version, true);
+                wp_localize_script('lkn-integration-installments-shortcode', 'lknInstallmentShortcodeVars', array(
+                    'ajaxurl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('lkn_rede_installment_shortcode_nonce')
+                ));
+            }
+        }
 
         // Enqueue installment label script for WooCommerce Blocks
         if (has_block('woocommerce/checkout') && !wp_script_is('lkn-installment-label', 'enqueued') && !wp_script_is('lkn-installment-label', 'done')) {
             wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);
             
             // Configuração de tradução para o script de label de parcelamento
-            // TODO resolver tradução
             wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(
-                'payment' => 'Pagamento',
-                'installment' => 'Parcelamento',
-                'loading' => 'Carregando...',
-                'calculatingInstallments' => 'Calculando parcelas...',
-                'cashPayment' => 'À vista',
-                'noInterest' => 'sem juros',
-                'noDiscount' => 'sem desconto',
-                'withDiscount' => '% de desconto',
-                'withInterest' => '% de juros',
-                'fallbackInstallment' => '2x parcelas',
-                'loadingPrice' => 'Carregando preço...'
+                'payment' => __('Payment', 'woo-rede'),
+                'installment' => __('Installment', 'woo-rede'),
+                'loading' => __('Loading...', 'woo-rede'),
+                'calculatingInstallments' => __('Calculating installments...', 'woo-rede'),
+                'cashPayment' => __('Cash payment', 'woo-rede'),
+                'noInterest' => __('no interest', 'woo-rede'),
+                'noDiscount' => __('no discount', 'woo-rede'),
+                'withDiscount' => __('% discount', 'woo-rede'),
+                'withInterest' => __('% interest', 'woo-rede'),
+                'fallbackInstallment' => __('Payment', 'woo-rede'),
+                'loadingPrice' => __('Loading price...', 'woo-rede')
             ));
         }
     }
