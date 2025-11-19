@@ -189,6 +189,10 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
+        // Hook para ações personalizadas da ordem PIX
+        $this->loader->add_filter('woocommerce_order_actions', $this, 'add_pix_verification_action');
+        $this->loader->add_action('woocommerce_order_action_verify_pix_status', $this, 'process_pix_verification_action');
+
         // Adiciona endpoint AJAX para parcelas Rede Credit
         $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
@@ -593,6 +597,112 @@ final class LknIntegrationRedeForWoocommerce
             $title = __('Rede Pix FREE', 'woo-rede');
         }
         return $title;
+    }
+
+    /**
+     * Adiciona ação de verificação PIX no dropdown de ações da ordem
+     */
+    public function add_pix_verification_action($actions)
+    {
+        global $theorder;
+        
+        if (!$theorder) {
+            return $actions;
+        }
+        
+        $payment_method = $theorder->get_payment_method();
+        
+        // Só adiciona a ação se for um pedido PIX
+        if ($payment_method === 'integration_rede_pix' || $payment_method === 'rede_pix') {
+            $actions['verify_pix_status'] = __('Verificar Status PIX', 'woo-rede');
+        }
+        
+        return $actions;
+    }
+
+    /**
+     * Processa a ação de verificação manual do PIX
+     */
+    public function process_pix_verification_action($order)
+    {
+        $payment_method = $order->get_payment_method();
+        
+        // Validar se é pedido PIX
+        if ($payment_method !== 'integration_rede_pix' && $payment_method !== 'rede_pix') {
+            $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
+            return;
+        }
+        
+        // Buscar TID da transação
+        $tId = '';
+        if ($payment_method === 'integration_rede_pix') {
+            $tId = $order->get_meta('_wc_rede_integration_pix_transaction_tid');
+        } elseif ($payment_method === 'rede_pix') {
+            $tId = $order->get_meta('_wc_rede_pix_transaction_tid');
+        }
+        
+        if (empty($tId)) {
+            $order->add_order_note(__('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
+            return;
+        }
+        
+        // Obter configurações do gateway
+        $gateway_id = ($payment_method === 'integration_rede_pix') ? 'integration_rede_pix' : 'rede_pix';
+        $pixOptions = get_option('woocommerce_' . $gateway_id . '_settings');
+        $environment = $pixOptions['environment'] ?? 'sandbox';
+        
+        try {
+            // Renovar token OAuth2 se necessário
+            LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
+            $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
+            
+            if (!$token_data || empty($token_data['token'])) {
+                throw new \Exception(__('Erro ao obter token de autenticação.', 'woo-rede'));
+            }
+            
+            // API v2 da Rede
+            if ('production' === $environment) {
+                $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
+            } else {
+                $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+            }
+            
+            $response = wp_remote_get($apiUrl . '/' . $tId, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token_data['token']
+                ),
+            ));
+            
+            if (is_wp_error($response)) {
+                throw new \Exception(__('Erro na comunicação com a API: ', 'woo-rede') . $response->get_error_message());
+            }
+            
+            $response_body = json_decode(wp_remote_retrieve_body($response), true);
+            $status = $response_body['authorization']['status'] ?? 'Unknown';
+            
+            if ($status === 'Approved') {
+                // Só atualiza o status se o pedido estiver pendente
+                if ($order->has_status('pending')) {
+                    $paymentCompleteStatus = $pixOptions['payment_complete_status'] ?? 'processing';
+                    if (empty($paymentCompleteStatus)) {
+                        $paymentCompleteStatus = 'processing';
+                    }
+                    
+                    $order->add_order_note(__('Verificação PIX: Pagamento confirmado pela Rede. Status alterado automaticamente.', 'woo-rede'));
+                    $order->update_status($paymentCompleteStatus);
+                } else {
+                    $order->add_order_note(__('Verificação PIX: Pagamento confirmado pela Rede.', 'woo-rede'));
+                }
+            } else {
+                $order->add_order_note(__('Verificação PIX: Pagamento ainda não confirmado pela Rede. Status da transação: ', 'woo-rede') . $status);
+            }
+            
+        } catch (\Exception $e) {
+            $order->add_order_note(__('Verificação PIX: Falha na consulta ao gateway de pagamento. Detalhes: ', 'woo-rede') . $e->getMessage());
+        }
+        
+        $order->save();
     }
 
     public static function lknIntegrationRedeForWoocommercePluginRowMeta($plugin_meta, $plugin_file)
