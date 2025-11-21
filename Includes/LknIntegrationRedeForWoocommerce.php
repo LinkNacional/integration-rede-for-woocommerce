@@ -747,7 +747,6 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->wc_rede_class->getInstance();
-        $this->loader->add_action('update_rede_orders', $this->wc_rede_class, 'updateRedeOrders');
         $this->loader->add_filter('woocommerce_payment_gateways', $this->wc_rede_class, 'addGateway');
 
         $this->loader->add_action('woocommerce_thankyou_' . $this->wc_rede_credit_class->id, $this->wc_rede_credit_class, 'thankyou_page');
