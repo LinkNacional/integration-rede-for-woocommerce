@@ -150,7 +150,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'label' => esc_attr__('Enables payment with Rede', 'woo-rede'),
                 'default' => $options['enabled'] ?? 'no',
                 'desc_tip'    => esc_attr__('Check this box and save to enable credit card settings.', 'woo-rede'),
-                'description' => esc_attr__('Enable or disable the credit card payment method.', 'woo-rede'),
+                // TODO Fix: component out of the scope
+                // 'description' => esc_attr__('Enable or disable the credit card payment method.', 'woo-rede'),
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Enable this option to allow customers to pay with credit cards using Rede API.', 'woo-rede')
                 )
@@ -263,7 +264,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'number',
                 'default' => '5',
-                'description' => esc_attr__('Set the minimum installment value for credit card payments. Recommended minimum value by REDE: 5.', 'woo-rede'),
+                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value MaxiPago: 5.', 'woo-rede'),
                 'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede'),
