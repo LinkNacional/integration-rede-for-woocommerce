@@ -11,8 +11,9 @@ const ContentRedeCredit = props => {
   const totalAmountFloat = settingsRedeCredit.cartTotal;
   const [selectedValue, setSelectedValue] = window.wp.element.useState('');
   const handleSortChange = event => {
-    setSelectedValue(event.target.value);
-    updateCreditObject('rede_credit_installments', event.target.value);
+    const value = String(event.target.value); // Garante que seja string
+    setSelectedValue(value);
+    updateCreditObject('rede_credit_installments', value);
   };
   const {
     eventRegistration,
@@ -62,7 +63,7 @@ const ContentRedeCredit = props => {
               
               // Se não há valor selecionado ou o valor selecionado não existe mais, seleciona o primeiro
               if (!selectedValue || !plainOptions.find(opt => opt.key === selectedValue)) {
-                const firstOption = plainOptions[0]?.key || '1';
+                const firstOption = String(plainOptions[0]?.key || '1'); // Garante que seja string
                 setSelectedValue(firstOption);
                 updateCreditObject('rede_credit_installments', firstOption);
               }
@@ -102,7 +103,7 @@ const ContentRedeCredit = props => {
               // Limpa as opções atuais e busca as novas
               setOptions([]);
               setSelectedValue('1');
-              updateCreditObject('rede_credit_installments', '1');
+              updateCreditObject('rede_credit_installments', '1'); // Garante que seja string
               generateRedeInstallmentOptions();
             }, 500);
           }
@@ -174,7 +175,11 @@ const ContentRedeCredit = props => {
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
       // Verifica se todos os campos do creditObject estão preenchidos
-      const allFieldsFilled = Object.values(creditObject).every(field => field.trim() !== '');
+      const allFieldsFilled = Object.values(creditObject).every(field => {
+        // Garante que o campo seja uma string antes de chamar trim()
+        const fieldStr = typeof field === 'string' ? field : String(field);
+        return fieldStr.trim() !== '';
+      });
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,

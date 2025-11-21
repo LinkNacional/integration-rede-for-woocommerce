@@ -263,7 +263,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'number',
                 'default' => '5',
-                'description' => esc_attr__('Set the minimum installment value for credit card payments. Recommended minimum value by REDE: R$ 5.00.', 'woo-rede'),
+                'description' => esc_attr__('Set the minimum installment value for credit card payments. Recommended minimum value by REDE: 5.', 'woo-rede'),
                 'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede'),
@@ -714,6 +714,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             }
 
             $order_total = wc_format_decimal($order_total, $decimals);
+
+            error_log($order_total);
+            error_log($installments);
 
             try {
                 $transaction_response = $this->process_credit_transaction_v2($orderId . '-' . time(), $order_total, $installments, $cardData);

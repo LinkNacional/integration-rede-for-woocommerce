@@ -700,6 +700,9 @@ final class LknIntegrationRedeForWoocommerce
             $status = $response_body['authorization']['status'] ?? 'Unknown';
             
             if ($status === 'Approved') {
+                // Obter valor e moeda do pedido usando método compatível
+                $order_total = wc_price($order->get_total());
+                
                 // Só atualiza o status se o pedido estiver pendente
                 if ($order->has_status('pending')) {
                     $paymentCompleteStatus = $pixOptions['payment_complete_status'] ?? 'processing';
@@ -707,17 +710,17 @@ final class LknIntegrationRedeForWoocommerce
                         $paymentCompleteStatus = 'processing';
                     }
                     
-                    $order->add_order_note(__('Verificação PIX: Pagamento confirmado pela Rede. Status alterado automaticamente.', 'woo-rede'));
+                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
                     $order->update_status($paymentCompleteStatus);
                 } else {
-                    $order->add_order_note(__('Verificação PIX: Pagamento confirmado pela Rede.', 'woo-rede'));
+                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
                 }
             } else {
-                $order->add_order_note(__('Verificação PIX: Pagamento ainda não confirmado pela Rede. Status da transação: ', 'woo-rede') . $status);
+                $order->add_order_note(__('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ', 'woo-rede') . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note(__('Verificação PIX: Falha na consulta ao gateway de pagamento. Detalhes: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note(__('Verificação Manual PIX: Falha na consulta de pagamento na Rede. Detalhes: ', 'woo-rede') . $e->getMessage());
         }
         
         $order->save();
