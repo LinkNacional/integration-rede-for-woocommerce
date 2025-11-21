@@ -56,7 +56,16 @@ const ContentRedeCredit = props => {
                   label: tempDiv.textContent || tempDiv.innerText || ''
                 };
               });
+              
+              // Remove todas as opções atuais e adiciona as novas
               setOptions(plainOptions);
+              
+              // Se não há valor selecionado ou o valor selecionado não existe mais, seleciona o primeiro
+              if (!selectedValue || !plainOptions.find(opt => opt.key === selectedValue)) {
+                const firstOption = plainOptions[0]?.key || '1';
+                setSelectedValue(firstOption);
+                updateCreditObject('rede_credit_installments', firstOption);
+              }
             }
           },
           error: function () {
@@ -69,29 +78,51 @@ const ContentRedeCredit = props => {
     }, 400); // 400ms de debounce
   };
 
-  // Intercepta window.fetch para WooCommerce Blocks e atualiza parcelas após requisições relevantes
+  // Intercepta requisições para atualizar parcelas após mudanças no shipping
   window.wp.element.useEffect(() => {
     // Chama só uma vez ao carregar a página
     generateRedeInstallmentOptions();
-    const targetNode = document.querySelector('body');
 
-    // Configura o observer
-    const observer = new MutationObserver((mutationsList) => {
-      for (const mutation of mutationsList) {
-        if ('wc-block-formatted-money-amount wc-block-components-formatted-money-amount wc-block-components-totals-footer-item-tax-value' == mutation.target.parentElement.className) {
-          generateRedeInstallmentOptions()
-        }
+    // Intercepta o fetch original para capturar requisições de shipping
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      const [url, options] = args;
+      
+      // Verifica se é uma requisição para select-shipping-rate
+      if (url && url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')) {
+        // Executa a requisição original
+        return originalFetch.apply(this, args).then(response => {
+          // Clona a response para poder ler o conteúdo
+          const responseClone = response.clone();
+          
+          // Verifica se a requisição foi bem-sucedida
+          if (response.ok) {
+            // Aguarda um breve momento para a atualização do carrinho e então atualiza as parcelas
+            setTimeout(() => {
+              // Limpa as opções atuais e busca as novas
+              setOptions([]);
+              setSelectedValue('1');
+              updateCreditObject('rede_credit_installments', '1');
+              generateRedeInstallmentOptions();
+            }, 500);
+          }
+          
+          // Retorna a response original
+          return response;
+        }).catch(error => {
+          // Em caso de erro, retorna a response original
+          return originalFetch.apply(this, args);
+        });
       }
-    });
+      
+      // Para outras requisições, executa normalmente
+      return originalFetch.apply(this, args);
+    };
 
-    // Opções de observação
-    observer.observe(targetNode, {
-      childList: true,
-      subtree: true,
-      characterData: true
-    });
-
-    window.lknSetCartRequestRede = true;
+    // Cleanup: restaura o fetch original quando o componente é desmontado
+    return () => {
+      window.fetch = originalFetch;
+    };
   }, []);
 
   // Observa eventos de atualização do WooCommerce Blocks (cart/checkout)
