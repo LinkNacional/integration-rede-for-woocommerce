@@ -232,12 +232,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             ),
             'min_parcels_value' => array(
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
-                'type' => 'text',
+                'type' => 'number',
                 'default' => '5',
                 'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
-                'description' => esc_attr__('Set the minimum installment value for credit card payments.', 'woo-rede'),
+                'description' => esc_attr__('Set the minimum installment value for credit card payments. Recommended minimum value by REDE: 5.', 'woo-rede'),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__("Enter the minimum value each installment must have.", 'woo-rede')
+                    'data-title-description' => esc_attr__("Enter the minimum value each installment must have.", 'woo-rede'),
+                    'min' => '5',
+                    'step' => '0.01'
                 ),
             ),
             'max_parcels_number' => array(

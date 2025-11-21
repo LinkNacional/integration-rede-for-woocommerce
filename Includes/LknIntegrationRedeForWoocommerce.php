@@ -359,12 +359,21 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Obter valor mínimo da parcela das configurações
+        $min_installment_value = 5; // Valor padrão
+        if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
+            $configured_min_value = floatval($this->wc_maxipago_credit_class->get_option('min_parcels_value'));
+            if ($configured_min_value > 0) {
+                $min_installment_value = $configured_min_value;
+            }
+        }
+
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             
-            // Ignora parcelas com valor menor que R$ 5,00
-            if ($installment_value < 5) {
+            // Ignora parcelas com valor menor que o configurado
+            if ($installment_value < $min_installment_value) {
                 continue;
             }
             
@@ -447,12 +456,21 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Obter valor mínimo da parcela das configurações
+        $min_installment_value = 5; // Valor padrão
+        if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
+            $configured_min_value = floatval($this->wc_rede_credit_class->get_option('min_parcels_value'));
+            if ($configured_min_value > 0) {
+                $min_installment_value = $configured_min_value;
+            }
+        }
+
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             
-            // Ignora parcelas com valor menor que R$ 5,00
-            if ($installment_value < 5) {
+            // Ignora parcelas com valor menor que o configurado
+            if ($installment_value < $min_installment_value) {
                 continue;
             }
             
