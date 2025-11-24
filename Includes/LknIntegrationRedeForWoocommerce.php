@@ -235,12 +235,62 @@ final class LknIntegrationRedeForWoocommerce
             return;
         }
 
-        // Verificar se passou 24h desde a criação do pedido
+        // Obter método de pagamento para distinguir entre free e PRO
+        $payment_method = $order->get_payment_method();
+        $gateway_id = '';
+        
+        // Determinar qual gateway usar
+        if ($payment_method === 'integration_rede_pix') {
+            $gateway_id = 'integration_rede_pix'; // PIX Free
+        } elseif ($payment_method === 'rede_pix') {
+            $gateway_id = 'rede_pix'; // PIX PRO
+        } else {
+            return; // Não é um pedido PIX válido
+        }
+
+        // Obter configurações do gateway específico
+        $pix_settings = get_option('woocommerce_' . $gateway_id . '_settings');
+        if (!$pix_settings) {
+            return;
+        }
+
+        // Determinar tempo limite de expiração baseado no tipo de gateway
+        $expiration_hours = 24; // Padrão para PIX Free
+        
+        if ($gateway_id === 'rede_pix') {
+            // Lógica do PIX PRO - obter instância do gateway
+            $gateways = WC()->payment_gateways->payment_gateways();
+            if (isset($gateways[$gateway_id])) {
+                $pixInstance = $gateways[$gateway_id];
+                $syncWithStock = $pixInstance->get_option('sync_with_stock');
+                error_log('Sync with stock: ' . $syncWithStock);
+                
+                // Determinar tempo de expiração conforme configuração PRO
+                if ('yes' === $syncWithStock) {
+                    $holdStockMinutes = (int)get_option('woocommerce_hold_stock_minutes', 0);
+                    if ($holdStockMinutes > 0) {
+                        $expiration_hours = (int)round($holdStockMinutes / 60); // Converter e arredondar para inteiro
+                        // Garante pelo menos 1 hora
+                        $expiration_hours = max(1, $expiration_hours);
+                    } else {
+                        $expirationCountOption = $pixInstance->get_option('expiration_count');
+                        $expiration_hours = (int)round(empty($expirationCountOption) ? 1 : (float)$expirationCountOption);
+                    }
+                } else {
+                    $expirationCountOption = $pixInstance->get_option('expiration_count');
+                    $expiration_hours = (int)round(empty($expirationCountOption) ? 1 : (float)$expirationCountOption);
+                }
+            }
+        }
+        // Para PIX Free (integration_rede_pix), mantém 24h padrão
+
+        // Verificar se passou o tempo limite desde a criação do pedido
         $order_date = $order->get_date_created();
         $now = new \DateTime();
         $diff = $now->getTimestamp() - $order_date->getTimestamp();
+        $expiration_seconds = $expiration_hours * 60 * 60;
         
-        if ($diff > (24 * 60 * 60)) { // 24 horas
+        if ($diff > $expiration_seconds) {
             // Cancelar este cron específico
             wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
             return;
@@ -252,16 +302,10 @@ final class LknIntegrationRedeForWoocommerce
             return;
         }
 
-        // Obter configurações do gateway PIX
-        $pix_settings = get_option('woocommerce_integration_rede_pix_settings');
-        if (!$pix_settings) {
-            return;
-        }
-
         $environment = $pix_settings['environment'] ?? 'test';
         
         // Obter token OAuth2
-        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway('integration_rede_pix');
+        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
         if (!$access_token) {
             return;
         }
