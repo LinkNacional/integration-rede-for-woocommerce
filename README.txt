@@ -115,6 +115,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 4.1.8 - 2025/11/04
+* Fixed minimum installment value.
+
 ### 4.1.7 - 2025/11/04
 * Fix in installment select generation.
 
