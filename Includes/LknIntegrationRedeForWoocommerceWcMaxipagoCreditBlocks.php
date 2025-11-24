@@ -37,6 +37,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             '1.0.0',
             true
         );
+        wp_localize_script(
+            'maxipago_credit-blocks-integration',
+            'maxipagoCreditAjax',
+            array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce('maxipagoCardNonce'),
+            )
+        );
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('maxipago_credit-blocks-integration');
         }

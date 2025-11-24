@@ -37,6 +37,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             '1.0.0',
             true
         );
+        wp_localize_script(
+            'rede_credit-blocks-integration',
+            'redeCreditAjax',
+            array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce('redeCardNonce'),
+            )
+        );
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('rede_credit-blocks-integration');
         }

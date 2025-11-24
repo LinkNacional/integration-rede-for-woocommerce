@@ -1,18 +1,18 @@
-# Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit 
+=== Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit ===
 
 Contributors: linknacional, MarcosAlexandre  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
-Tags: rede, PIX, credit card, debit card, payment  
+Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.8  
-Stable tag: 4.1.5
+Stable tag: 4.1.6
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
----
+Payment Gateway for Rede Itaú for WooCommerce - PIX, Credit Card and Debit Cards.
 
-## Transform Your WooCommerce Store with Seamless Payments with PIX and Debit and credit card
+== Transform Your WooCommerce Store with Seamless Payments with PIX and Debit and credit card ==
 
 [WordPress](https://www.linknacional.com.br/wordpress/)  Integration [Rede for WooCommerce plugin](https://www.linknacional.com.br/wordpress/woocommerce/rede/) is the ultimate solution for enabling secure and efficient payment options in your online store with [Rede](https://www.userede.com.br/) and [Maxipago](https://www.userede.com.br/n/gateway-de-pagamento-rede). With support for credit cards, debit cards, and PIX payments, this plugin empowers your business to offer a seamless checkout experience. Whether you want to enable installment payments, tokenized card storage for returning customers, or 3DS authentication, this plugin has you covered.
 
@@ -26,8 +26,6 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 - Customizable: Configure payment settings to match your business needs.
 - Sandbox Mode: Test transactions in a secure environment before going live.
 
----
-
 ## Features at a Glance
 
 - Credit and Debit Card Payments: Accept payments from major card brands like Visa, Mastercard, Elo, and more.
@@ -37,8 +35,6 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 - Webhooks: Stay updated with real-time payment notifications.
 - Refunds and Captures: Manage refunds and payment captures directly from your WooCommerce dashboard.
 - Detailed Logs: Debug and troubleshoot with comprehensive logging.
-
----
 
 [youtube https://www.youtube.com/watch?v=g8IA3QUiV8o]
 
@@ -126,6 +122,10 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 4.1.6 - 2025/11/24
+- Fixed installment select when choosing a new shipping option.
+- Fixed minimum installment value calculation.
+
 ### 4.1.5 - 2025/11/14
 - Fix plugin images.
 
@@ -190,8 +190,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.4 — custom attributes that help the look and feel of configurations.
-- See ChangeLog for full details of earlier releases and fixes.
+- 4.1.6.
+- Fixed installment select when choosing a new shipping option.
+- Fixed minimum installment value calculation.
 
 ---
 
