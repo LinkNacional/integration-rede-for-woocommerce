@@ -126,6 +126,10 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 4.1.6 - 2025/11/24
+- Fixed installment select when choosing a new shipping option.
+- Fixed minimum installment value calculation.
+
 ### 4.1.5 - 2025/11/14
 - Fix plugin images.
 
@@ -190,8 +194,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.4 — custom attributes that help the look and feel of configurations.
-- See ChangeLog for full details of earlier releases and fixes.
+- 4.1.6.
+- Fixed installment select when choosing a new shipping option.
+- Fixed minimum installment value calculation.
 
 ---
 

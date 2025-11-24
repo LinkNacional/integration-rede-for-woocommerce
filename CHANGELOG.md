@@ -1,3 +1,7 @@
+# 4.1.6 - 24/11/2025
+* Correção no select de parcelar ao selecionar um novo frete.
+* Correção nas min das parcelas.
+
 # 4.1.5 - 14/11/2025
 * Correção em titulo e imagens do plugin.
 
