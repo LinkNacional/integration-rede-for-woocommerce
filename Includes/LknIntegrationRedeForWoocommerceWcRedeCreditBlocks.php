@@ -83,10 +83,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             ($settings['installment_interest'] === 'yes' || $settings['installment_discount']) &&
             is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
         ) {
-
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
+                if (($i === 1 || $parcelAmount >= $minParcelValue) && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($cart_total, $interest, $i, 'label', $this->gateway);
                     if ($customLabel) {
@@ -97,7 +96,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
         } else {
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue) {
+                if ($i === 1 || $parcelAmount >= $minParcelValue) {
                     $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($parcelAmount))));
                 }
             }

@@ -250,7 +250,7 @@ final class LknIntegrationRedeForWoocommerce
                 $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -271,6 +271,15 @@ final class LknIntegrationRedeForWoocommerce
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             if ($installment_value < $min_parcels_value) {
+                // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
+                if ($i === 1) {
+                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
+                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'maxipago_credit') : $base_label;
+                    $installments[] = [
+                        'key' => 1,
+                        'label' => $label
+                    ];
+                }
                 break;
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
@@ -341,7 +350,7 @@ final class LknIntegrationRedeForWoocommerce
                 $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -362,6 +371,15 @@ final class LknIntegrationRedeForWoocommerce
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
             if ($installment_value < $min_parcels_value) {
+                // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
+                if ($i === 1) {
+                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
+                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
+                    $installments[] = [
+                        'key' => 1,
+                        'label' => $label
+                    ];
+                }
                 break;
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
@@ -563,10 +581,6 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod');
-
-        // Adiciona endpoint AJAX para parcelas Maxipago
-        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
 
         // Adiciona endpoint AJAX para refresh dos campos de pagamento
         $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
