@@ -230,8 +230,15 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += $extra_fees;
         }
         $max_installments = 12;
+        $min_parcels_value = 5;
         if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
             $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
+            $min_parcels_value = $this->wc_maxipago_credit_class->get_option('min_parcels_value');
+            if (!is_numeric($min_parcels_value) || $min_parcels_value < 1) {
+                $min_parcels_value = 5;
+            } else {
+                $min_parcels_value = floatval($min_parcels_value);
+            }
             if ($max_installments < 1) {
                 $max_installments = 12;
             }
@@ -263,6 +270,9 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
+            if ($installment_value < $min_parcels_value) {
+                break;
+            }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
@@ -311,9 +321,15 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += $extra_fees;
         }
         $max_installments = 12;
+        $min_parcels_value = 5;
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
             $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
-
+            $min_parcels_value = $this->wc_rede_credit_class->get_option('min_parcels_value');
+            if (!is_numeric($min_parcels_value) || $min_parcels_value < 1) {
+                $min_parcels_value = 5;
+            } else {
+                $min_parcels_value = floatval($min_parcels_value);
+            }
             if ($max_installments < 1) {
                 $max_installments = 12;
             }
@@ -345,6 +361,9 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
+            if ($installment_value < $min_parcels_value) {
+                break;
+            }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto

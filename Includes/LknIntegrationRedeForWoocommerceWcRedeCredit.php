@@ -265,11 +265,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
             'min_parcels_value' => array(
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
-                'type' => 'text',
-                'default' => '5',
-                'description' => esc_attr__('Set the minimum installment value for credit card payments.', 'woo-rede'),
+                'type' => 'number',
+                'default' => 5,
+                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value by REDE: 5.', 'woo-rede'),
                 'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
                 'custom_attributes' => array(
+                    'min' => 5,
+                    'step' => 'any',
                     'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede')
                 )
             ),
