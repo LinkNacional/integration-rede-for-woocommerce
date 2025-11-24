@@ -358,7 +358,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
                     // Limita ao menor valor encontrado entre os produtos
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -367,24 +367,24 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         for ($i = 1; $i <= $max_installments; ++$i) {
-            if (($order_total / $i) < $min_value) {
-                break;
-            }
-            $customLabel = null; // Resetar a variável a cada iteração
-            $interest = round((float) $this->get_option($i . 'x'), 2);
-            $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
-            if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-                $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
-            }
+            // Para 1x à vista, sempre permite mesmo se for menor que o valor mínimo
+            if ($i === 1 || ($order_total / $i) >= $min_value) {
+                $customLabel = null; // Resetar a variável a cada iteração
+                $interest = round((float) $this->get_option($i . 'x'), 2);
+                $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
+                if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+                    $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
+                }
 
-            if (gettype($customLabel) === 'string' && $customLabel) {
-                $label = $customLabel;
-            }
+                if (gettype($customLabel) === 'string' && $customLabel) {
+                    $label = $customLabel;
+                }
 
-            $installments[] = array(
-                'num'   => $i,
-                'label' => $label,
-            );
+                $installments[] = array(
+                    'num'   => $i,
+                    'label' => $label,
+                );
+            }
         }
 
         return $installments;

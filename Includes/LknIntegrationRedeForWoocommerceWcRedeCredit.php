@@ -379,7 +379,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
-                    if ($product_limit < $max_parcels) {
+                    if ($product_limit > 0 && $product_limit < $max_parcels) {
                         $max_parcels = $product_limit;
                     }
                 }
@@ -387,31 +387,30 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         for ($i = 1; $i <= $max_parcels; ++$i) {
-            if (($order_total / $i) < $min_value) {
-                break;
+            // Para 1x à vista, sempre permite mesmo se for menor que o valor mínimo
+            if ($i === 1 || ($order_total / $i) >= $min_value) {
+                $customLabel = null; // Resetar a variável a cada iteração
+                $interest = round((float) $this->get_option($i . 'x'), 2);
+                $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
+
+                if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+                    $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
+                }
+
+                if (gettype($customLabel) === 'string' && $customLabel) {
+                    $label = $customLabel;
+                }
+
+                $has_interest_or_discount = (
+                    $this->get_option('installment_interest') === 'yes' ||
+                    $this->get_option('installment_discount') === 'yes'
+                );
+
+                $installments[] = array(
+                    'num'   => $i,
+                    'label' => $label,
+                );
             }
-
-            $customLabel = null; // Resetar a variável a cada iteração
-            $interest = round((float) $this->get_option($i . 'x'), 2);
-            $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
-
-            if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-                $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
-            }
-
-            if (gettype($customLabel) === 'string' && $customLabel) {
-                $label = $customLabel;
-            }
-
-            $has_interest_or_discount = (
-                $this->get_option('installment_interest') === 'yes' ||
-                $this->get_option('installment_discount') === 'yes'
-            );
-
-            $installments[] = array(
-                'num'   => $i,
-                'label' => $label,
-            );
         }
 
         return $installments;

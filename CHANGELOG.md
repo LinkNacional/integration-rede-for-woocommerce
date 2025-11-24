@@ -1,5 +1,8 @@
+# 4.1.8 - 24/11/2025
+* Correção no valor minimo por parcela.
+
 # 4.1.7 - 24/11/2025
-* Correção no na geração do select das parcelas.
+* Correção na geração do select das parcelas.
 
 # 4.1.6 - 24/11/2025
 * Correção no select de parcelar ao selecionar um novo frete.
