@@ -193,6 +193,9 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('woocommerce_order_actions', $this, 'add_pix_verification_action');
         $this->loader->add_action('woocommerce_order_action_verify_pix_status', $this, 'process_pix_verification_action');
 
+        // Limpa o cron 'update_rede_orders' ao atualizar o plugin via admin
+        $this->loader->add_action('upgrader_process_complete', $this, 'clear_update_rede_orders_on_plugin_update', 10, 2);
+
         // Adiciona endpoint AJAX para parcelas Rede Credit
         $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
@@ -203,146 +206,6 @@ final class LknIntegrationRedeForWoocommerce
 
         // Hooks para atualizar tokens OAuth2 no checkout (blocks e shortcode)
         $this->loader->add_action('wp_enqueue_scripts', $this, 'lkn_rede_refresh_oauth_token_on_checkout');
-        
-        // Hook para verificação automática de PIX
-        $this->loader->add_action('lkn_verify_pix_payment', $this, 'verify_pix_payment_status', 10, 2);
-        
-        // Registrar intervalo customizado para PIX
-        $this->loader->add_filter('cron_schedules', $this, 'add_pix_cron_interval');
-    }
-
-    /**
-     * Adiciona intervalo customizado para verificação de PIX
-     */
-    public function add_pix_cron_interval($schedules)
-    {
-        if (!isset($schedules['lkn_pix_check_interval'])) {
-            $schedules['lkn_pix_check_interval'] = array(
-                'interval' => 30 * 60, // 30 minutos
-                'display' => __('PIX Check Interval', 'woo-rede')
-            );
-        }
-        return $schedules;
-    }
-
-    /**
-     * Verifica status do pagamento PIX via cron
-     */
-    public function verify_pix_payment_status($order_id, $tid)
-    {
-        $order = wc_get_order($order_id);
-        if (!$order) {
-            return;
-        }
-
-        // Obter método de pagamento para distinguir entre free e PRO
-        $payment_method = $order->get_payment_method();
-        $gateway_id = '';
-        
-        // Determinar qual gateway usar
-        if ($payment_method === 'integration_rede_pix') {
-            $gateway_id = 'integration_rede_pix'; // PIX Free
-        } elseif ($payment_method === 'rede_pix') {
-            $gateway_id = 'rede_pix'; // PIX PRO
-        } else {
-            return; // Não é um pedido PIX válido
-        }
-
-        // Obter configurações do gateway específico
-        $pix_settings = get_option('woocommerce_' . $gateway_id . '_settings');
-        if (!$pix_settings) {
-            return;
-        }
-
-        // Determinar tempo limite de expiração baseado no tipo de gateway
-        $expiration_hours = 24; // Padrão para PIX Free
-        
-        if ($gateway_id === 'rede_pix') {
-            // Lógica do PIX PRO - obter instância do gateway
-            $gateways = WC()->payment_gateways->payment_gateways();
-            if (isset($gateways[$gateway_id])) {
-                $pixInstance = $gateways[$gateway_id];
-                $syncWithStock = $pixInstance->get_option('sync_with_stock');
-                error_log('Sync with stock: ' . $syncWithStock);
-                
-                // Determinar tempo de expiração conforme configuração PRO
-                if ('yes' === $syncWithStock) {
-                    $holdStockMinutes = (int)get_option('woocommerce_hold_stock_minutes', 0);
-                    if ($holdStockMinutes > 0) {
-                        $expiration_hours = (int)round($holdStockMinutes / 60); // Converter e arredondar para inteiro
-                        // Garante pelo menos 1 hora
-                        $expiration_hours = max(1, $expiration_hours);
-                    } else {
-                        $expirationCountOption = $pixInstance->get_option('expiration_count');
-                        $expiration_hours = (int)round(empty($expirationCountOption) ? 1 : (float)$expirationCountOption);
-                    }
-                } else {
-                    $expirationCountOption = $pixInstance->get_option('expiration_count');
-                    $expiration_hours = (int)round(empty($expirationCountOption) ? 1 : (float)$expirationCountOption);
-                }
-            }
-        }
-        // Para PIX Free (integration_rede_pix), mantém 24h padrão
-
-        // Verificar se passou o tempo limite desde a criação do pedido
-        $order_date = $order->get_date_created();
-        $now = new \DateTime();
-        $diff = $now->getTimestamp() - $order_date->getTimestamp();
-        $expiration_seconds = $expiration_hours * 60 * 60;
-        
-        if ($diff > $expiration_seconds) {
-            // Cancelar este cron específico
-            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
-            return;
-        }
-
-        // Se o pedido não estiver pendente, cancelar cron e ignorar
-        if ($order->get_status() !== 'pending') {
-            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
-            return;
-        }
-
-        $environment = $pix_settings['environment'] ?? 'test';
-        
-        // Obter token OAuth2
-        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
-        if (!$access_token) {
-            return;
-        }
-
-        // URL da API
-        if ('production' === $environment) {
-            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
-        } else {
-            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
-        }
-        
-        // Consultar status
-        $response = wp_remote_get($apiUrl . '/' . $tid, array(
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $access_token
-            ),
-        ));
-        
-        $response_body = wp_remote_retrieve_body($response);
-        $response_body = json_decode($response_body, true);
-
-        // Se pagamento aprovado, atualizar pedido e cancelar cron
-        if (isset($response_body['authorization']['status']) && $response_body['authorization']['status'] === 'Approved') {
-            $payment_status = $pix_settings['payment_complete_status'] ?? 'processing';
-            
-            if (empty($payment_status)) {
-                $payment_status = 'processing';
-            }
-            
-            $order->update_status($payment_status);
-            $order->add_order_note(__('PIX payment confirmed automatically.', 'woo-rede'));
-            $order->save();
-            
-            // Cancelar verificações futuras
-            wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order_id, $tid));
-        }
     }
 
     /**
@@ -768,6 +631,24 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         $order->save();
+    }
+
+    /**
+     * Limpa o cron 'update_rede_orders' ao atualizar o plugin via admin
+     */
+    public function clear_update_rede_orders_on_plugin_update($upgrader, $options)
+    {
+        if (
+            isset($options['action'], $options['type'], $options['plugins']) &&
+            $options['action'] === 'update' &&
+            $options['type'] === 'plugin'
+        ) {
+            foreach ($options['plugins'] as $plugin) {
+                if (strpos($plugin, 'integration-rede-for-woocommerce.php') !== false) {
+                    wp_clear_scheduled_hook('update_rede_orders');
+                }
+            }
+        }
     }
 
     public static function lknIntegrationRedeForWoocommercePluginRowMeta($plugin_meta, $plugin_file)

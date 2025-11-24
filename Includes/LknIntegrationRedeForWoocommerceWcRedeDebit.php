@@ -579,8 +579,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
             $order_total = wc_format_decimal($order_total, $decimals);
 
-            error_log($order_total);
-
             try {
                 $transaction_response = $this->process_debit_transaction_v2($orderId . '-' . time(), $order_total, $cardData);
                 $this->regOrderLogs($orderId, $order_total, $cardData, $transaction_response, $order);

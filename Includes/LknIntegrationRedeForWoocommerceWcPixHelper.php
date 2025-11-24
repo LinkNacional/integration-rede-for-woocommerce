@@ -71,18 +71,6 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
         }
 
-        // Agendar verificação automática se o PIX foi criado com sucesso
-        if (isset($response_body['tid']) && !empty($response_body['tid'])) {
-            $order_id = $order->get_id();
-            $tid = $response_body['tid'];
-            
-            // Verificar se já não existe um cron agendado para este pedido
-            if (!wp_next_scheduled('lkn_verify_pix_payment', array($order_id, $tid))) {
-                // Agendar verificação a cada 30 minutos
-                wp_schedule_event(time() + (30 * 60), 'lkn_pix_check_interval', 'lkn_verify_pix_payment', array($order_id, $tid));
-            }
-        }
-        
         return $response_body;
     }
 
