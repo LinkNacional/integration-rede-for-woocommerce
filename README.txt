@@ -115,10 +115,13 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
-### 4.1.8 - 2025/11/04
+### 4.1.9 - 2025/11/25
+* Fixed installment display when payment is cash/upfront.
+
+### 4.1.8 - 2025/11/24
 * Fixed minimum installment value.
 
-### 4.1.7 - 2025/11/04
+### 4.1.7 - 2025/11/24
 * Fix in installment select generation.
 
 ### 4.1.6 - 2025/11/24
@@ -192,11 +195,12 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.8.
+- 4.1.9.
 - Fixed installment select when choosing a new shipping option.
 - Fixed minimum installment value calculation.
 - Fix in installment select generation.
 - Fixed minimum installment value.
+- Fixed installment display when payment is cash/upfront.
 
 ---
 
