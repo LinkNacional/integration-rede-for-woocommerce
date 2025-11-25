@@ -803,7 +803,6 @@ final class LknIntegrationRedeForWoocommerce
 
         // Obter o total do carrinho
         $cart_total = WC()->cart->get_total('raw');
-        error_log($cart_total);
 
         if ($cart_total <= 0) {
             return;
@@ -812,7 +811,6 @@ final class LknIntegrationRedeForWoocommerce
         // Obter configurações do gateway para verificar valor mínimo de parcelas
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
-        error_log($min_parcels_value);
         
         // Verificar se é possível ter mais de uma parcela com base no valor mínimo
         $max_possible_installments = floor($cart_total / $min_parcels_value);

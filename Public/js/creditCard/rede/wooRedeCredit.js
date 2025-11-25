@@ -84,8 +84,27 @@ window.jQuery(function ($) {
 
   // Event delegation para capturar mudanças em radios criados dinamicamente
   $(document).on('change', 'input[name="payment_method"]', function() {
+    // Reset dos selects de parcelas para 1x apenas se necessário
+    resetInstallmentSelects(this.value);
     $('body').trigger('updated_checkout');
   });
+
+  function resetInstallmentSelects(selectedMethod) {
+    // Reset apenas o select correspondente ao método selecionado
+    if (selectedMethod === 'rede_credit') {
+      const redeInstallmentSelect = document.querySelector('#rede-card-installments');
+      if (redeInstallmentSelect && redeInstallmentSelect.value !== '1') {
+        redeInstallmentSelect.value = '1';
+        redeInstallmentSelect.dispatchEvent(new CustomEvent('change'));
+      }
+    } else if (selectedMethod === 'maxipago_credit') {
+      const maxipagoInstallmentSelect = document.querySelector('#maxipago-card-installments');
+      if (maxipagoInstallmentSelect && maxipagoInstallmentSelect.value !== '1') {
+        maxipagoInstallmentSelect.value = '1';
+        maxipagoInstallmentSelect.dispatchEvent(new CustomEvent('change'));
+      }
+    }
+  }
 
   function updatedCheckout(){
     const $container = $('#rede-credit-payment-form');
