@@ -801,6 +801,25 @@ final class LknIntegrationRedeForWoocommerce
             return;
         }
 
+        // Obter o total do carrinho
+        $cart_total = WC()->cart->get_total('raw');
+        error_log($cart_total);
+
+        if ($cart_total <= 0) {
+            return;
+        }
+
+        // Obter configurações do gateway para verificar valor mínimo de parcelas
+        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
+        $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
+        error_log($min_parcels_value);
+        
+        // Verificar se é possível ter mais de uma parcela com base no valor mínimo
+        $max_possible_installments = floor($cart_total / $min_parcels_value);
+        if ($max_possible_installments <= 1) {
+            return; // Não exibe se só é possível 1x à vista
+        }
+
         // Obter a parcela selecionada da sessão baseada no método de pagamento
         $installment_session_key = '';
         if ($chosen_payment_method === 'rede_credit') {
@@ -814,16 +833,6 @@ final class LknIntegrationRedeForWoocommerce
         if (!$installment || $installment <= 0) {
             return;
         }
-
-        // Obter o total do carrinho
-        $cart_total = WC()->cart->get_total('raw');
-
-        if ($cart_total <= 0) {
-            return;
-        }
-
-        // Obter configurações do gateway para verificar o tipo de juros/desconto
-        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
 
         // Determinar o nome do método de pagamento
         $payment_method_name = '';

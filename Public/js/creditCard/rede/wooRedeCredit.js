@@ -83,11 +83,10 @@ window.jQuery(function ($) {
   });
 
   // Event delegation para capturar mudanças em radios criados dinamicamente
-  document.addEventListener('change', function(event) {
-    if (event.target.type === 'radio') {
-      updatedCheckout()
-    }
-  })
+  $(document).on('change', 'input[name="payment_method"]', function() {
+    console.log('Radio mudou:', this.value);
+    $('body').trigger('updated_checkout');
+  });
 
   function updatedCheckout(){
     const $container = $('#rede-credit-payment-form');

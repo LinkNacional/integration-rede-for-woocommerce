@@ -122,4 +122,13 @@ window.jQuery(function ($) {
       });
     }
   });
+
+  // Verifica se rede_credit existe nos métodos de pagamento
+  if (!$('input[name="payment_method"][value="rede_credit"]').length) {
+    // Event delegation para capturar mudanças em radios criados dinamicamente
+    $(document).on('change', 'input[name="payment_method"]', function() {
+      console.log('Radio Maxipago mudou:', this.value);
+      $('body').trigger('updated_checkout');
+    });
+  }
 })

@@ -263,7 +263,7 @@ const ContentRedeCredit = props => {
         onChange={value => updateCreditObject('rede_credit_cvc', value)}
         onFocus={() => setFocus('cvc')}
       />
-      {options.length > 0 && (
+      {options.length > 1 && (
         <div className="lknIntegrationRedeForWoocommerceSelectBlocks">
           <label>{translationsRedeCredit.installments}</label>
           <select
