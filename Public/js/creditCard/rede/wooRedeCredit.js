@@ -84,7 +84,6 @@ window.jQuery(function ($) {
 
   // Event delegation para capturar mudanças em radios criados dinamicamente
   $(document).on('change', 'input[name="payment_method"]', function() {
-    console.log('Radio mudou:', this.value);
     $('body').trigger('updated_checkout');
   });
 
