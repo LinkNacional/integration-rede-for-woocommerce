@@ -41,5 +41,5 @@ jobs:
           SLUG: woo-rede
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          ASSETS_DIR: .wordpress-org
+          ASSETS_DIR: build/${{ env.PLUGIN_NAME }}/Includes/assets/WordpressAssets
           BUILD_DIR: build/${{ env.PLUGIN_NAME }}

@@ -77,32 +77,4 @@ window.jQuery(function ($) {
       paymentBoxP.style.display = 'none';
     }
   }
-  
-  // Event delegation para capturar mudanças em radios criados dinamicamente
-  document.addEventListener('change', function(event) {
-    if (event.target.type === 'radio' && event.target.name === 'payment_method') {
-      // Só atualiza se o método selecionado for rede_debit
-      if (event.target.value === 'rede_debit') {
-        updatedCheckout()
-      }
-    }
-  })
-
-  function updatedCheckout(){
-    const $container = $('#rede-debit-payment-form');
-    if ($container.length) {
-      $.post(wooRede.ajaxurl, {
-        action: 'rede_debit_refresh_payment_fields',
-        nonce: wooRede.nonce,
-      }, function (response) {
-        if (response.success) {
-          // Remove todos os <p> filhos diretos do elemento pai antes de substituir
-          $container.parent().children('p').remove();
-          $container.replaceWith(response.data.html);
-          // Depois de reinserir, recria a animação/cart
-          lknRedeDebitCardRender();
-        }
-      });
-    }
-  }
 })

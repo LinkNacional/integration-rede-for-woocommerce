@@ -9,7 +9,7 @@ const translationsRedeCredit = settingsRedeCredit.translations;
 const minInstallmentsRede = settingsRedeCredit.minInstallmentsRede.replace(',', '.');
 const ContentRedeCredit = props => {
   const totalAmountFloat = settingsRedeCredit.cartTotal;
-  const [selectedValue, setSelectedValue] = window.wp.element.useState('');
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('1');
   const handleSortChange = event => {
     const value = String(event.target.value); // Garante que seja string
     setSelectedValue(value);
@@ -40,11 +40,12 @@ const ContentRedeCredit = props => {
     installmentTimeout = setTimeout(() => {
       try {
         window.jQuery.ajax({
-          url: window.ajaxurl || '/wp-admin/admin-ajax.php',
+          url: window.redeCreditAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
           type: 'POST',
           dataType: 'json',
           data: {
-            action: 'lkn_get_rede_credit_data'
+            action: 'lkn_get_rede_credit_data',
+            nonce: window.redeCreditAjax?.nonce || nonceRedeCredit
           },
           success: function (response) {
             if (response && Array.isArray(response.installments)) {
@@ -61,11 +62,19 @@ const ContentRedeCredit = props => {
               // Remove todas as opções atuais e adiciona as novas
               setOptions(plainOptions);
               
-              // Se não há valor selecionado ou o valor selecionado não existe mais, seleciona o primeiro
-              if (!selectedValue || !plainOptions.find(opt => opt.key === selectedValue)) {
-                const firstOption = String(plainOptions[0]?.key || '1'); // Garante que seja string
+              // Sempre garante que há uma opção selecionada válida
+              const currentSelection = selectedValue || '1';
+              const validOption = plainOptions.find(opt => String(opt.key) === String(currentSelection));
+              
+              if (!validOption && plainOptions.length > 0) {
+                // Se a seleção atual não é válida, seleciona a primeira opção
+                const firstOption = String(plainOptions[0].key);
                 setSelectedValue(firstOption);
                 updateCreditObject('rede_credit_installments', firstOption);
+              } else if (validOption && selectedValue !== String(validOption.key)) {
+                // Se a opção é válida mas o state não está sincronizado, atualiza
+                setSelectedValue(String(validOption.key));
+                updateCreditObject('rede_credit_installments', String(validOption.key));
               }
             }
           },

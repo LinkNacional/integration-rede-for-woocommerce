@@ -5,6 +5,22 @@
 * Otimização de scripts JavaScript para melhor performance.
 * Reset automático de parcelas em mudanças do carrinho.
 
+# 4.1.9 - 25/11/2025
+* Ajuste na parcela quando é à vista.
+
+# 4.1.8 - 24/11/2025
+* Correção no valor minimo por parcela.
+
+# 4.1.7 - 24/11/2025
+* Correção na geração do select das parcelas.
+
+# 4.1.6 - 24/11/2025
+* Correção no select de parcelar ao selecionar um novo frete.
+* Correção nas min das parcelas.
+
+# 4.1.5 - 14/11/2025
+* Correção em titulo e imagens do plugin.
+
 # 4.1.4 - 07/11/2025
 * Ajuste no limite de parcelas por produto.
 * Ajuste no calculo final das parcelas de pagamento.

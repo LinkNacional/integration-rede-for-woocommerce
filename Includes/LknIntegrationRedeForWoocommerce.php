@@ -206,6 +206,9 @@ final class LknIntegrationRedeForWoocommerce
 
         // Hooks para atualizar tokens OAuth2 no checkout (blocks e shortcode)
         $this->loader->add_action('wp_enqueue_scripts', $this, 'lkn_rede_refresh_oauth_token_on_checkout');
+        // Adiciona endpoint AJAX para atualização da sessão de parcelas
+        $this->loader->add_action('wp_ajax_lkn_update_installment_session', $this, 'ajax_update_installment_session');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_update_installment_session', $this, 'ajax_update_installment_session');
     }
 
     /**
@@ -236,8 +239,15 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += $extra_fees;
         }
         $max_installments = 12;
+        $min_parcels_value = 5;
         if (isset($this->wc_maxipago_credit_class) && method_exists($this->wc_maxipago_credit_class, 'get_option')) {
             $max_installments = intval($this->wc_maxipago_credit_class->get_option('max_parcels_number'));
+            $min_parcels_value = $this->wc_maxipago_credit_class->get_option('min_parcels_value');
+            if (!is_numeric($min_parcels_value) || $min_parcels_value < 1) {
+                $min_parcels_value = 5;
+            } else {
+                $min_parcels_value = floatval($min_parcels_value);
+            }
             if ($max_installments < 1) {
                 $max_installments = 12;
             }
@@ -249,7 +259,7 @@ final class LknIntegrationRedeForWoocommerce
                 $product_limit = get_post_meta($product_id, 'lknMaxipagoProdutctInterest', true);
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -278,12 +288,18 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
-            
-            // Ignora parcelas com valor menor que o configurado
-            if ($installment_value < $min_installment_value) {
-                continue;
+            if ($installment_value < $min_parcels_value) {
+                // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
+                if ($i === 1) {
+                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
+                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'maxipago_credit') : $base_label;
+                    $installments[] = [
+                        'key' => 1,
+                        'label' => $label
+                    ];
+                }
+                break;
             }
-            
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
@@ -332,9 +348,15 @@ final class LknIntegrationRedeForWoocommerce
             $cart_total += $extra_fees;
         }
         $max_installments = 12;
+        $min_parcels_value = 5;
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
             $max_installments = intval($this->wc_rede_credit_class->get_option('max_parcels_number'));
-
+            $min_parcels_value = $this->wc_rede_credit_class->get_option('min_parcels_value');
+            if (!is_numeric($min_parcels_value) || $min_parcels_value < 1) {
+                $min_parcels_value = 5;
+            } else {
+                $min_parcels_value = floatval($min_parcels_value);
+            }
             if ($max_installments < 1) {
                 $max_installments = 12;
             }
@@ -346,7 +368,7 @@ final class LknIntegrationRedeForWoocommerce
                 $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -375,12 +397,18 @@ final class LknIntegrationRedeForWoocommerce
         $installments = [];
         for ($i = 1; $i <= $max_installments; $i++) {
             $installment_value = $cart_total / $i;
-            
-            // Ignora parcelas com valor menor que o configurado
-            if ($installment_value < $min_installment_value) {
-                continue;
+            if ($installment_value < $min_parcels_value) {
+                // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
+                if ($i === 1) {
+                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
+                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
+                    $installments[] = [
+                        'key' => 1,
+                        'label' => $label
+                    ];
+                }
+                break;
             }
-            
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
@@ -399,6 +427,68 @@ final class LknIntegrationRedeForWoocommerce
             'cartTotal' => $cart_total,
             'installments' => $installments
         ]);
+    }
+
+    /**
+     * Endpoint AJAX para atualizar a sessão de parcelas
+     */
+    public function ajax_update_installment_session()
+    {
+        $payment_method = sanitize_text_field($_POST['payment_method']);
+        $installments = intval($_POST['installments']);
+        $nonce = sanitize_text_field($_POST['nonce']);
+
+        // Verificar nonce baseado no método de pagamento
+        $nonce_action = '';
+        switch ($payment_method) {
+            case 'rede_credit':
+                $nonce_action = 'rede_payment_fields_nonce';
+                break;
+            case 'maxipago_credit':
+                $nonce_action = 'maxipago_payment_fields_nonce';
+                break;
+            default:
+                wp_send_json_error(['message' => 'Método de pagamento não suportado']);
+                return;
+        }
+
+        // Verificar nonce para segurança
+        if (!wp_verify_nonce($nonce, $nonce_action)) {
+            wp_send_json_error(['message' => 'Nonce inválido']);
+            return;
+        }
+
+        if (empty($payment_method) || $installments < 1) {
+            wp_send_json_error(['message' => 'Parâmetros inválidos']);
+            return;
+        }
+
+        // Determinar a chave da sessão baseada no método de pagamento
+        $session_key = '';
+        switch ($payment_method) {
+            case 'rede_credit':
+                $session_key = 'lkn_installments_number_rede_credit';
+                break;
+            case 'maxipago_credit':
+                $session_key = 'lkn_installments_number_maxipago_credit';
+                break;
+            default:
+                wp_send_json_error(['message' => 'Método de pagamento não suportado']);
+                return;
+        }
+
+        // Atualizar a sessão do WooCommerce
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set($session_key, $installments);
+            wp_send_json_success([
+                'message' => 'Sessão atualizada com sucesso',
+                'payment_method' => $payment_method,
+                'installments' => $installments,
+                'session_key' => $session_key
+            ]);
+        } else {
+            wp_send_json_error(['message' => 'Sessão do WooCommerce não disponível']);
+        }
     }
 
     /**
@@ -707,26 +797,6 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('before_woocommerce_init', $this, 'wcEditorBlocksActive');
         $this->loader->add_action('woocommerce_blocks_payment_method_type_registration', $this, 'wcEditorBlocksAddPaymentMethod');
 
-        // Adiciona endpoint AJAX para parcelas Maxipago
-        $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-        $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
-
-        // Adiciona endpoint AJAX para refresh dos campos de pagamento
-        $this->loader->add_action('wp_ajax_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
-        $this->loader->add_action('wp_ajax_nopriv_rede_refresh_payment_fields', $this, 'rede_refresh_payment_fields');
-
-        // Adiciona endpoint AJAX para refresh dos campos de pagamento Rede Debit
-        $this->loader->add_action('wp_ajax_rede_debit_refresh_payment_fields', $this, 'rede_debit_refresh_payment_fields');
-        $this->loader->add_action('wp_ajax_nopriv_rede_debit_refresh_payment_fields', $this, 'rede_debit_refresh_payment_fields');
-
-        // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago
-        $this->loader->add_action('wp_ajax_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
-        $this->loader->add_action('wp_ajax_nopriv_maxipago_refresh_payment_fields', $this, 'maxipago_refresh_payment_fields');
-
-        // Adiciona endpoint AJAX para refresh dos campos de pagamento Maxipago Debit
-        $this->loader->add_action('wp_ajax_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
-        $this->loader->add_action('wp_ajax_nopriv_maxipago_debit_refresh_payment_fields', $this, 'maxipago_debit_refresh_payment_fields');
-
         // Adiciona endpoint AJAX para atualizar sessão de parcelas no shortcode
         $this->loader->add_action('wp_ajax_update_installment_session', $this, 'update_installment_session');
         $this->loader->add_action('wp_ajax_nopriv_update_installment_session', $this, 'update_installment_session');
@@ -817,158 +887,6 @@ final class LknIntegrationRedeForWoocommerce
         return $plugin_meta;
     }
 
-    /**
-     * Método AJAX para refresh dos campos de pagamento Rede Credit
-     */
-    public function rede_refresh_payment_fields()
-    {
-        try {
-            // Verifica o nonce
-            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'rede_payment_fields_nonce')) {
-                wp_send_json_error(['message' => 'Invalid nonce']);
-                return;
-            }
-
-            // Garantir que o carrinho está inicializado e as taxas calculadas
-            if (function_exists('WC') && WC()->cart) {
-                WC()->cart->calculate_totals();
-            }
-
-            // Carrega a classe do gateway
-            $gateways = WC()->payment_gateways()->payment_gateways();
-            ob_start();
-
-            // Usa o novo método que renderiza com o total atualizado incluindo cupons
-            $gateways['rede_credit']->render_payment_fields_with_total();
-
-            $html = ob_get_clean();
-            wp_send_json_success(['html' => $html]);
-            return;
-
-            wp_send_json_error(['message' => 'Gateway not found or method not available']);
-        } catch (\Throwable $th) {
-            wp_send_json_error([
-                'message' => $th->getMessage(),
-                'line'    => $th->getLine(),
-                'file'    => $th->getFile(),
-                'trace'   => $th->getTraceAsString(),
-            ]);
-        }
-    }
-
-    /**
-     * Método AJAX para refresh dos campos de pagamento Maxipago Credit
-     */
-    public function maxipago_refresh_payment_fields()
-    {
-        try {
-            // Verifica o nonce
-            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'maxipago_payment_fields_nonce')) {
-                wp_send_json_error(['message' => 'Invalid nonce']);
-                return;
-            }
-
-            // Carrega a classe do gateway
-            $gateways = WC()->payment_gateways()->payment_gateways();
-            if (isset($gateways['maxipago_credit']) && method_exists($gateways['maxipago_credit'], 'render_payment_fields_with_total')) {
-                ob_start();
-
-                // Usa o novo método que renderiza com o total atualizado incluindo cupons
-                $gateways['maxipago_credit']->render_payment_fields_with_total();
-
-                $html = ob_get_clean();
-                wp_send_json_success(['html' => $html]);
-                return;
-            }
-
-            wp_send_json_error(['message' => 'Gateway not found or method not available']);
-        } catch (\Throwable $th) {
-            wp_send_json_error([
-                'message' => $th->getMessage(),
-                'line'    => $th->getLine(),
-                'file'    => $th->getFile(),
-                'trace'   => $th->getTraceAsString(),
-            ]);
-        }
-    }
-
-    /**
-     * Método AJAX para refresh dos campos de pagamento Rede Debit
-     */
-    public function rede_debit_refresh_payment_fields()
-    {
-        try {
-            // Verifica o nonce
-            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'rede_payment_fields_nonce')) {
-                wp_send_json_error(['message' => 'Invalid nonce']);
-                return;
-            }
-
-            // Garantir que o carrinho está inicializado e as taxas calculadas
-            if (function_exists('WC') && WC()->cart) {
-                WC()->cart->calculate_totals();
-            }
-
-            // Carrega a classe do gateway
-            $gateways = WC()->payment_gateways()->payment_gateways();
-            if (isset($gateways['rede_debit']) && method_exists($gateways['rede_debit'], 'render_payment_fields_with_total')) {
-                ob_start();
-
-                // Usa o novo método que renderiza com o total atualizado incluindo cupons
-                $gateways['rede_debit']->render_payment_fields_with_total();
-
-                $html = ob_get_clean();
-                wp_send_json_success(['html' => $html]);
-                return;
-            }
-
-            wp_send_json_error(['message' => 'Gateway not found or method not available']);
-        } catch (\Throwable $th) {
-            wp_send_json_error([
-                'message' => $th->getMessage(),
-                'line'    => $th->getLine(),
-                'file'    => $th->getFile(),
-                'trace'   => $th->getTraceAsString(),
-            ]);
-        }
-    }
-
-    /**
-     * Método AJAX para refresh dos campos de pagamento Maxipago Debit
-     */
-    public function maxipago_debit_refresh_payment_fields()
-    {
-        try {
-            // Verifica o nonce
-            if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'maxipago_payment_fields_nonce')) {
-                wp_send_json_error(['message' => 'Invalid nonce']);
-                return;
-            }
-
-            // Carrega a classe do gateway
-            $gateways = WC()->payment_gateways()->payment_gateways();
-            if (isset($gateways['maxipago_debit']) && method_exists($gateways['maxipago_debit'], 'render_payment_fields_with_total')) {
-                ob_start();
-
-                // Usa o novo método que renderiza com o total atualizado incluindo cupons
-                $gateways['maxipago_debit']->render_payment_fields_with_total();
-
-                $html = ob_get_clean();
-                wp_send_json_success(['html' => $html]);
-                return;
-            }
-
-            wp_send_json_error(['message' => 'Gateway not found or method not available']);
-        } catch (\Throwable $th) {
-            wp_send_json_error([
-                'message' => $th->getMessage(),
-                'line'    => $th->getLine(),
-                'file'    => $th->getFile(),
-                'trace'   => $th->getTraceAsString(),
-            ]);
-        }
-    }
-
     public function add_gateway_name_to_notes_global($note_data, $args)
     {
         if (isset($note_data['comment_post_ID'])) {
@@ -1018,6 +936,23 @@ final class LknIntegrationRedeForWoocommerce
             return;
         }
 
+        // Obter o total do carrinho
+        $cart_total = WC()->cart->get_total('raw');
+
+        if ($cart_total <= 0) {
+            return;
+        }
+
+        // Obter configurações do gateway para verificar valor mínimo de parcelas
+        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
+        $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
+        
+        // Verificar se é possível ter mais de uma parcela com base no valor mínimo
+        $max_possible_installments = floor($cart_total / $min_parcels_value);
+        if ($max_possible_installments <= 1) {
+            return; // Não exibe se só é possível 1x à vista
+        }
+
         // Obter a parcela selecionada da sessão baseada no método de pagamento
         $installment_session_key = '';
         if ($chosen_payment_method === 'rede_credit') {
@@ -1031,16 +966,6 @@ final class LknIntegrationRedeForWoocommerce
         if (!$installment || $installment <= 0) {
             return;
         }
-
-        // Obter o total do carrinho
-        $cart_total = WC()->cart->get_total('raw');
-
-        if ($cart_total <= 0) {
-            return;
-        }
-
-        // Obter configurações do gateway para verificar o tipo de juros/desconto
-        $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
 
         // Determinar o nome do método de pagamento
         $payment_method_name = '';

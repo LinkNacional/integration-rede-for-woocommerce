@@ -233,13 +233,13 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             'min_parcels_value' => array(
                 'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
                 'type' => 'number',
-                'default' => '5',
-                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
-                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value by REDE: 5.', 'woo-rede'),
+                'default' => 5,
+                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions. Accepted minimum value by MaxiPago: 5.', 'woo-rede'),
+                'description' => esc_attr__('Set the minimum installment value for credit card payments.', 'woo-rede'),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__("Enter the minimum value each installment must have.", 'woo-rede'),
-                    'min' => '5',
-                    'step' => '0.01'
+                    'min' => 5,
+                    'step' => 'any',
+                    'data-title-description' => esc_attr__("Enter the minimum value each installment must have.", 'woo-rede')
                 ),
             ),
             'max_parcels_number' => array(
@@ -318,7 +318,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     protected function getCheckoutForm($order_total = 0): void
     {
         $session = null;
+        // Buscar valor da sessão ao invés de fixar em 1
         $installments_number = 1;
+        if (function_exists('WC') && WC()->session) {
+            $session_value = WC()->session->get('lkn_installments_number_maxipago_credit');
+            if (!empty($session_value) && is_numeric($session_value) && $session_value > 0) {
+                $installments_number = intval($session_value);
+            }
+        }
 
         wc_get_template(
             'creditCard/maxipagoPaymentCreditForm.php',
@@ -358,7 +365,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 if ($product_limit !== 'default' && is_numeric($product_limit)) {
                     $product_limit = (int) $product_limit;
                     // Limita ao menor valor encontrado entre os produtos
-                    if ($product_limit < $max_installments) {
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
                         $max_installments = $product_limit;
                     }
                 }
@@ -367,24 +374,24 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
         }
 
         for ($i = 1; $i <= $max_installments; ++$i) {
-            if (($order_total / $i) < $min_value) {
-                break;
-            }
-            $customLabel = null; // Resetar a variável a cada iteração
-            $interest = round((float) $this->get_option($i . 'x'), 2);
-            $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
-            if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-                $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
-            }
+            // Para 1x à vista, sempre permite mesmo se for menor que o valor mínimo
+            if ($i === 1 || ($order_total / $i) >= $min_value) {
+                $customLabel = null; // Resetar a variável a cada iteração
+                $interest = round((float) $this->get_option($i . 'x'), 2);
+                $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
+                if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+                    $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($order_total, $interest, $i, 'label', $this);
+                }
 
-            if (gettype($customLabel) === 'string' && $customLabel) {
-                $label = $customLabel;
-            }
+                if (gettype($customLabel) === 'string' && $customLabel) {
+                    $label = $customLabel;
+                }
 
-            $installments[] = array(
-                'num'   => $i,
-                'label' => $label,
-            );
+                $installments[] = array(
+                    'num'   => $i,
+                    'label' => $label,
+                );
+            }
         }
 
         return $installments;

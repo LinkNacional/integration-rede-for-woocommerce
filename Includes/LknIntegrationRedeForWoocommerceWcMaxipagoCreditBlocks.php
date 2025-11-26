@@ -37,6 +37,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             '1.0.0',
             true
         );
+        wp_localize_script(
+            'maxipago_credit-blocks-integration',
+            'maxipagoCreditAjax',
+            array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce('maxipagoCardNonce'),
+            )
+        );
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('maxipago_credit-blocks-integration');
         }
@@ -79,7 +87,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
         ) {
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue && isset($settings[$i . 'x'])) {
+                if (($i === 1 || $parcelAmount >= $minParcelValue) && isset($settings[$i . 'x'])) {
                     $interest = round((float) $settings[$i . 'x'], 2);
                     $customLabel = LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeProRedeInterest($cart_total, $interest, $i, 'label', $this->gateway);
                     if ($customLabel) {
@@ -90,7 +98,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
         } else {
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
-                if ($parcelAmount >= $minParcelValue) {
+                if ($i === 1 || $parcelAmount >= $minParcelValue) {
                     $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($parcelAmount))));
                 }
             }
