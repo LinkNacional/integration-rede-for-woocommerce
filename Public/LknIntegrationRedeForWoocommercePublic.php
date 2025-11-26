@@ -76,21 +76,6 @@ final class LknIntegrationRedeForWoocommercePublic {
                 $session->set('lkn_installments_number_rede_credit', 1);
                 $session->set('lkn_installments_number_maxipago_credit', 1);
             }
-
-            wp_enqueue_script('lkn-integration-shortcode-checkout', plugin_dir_url(__FILE__) . 'js/lknIntegrationShortcodeCheckout.js', array('jquery'), $this->version, true);
-            wp_localize_script('lkn-integration-shortcode-checkout', 'lknInstallmentShortcodeVarsCheckout', array(
-                'ajaxurl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('lkn_rede_installment_shortcode_nonce')
-            ));
-            
-            // Enqueue installment select script for shortcode checkout only if PRO version is not active
-            if (!is_plugin_active('integration-rede-for-woocommerce-pro/integration-rede-for-woocommerce-pro.php')) {
-                wp_enqueue_script('lkn-integration-installments-shortcode', plugin_dir_url(__FILE__) . 'js/lknIntegrationShortcodeInstallmentsSelectShortcode.js', array('jquery'), $this->version, true);
-                wp_localize_script('lkn-integration-installments-shortcode', 'lknInstallmentShortcodeVars', array(
-                    'ajaxurl' => admin_url('admin-ajax.php'),
-                    'nonce' => wp_create_nonce('lkn_rede_installment_shortcode_nonce')
-                ));
-            }
         }
 
         // Enqueue installment label script for WooCommerce Blocks
