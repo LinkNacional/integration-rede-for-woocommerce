@@ -318,7 +318,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
     protected function getCheckoutForm($order_total = 0): void
     {
         $session = null;
+        // Buscar valor da sessão ao invés de fixar em 1
         $installments_number = 1;
+        if (function_exists('WC') && WC()->session) {
+            $session_value = WC()->session->get('lkn_installments_number_maxipago_credit');
+            if (!empty($session_value) && is_numeric($session_value) && $session_value > 0) {
+                $installments_number = intval($session_value);
+            }
+        }
 
         wc_get_template(
             'creditCard/maxipagoPaymentCreditForm.php',

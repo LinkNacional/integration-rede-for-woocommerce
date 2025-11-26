@@ -200,6 +200,10 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
+
+        // Adiciona endpoint AJAX para atualização da sessão de parcelas
+        $this->loader->add_action('wp_ajax_lkn_update_installment_session', $this, 'ajax_update_installment_session');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_update_installment_session', $this, 'ajax_update_installment_session');
     }
 
     /**
@@ -400,6 +404,68 @@ final class LknIntegrationRedeForWoocommerce
             'cartTotal' => $cart_total,
             'installments' => $installments
         ]);
+    }
+
+    /**
+     * Endpoint AJAX para atualizar a sessão de parcelas
+     */
+    public function ajax_update_installment_session()
+    {
+        $payment_method = sanitize_text_field($_POST['payment_method']);
+        $installments = intval($_POST['installments']);
+        $nonce = sanitize_text_field($_POST['nonce']);
+
+        // Verificar nonce baseado no método de pagamento
+        $nonce_action = '';
+        switch ($payment_method) {
+            case 'rede_credit':
+                $nonce_action = 'rede_payment_fields_nonce';
+                break;
+            case 'maxipago_credit':
+                $nonce_action = 'maxipago_payment_fields_nonce';
+                break;
+            default:
+                wp_send_json_error(['message' => 'Método de pagamento não suportado']);
+                return;
+        }
+
+        // Verificar nonce para segurança
+        if (!wp_verify_nonce($nonce, $nonce_action)) {
+            wp_send_json_error(['message' => 'Nonce inválido']);
+            return;
+        }
+
+        if (empty($payment_method) || $installments < 1) {
+            wp_send_json_error(['message' => 'Parâmetros inválidos']);
+            return;
+        }
+
+        // Determinar a chave da sessão baseada no método de pagamento
+        $session_key = '';
+        switch ($payment_method) {
+            case 'rede_credit':
+                $session_key = 'lkn_installments_number_rede_credit';
+                break;
+            case 'maxipago_credit':
+                $session_key = 'lkn_installments_number_maxipago_credit';
+                break;
+            default:
+                wp_send_json_error(['message' => 'Método de pagamento não suportado']);
+                return;
+        }
+
+        // Atualizar a sessão do WooCommerce
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set($session_key, $installments);
+            wp_send_json_success([
+                'message' => 'Sessão atualizada com sucesso',
+                'payment_method' => $payment_method,
+                'installments' => $installments,
+                'session_key' => $session_key
+            ]);
+        } else {
+            wp_send_json_error(['message' => 'Sessão do WooCommerce não disponível']);
+        }
     }
 
     /**

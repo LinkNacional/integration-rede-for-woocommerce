@@ -1,4 +1,7 @@
 window.jQuery(function ($) {
+  // O controle do radio button agora é feito apenas pelo wooRedeCredit.js
+  // para evitar conflitos entre os gateways
+  
   // Verifica se janela foi carregada antes da criação do card
   $(window).on('load', lknMaxipagoCreditCardRender)
   // Cria o card somente quando a requisição for concluida
@@ -11,21 +14,23 @@ window.jQuery(function ($) {
 
   function lknMaxipagoCreditCardRender() {
     if (!document.querySelector('.wc-block-checkout')) {
-      // Cria o card somente quando a requisição for concluida
+      // Função para formatação de CPF
       function formatarCPF(cpf) {
         cpf = cpf.replace(/\D/g, '') // Remove caracteres não numéricos
-        cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres (o máximo de caracteres para um CPF)
+        cpf = cpf.slice(0, 11) // Limita o CPF ao máximo de 11 caracteres
         cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os primeiros 3 dígitos
         cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após os segundos 3 dígitos
         cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Adiciona hífen após os últimos 3 dígitos
         return cpf
       }
+      
       $('#maxipagoCreditCardCpf').on('input', function () {
         const input = $(this)
         let cpf = input.val()
         cpf = formatarCPF(cpf)
         input.val(cpf)
       })
+      
       let $form = $('.woocommerce .woocommerce-checkout')
       if ($form.length === 0) {
         $form = $('#order_review')
@@ -103,50 +108,45 @@ window.jQuery(function ($) {
     if (paymentBoxP) {
       paymentBoxP.style.display = 'none';
     }
+    
+    // Adicionar listener simples no select de parcelas
+    addInstallmentListener();
   }
-  
-  $(document).on('updated_checkout', function () {
-    const $container = $('#maxipago-credit-payment-form');
-    if ($container.length) {
-      $.post(wooMaxipagoVars.ajaxurl, {
-        action: 'maxipago_refresh_payment_fields',
-        nonce: wooMaxipagoVars.nonce,
-      }, function (response) {
-        if (response.success) {
-          // Remove todos os <p> filhos diretos do elemento pai antes de substituir
-          $container.parent().children('p').remove();
-          $container.replaceWith(response.data.html);
-          // Depois de reinserir, recria a animação/cart
-          lknMaxipagoCreditCardRender();
-        }
+
+  function addInstallmentListener() {
+    const installmentSelect = document.querySelector('#maxipago-card-installments');
+    if (installmentSelect && !installmentSelect.hasAttribute('data-listener-added')) {
+      installmentSelect.addEventListener('change', function(e) {
+        const installments = parseInt(e.target.value, 10) || 1;
+        // Atualizar sessão com nova parcela
+        updateInstallmentSession('maxipago_credit', installments);
       });
+      installmentSelect.setAttribute('data-listener-added', 'true');
     }
-  });
-
-  // Verifica se rede_credit existe nos métodos de pagamento
-  if (!$('input[name="payment_method"][value="rede_credit"]').length) {
-    // Event delegation para capturar mudanças em radios criados dinamicamente
-    $(document).on('change', 'input[name="payment_method"]', function() {
-      // Reset dos selects de parcelas para 1x apenas se necessário
-      resetInstallmentSelects(this.value);
-      $('body').trigger('updated_checkout');
-    });
   }
 
-  function resetInstallmentSelects(selectedMethod) {
-    // Reset apenas o select correspondente ao método selecionado
-    if (selectedMethod === 'rede_credit') {
-      const redeInstallmentSelect = document.querySelector('#rede-card-installments');
-      if (redeInstallmentSelect && redeInstallmentSelect.value !== '1') {
-        redeInstallmentSelect.value = '1';
-        redeInstallmentSelect.dispatchEvent(new CustomEvent('change'));
+  function updateInstallmentSession(paymentMethod, installments) {
+    $.ajax({
+      url: wooMaxipagoVars.ajaxurl,
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        action: 'lkn_update_installment_session',
+        nonce: wooMaxipagoVars.nonce,
+        payment_method: paymentMethod,
+        installments: installments
+      },
+      success: function(response) {
+        if (response.success) {
+          // Trigger para atualizar checkout com nova parcela
+          $(document.body).trigger('update_checkout');
+        } else {
+          console.error('Erro ao atualizar sessão:', response.data);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro na requisição AJAX:', error);
       }
-    } else if (selectedMethod === 'maxipago_credit') {
-      const maxipagoInstallmentSelect = document.querySelector('#maxipago-card-installments');
-      if (maxipagoInstallmentSelect && maxipagoInstallmentSelect.value !== '1') {
-        maxipagoInstallmentSelect.value = '1';
-        maxipagoInstallmentSelect.dispatchEvent(new CustomEvent('change'));
-      }
-    }
+    });
   }
 })
