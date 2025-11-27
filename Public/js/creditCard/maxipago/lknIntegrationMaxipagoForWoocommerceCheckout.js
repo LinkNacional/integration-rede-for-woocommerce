@@ -284,7 +284,7 @@ const ContentMaxipagoCredit = props => {
       updateCreditObject('maxipago_credit_cvc', value);
     },
     onFocus: () => setFocus('cvc')
-  }), options.length > 0 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
+  }), options.length > 1 && /*#__PURE__*/React.createElement(wcComponents.SortSelect, {
     instanceId: 1,
     className: "lknIntegrationRedeForWoocommerceSelectBlocks",
     label: translationsMaxipagoCredit.installments,

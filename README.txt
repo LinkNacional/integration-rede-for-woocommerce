@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.8  
-Stable tag: 4.1.8
+Stable tag: 4.1.9
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -115,10 +115,13 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
-### 4.1.8 - 2025/11/04
+### 4.1.9 - 2025/11/25
+* Fixed installment display when payment is cash/upfront.
+
+### 4.1.8 - 2025/11/24
 * Fixed minimum installment value.
 
-### 4.1.7 - 2025/11/04
+### 4.1.7 - 2025/11/24
 * Fix in installment select generation.
 
 ### 4.1.6 - 2025/11/24
@@ -192,11 +195,12 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 4.1.8.
+- 4.1.9.
 - Fixed installment select when choosing a new shipping option.
 - Fixed minimum installment value calculation.
 - Fix in installment select generation.
 - Fixed minimum installment value.
+- Fixed installment display when payment is cash/upfront.
 
 ---
 

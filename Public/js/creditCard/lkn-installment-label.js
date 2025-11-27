@@ -3,8 +3,66 @@
  */
 document.addEventListener('DOMContentLoaded', function () {
 
+    let lastInstallmentCount = 0; // Controla o número de parcelas anterior
+    let isSelectVisible = false; // Controla se o select está visível
     let isInitialized = false;
     let lastSelectedMethod = null;
+
+    function getInstallmentCount() {
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+        
+        if (redeSelectContainers.length === 0) {
+            return 0;
+        }
+
+        for (let container of redeSelectContainers) {
+            const select = container.querySelector('select');
+            if (select && select.options.length > 0) {
+                // Remove opções de loading/carregamento da contagem
+                const validOptions = Array.from(select.options).filter(option => {
+                    const optionText = option.textContent || option.innerText;
+                    return !optionText.includes('Calculando') && 
+                           !optionText.includes('🔄') && 
+                           option.value !== 'loading';
+                });
+                
+                return validOptions.length;
+            }
+        }
+
+        return 0;
+    }
+
+    function shouldShowInstallmentLabel() {
+        const installmentCount = getInstallmentCount();
+        
+        // Se o número de parcelas mudou, atualiza o controle
+        if (installmentCount !== lastInstallmentCount) {
+            lastInstallmentCount = installmentCount;
+            
+            // Define se deve mostrar baseado no número de parcelas
+            if (installmentCount <= 1) {
+                isSelectVisible = false; // Esconde quando ≤1 parcela
+            } else if (installmentCount > 1) {
+                isSelectVisible = true; // Mostra quando >1 parcela
+            }
+        }
+        
+        // Verificação adicional para forçar exibição quando há parcelas disponíveis
+        if (installmentCount > 1 && !isSelectVisible) {
+            isSelectVisible = true;
+        }
+        
+        // Força verificação se não há elementos visíveis mas deveria haver
+        if (!isSelectVisible && installmentCount > 1) {
+            const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+            if (existingLabels.length === 0) {
+                isSelectVisible = true;
+            }
+        }
+
+        return isSelectVisible;
+    }
 
     function isRedeMethodSelected() {
         const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
@@ -166,13 +224,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function insertRedeInfo() {
-        const totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item:not(.rede-processed)');
+        // Primeiro tenta encontrar elementos não processados
+        let totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item:not(.rede-processed)');
+        
+        // Se não encontrou, busca todos os elementos (para casos de re-criação)
+        if (totalItemDivs.length === 0) {
+            totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item');
+        }
 
         if (totalItemDivs.length === 0) {
             return;
         }
 
-        totalItemDivs.forEach((totalDiv) => {
+        totalItemDivs.forEach((totalDiv, index) => {
             totalDiv.classList.add('rede-processed');
 
             const existingInfo = totalDiv.parentNode.querySelector('.rede-payment-info-blocks:not(.loading-skeleton)');
@@ -183,6 +247,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const redeSelected = isRedeMethodSelected();
             if (!redeSelected) {
                 return;
+            }
+
+            // Verifica se deve mostrar o label de parcelamento - mais permissivo na verificação inicial
+            const shouldShow = shouldShowInstallmentLabel();
+            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks select').length > 0;
+            
+            if (!shouldShow && !hasInstallmentSelects) {
+                return; // Só não mostra se realmente não há parcelas disponíveis
             }
 
             const installmentInfo = getInstallmentInfo();
@@ -237,6 +309,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
         const totalElements = loadingSkeletons.length + existingParcelamentos.length;
 
+        // Se não deve mostrar o label, remove todos os elementos existentes
+        if (!shouldShowInstallmentLabel()) {
+            loadingSkeletons.forEach(function (skeleton) {
+                if (skeleton && skeleton.parentNode) {
+                    skeleton.remove();
+                }
+            });
+            existingParcelamentos.forEach(function (parcelamento) {
+                if (parcelamento && parcelamento.parentNode) {
+                    parcelamento.remove();
+                }
+            });
+            return;
+        }
+
         if (totalElements > 0) {
             const installmentInfo = getInstallmentInfo();
 
@@ -272,6 +359,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function activateLoadingSkeleton() {
         if (!isRedeMethodSelected()) {
+            return;
+        }
+
+        // Se não deve mostrar o label, não ativa loading skeleton
+        if (!shouldShowInstallmentLabel()) {
             return;
         }
 
@@ -374,6 +466,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedMethod = checkedInput ? checkedInput.value : null;
 
         if (selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit') {
+            // Reset o controle de parcelas para forçar nova verificação
+            lastInstallmentCount = -1;
+            
             insertRedeInfo();
             updateLoadingSkeletons();
 
@@ -384,6 +479,21 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 observeTotalChanges();
             }, 500);
+
+            // Verificações adicionais com múltiplos timeouts para garantir que labels sejam criados
+            [1000, 2000, 3500, 5000].forEach(delay => {
+                setTimeout(() => {
+                    if (shouldShowInstallmentLabel()) {
+                        const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                        if (existingLabels.length === 0) {
+                            // Reset do estado processado para permitir nova criação
+                            const processedDivs = document.querySelectorAll('.rede-processed');
+                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                            insertRedeInfo();
+                        }
+                    }
+                }, delay);
+            });
 
             lastSelectedMethod = selectedMethod;
         } else if (selectedMethod !== lastSelectedMethod) {
@@ -399,6 +509,22 @@ document.addEventListener('DOMContentLoaded', function () {
             paymentInputs.forEach(function (input) {
                 input.addEventListener('change', checkPaymentMethod);
             });
+            
+            // Verificação inicial imediata para método já selecionado
+            checkPaymentMethod();
+            
+            // Verificações adicionais com timeouts para garantir que elementos estejam prontos
+            setTimeout(() => {
+                checkPaymentMethod();
+            }, 500);
+            
+            setTimeout(() => {
+                checkPaymentMethod();
+            }, 1500);
+            
+            setTimeout(() => {
+                checkPaymentMethod();
+            }, 3000);
 
             isInitialized = true;
         }
@@ -464,6 +590,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 100);
                 });
 
+                // Adiciona observer para mudanças no conteúdo do select
+                if (!select.dataset.observerAdded) {
+                    const selectObserver = new MutationObserver(function(mutations) {
+                        let optionsChanged = false;
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'childList') {
+                                optionsChanged = true;
+                            }
+                        });
+                        
+                        if (optionsChanged) {
+                            setTimeout(() => {
+                                if (shouldShowInstallmentLabel()) {
+                                    const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                    if (existingLabels.length === 0) {
+                                        // Reset processed state to allow new creation
+                                        const processedDivs = document.querySelectorAll('.rede-processed');
+                                        processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                                        insertRedeInfo();
+                                    }
+                                }
+                            }, 300);
+                        }
+                    });
+                    
+                    selectObserver.observe(select, {
+                        childList: true,
+                        subtree: true
+                    });
+                    
+                    select.dataset.observerAdded = 'true';
+                }
+
                 select.dataset.listenerAdded = 'true';
             }
         });
@@ -471,10 +630,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const checkoutArea = document.querySelector('.wc-block-checkout') || document.body;
 
+    // Observer principal para mudanças no DOM
     observer.observe(checkoutArea, {
         childList: true,
         subtree: true
     });
+
+    // Observer adicional para verificações periódicas mais inteligentes
+    let checkAttempts = 0;
+    const maxCheckAttempts = 30; // 1 minuto de tentativas (30 x 2s)
+    
+    const intelligentChecker = setInterval(() => {
+        checkAttempts++;
+        
+        if (isRedeMethodSelected() && shouldShowInstallmentLabel()) {
+            const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks select').length > 0;
+            
+            if (existingLabels.length === 0 && hasInstallmentSelects) {
+                const processedDivs = document.querySelectorAll('.rede-processed');
+                processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                insertRedeInfo();
+            }
+        }
+        
+        // Para o polling após encontrar labels ou esgotar tentativas
+        if (checkAttempts >= maxCheckAttempts || document.querySelectorAll('.rede-payment-info-blocks').length > 0) {
+            clearInterval(intelligentChecker);
+        }
+    }, 2000); // Verifica a cada 2 segundos
 
     initializePaymentListeners();
 });

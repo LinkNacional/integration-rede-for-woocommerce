@@ -215,7 +215,7 @@ $option = get_option('woocommerce_rede_credit_settings');
             </div>
 
             <div class="form-row form-row">
-                <?php if (is_array($installments) && count($installments) > 0) { ?>
+                <?php if (is_array($installments) && count($installments) > 1) { ?>
                     <label for="rede-card-installments">
                         <?php esc_attr_e('Installments', 'woo-rede'); ?>
                         <span class="required">*</span>

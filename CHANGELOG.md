@@ -1,3 +1,6 @@
+# 4.1.9 - 25/11/2025
+* Ajuste na parcela quando é à vista.
+
 # 4.1.8 - 24/11/2025
 * Correção no valor minimo por parcela.
 
