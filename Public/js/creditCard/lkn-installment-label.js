@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
         
         if (redeSelectContainers.length === 0) {
-            console.log('DEBUG: Nenhum container de select encontrado');
             return 0;
         }
 
@@ -27,12 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
                            option.value !== 'loading';
                 });
                 
-                console.log('DEBUG: Container encontrado com', validOptions.length, 'opções válidas');
                 return validOptions.length;
             }
         }
 
-        console.log('DEBUG: Nenhum select válido encontrado nos containers');
         return 0;
     }
 
@@ -227,8 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function insertRedeInfo() {
-        console.log('DEBUG: insertRedeInfo() chamada');
-        
         // Primeiro tenta encontrar elementos não processados
         let totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item:not(.rede-processed)');
         
@@ -237,25 +232,19 @@ document.addEventListener('DOMContentLoaded', function () {
             totalItemDivs = document.querySelectorAll('.wc-block-components-totals-item.wc-block-components-totals-footer-item');
         }
 
-        console.log('DEBUG: Total divs encontrados:', totalItemDivs.length);
-
         if (totalItemDivs.length === 0) {
             return;
         }
 
         totalItemDivs.forEach((totalDiv, index) => {
-            console.log('DEBUG: Processando div', index);
-            
             totalDiv.classList.add('rede-processed');
 
             const existingInfo = totalDiv.parentNode.querySelector('.rede-payment-info-blocks:not(.loading-skeleton)');
             if (existingInfo) {
-                console.log('DEBUG: Label já existe na div', index);
                 return;
             }
 
             const redeSelected = isRedeMethodSelected();
-            console.log('DEBUG: Rede selecionado:', redeSelected);
             if (!redeSelected) {
                 return;
             }
@@ -263,8 +252,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Verifica se deve mostrar o label de parcelamento - mais permissivo na verificação inicial
             const shouldShow = shouldShowInstallmentLabel();
             const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks select').length > 0;
-            
-            console.log('DEBUG: shouldShow:', shouldShow, 'hasInstallmentSelects:', hasInstallmentSelects);
             
             if (!shouldShow && !hasInstallmentSelects) {
                 return; // Só não mostra se realmente não há parcelas disponíveis
@@ -477,14 +464,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function checkPaymentMethod() {
         const checkedInput = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
         const selectedMethod = checkedInput ? checkedInput.value : null;
-        
-        console.log('DEBUG: Método selecionado:', selectedMethod);
 
         if (selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit') {
             // Reset o controle de parcelas para forçar nova verificação
             lastInstallmentCount = -1;
             
-            console.log('DEBUG: Método Rede/Maxipago detectado, iniciando inserção');
             insertRedeInfo();
             updateLoadingSkeletons();
 
@@ -501,12 +485,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => {
                     if (shouldShowInstallmentLabel()) {
                         const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
-                        console.log('DEBUG: Timeout', delay, '- Labels existentes:', existingLabels.length);
                         if (existingLabels.length === 0) {
                             // Reset do estado processado para permitir nova criação
                             const processedDivs = document.querySelectorAll('.rede-processed');
                             processedDivs.forEach(div => div.classList.remove('rede-processed'));
-                            console.log('DEBUG: Forçando criação de labels após timeout', delay);
                             insertRedeInfo();
                         }
                     }
@@ -669,14 +651,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 const processedDivs = document.querySelectorAll('.rede-processed');
                 processedDivs.forEach(div => div.classList.remove('rede-processed'));
                 insertRedeInfo();
-                console.log('DEBUG: Criado label via polling inteligente, tentativa', checkAttempts);
             }
         }
         
         // Para o polling após encontrar labels ou esgotar tentativas
         if (checkAttempts >= maxCheckAttempts || document.querySelectorAll('.rede-payment-info-blocks').length > 0) {
             clearInterval(intelligentChecker);
-            console.log('DEBUG: Polling inteligente finalizado após', checkAttempts, 'tentativas');
         }
     }, 2000); // Verifica a cada 2 segundos
 
