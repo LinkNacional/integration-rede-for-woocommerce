@@ -474,13 +474,7 @@ class LknIntegrationRedeForWoocommerceHelper
      */
     final public static function generate_rede_oauth_token_for_gateway($gateway_id)
     {
-        $credentials = self::get_gateway_credentials($gateway_id);
-        
-        if ($credentials === false) {
-            return false;
-        }
-        
-        $basic_auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
+        $auth = base64_encode($instance->pv . ':' . $instance->token);
         $environment = $credentials['environment'];
         
         $oauth_url = $environment === 'production' 
@@ -490,7 +484,7 @@ class LknIntegrationRedeForWoocommerceHelper
         $oauth_response = wp_remote_post($oauth_url, array(
             'method' => 'POST',
             'headers' => array(
-                'Authorization' => 'Basic ' . $basic_auth,
+                'Authorization' => 'Basic ' . $auth,
                 'Content-Type' => 'application/x-www-form-urlencoded'
             ),
             'body' => 'grant_type=client_credentials',
@@ -694,10 +688,12 @@ class LknIntegrationRedeForWoocommerceHelper
             ? 'https://api.userede.com.br/oauth2/token'
             : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
 
+        $auth = base64_encode($instance->pv . ':' . $instance->token);
+
         $oauth_response = wp_remote_post($oauth_url, array(
             'method' => 'POST',
             'headers' => array(
-                'Authorization' => 'Basic MTA2MjQ0MzI6NGY3MzFhYjc3N2VmNDJkY2JjZTIxMTU4MWMzYzYzMDQ=',
+                'Authorization' => 'Basic ' . $auth,
                 'Content-Type' => 'application/x-www-form-urlencoded'
             ),
             'body' => 'grant_type=client_credentials',
