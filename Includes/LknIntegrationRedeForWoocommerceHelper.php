@@ -77,11 +77,11 @@ class LknIntegrationRedeForWoocommerceHelper
         return null;
     }
 
-    final public static function getCardBrand($tid, $instace)
+    final public static function getCardBrand($tid, $instance)
     {
-        $auth = base64_encode($instace->pv . ':' . $instace->token);
+        $auth = base64_encode($instance->pv . ':' . $instance->token);
 
-        if ('production' === $instace->environment) {
+        if ('production' === $instance->environment) {
             $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
         } else {
             $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
@@ -474,7 +474,13 @@ class LknIntegrationRedeForWoocommerceHelper
      */
     final public static function generate_rede_oauth_token_for_gateway($gateway_id)
     {
-        $auth = base64_encode($instance->pv . ':' . $instance->token);
+        $credentials = self::get_gateway_credentials($gateway_id);
+        
+        if ($credentials === false) {
+            return false;
+        }
+        
+        $auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
         $environment = $credentials['environment'];
         
         $oauth_url = $environment === 'production' 
@@ -684,11 +690,23 @@ class LknIntegrationRedeForWoocommerceHelper
      */
     final public static function generate_rede_oauth_token($environment = 'test')
     {
+        // Tenta usar credenciais do gateway de crédito como padrão
+        $credentials = self::get_gateway_credentials('rede_credit');
+        
+        if ($credentials === false) {
+            // Se crédito não está configurado, tenta débito
+            $credentials = self::get_gateway_credentials('rede_debit');
+        }
+        
+        if ($credentials === false) {
+            return false;
+        }
+        
         $oauth_url = $environment === 'production' 
             ? 'https://api.userede.com.br/oauth2/token'
             : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
 
-        $auth = base64_encode($instance->pv . ':' . $instance->token);
+        $auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
 
         $oauth_response = wp_remote_post($oauth_url, array(
             'method' => 'POST',
