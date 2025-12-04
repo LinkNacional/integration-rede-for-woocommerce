@@ -1,3 +1,6 @@
+# 5.1.0 - 04/12/2025
+* Novo sistema de requisição via 3DS no débito da Rede.
+
 # 5.0.0 - 17/11/2025
 * Novo sistema de requisições da Rede (V2).
 * Melhoria na label das parcelas.

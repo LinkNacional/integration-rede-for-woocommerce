@@ -114,6 +114,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.1.0 - 2025/12/04
+New 3DS request system for Rede debit transactions.
+
 ### 5.0.0 - 2025/11/26
 - New Rede API request system (V2).
 - Improvement in installment labels.
