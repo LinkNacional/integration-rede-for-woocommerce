@@ -484,7 +484,7 @@ class LknIntegrationRedeForWoocommerceHelper
         $environment = $credentials['environment'];
         
         $oauth_url = $environment === 'production' 
-            ? 'https://api.userede.com.br/oauth2/token'
+            ? 'https://api.userede.com.br/redelabs/oauth2/token'
             : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
 
         $oauth_response = wp_remote_post($oauth_url, array(
@@ -703,7 +703,7 @@ class LknIntegrationRedeForWoocommerceHelper
         }
         
         $oauth_url = $environment === 'production' 
-            ? 'https://api.userede.com.br/oauth2/token'
+            ? 'https://api.userede.com.br/redelabs/oauth2/token'
             : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
 
         $auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
