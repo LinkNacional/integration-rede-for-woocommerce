@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.8  
-Stable tag: 5.0.0
+Stable tag: 5.1.0
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -114,6 +114,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.1.0 - 2025/12/04
+New 3DS request system for Rede debit transactions.
+
 ### 5.0.0 - 2025/11/26
 - New Rede API request system (V2).
 - Improvement in installment labels.
@@ -201,17 +204,12 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 5.0.0 — New Rede API request system (V2).
+- 5.1.0 — New Rede API request system (V2).
+- New 3DS request system for Rede debit transactions.
 - Improvement in installment labels.
 - Cron system for automatic PIX payment verification.
 - JavaScript script optimization for better performance.
 - Automatic installment reset on cart changes.
-- 4.1.9.
-- Fixed installment select when choosing a new shipping option.
-- Fixed minimum installment value calculation.
-- Fix in installment select generation.
-- Fixed minimum installment value.
-- Fixed installment display when payment is cash/upfront.
 
 ---
 

@@ -47,6 +47,26 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $this->partner_module = $this->get_option('module');
         $this->partner_gateway = $this->get_option('gateway');
 
+        $this->enable_3ds = $this->get_option('enable_3ds') === 'yes';
+        $this->threeds_fallback_behavior = $this->get_option('3ds_fallback_behavior', 'decline');
+
+        // Debug: Log 3DS configuration
+        error_log('[REDE DEBIT 3DS DEBUG] Debug option: ' . $this->get_option('debug'));
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS option raw: ' . $this->get_option('enable_3ds'));
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS fallback behavior: ' . $this->threeds_fallback_behavior);
+        
+        // Compliance warning for production
+        if ($this->threeds_fallback_behavior === 'continue' && $this->environment === 'production') {
+            error_log('[REDE DEBIT 3DS WARNING] 3DS fallback set to "continue" in PRODUCTION. This violates Rede regulations for debit cards!');
+        }
+        
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS enabled: ' . ($this->enable_3ds ? 'YES' : 'NO'));
+        if ($this->enable_3ds) {
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS should be added to payload');
+        } else {
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS will NOT be added to payload - check admin settings!');
+        }
+
         $this->debug = $this->get_option('debug');
 
         $this->log = $this->get_logger();
@@ -168,9 +188,219 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'distributorAffiliation' => 0
         );
         
+        // Add 3D Secure configuration if enabled
+        if ($this->enable_3ds) {
+            error_log('[REDE DEBIT 3DS DEBUG] Adding 3DS to transaction payload for reference: ' . $reference);
+            
+            // Get client IP address
+            $client_ip = $this->get_client_ip_address();
+            
+            $body['threeDSecure'] = array(
+                'embedded' => true,
+                'onFailure' => 'decline', // For debit cards, this is automatically set to decline
+                'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                'ipAddress' => $client_ip,
+                'eci' => '07', // Electronic Commerce Indicator - required
+                'device' => array(
+                    'colorDepth' => 24,
+                    'deviceType3ds' => 'BROWSER',
+                    'javaEnabled' => false,
+                    'language' => 'pt-BR',
+                    'screenHeight' => 500,
+                    'screenWidth' => 500,
+                    'timeZoneOffset' => 3
+                ),
+            );
+            
+            // Add return URLs for 3DS authentication
+            $return_url = wc_get_endpoint_url('order-received', '', wc_get_page_permalink('checkout'));
+            
+            $body['urls'] = array(
+                array(
+                    'kind' => 'threeDSecureSuccess',
+                    'url' => $return_url
+                ),
+                array(
+                    'kind' => 'threeDSecureFailure', 
+                    'url' => $return_url
+                )
+            );
+            
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS payload added. Return URL: ' . $return_url);
+            error_log('[REDE DEBIT 3DS DEBUG] Client IP: ' . $client_ip);
+        }
+        
         if ($this->get_option('enabled_soft_descriptor') === 'yes' && !empty($this->soft_descriptor)) {
             $body['softDescriptor'] = $this->soft_descriptor;
         }
+
+        // Debug: Log complete payload being sent to API (SECURITY: mask sensitive data)
+        $safe_body = $body;
+        if (isset($safe_body['cardNumber'])) {
+            $safe_body['cardNumber'] = '**** **** **** ' . substr($body['cardNumber'], -4);
+        }
+        if (isset($safe_body['securityCode'])) {
+            $safe_body['securityCode'] = '***';
+        }
+        error_log('[REDE DEBIT 3DS DEBUG] Complete payload being sent: ' . wp_json_encode($safe_body));
+
+        $response = wp_remote_post($apiUrl, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token
+            ),
+            'body' => wp_json_encode($body),
+            'timeout' => 60
+        ));
+
+        error_log(json_encode($response));
+
+        if (is_wp_error($response)) {
+            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($response_body, true);
+        
+        // Debug: Log API response details for 3DS
+        error_log('[REDE DEBIT 3DS DEBUG] API Response Code: ' . $response_code);
+        error_log('[REDE DEBIT 3DS DEBUG] API Response Body: ' . $response_body);
+        
+        if ($response_code !== 200 && $response_code !== 201) {
+            $error_message = 'Erro na transação';
+            if (isset($response_data['message'])) {
+                $error_message = $response_data['message'];
+            } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
+                $error_message = implode(', ', $response_data['errors']);
+            } elseif (isset($response_data['returnCode']) && $response_data['returnCode'] === '204') {
+                // Cardholder not registered for 3DS - check fallback behavior
+                error_log('[REDE DEBIT 3DS DEBUG] Cardholder not registered for 3DS, fallback behavior: ' . $this->threeds_fallback_behavior);
+                
+                if ($this->threeds_fallback_behavior === 'decline') {
+                    // Stop transaction - 3DS is required but not available
+                    error_log('[REDE DEBIT 3DS COMPLIANCE] Transaction declined - 3DS mandatory for debit cards per Rede regulations');
+                    throw new Exception(__('3D Secure authentication is mandatory for debit card transactions but is not available for this card. Transaction declined for regulatory compliance.', 'woo-rede'));
+                } else {
+                    // Continue without 3DS - ONLY for testing
+                    error_log('[REDE DEBIT 3DS WARNING] Continuing without 3DS - This should ONLY be used for testing purposes!');
+                    error_log('[REDE DEBIT 3DS WARNING] Per Rede regulations: 3DS is MANDATORY for debit cards in production');
+                    return $this->retry_transaction_without_3ds($reference, $amount, $cardData);
+                }
+            }
+            throw new Exception($error_message);
+        }
+        
+        // Handle 3DS authentication response
+        if ($this->enable_3ds && isset($response_data['threeDSecure'])) {
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS response detected in API response');
+            
+            $threeDSecure = $response_data['threeDSecure'];
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS data: ' . wp_json_encode($threeDSecure));
+            
+            // If 3DS authentication is required, store transaction data and redirect
+            if (isset($threeDSecure['url']) && !empty($threeDSecure['url'])) {
+                error_log('[REDE DEBIT 3DS DEBUG] 3DS authentication URL found: ' . $threeDSecure['url']);
+                
+                // Store the transaction data temporarily
+                set_transient('rede_3ds_transaction_' . $reference, array(
+                    'transaction_data' => $response_data,
+                    'card_data' => $cardData,
+                    'reference' => $reference
+                ), 30 * MINUTE_IN_SECONDS);
+                
+                error_log('[REDE DEBIT 3DS DEBUG] Transaction data stored in transient with key: rede_3ds_transaction_' . $reference);
+                
+                // Return special response for 3DS redirect
+                return array(
+                    'result' => '3ds_required',
+                    'threeDSecure' => $threeDSecure,
+                    'reference' => $reference
+                );
+            } else {
+                error_log('[REDE DEBIT 3DS DEBUG] 3DS data present but no authentication URL found');
+            }
+        } else if ($this->enable_3ds) {
+            error_log('[REDE DEBIT 3DS DEBUG] 3DS enabled but no 3DS data in response - direct authorization');
+        }
+        
+        if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
+            $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
+            throw new Exception($error_message);
+        }
+        
+        return $response_data;
+    }
+
+    /**
+     * Get client IP address
+     */
+    private function get_client_ip_address()
+    {
+        $ip_keys = array('HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'REMOTE_ADDR');
+        
+        foreach ($ip_keys as $key) {
+            if (array_key_exists($key, $_SERVER) === true) {
+                $ip = $_SERVER[$key];
+                if (strpos($ip, ',') !== false) {
+                    $ip = explode(',', $ip)[0];
+                }
+                $ip = trim($ip);
+                
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return $ip;
+                }
+            }
+        }
+        
+        // Fallback for local development
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+            if ($ip === '::1' || $ip === '127.0.0.1') {
+                return '203.0.113.1'; // Test IP for sandbox
+            }
+            return $ip;
+        }
+        
+        return '203.0.113.1'; // Default test IP
+    }
+
+    /**
+     * Retry transaction without 3DS when cardholder is not registered
+     */
+    private function retry_transaction_without_3ds($reference, $amount, $cardData)
+    {
+        error_log('[REDE DEBIT 3DS DEBUG] Retrying transaction without 3DS for reference: ' . $reference);
+        
+        $access_token = $this->get_oauth_token();
+        
+        if ($this->environment === 'production') {
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+        }
+
+        $body = array(
+            'capture' => $this->auto_capture,
+            'kind' => 'debit',
+            'reference' => (string)$reference . '-no3ds',
+            'amount' => (int)$amount,
+            'cardholderName' => $cardData['card_holder'],
+            'cardNumber' => $cardData['card_number'],
+            'expirationMonth' => (int)$cardData['card_expiration_month'],
+            'expirationYear' => (int)$cardData['card_expiration_year'],
+            'securityCode' => $cardData['card_cvv'],
+            'subscription' => false,
+            'origin' => 1,
+            'distributorAffiliation' => 0
+        );
+        
+        if ($this->get_option('enabled_soft_descriptor') === 'yes' && !empty($this->soft_descriptor)) {
+            $body['softDescriptor'] = $this->soft_descriptor;
+        }
+
+        error_log('[REDE DEBIT 3DS DEBUG] Retry payload without 3DS: ' . wp_json_encode(array_merge($body, ['cardNumber' => '**** **** **** ' . substr($body['cardNumber'], -4), 'securityCode' => '***'])));
 
         $response = wp_remote_post($apiUrl, array(
             'method' => 'POST',
@@ -183,15 +413,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição (retry): ' . $response->get_error_message());
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
         $response_body = wp_remote_retrieve_body($response);
         $response_data = json_decode($response_body, true);
         
+        error_log('[REDE DEBIT 3DS DEBUG] Retry response code: ' . $response_code);
+        error_log('[REDE DEBIT 3DS DEBUG] Retry response body: ' . $response_body);
+        
         if ($response_code !== 200 && $response_code !== 201) {
-            $error_message = 'Erro na transação';
+            $error_message = 'Erro na transação (retry)';
             if (isset($response_data['message'])) {
                 $error_message = $response_data['message'];
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
@@ -201,7 +434,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
-            $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
+            $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada (retry)';
             throw new Exception($error_message);
         }
         
@@ -301,6 +534,75 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $configs['debug'] = $this->get_option('debug');
 
         return $configs;
+    }
+
+    /**
+     * Finalize 3DS authentication after customer returns from bank
+     */
+    public function finalize_3ds_transaction($reference, $authentication_result)
+    {
+        error_log('[REDE DEBIT 3DS DEBUG] Finalizing 3DS transaction for reference: ' . $reference);
+        error_log('[REDE DEBIT 3DS DEBUG] Authentication result: ' . $authentication_result);
+        
+        // Get stored transaction data
+        $stored_data = get_transient('rede_3ds_transaction_' . $reference);
+        
+        if (!$stored_data) {
+            error_log('[REDE DEBIT 3DS DEBUG] ERROR: Transaction data not found or expired for reference: ' . $reference);
+            throw new Exception(__('3DS transaction data not found or expired', 'woo-rede'));
+        }
+        
+        error_log('[REDE DEBIT 3DS DEBUG] Transaction data found: ' . wp_json_encode($stored_data));
+        
+        $access_token = $this->get_oauth_token();
+        
+        if ($this->environment === 'production') {
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $stored_data['transaction_data']['tid'] . '/3ds';
+        } else {
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions/' . $stored_data['transaction_data']['tid'] . '/3ds';
+        }
+
+        error_log('[REDE DEBIT 3DS DEBUG] Calling 3DS finalization API: ' . $apiUrl);
+
+        $body = array(
+            'authenticationResult' => $authentication_result
+        );
+
+        $response = wp_remote_post($apiUrl, array(
+            'method' => 'POST',
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token
+            ),
+            'body' => wp_json_encode($body),
+            'timeout' => 60
+        ));
+
+        if (is_wp_error($response)) {
+            error_log('[REDE DEBIT 3DS DEBUG] ERROR: WP Error in 3DS finalization: ' . $response->get_error_message());
+            throw new Exception('Erro na finalização 3DS: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($response_body, true);
+        
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS finalization response code: ' . $response_code);
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS finalization response body: ' . $response_body);
+        
+        if ($response_code !== 200) {
+            $error_message = isset($response_data['message']) ? $response_data['message'] : 'Erro na finalização 3DS';
+            error_log('[REDE DEBIT 3DS DEBUG] ERROR: 3DS finalization failed: ' . $error_message);
+            throw new Exception($error_message);
+        }
+        
+        // Clean up transients
+        delete_transient('rede_3ds_transaction_' . $reference);
+        delete_transient('rede_3ds_order_' . $reference);
+        
+        error_log('[REDE DEBIT 3DS DEBUG] 3DS transaction completed successfully. Transients cleaned up.');
+        
+        return $response_data;
     }
 
     public function initFormFields(): void
@@ -431,6 +733,34 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
+            'enable_3ds' => array(
+                'title' => esc_attr__('3D Secure Authentication', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => esc_attr__('Enable 3D Secure (3DS) authentication for debit transactions', 'woo-rede'),
+                'default' => 'no',
+                'description' => esc_attr__('When enabled, customers may be redirected to their bank for additional authentication. This provides extra security but may affect conversion rates.', 'woo-rede'),
+                'desc_tip' => esc_attr__('3D Secure adds an extra layer of security by authenticating the cardholder with their bank. Required by some regulations.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Enable this to require customers to authenticate with their bank during debit card transactions. This increases security but may redirect customers to their bank\'s authentication page.', 'woo-rede')
+                )
+            ),
+
+            '3ds_fallback_behavior' => array(
+                'title' => esc_attr__('3DS Fallback Behavior', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'description' => esc_attr__('IMPORTANT: For debit cards, 3DS authentication is MANDATORY when enabled. The "continue" option is provided for testing purposes only and should NOT be used in production.', 'woo-rede'),
+                'desc_tip' => esc_attr__('According to Rede documentation: "3DS authentication is mandatory for all debit card transactions." Use "decline" in production for compliance.', 'woo-rede'),
+                'default' => 'decline',
+                'options' => array(
+                    'decline' => esc_attr__('Decline transaction (REQUIRED for debit cards)', 'woo-rede'),
+                    'continue' => esc_attr__('Continue without 3DS (TESTING ONLY - NOT for production)', 'woo-rede'),
+                ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('REGULATORY COMPLIANCE: For debit cards, 3DS is mandatory. Select "Decline" for production use. "Continue" should only be used for testing purposes.', 'woo-rede')
+                )
+            ),
+
             'developers' => array(
                 'title' => esc_attr__('Developer', 'woo-rede'),
                 'type' => 'title',
@@ -543,6 +873,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'card_holder' => isset($_POST['rede_debit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_holder_name'])) : '',
         );
 
+        error_log(json_encode($cardData));
+
         try {
             $valid = $this->validate_card_number($cardNumber);
             if (false === $valid) {
@@ -581,6 +913,27 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
             try {
                 $transaction_response = $this->process_debit_transaction_v2($orderId . '-' . time(), $order_total, $cardData);
+                
+                // Handle 3DS authentication requirement
+                if (is_array($transaction_response) && isset($transaction_response['result']) && $transaction_response['result'] === '3ds_required') {
+                    error_log('[REDE DEBIT 3DS DEBUG] 3DS authentication required for order: ' . $order_id);
+                    error_log('[REDE DEBIT 3DS DEBUG] 3DS URL: ' . $transaction_response['threeDSecure']['url']);
+                    
+                    // Store order ID for later processing
+                    set_transient('rede_3ds_order_' . $transaction_response['reference'], $order_id, 30 * MINUTE_IN_SECONDS);
+                    
+                    error_log('[REDE DEBIT 3DS DEBUG] Order ID stored with key: rede_3ds_order_' . $transaction_response['reference']);
+                    
+                    // Add order note
+                    $order->add_order_note(__('3D Secure authentication required. Customer redirected to bank authentication.', 'woo-rede'));
+                    $order->update_status('pending', __('Awaiting 3D Secure authentication', 'woo-rede'));
+                    
+                    return array(
+                        'result' => 'success',
+                        'redirect' => $transaction_response['threeDSecure']['url']
+                    );
+                }
+                
                 $this->regOrderLogs($orderId, $order_total, $cardData, $transaction_response, $order);
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $cardData, $e->getMessage(), $order);

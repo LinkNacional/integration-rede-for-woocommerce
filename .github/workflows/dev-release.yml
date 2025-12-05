@@ -10,7 +10,7 @@ env:
   PLUGIN_NAME: woo-rede
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "5.0.0"
+  DEPLOY_TAG: "5.1.0-beta.1"
 
 jobs:
   release-build:
@@ -95,3 +95,4 @@ jobs:
         draft: true
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
+        

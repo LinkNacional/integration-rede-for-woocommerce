@@ -503,6 +503,8 @@ class LknIntegrationRedeForWoocommerceHelper
         
         $oauth_body = wp_remote_retrieve_body($oauth_response);
         $oauth_data = json_decode($oauth_body, true);
+
+        error_log(json_encode($oauth_data));
         
         if (!isset($oauth_data['access_token'])) {
             return false;
