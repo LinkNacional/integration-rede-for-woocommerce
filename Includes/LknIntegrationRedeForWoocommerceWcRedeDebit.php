@@ -196,7 +196,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $client_ip = $this->get_client_ip_address();
             
             $body['threeDSecure'] = array(
-                'embedded' => false,
+                'embedded' => true,
                 'onFailure' => 'decline', // For debit cards, this is automatically set to decline
                 'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
                 'ipAddress' => $client_ip,
@@ -206,19 +206,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'deviceType3ds' => 'BROWSER',
                     'javaEnabled' => false,
                     'language' => 'pt-BR',
-                    'screenHeight' => 1080,
-                    'screenWidth' => 1920,
-                    'timeZoneOffset' => date('P')
+                    'screenHeight' => 500,
+                    'screenWidth' => 500,
+                    'timeZoneOffset' => 3
                 ),
-                'billing' => array(
-                    'address' => WC()->customer->get_billing_address_1() ?: 'N/A',
-                    'city' => WC()->customer->get_billing_city() ?: 'N/A',
-                    'postalcode' => preg_replace('/[^0-9]/', '', WC()->customer->get_billing_postcode() ?: '00000000'),
-                    'state' => WC()->customer->get_billing_state() ?: 'N/A',
-                    'country' => WC()->customer->get_billing_country() ?: 'BR',
-                    'emailAddress' => WC()->customer->get_billing_email() ?: 'noemail@example.com',
-                    'phoneNumber' => preg_replace('/[^0-9]/', '', WC()->customer->get_billing_phone() ?: '0000000000')
-                )
             );
             
             // Add return URLs for 3DS authentication
@@ -881,6 +872,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'card_cvv' => isset($_POST['rede_debit_cvc']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_cvc'])) : '',
             'card_holder' => isset($_POST['rede_debit_holder_name']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_holder_name'])) : '',
         );
+
+        error_log(json_encode($cardData));
 
         try {
             $valid = $this->validate_card_number($cardNumber);
