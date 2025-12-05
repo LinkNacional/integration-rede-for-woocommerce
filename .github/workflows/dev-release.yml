@@ -2,9 +2,7 @@
 name: Generate new pre-release release for plugin
 
 on:
-  pull_request:
-    types: [ closed ]
-    branches: [ pre-release ]
+  workflow_dispatch:
 
 env:
   PLUGIN_NAME: woo-rede
@@ -19,8 +17,6 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
-      with:
-        ref: pre-release
 
     - name: Run composer install
       uses: php-actions/composer@v6
