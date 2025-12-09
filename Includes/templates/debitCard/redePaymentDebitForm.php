@@ -106,7 +106,80 @@ $option = get_option('woocommerce_rede_debit_settings');
                     placeholder="<?php esc_attr_e('CVC', 'woo-rede'); ?>"
                     style="font-size: 1.5em; padding: 8px 30px 8px 35px;" />
             </div>
+
+            <?php if ($card_type_restriction === 'both') : ?>
+            <div class="form-row form-row">
+                <label for="rede-debit-card-type">
+                    <?php esc_attr_e('Card Type', 'woo-rede'); ?>
+                    <span class="required">*</span>
+                </label>
+                <?php error_log($card_type); ?>
+                <select 
+                    id="rede-debit-card-type"
+                    name="rede_debit_card_type"
+                    class="input-select lknIntegrationRedeForWoocommerceSelect"
+                    style="font-size: 1.5em; padding: 10px; width: 100%;"
+                    autocomplete="off">
+                    <option value="debit" <?php echo ($card_type === 'debit') ? 'selected' : ''; ?>><?php esc_attr_e('Debit Card', 'woo-rede'); ?></option>
+                    <option value="credit" <?php echo ($card_type === 'credit') ? 'selected' : ''; ?>><?php esc_attr_e('Credit Card', 'woo-rede'); ?></option>
+                </select>
+            </div>
+            <?php endif; ?>
+
+            <?php if (($card_type_restriction === 'credit_only' || $card_type_restriction === 'both') && is_array($installments) && count($installments) > 1) : ?>
+            <div class="form-row form-row" id="rede-debit-installments-wrapper" <?php echo ($card_type_restriction === 'both' && $card_type === 'debit') ? 'style="display: none;"' : ''; ?>>
+                <label for="rede-debit-card-installments">
+                    <?php esc_attr_e('Installments', 'woo-rede'); ?>
+                    <span class="required">*</span>
+                </label>
+                <select
+                    id="rede-debit-card-installments"
+                    name="rede_debit_installments"
+                    class="input-select lknIntegrationRedeForWoocommerceSelect"
+                    style="font-size: 1.5em; padding: 10px; width: 100%;"
+                    autocomplete="off">
+                    <?php
+                    $default_installment = isset($installments_number) ? (int)$installments_number : 1;
+                    foreach ($installments as $installment) {
+                        $selected = ($installment['num'] == $default_installment) ? 'selected' : '';
+                        printf('<option value="%d" %s>%s</option>', 
+                            esc_attr($installment['num']), 
+                            esc_attr($selected), 
+                            esc_html($installment['label'])
+                        );
+                    }
+                    ?>
+                </select>
+            </div>
+            <?php endif; ?>
+
             <div class="clear"></div>
         </div>
     </div>
+
+    <?php if ($card_type_restriction === 'both') : ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Função para controlar visibilidade das parcelas
+            function toggleInstallments() {
+                var cardType = $('#rede-debit-card-type').val();
+                var installmentsWrapper = $('#rede-debit-installments-wrapper');
+                
+                if (cardType === 'credit') {
+                    installmentsWrapper.show();
+                } else {
+                    installmentsWrapper.hide();
+                    // Reset to 1 installment for debit
+                    $('#rede-debit-card-installments').val('1');
+                }
+            }
+            
+            // Aplicar estado inicial
+            toggleInstallments();
+            
+            // Event listener para mudanças
+            $('#rede-debit-card-type').on('change', toggleInstallments);
+        });
+    </script>
+    <?php endif; ?>
 </fieldset>

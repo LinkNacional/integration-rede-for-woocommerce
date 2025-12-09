@@ -36,6 +36,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             '1.0.0',
             true
         );
+        wp_localize_script(
+            'rede_debit-blocks-integration',
+            'redeDebitAjax',
+            array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce('redeCardNonce'),
+            )
+        );
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('rede_debit-blocks-integration');
         }
@@ -52,13 +60,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             'title' => $this->gateway->title,
             'description' => $this->gateway->description,
             'nonceRedeDebit' => wp_create_nonce('redeCardNonce'),
+            'minInstallmentsRede' => $this->gateway->get_option('min_parcels_value', '5'),
             'cartTotal' => $cart_total,
+            'cardTypeRestriction' => $this->gateway->get_option('card_type_restriction', 'debit_only'),
+            'maxParcels' => $this->gateway->get_option('max_parcels_number', '12'),
+            'minParcelsValue' => $this->gateway->get_option('min_parcels_value', '5'),
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
                 'cardNumber' => __('Card Number', 'woo-rede'),
                 'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
                 'securityCode' => __('Security Code', 'woo-rede'),
                 'nameOnCard' => __('Name on Card', 'woo-rede'),
+                'cardType' => __('Card Type', 'woo-rede'),
+                'debitCard' => __('Debit Card', 'woo-rede'),
+                'creditCard' => __('Credit Card', 'woo-rede'),
+                'installments' => __('Installments', 'woo-rede'),
             )
         );
     }

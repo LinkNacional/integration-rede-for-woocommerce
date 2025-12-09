@@ -418,13 +418,22 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             ));
             
             // Também chama regOrderLogs para manter consistência com o gateway
+            // Recupera metadados salvos no pedido antes da transação
+            $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+            $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
+            
             $cardData = array(
                 'card_number' => '**** **** **** ' . ($webhook_data['last4'] ?? '****'),
                 'holder_name' => 'Card Holder',
                 'expiry_month' => '**',
                 'expiry_year' => '****',
-                'security_code' => '***'
+                'security_code' => '***',
+                'card_type' => $saved_card_type,
+                'installments' => $saved_installments
             );
+
+            error_log('3DS Webhook - Transaction processed');
+            error_log(json_encode($cardData));
             
             $this->regOrderLogs($order->get_id(), $order_total_converted, $cardData, $webhook_data, $order);
         }
@@ -478,6 +487,10 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 }
             }
 
+            // Recupera metadados do pedido se não estiverem em cardData
+            $final_card_type = isset($cardData['card_type']) ? $cardData['card_type'] : ($order->get_meta('_wc_rede_card_type') ?: 'debit');
+            $final_installments = isset($cardData['installments']) ? $cardData['installments'] : ($order->get_meta('_wc_rede_installments') ?: 1);
+            
             $bodyArray = array(
                 'orderId' => $orderId,
                 'amount' => $order_total,
@@ -485,6 +498,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
                 'exchangeRateValue' => $exchange_rate_value,
                 'cardData' => $cardData,
+                'cardType' => $final_card_type,
+                'installments' => ($final_card_type === 'credit' && $final_installments >= 1) ? $final_installments : null,
                 'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
                 'returnCode' => isset($returnCode) ? $returnCode : null,
             );

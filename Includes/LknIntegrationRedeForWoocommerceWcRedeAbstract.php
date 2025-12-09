@@ -84,6 +84,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     final public function order_items_payment_details($items, $order)
     {
         $order_id = $order->get_id();
+        error_log('order_items_payment_details called for order ID: ' . $this->id);
+        error_log('Payment method: ' . $order->get_payment_method());
         if ($order->get_payment_method() === $this->id) {
             $tid = $order->get_meta('_wc_rede_transaction_id');
             $authorization_code = $order->get_meta('_wc_rede_transaction_authorization_code');
@@ -103,11 +105,32 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 'label' => esc_attr__('Authorization code', 'woo-rede'),
                 'value' => $authorization_code,
             );
-            if ($installments) {
-                $items['installments'] = array(
-                    'label' => esc_attr__('Installments', 'woo-rede'),
-                    'value' => $installments,
+            
+            // Lógica específica para rede_debit: mostrar tipo de cartão e parcelas conforme o tipo
+            if ($this->id === 'rede_debit') {
+                $card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+                $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
+                
+                $items['cardType'] = array(
+                    'label' => esc_attr__('Card Type', 'woo-rede'),
+                    'value' => ucfirst($card_type),
                 );
+                
+                // Só mostra parcelas se for crédito e > 1
+                if ($card_type === 'credit' && $saved_installments > 1) {
+                    $items['installments'] = array(
+                        'label' => esc_attr__('Installments', 'woo-rede'),
+                        'value' => $saved_installments . 'x',
+                    );
+                }
+            } else {
+                // Para outros gateways, usar a lógica original
+                if ($installments) {
+                    $items['installments'] = array(
+                        'label' => esc_attr__('Installments', 'woo-rede'),
+                        'value' => $installments,
+                    );
+                }
             }
 
             $items[] = $last;

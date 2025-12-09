@@ -75,12 +75,13 @@ final class LknIntegrationRedeForWoocommercePublic {
             if ($session) {
                 $session->set('lkn_installments_number_rede_credit', 1);
                 $session->set('lkn_installments_number_maxipago_credit', 1);
+                $session->set('lkn_installments_number_rede_debit', 1);
             }
         }
 
         // Enqueue installment label script for WooCommerce Blocks
         if (has_block('woocommerce/checkout') && !wp_script_is('lkn-installment-label', 'enqueued') && !wp_script_is('lkn-installment-label', 'done')) {
-            wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);
+            wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/lkn-installment-label.js', array(), $this->version, true);
             
             // Configuração de tradução para o script de label de parcelamento
             wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(

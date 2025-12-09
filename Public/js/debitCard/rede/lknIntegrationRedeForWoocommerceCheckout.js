@@ -6,7 +6,17 @@ const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.t
 // Obtendo o nonce da variável global
 const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
 const translationsRedeDebit = settingsRedeDebit.translations;
+const cardTypeRestriction = settingsRedeDebit.cardTypeRestriction || 'debit_only';
+const minInstallmentsRede = settingsRedeDebit.minInstallmentsRede ? settingsRedeDebit.minInstallmentsRede.replace(',', '.') : '5.00';
+
 const ContentRedeDebit = props => {
+  const totalAmountFloat = settingsRedeDebit.cartTotal;
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('1');
+  const handleSortChange = event => {
+    const value = String(event.target.value); // Garante que seja string
+    setSelectedValue(value);
+    updateDebitObject('rede_debit_installments', value);
+  };
   const {
     eventRegistration,
     emitResponse
@@ -20,9 +30,133 @@ const ContentRedeDebit = props => {
     rede_debit_installments: '1',
     rede_debit_expiry: '',
     rede_debit_cvc: '',
-    rede_debit_holder_name: ''
+    rede_debit_holder_name: '',
+    card_type: cardTypeRestriction === 'both' ? 'debit' : (cardTypeRestriction === 'credit_only' ? 'credit' : 'debit')
   });
   const [focus, setFocus] = window.wp.element.useState('');
+  const [options, setOptions] = window.wp.element.useState([]);
+
+  console.log(debitObject.card_type)
+
+  // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
+  let installmentTimeout = null;
+  const generateRedeInstallmentOptions = async () => {
+    if (installmentTimeout) clearTimeout(installmentTimeout);
+    installmentTimeout = setTimeout(() => {
+      try {
+        window.jQuery.ajax({
+          url: window.redeDebitAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            action: 'lkn_get_rede_debit_data',
+            nonce: window.redeDebitAjax?.nonce || nonceRedeDebit
+          },
+          success: function (response) {
+            if (response && Array.isArray(response.installments)) {
+              // Remove tags HTML do label para exibir texto plano
+              const plainOptions = response.installments.map(opt => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = opt.label;
+                return {
+                  ...opt,
+                  label: tempDiv.textContent || tempDiv.innerText || ''
+                };
+              });
+              
+              // Remove todas as opções atuais e adiciona as novas
+              setOptions(plainOptions);
+              
+              // Sempre garante que há uma opção selecionada válida
+              const currentSelection = selectedValue || '1';
+              const validOption = plainOptions.find(opt => String(opt.key) === String(currentSelection));
+              
+              if (!validOption && plainOptions.length > 0) {
+                // Se a seleção atual não é válida, seleciona a primeira opção
+                const firstOption = String(plainOptions[0].key);
+                setSelectedValue(firstOption);
+                updateDebitObject('rede_debit_installments', firstOption);
+              } else if (validOption && selectedValue !== String(validOption.key)) {
+                // Se a opção é válida mas o state não está sincronizado, atualiza
+                setSelectedValue(String(validOption.key));
+                updateDebitObject('rede_debit_installments', String(validOption.key));
+              }
+            }
+          },
+          error: function () {
+            // Se falhar, mantém as opções atuais
+          }
+        });
+      } catch (error) {
+        // Se falhar, mantém as opções atuais
+      }
+    }, 400); // 400ms de debounce
+  };
+
+  // Intercepta requisições para atualizar parcelas após mudanças no shipping
+  window.wp.element.useEffect(() => {
+    // Chama só uma vez ao carregar a página se for cartão de crédito ou credit_only
+    if (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') {
+      generateRedeInstallmentOptions();
+    }
+
+    // Intercepta o fetch original para capturar requisições de shipping
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      const [url, options] = args;
+      
+      // Verifica se é uma requisição para select-shipping-rate
+      if (url && url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')) {
+        // Executa a requisição original
+        return originalFetch.apply(this, args).then(response => {
+          // Clona a response para poder ler o conteúdo
+          const responseClone = response.clone();
+          
+          // Verifica se a requisição foi bem-sucedida
+          if (response.ok) {
+            // Aguarda um breve momento para a atualização do carrinho e então atualiza as parcelas
+            setTimeout(() => {
+              // Só atualiza se for cartão de crédito
+              if (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') {
+                // Limpa as opções atuais e busca as novas
+                setOptions([]);
+                setSelectedValue('1');
+                updateDebitObject('rede_debit_installments', '1'); // Garante que seja string
+                generateRedeInstallmentOptions();
+              }
+            }, 500);
+          }
+          
+          // Retorna a response original
+          return response;
+        }).catch(error => {
+          // Em caso de erro, retorna a response original
+          return originalFetch.apply(this, args);
+        });
+      }
+      
+      // Para outras requisições, executa normalmente
+      return originalFetch.apply(this, args);
+    };
+
+    // Cleanup: restaura o fetch original quando o componente é desmontado
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [debitObject.card_type]);
+
+  // Atualizar opções de parcela quando o tipo de cartão mudar
+  window.wp.element.useEffect(() => {
+    if (debitObject.card_type === 'credit') {
+      generateRedeInstallmentOptions();
+    } else {
+      // Limpa opções e reseta para 1 parcela quando for débito
+      setOptions([]);
+      setSelectedValue('1');
+      updateDebitObject('rede_debit_installments', '1');
+    }
+  }, [debitObject.card_type]);
+
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number;
     // Remove caracteres não numéricos
@@ -50,10 +184,10 @@ const ContentRedeDebit = props => {
           }
 
           // Atualiza o estado
-          setDebitObject({
-            ...debitObject,
+          setDebitObject(prevState => ({
+            ...prevState,
             [key]: formattedValue
-          });
+          }));
         }
         return;
       case 'rede_debit_cvc':
@@ -62,15 +196,21 @@ const ContentRedeDebit = props => {
       default:
         break;
     }
-    setDebitObject({
-      ...debitObject,
+    setDebitObject(prevState => ({
+      ...prevState,
       [key]: value
-    });
+    }));
   };
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
-      // Verifica se todos os campos do debitObject estão preenchidos
-      const allFieldsFilled = Object.values(debitObject).every(field => field.trim() !== '');
+      // Verifica se todos os campos obrigatórios estão preenchidos
+      const requiredFields = ['rede_debit_number', 'rede_debit_expiry', 'rede_debit_cvc', 'rede_debit_holder_name'];
+      if (cardTypeRestriction === 'both') {
+        requiredFields.push('card_type');
+      }
+      
+      const allFieldsFilled = requiredFields.every(field => debitObject[field] && debitObject[field].trim() !== '');
+      
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,
@@ -81,6 +221,7 @@ const ContentRedeDebit = props => {
               rede_debit_expiry: debitObject.rede_debit_expiry,
               rede_debit_cvc: debitObject.rede_debit_cvc,
               rede_debit_holder_name: debitObject.rede_debit_holder_name,
+              rede_debit_card_type: debitObject.card_type,
               rede_card_nonce: nonceRedeDebit
             }
           }
@@ -100,55 +241,88 @@ const ContentRedeDebit = props => {
   // Adiciona debitObject como dependência
   emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeDebit // Adicione translationsRedeDebit como dependência
   ]);
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
-    number: debitObject.rede_debit_number,
-    name: debitObject.rede_debit_holder_name,
-    expiry: debitObject.rede_debit_expiry.replace(/\s+/g, ''),
-    cvc: debitObject.rede_debit_cvc,
-    placeholders: {
-      name: 'NOME',
-      expiry: 'MM/ANO',
-      cvc: 'CVC',
-      number: '•••• •••• •••• ••••'
-    },
-    locale: {
-      valid: 'VÁLIDO ATÉ'
-    },
-    focused: focus
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_holder_name",
-    label: translationsRedeDebit.nameOnCard,
-    value: debitObject.rede_debit_holder_name,
-    maxLength: 30,
-    onChange: value => {
-      updateDebitObject('rede_debit_holder_name', value);
-    },
-    onFocus: () => setFocus('name')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_number",
-    label: translationsRedeDebit.cardNumber,
-    value: formatDebitCardNumber(debitObject.rede_debit_number),
-    onChange: value => {
-      updateDebitObject('rede_debit_number', formatDebitCardNumber(value));
-    },
-    onFocus: () => setFocus('number')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_expiry",
-    label: translationsRedeDebit.cardExpiringDate,
-    value: debitObject.rede_debit_expiry,
-    onChange: value => {
-      updateDebitObject('rede_debit_expiry', value);
-    },
-    onFocus: () => setFocus('expiry')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_cvc",
-    label: translationsRedeDebit.securityCode,
-    value: debitObject.rede_debit_cvc,
-    onChange: value => {
-      updateDebitObject('rede_debit_cvc', value);
-    },
-    onFocus: () => setFocus('cvc')
-  }));
+  return (
+    <React.Fragment>
+      <Cards
+        number={debitObject.rede_debit_number}
+        name={debitObject.rede_debit_holder_name}
+        expiry={debitObject.rede_debit_expiry.replace(/\s+/g, '')}
+        cvc={debitObject.rede_debit_cvc}
+        placeholders={{
+          name: 'NOME',
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_holder_name"
+        label={translationsRedeDebit.nameOnCard}
+        value={debitObject.rede_debit_holder_name}
+        maxLength={30}
+        onChange={value => updateDebitObject('rede_debit_holder_name', value)}
+        onFocus={() => setFocus('name')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_number"
+        label={translationsRedeDebit.cardNumber}
+        value={formatDebitCardNumber(debitObject.rede_debit_number)}
+        onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
+        onFocus={() => setFocus('number')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_expiry"
+        label={translationsRedeDebit.cardExpiringDate}
+        value={debitObject.rede_debit_expiry}
+        onChange={value => updateDebitObject('rede_debit_expiry', value)}
+        onFocus={() => setFocus('expiry')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_cvc"
+        label={translationsRedeDebit.securityCode}
+        value={debitObject.rede_debit_cvc}
+        onChange={value => updateDebitObject('rede_debit_cvc', value)}
+        onFocus={() => setFocus('cvc')}
+      />
+      {cardTypeRestriction === 'both' && (
+        <div className="lknIntegrationRedeForWoocommerceSelectBlocks lknIntegrationRedeForWoocommerceSelect3dsInstallments">
+          <label htmlFor="card_type_selector">{translationsRedeDebit.cardType}</label>
+          <select
+            id="card_type_selector"
+            value={debitObject.card_type}
+            onChange={e => {
+              const value = e.target.value;
+              updateDebitObject('card_type', value);
+              // Reset installments to 1 when switching to debit
+              if (value === 'debit') {
+                updateDebitObject('rede_debit_installments', '1');
+                setSelectedValue('1');
+              }
+            }}
+          >
+            <option value="debit">{translationsRedeDebit.debitCard}</option>
+            <option value="credit">{translationsRedeDebit.creditCard}</option>
+          </select>
+        </div>
+      )}
+      {(cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') && options.length > 1 && (
+        <div className="lknIntegrationRedeForWoocommerceSelectBlocks">
+          <label>{translationsRedeDebit.installments}</label>
+          <select
+            value={selectedValue}
+            onChange={handleSortChange}
+            readOnly={false}
+          >
+            {options.map(opt => (
+              <option key={opt.key} value={opt.key}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+    </React.Fragment>
+  );
 };
 const BlockGatewayRedeDebit = {
   name: 'rede_debit',
