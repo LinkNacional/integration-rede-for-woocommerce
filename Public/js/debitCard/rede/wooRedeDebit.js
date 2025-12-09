@@ -159,8 +159,6 @@ window.jQuery(function ($) {
     // Usar sempre as variáveis do wooRedeDebit para todos os métodos
     const ajaxurl = window.wooRedeDebit.ajaxurl;
     const nonce = window.wooRedeDebit.nonce;
-
-    console.log(cardType)
     
     // Preparar dados da requisição
     const requestData = {

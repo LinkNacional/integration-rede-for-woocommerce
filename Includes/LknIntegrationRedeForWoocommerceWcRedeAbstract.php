@@ -84,8 +84,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     final public function order_items_payment_details($items, $order)
     {
         $order_id = $order->get_id();
-        error_log('order_items_payment_details called for order ID: ' . $this->id);
-        error_log('Payment method: ' . $order->get_payment_method());
         if ($order->get_payment_method() === $this->id) {
             $tid = $order->get_meta('_wc_rede_transaction_id');
             $authorization_code = $order->get_meta('_wc_rede_transaction_authorization_code');

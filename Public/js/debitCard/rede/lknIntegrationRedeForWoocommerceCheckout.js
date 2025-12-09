@@ -36,8 +36,6 @@ const ContentRedeDebit = props => {
   const [focus, setFocus] = window.wp.element.useState('');
   const [options, setOptions] = window.wp.element.useState([]);
 
-  console.log(debitObject.card_type)
-
   // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
   let installmentTimeout = null;
   const generateRedeInstallmentOptions = async () => {

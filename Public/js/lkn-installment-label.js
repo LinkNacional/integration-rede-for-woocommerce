@@ -683,10 +683,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     if (this.value === 'debit') {
                         // Para débito, não faz nada mais (já removeu)
-                        console.log('Card type changed to debit - hiding installments');
                     } else if (this.value === 'credit') {
                         // Para crédito, força nova verificação após um delay
-                        console.log('Card type changed to credit - showing installments');
                         setTimeout(() => {
                             // Reset estados para permitir recriação
                             const processedDivs = document.querySelectorAll('.rede-processed');

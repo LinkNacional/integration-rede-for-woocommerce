@@ -113,7 +113,6 @@ $option = get_option('woocommerce_rede_debit_settings');
                     <?php esc_attr_e('Card Type', 'woo-rede'); ?>
                     <span class="required">*</span>
                 </label>
-                <?php error_log($card_type); ?>
                 <select 
                     id="rede-debit-card-type"
                     name="rede_debit_card_type"

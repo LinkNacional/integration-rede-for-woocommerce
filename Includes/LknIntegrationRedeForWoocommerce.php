@@ -556,7 +556,6 @@ final class LknIntegrationRedeForWoocommerce
         
         // Capturar tipo de cartão (apenas para rede_debit)
         $card_type = null;
-        error_log('Received card type: ' . print_r($_POST['card_type'] ?? 'none', true));
         if ($payment_method === 'rede_debit' && isset($_POST['card_type'])) {
             $card_type = sanitize_text_field($_POST['card_type']);
         }

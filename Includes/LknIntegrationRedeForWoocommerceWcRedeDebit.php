@@ -165,9 +165,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Determinar o kind baseado no tipo de cartão
         $card_type = isset($cardData['card_type']) ? $cardData['card_type'] : 'debit';
         $installments = isset($cardData['installments']) ? $cardData['installments'] : 1;
-
-        error_log(json_encode($cardData));
-        error_log('Processing ' . $card_type . ' transaction for reference ' . $reference);
         
         $body = array(
             'capture' => $this->auto_capture,
@@ -391,9 +388,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function regOrderLogs($orderId, $order_total, $cardData, $transaction, $order, $brand = null): void
     {
         if ('yes' == $this->debug) {
-            // Debug: log cardData structure
-            error_log('regOrderLogs - cardData received: ' . json_encode($cardData));
-            
             $tId = null;
             $returnCode = null;
             
@@ -850,18 +844,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Captura o tipo de cartão selecionado
         $card_type = isset($_POST['rede_debit_card_type']) ? sanitize_text_field(wp_unslash($_POST['rede_debit_card_type'])) : 'debit';
         
-        // Debug: log dos dados recebidos
-        error_log('POST data received: ' . print_r($_POST, true));
-        error_log('Card type detected: ' . $card_type);
-        
         // Captura o número de parcelas (apenas para crédito)
         $installments = 1;
         if ($card_type === 'credit' && isset($_POST['rede_debit_installments'])) {
             $installments = intval(sanitize_text_field(wp_unslash($_POST['rede_debit_installments'])));
             if ($installments < 1) $installments = 1;
         }
-        
-        error_log('Final installments: ' . $installments);
 
         $cardData = array(
             'card_number' => preg_replace('/[^\d]/', '', sanitize_text_field(wp_unslash($_POST['rede_debit_number']))),
@@ -929,12 +917,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     );
                 }
                 
-                // Debug: log cardData before calling regOrderLogs
-                error_log('Before calling regOrderLogs - cardData: ' . json_encode($cardData));
                 $this->regOrderLogs($orderId, $order_total, $cardData, $transaction_response, $order);
             } catch (Exception $e) {
-                // Debug: log cardData before calling regOrderLogs (error case)
-                error_log('Before calling regOrderLogs (error) - cardData: ' . json_encode($cardData));
                 $this->regOrderLogs($orderId, $order_total, $cardData, $e->getMessage(), $order);
                 throw $e;
             }
@@ -984,9 +968,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $order->save();
 
             if ('yes' == $this->debug) {
-                // Debug: log cardData structure
-                error_log('this->log->log - cardData received: ' . json_encode($cardData));
-                
                 $tId = $transaction_response['tid'] ?? null;
                 $returnCode = $transaction_response['returnCode'] ?? null;
                 $brandDetails = null;
@@ -1242,7 +1223,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         if (function_exists('WC') && WC()->session) {
             // Buscar tipo de cartão da sessão primeiro
             $session_card_type = WC()->session->get('lkn_card_type_rede_debit');
-            error_log('Session card type: ' . print_r($session_card_type, true));
             if (!empty($session_card_type)) {
                 $card_type = $session_card_type;
             }
@@ -1250,10 +1230,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             // Buscar parcelas da sessão, mas forçar 1 para débito
             if ($card_type === 'debit') {
                 $installments_number = 1;
-                error_log('Card type is debit, forcing installments to 1');
             } else {
                 $session_value = WC()->session->get('lkn_installments_number_rede_debit');
-                error_log('Session installments number: ' . print_r($session_value, true));
                 if (!empty($session_value) && is_numeric($session_value) && $session_value > 0) {
                     $installments_number = intval($session_value);
                 }

@@ -431,19 +431,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 'card_type' => $saved_card_type,
                 'installments' => $saved_installments
             );
-
-            error_log('3DS Webhook - Transaction processed');
-            error_log(json_encode($cardData));
             
             $this->regOrderLogs($order->get_id(), $order_total_converted, $cardData, $webhook_data, $order);
         }
 
-        error_log($webhook_data['returnCode']);
-        error_log($order->get_status());
         // Atualiza status do pedido se aprovado
         if ($order->get_status() === 'pending' && ($webhook_data['returnCode'] ?? '') === '00') {
             $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
-            error_log($payment_complete_status);
             $order->update_status($payment_complete_status);
             $order->add_order_note(__('3D Secure authentication successful - Payment approved', 'woo-rede'));
         } else {
