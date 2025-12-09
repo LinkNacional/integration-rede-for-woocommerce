@@ -427,6 +427,12 @@ final class LknIntegrationRedeForWoocommerce
                 'label' => $label
             ];
         }
+        
+        // Definir installment de crédito como 1 na sessão
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set('lkn_installments_number_rede_credit', 1);
+        }
+        
         wp_send_json([
             'cartTotal' => $cart_total,
             'installments' => $installments
@@ -553,6 +559,8 @@ final class LknIntegrationRedeForWoocommerce
         $payment_method = sanitize_text_field($_POST['payment_method']);
         $installments = intval($_POST['installments']);
         $nonce = sanitize_text_field($_POST['nonce']);
+
+        error_log('chamouuuu');
         
         // Capturar tipo de cartão (apenas para rede_debit)
         $card_type = null;

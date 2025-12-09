@@ -43,6 +43,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce'   => wp_create_nonce('redeCardNonce'),
+                'installment_nonce' => wp_create_nonce('rede_payment_fields_nonce'),
             )
         );
         if (function_exists('wp_set_script_translations')) {

@@ -40,7 +40,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
         }
 
-        $this->auto_capture = true;
+        // Auto capture configurável igual ao rede_credit
+        $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
         $this->max_parcels_number = $this->get_option('max_parcels_number');
         $this->min_parcels_value = $this->get_option('min_parcels_value');
 
@@ -126,8 +127,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
      */
     private function process_order_status_v2($order, $transaction_response, $note = '')
     {
+        error_log(json_encode($transaction_response));
         $return_code = $transaction_response['returnCode'] ?? '';
         $return_message = $transaction_response['returnMessage'] ?? '';
+        
+        // Determinar se foi capturado baseado na resposta da transação
+        $capture = $transaction_response['capture'] ?? true; // Default true pois debit sempre captura
+        
+        // Para transações credit processadas via debit gateway, verificar auto_capture
+        $card_kind = $transaction_response['kind'] ?? 'debit';
+        if ($card_kind === 'credit') {
+            $capture = $transaction_response['capture'] ?? $this->auto_capture;
+        }
         
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note($status_note . ' ' . $note);
@@ -135,16 +146,25 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Só altera o status se o pedido estiver pendente
         if ($order->get_status() === 'pending') {
             if ($return_code == '00') {
-                // Status configurável pelo usuário para pagamentos aprovados
-                $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
-                $order->update_status($payment_complete_status);
-                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                if ($capture) {
+                    // Status configurável pelo usuário para pagamentos aprovados com captura
+                    $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                    $order->update_status($payment_complete_status);
+                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                } else {
+                    // Para pagamentos credit sem captura, aguardando captura manual
+                    $order->update_status('on-hold');
+                    wc_reduce_stock_levels($order->get_id());
+                }
             } else {
                 $order->update_status('failed', $status_note);
             }
         }
 
-        WC()->cart->empty_cart();
+        // Esvazia o carrinho apenas se disponível (contexto de checkout regular)
+        if (function_exists('WC') && WC() && WC()->cart) {
+            WC()->cart->empty_cart();
+        }
     }
 
     /**
@@ -162,12 +182,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
 
-        // Determinar o kind baseado no tipo de cartão
+        // Determinar o kind e capture baseado no tipo de cartão
         $card_type = isset($cardData['card_type']) ? $cardData['card_type'] : 'debit';
         $installments = isset($cardData['installments']) ? $cardData['installments'] : 1;
         
+        // Auto capture condicional: sempre true para debit, configurável para credit
+        $capture = ($card_type === 'debit') ? true : $this->auto_capture;
+        
         $body = array(
-            'capture' => $this->auto_capture,
+            'capture' => $capture,
             'kind' => $card_type, // Dinâmico: 'debit' ou 'credit'
             'reference' => (string)$reference,
             'amount' => (int)$amount,
@@ -182,7 +205,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         );
         
         // Adiciona parcelas apenas para crédito
-        if ($card_type === 'credit' && $installments > 1) {
+        if ($card_type === 'credit' && $installments >= 1) {
             $body['installments'] = $installments;
         }
         
@@ -321,12 +344,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
 
-        // Determinar o kind baseado no tipo de cartão
+        // Determinar o kind e capture baseado no tipo de cartão
         $card_type = isset($cardData['card_type']) ? $cardData['card_type'] : 'debit';
         $installments = isset($cardData['installments']) ? $cardData['installments'] : 1;
         
+        // Auto capture condicional: sempre true para debit, configurável para credit
+        $capture = ($card_type === 'debit') ? true : $this->auto_capture;
+        
         $body = array(
-            'capture' => $this->auto_capture,
+            'capture' => $capture,
             'kind' => $card_type, // Dinâmico: 'debit' ou 'credit'
             'reference' => (string)$reference . '-no3ds',
             'amount' => (int)$amount,
@@ -737,22 +763,151 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
-            'developers' => array(
-                'title' => esc_attr__('Developer', 'woo-rede'),
-                'type' => 'title',
+            'auto_capture' => array(
+                'title' => esc_attr__('Auto Capture (Credit Only)', 'woo-rede'),
+                'type' => 'checkbox',
+                'label' => esc_attr__('Enable automatic capture for credit card transactions', 'woo-rede'),
+                'default' => 'yes',
+                'desc_tip' => esc_attr__('When enabled, credit card transactions will be automatically captured. Debit card transactions are always captured immediately.', 'woo-rede'),
+                'description' => esc_attr__('This setting only applies when the card type is detected as credit. Debit transactions are always captured automatically.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Enable auto-capture for credit card transactions processed through the debit gateway when credit card is detected.', 'woo-rede')
+                )
             ),
 
-            'debug' => array(
-                'title' => esc_attr__('Debug', 'woo-rede'),
-                'type' => 'checkbox',
-                'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
-                'default' => 'no',
-                'desc_tip' => esc_attr__('Enable transaction logging.', 'woo-rede'),
-                'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
-                'custom_attributes' => array(
-                    'data-title-description' => esc_attr__("When enabled, all Rede transactions will be logged.", 'woo-rede')
+            'installment' => array(
+                'title' => esc_attr__('Installments', 'woo-rede'),
+                'type' => 'title',
+            ),
+            'interest_or_discount' => array(
+                'title' => esc_attr__('Installment Settings', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'options' => array(
+                    'interest' => __('Interest', 'woo-rede'),
+                    'discount' => __('Discount', 'woo-rede'),
                 ),
+                'default' => 'interest',
+                'desc_tip' => esc_attr__('Select the option interest or discount. Save to continue configuration.', 'woo-rede'),
+                'description' => esc_attr__('Allows the user to select discount or interest on credit card installments.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Defines whether the installment will apply interest or offer a discount. Save to load more settings.", 'woo-rede')
+                ),
+            ),
+            'interest_show_percent' => array(
+                'title' => __('Display interest percentage', 'woo-rede'),
+                'label' => __('Display interest percentage. Default (enabled)', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('By enabling this feature, the percentage applied to each installment will be displayed to the customer during checkout.', 'woo-rede'),
+                'default' => 'yes',
+                'desc_tip' => true,
+            ),
+            'installment_interest' => array(
+                'title' => __('Interest on installments', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => __('Enables payment with interest on installments.', 'woo-rede'),
+                'default' => 'no',
+                'desc_tip' => esc_attr__('Enable to allow interest to be charged on installment payments.', 'woo-rede'),
+                'description' => esc_attr__('Allows payment with interest in installments. Save to continue configuration.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Applies an interest rate to each installment. Use this if you want to charge extra per installment.", 'woo-rede')
+                ),
+            ),
+            'installment_discount' => array(
+                'title' => __('Discount on installments', 'woo-rede'),
+                'type' => 'checkbox',
+                'desc_tip' => esc_attr__('Enable to give a discount when the customer chooses to pay in installments.', 'woo-rede'),
+                'description' => esc_attr__('Enables payment with discount on installments.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__("Applies a discount per installment when selected. Useful to encourage multi-payment options.", 'woo-rede')
+                ),
+                'default' => 'no',
             )
+        );
+
+        // Minimum interest field per transaction
+        $this->form_fields['min_interest'] = array(
+            'title' => __('Minimum Interest', 'woo-rede'),
+            'type' => 'number',
+            'default' => '0',
+            'custom_attributes' => array(
+                'step' => '0.01',
+                'min' => '0',
+                'max' => '100',
+                'merge-top' => "woocommerce_{$this->id}_installment_interest",
+                'data-title-description' => esc_attr__('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede')
+            ),
+            'description' => __('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede'),
+        );
+
+        // Dynamic fields for each installment
+        $max_installments = (int) $this->get_option('max_parcels_number', 12);
+        for ($i = 1; $i <= $max_installments; $i++) {
+            // Interest field for specific installment
+            $this->form_fields["{$i}x"] = array(
+                'title' => sprintf(__('Interest %dx', 'woo-rede'), $i),
+                'type' => 'number',
+                'default' => '0',
+
+                'custom_attributes' => array(
+                    'step' => '0.01',
+                    'min' => '0',
+                    'max' => '100',
+                    'merge-top' => "woocommerce_{$this->id}_installment_interest",
+                    'data-title-description' => sprintf(esc_attr__('Interest applied when customer selects to pay in %dx. Leave 0 for no interest.', 'woo-rede'), $i)
+                ),
+                'description' => __('This option defines the interest on the installment as a percentage. Only accepts numbers. For example, for 10% interest, enter 10. Leave it blank or enter zero for an installment without an interest rate.', 'woo-rede'),
+            );
+
+            // Discount field for specific installment  
+            $this->form_fields["{$i}x_discount"] = array(
+                'title' => sprintf(__('Discount %dx', 'woo-rede'), $i),
+                'type' => 'number',
+                'default' => '0',
+                'custom_attributes' => array(
+                    'step' => '0.01',
+                    'min' => '0',
+                    'max' => '100',
+                    'merge-top' => "woocommerce_{$this->id}_installment_discount",
+                    'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
+                ),
+                'description' => __('This option defines the discount on the installment as a percentage. Only accepts numbers. For example, for 10% discount, enter 10. Leave it blank or enter zero for an installment without a discount rate.', 'woo-rede'),
+            );
+        }
+
+        // Field to define maximum number of installments with dynamic options
+        $parcels_options = array();
+        for ($i = 1; $i <= 24; $i++) {
+            $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
+        }
+
+        $this->form_fields['max_parcels_number'] = array(
+            'title' => __('Maximum Number of Installments', 'woo-rede'),
+            'type' => 'select',
+            'options' => $parcels_options,
+            'custom_attributes' => array(
+                'data-merge-top' => 'true'
+            ),
+            'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
+            'default' => '12',
+            'desc_tip' => true,
+        );
+
+        $this->form_fields['developers'] = array(
+            'title' => esc_attr__('Developer', 'woo-rede'),
+            'type' => 'title',
+        );
+
+        $this->form_fields['debug'] = array(
+            'title' => esc_attr__('Debug', 'woo-rede'),
+            'type' => 'checkbox',
+            'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+            'default' => 'no',
+            'desc_tip' => esc_attr__('Enable transaction logging.', 'woo-rede'),
+            'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
+            'custom_attributes' => array(
+                'data-title-description' => esc_attr__("When enabled, all Rede transactions will be logged.", 'woo-rede')
+            ),
         );
 
         if ($this->get_option('debug') == 'yes') {
@@ -948,7 +1103,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['card']['brand'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_nsu', $transaction_response['nsu'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['authorizationCode'] ?? '');
-            $order->update_meta_data('_wc_rede_captured', $transaction_response['capture'] ?? $this->auto_capture);
+            $order->update_meta_data('_wc_rede_captured', $transaction_response['capture'] ?? (isset($cardData['card_type']) && $cardData['card_type'] === 'debit' ? true : $this->auto_capture));
             $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
             $order->update_meta_data('_wc_rede_total_amount_converted', $order_total);
             $order->update_meta_data('_wc_rede_total_amount_is_converted', $convert_to_brl_enabled ? true : false);

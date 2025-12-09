@@ -14,6 +14,28 @@ const ContentRedeCredit = props => {
     const value = String(event.target.value); // Garante que seja string
     setSelectedValue(value);
     updateCreditObject('rede_credit_installments', value);
+    
+    // Faz requisição AJAX para atualizar a sessão de parcelas
+    window.jQuery.ajax({
+      url: window.redeCreditAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        action: 'lkn_update_installment_session',
+        payment_method: 'rede_credit',
+        installments: value,
+        nonce: window.redeCreditAjax?.installment_nonce
+      },
+      success: function (response) {
+        // Invalida o cache do store para atualizar os dados apenas no sucesso da requisição
+        if (window.wp && window.wp.data && window.wp.data.dispatch) {
+          window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+        }
+      },
+      error: function () {
+        // Em caso de erro, pode manter o comportamento atual ou mostrar uma mensagem
+      }
+    });
   };
   const {
     eventRegistration,
@@ -75,6 +97,11 @@ const ContentRedeCredit = props => {
                 // Se a opção é válida mas o state não está sincronizado, atualiza
                 setSelectedValue(String(validOption.key));
                 updateCreditObject('rede_credit_installments', String(validOption.key));
+              }
+              
+              // Invalida o cache do store após atualizar as opções
+              if (window.wp && window.wp.data && window.wp.data.dispatch) {
+                window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
               }
             }
           },

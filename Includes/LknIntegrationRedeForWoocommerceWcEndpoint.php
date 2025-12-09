@@ -327,6 +327,9 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
      */
     private function update_order_metadata_and_status($order, $webhook_data)
     {
+        // Configurações do gateway debit
+        $debit_settings = get_option('woocommerce_rede_debit_settings');
+        
         // Configurações para conversão de moeda
         $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled('rede_debit');
         $default_currency = get_option('woocommerce_currency', 'BRL');
@@ -366,8 +369,14 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $order->update_meta_data('_wc_rede_transaction_last4', $webhook_data['last4'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_brand', $webhook_data['brand_name'] ?? '');
         
-        // Configurações padrão para débito
-        $order->update_meta_data('_wc_rede_captured', true); // Débito sempre é capturado
+        // Auto capture condicional baseado no tipo de cartão salvo nos metadados
+        $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+        $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
+        $auto_capture_setting = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
+        
+        // Sempre true para debit, configurável para credit
+        $capture_value = ($saved_card_type === 'debit') ? true : $auto_capture_setting;
+        $order->update_meta_data('_wc_rede_captured', $capture_value);
         
         // Metadados financeiros
         $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
@@ -382,14 +391,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         // Ambiente de transação
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
         $environment = $debit_settings['environment'] ?? 'test';
         $order->update_meta_data('_wc_rede_transaction_environment', $environment);
 
         $order->save();
 
         // Debug logging se habilitado
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
         if (($debit_settings['debug'] ?? 'no') === 'yes') {
             $tId = $webhook_data['tid'] ?? null;
             $returnCode = $webhook_data['returnCode'] ?? null;
@@ -417,11 +424,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 ),
             ));
             
-            // Também chama regOrderLogs para manter consistência com o gateway
-            // Recupera metadados salvos no pedido antes da transação
-            $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
-            $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
-            
             $cardData = array(
                 'card_number' => '**** **** **** ' . ($webhook_data['last4'] ?? '****'),
                 'holder_name' => 'Card Holder',
@@ -435,13 +437,49 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $this->regOrderLogs($order->get_id(), $order_total_converted, $cardData, $webhook_data, $order);
         }
 
-        // Atualiza status do pedido se aprovado
-        if ($order->get_status() === 'pending' && ($webhook_data['returnCode'] ?? '') === '00') {
-            $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
-            $order->update_status($payment_complete_status);
-            $order->add_order_note(__('3D Secure authentication successful - Payment approved', 'woo-rede'));
-        } else {
-            $order->add_order_note(__('3D Secure authentication completed but payment was not approved', 'woo-rede'));
+        // Processa status do pedido usando a função específica para 3DS (inclui lógica de auto_capture)
+        $this->process_3ds_order_status($order, $webhook_data, '3D Secure authentication completed');
+    }
+
+    /**
+     * Processa status do pedido especificamente para retorno 3DS
+     * A resposta 3DS tem estrutura diferente e precisamos do card_type dos metadados
+     */
+    private function process_3ds_order_status($order, $webhook_data, $note = '')
+    {
+        $return_code = $webhook_data['returnCode'] ?? '';
+        $return_message = $webhook_data['returnMessage'] ?? '';
+        
+        // Para 3DS, recuperar o card_type dos metadados do pedido
+        $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+        
+        // Obter configuração de auto_capture do gateway debit
+        $debit_settings = get_option('woocommerce_rede_debit_settings');
+        $auto_capture = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
+        
+        // Determinar se foi capturado baseado no tipo de cartão e configuração
+        $capture = ($saved_card_type === 'debit') ? true : $auto_capture;
+        
+        // Adiciona informação sobre o tipo de cartão detectado na nota
+        $card_type_note = sprintf(' [Card Type: %s, Capture: %s]', $saved_card_type, $capture ? 'Yes' : 'No');
+        $status_note = sprintf('Rede[%s]', $return_message);
+        $order->add_order_note($status_note . ' ' . $note . $card_type_note);
+
+        // Só altera o status se o pedido estiver pendente
+        if ($order->get_status() === 'pending') {
+            if ($return_code == '00') {
+                if ($capture) {
+                    // Status configurável pelo usuário para pagamentos aprovados com captura
+                    $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
+                    $order->update_status($payment_complete_status);
+                } else {
+                    // Para pagamentos credit sem captura, aguardando captura manual
+                    $order->update_status('on-hold', 'Pagamento autorizado, aguardando captura manual.');
+                    wc_reduce_stock_levels($order->get_id());
+                }
+            } else {
+                $order->update_status('failed', $status_note);
+            }
         }
     }
 
