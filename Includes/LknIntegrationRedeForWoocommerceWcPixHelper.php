@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace LknIntegrationRedeForWoocommerce\Includes;
 
 use DateTime;
 

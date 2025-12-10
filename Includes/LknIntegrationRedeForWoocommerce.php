@@ -1,10 +1,10 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace LknIntegrationRedeForWoocommerce\Includes;
 
-use Lkn\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
-use Lkn\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
+use LknIntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
+use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
+use LknIntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
 
 /**
  * The file that defines the core plugin class
@@ -1178,8 +1178,8 @@ final class LknIntegrationRedeForWoocommerce
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
-            // translators: %1$d is the number of installments, %2$s is the formatted price per installment
             $payment_info = sprintf(
+                // translators: %1$d is the number of installments, %2$s is the formatted price per installment
                 __('%1$dx of %2$s', 'woo-rede'),
                 $installment,
                 $formatted_value

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace LknIntegrationRedeForWoocommerce\Includes;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoDebit;
+use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoDebit;
 
 final class LknIntegrationRedeForWoocommerceWcMaxipagoDebitBlocks extends AbstractPaymentMethodType
 {

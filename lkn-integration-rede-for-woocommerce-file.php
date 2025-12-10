@@ -1,8 +1,8 @@
 <?php
 
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerce;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceActivator;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
+use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerce;
+use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceActivator;
+use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
 
 // If this file is called directly, abort.
 if (! defined('WPINC')) {
@@ -55,7 +55,7 @@ if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY')) {
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
  */
-function activate_LknIntegrationRedeForWoocommerce(): void
+function lkn_activate_integration_rede_for_woocommerce(): void
 {
     LknIntegrationRedeForWoocommerceActivator::activate();
 }
@@ -64,13 +64,13 @@ function activate_LknIntegrationRedeForWoocommerce(): void
  * The code that runs during plugin deactivation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceDeactivator.php
  */
-function deactivate_LknIntegrationRedeForWoocommerce(): void
+function lkn_deactivate_integration_rede_for_woocommerce(): void
 {
     LknIntegrationRedeForWoocommerceDeactivator::deactivate();
 }
 
-register_activation_hook(__FILE__, 'activate_LknIntegrationRedeForWoocommerce');
-register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerce');
+register_activation_hook(__FILE__, 'lkn_activate_integration_rede_for_woocommerce');
+register_deactivation_hook(__FILE__, 'lkn_deactivate_integration_rede_for_woocommerce');
 
 /**
  * Begins execution of the plugin.
@@ -81,9 +81,9 @@ register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerc
  *
  * @since    1.0.0
  */
-function run_LknIntegrationRedeForWoocommerce(): void
+function lkn_run_integration_rede_for_woocommerce(): void
 {
     $plugin = new LknIntegrationRedeForWoocommerce();
     $plugin->run();
 }
-run_LknIntegrationRedeForWoocommerce();
+lkn_run_integration_rede_for_woocommerce();
