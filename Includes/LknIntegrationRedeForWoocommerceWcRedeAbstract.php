@@ -115,7 +115,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 );
                 
                 // Só mostra parcelas se for crédito e > 1
-                if ($card_type === 'credit' && $saved_installments > 1) {
+                if ($card_type === 'credit' && $saved_installments >= 1) {
                     $items['installments'] = array(
                         'label' => esc_attr__('Installments', 'woo-rede'),
                         'value' => $saved_installments . 'x',

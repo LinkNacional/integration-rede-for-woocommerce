@@ -529,7 +529,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id);
         
         if ($token === null) {
-            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . $this->id);
+            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . esc_html($this->id));
         }
         
         return $token;
@@ -614,7 +614,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -628,12 +628,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;
@@ -843,7 +843,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição de reembolso: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição de reembolso: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -857,7 +857,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;

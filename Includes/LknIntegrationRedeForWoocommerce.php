@@ -551,7 +551,7 @@ final class LknIntegrationRedeForWoocommerce
             
             // Se o tipo de cartão foi enviado na requisição, salvar na sessão
             if (isset($_POST['card_type']) && !empty($_POST['card_type'])) {
-                $card_type = sanitize_text_field($_POST['card_type']);
+                $card_type = sanitize_text_field(wp_unslash($_POST['card_type']));
                 if (in_array($card_type, ['credit', 'debit'])) {
                     WC()->session->set('lkn_card_type_rede_debit', $card_type);
                 }
@@ -569,14 +569,14 @@ final class LknIntegrationRedeForWoocommerce
      */
     public function ajax_update_installment_session()
     {
-        $payment_method = sanitize_text_field($_POST['payment_method']);
-        $installments = intval($_POST['installments']);
-        $nonce = sanitize_text_field($_POST['nonce']);
+        $payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash($_POST['payment_method'])) : '';
+        $installments = isset($_POST['installments']) ? intval($_POST['installments']) : 1;
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
 
         // Capturar tipo de cartão (apenas para rede_debit)
         $card_type = null;
         if ($payment_method === 'rede_debit' && isset($_POST['card_type'])) {
-            $card_type = sanitize_text_field($_POST['card_type']);
+            $card_type = sanitize_text_field(wp_unslash($_POST['card_type']));
         }
 
         // Verificar nonce baseado no método de pagamento

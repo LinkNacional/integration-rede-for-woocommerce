@@ -231,7 +231,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $this->update_order_metadata_and_status($order, $parameters);
             
             $redirect_url = $order->get_checkout_order_received_url();
-            wp_redirect($redirect_url);
+            wp_safe_redirect($redirect_url);
             exit;
         } catch (Exception $e) {
             $order->add_order_note(__('Error processing 3DS success: ', 'woo-rede') . $e->getMessage());
@@ -270,7 +270,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         
         // Redireciona para a página de checkout com parâmetro de erro
         $redirect_url = add_query_arg('3ds_error', '1', wc_get_checkout_url());
-        wp_redirect($redirect_url);
+        wp_safe_redirect($redirect_url);
         exit;
     }
 

@@ -116,7 +116,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id);
         
         if ($token === null) {
-            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . $this->id);
+            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . esc_html($this->id));
         }
         
         return $token;
@@ -275,7 +275,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -293,13 +293,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 
                 if ($this->threeds_fallback_behavior === 'decline') {
                     // Stop transaction - 3DS is required but not available
-                    throw new Exception(__('3D Secure authentication is mandatory for debit card transactions but is not available for this card. Transaction declined for regulatory compliance.', 'woo-rede'));
+                    throw new Exception(esc_html(__('3D Secure authentication is mandatory for debit card transactions but is not available for this card. Transaction declined for regulatory compliance.', 'woo-rede')));
                 } else {
                     // Continue without 3DS - ONLY for testing
                     return $this->retry_transaction_without_3ds($reference, $amount, $cardData);
                 }
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         // Handle 3DS authentication response
@@ -324,7 +324,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;
@@ -385,7 +385,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição (retry): ' . $response->get_error_message());
+            throw new Exception('Erro na requisição (retry): ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -399,12 +399,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada (retry)';
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;
@@ -480,13 +480,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         $order_id = intval($_GET['wc_order']);
-        $order_key = sanitize_text_field($_GET['key']);
-        $threeds_status = sanitize_text_field($_GET['3ds']);
+        $order_key = sanitize_text_field(wp_unslash($_GET['key']));
+        $threeds_status = sanitize_text_field(wp_unslash($_GET['3ds']));
 
         // Valida o pedido
         $order = wc_get_order($order_id);
         if (!$order || $order->get_order_key() !== $order_key) {
-            wp_die(__('Invalid order or order key.', 'woo-rede'));
+            wp_die(esc_html(__('Invalid order or order key.', 'woo-rede')));
             return;
         }
 
@@ -642,8 +642,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Adiciona uma notificação para o administrador
         add_action('admin_notices', function() {
             echo '<div class="notice notice-warning is-dismissible">';
-            echo '<p>' . __('PRO license is required to modify installment settings. Settings have been reset to default values.', 'woo-rede') . '</p>';
-            echo '</div>';
+            echo '<p>' . esc_html(__('PRO license is required to modify installment settings. Settings have been reset to default values.', 'woo-rede')) . '</p>';
+            echo '</div>';;
         });
     }
 
@@ -941,6 +941,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         for ($i = 1; $i <= $max_installments; $i++) {
             // Interest field for specific installment
             $this->form_fields["{$i}x"] = array(
+                // translators: %d is the number of installments
                 'title' => sprintf(__('Interest %dx', 'woo-rede'), $i),
                 'type' => 'number',
                 'default' => '0',
@@ -958,6 +959,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
             // Discount field for specific installment  
             $this->form_fields["{$i}x_discount"] = array(
+                // translators: %d is the number of installments
                 'title' => sprintf(__('Discount %dx', 'woo-rede'), $i),
                 'type' => 'number',
                 'default' => '0',
@@ -1277,7 +1279,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição de reembolso: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição de reembolso: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -1291,7 +1293,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;
