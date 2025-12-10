@@ -834,6 +834,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Field to define maximum number of installments with dynamic options
         $parcels_options = array();
         for ($i = 1; $i <= 24; $i++) {
+            // translators: %d is the number of installments
             $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
         }
 
@@ -843,6 +844,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'options' => $parcels_options,
             'custom_attributes' => array(
                 'data-merge-top' => 'true',
+                // translators: %d is the number of installments
                 'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
             ),
             'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
@@ -902,6 +904,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Field to define maximum number of installments with dynamic options
         $parcels_options = array();
         for ($i = 1; $i <= 24; $i++) {
+            // translators: %d is the number of installments
             $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
         }
 
@@ -911,6 +914,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'options' => $parcels_options,
             'custom_attributes' => array(
                 'data-merge-top' => 'true',
+                // translators: %d is the number of installments
                 'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
             ),
             'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
@@ -946,6 +950,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'min' => '0',
                     'max' => '100',
                     'merge-top' => "woocommerce_{$this->id}_installment_interest",
+                    // translators: %d is the number of installments
                     'data-title-description' => sprintf(esc_attr__('Interest applied when customer selects to pay in %dx. Leave 0 for no interest.', 'woo-rede'), $i)
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
                 'description' => __('This option defines the interest on the installment as a percentage. Only accepts numbers. For example, for 10% interest, enter 10. Leave it blank or enter zero for an installment without an interest rate.', 'woo-rede'),
@@ -961,6 +966,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'min' => '0',
                     'max' => '100',
                     'merge-top' => "woocommerce_{$this->id}_installment_discount",
+                    // translators: %d is the number of installments
                     'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
                 'description' => __('This option defines the discount on the installment as a percentage. Only accepts numbers. For example, for 10% discount, enter 10. Leave it blank or enter zero for an installment without a discount rate.', 'woo-rede'),

@@ -867,17 +867,19 @@ final class LknIntegrationRedeForWoocommerce
                         $paymentCompleteStatus = 'processing';
                     }
                     
-                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
+                    // translators: %s is the order total amount
+                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                     $order->update_status($paymentCompleteStatus);
                 } else {
-                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
+                    // translators: %s is the order total amount
+                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                 }
             } else {
-                $order->add_order_note(__('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ', 'woo-rede') . $status);
+                $order->add_order_note(__('Manual PIX Verification: Payment not confirmed by Rede. Transaction status: ', 'woo-rede') . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note(__('Verificação Manual PIX: Falha na consulta de pagamento na Rede. Detalhes: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note(__('Manual PIX Verification: Failed to query payment from Rede. Details: ', 'woo-rede') . $e->getMessage());
         }
         
         $order->save();
@@ -1176,8 +1178,9 @@ final class LknIntegrationRedeForWoocommerce
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
+            // translators: %1$d is the number of installments, %2$s is the formatted price per installment
             $payment_info = sprintf(
-                __('%dx of %s', 'woo-rede'),
+                __('%1$dx of %2$s', 'woo-rede'),
                 $installment,
                 $formatted_value
             );
