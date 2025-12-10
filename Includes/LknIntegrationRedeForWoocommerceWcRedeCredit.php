@@ -623,8 +623,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         
         if ($response_code !== 200 && $response_code !== 201) {
             $error_message = 'Erro na transação';
-            if (isset($response_data['message'])) {
-                $error_message = $response_data['message'];
+            if (isset($response_data['returnMessage'])) {
+                $error_message = $response_data['returnMessage'];
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
