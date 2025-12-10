@@ -72,7 +72,7 @@ final class LknIntegrationRedeForWoocommercePublic {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
 
         // Enqueue shortcode checkout script only on checkout pages
-        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout')) {
+        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout') || has_block('woocommerce/checkout')) {
             // Verifica e redefine configurações PRO se a licença não for válida
             LknIntegrationRedeForWoocommerceHelper::checkAndResetProConfigurations();
             

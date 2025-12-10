@@ -203,7 +203,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     public function handle3dsSuccess($request)
     {
         $parameters = $request->get_params();
-        
+
         // A Rede envia todos os dados da transação no webhook
         $order_id = intval($parameters['o'] ?? 0);
         $key_partial = sanitize_text_field($parameters['k'] ?? '');
@@ -430,9 +430,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 'expiry_month' => '**',
                 'expiry_year' => '****',
                 'security_code' => '***',
-                'card_type' => $saved_card_type,
-                'installments' => $saved_installments
+                'card_type' => $saved_card_type
             );
+            
+            // Incluir installments apenas para cartão de crédito
+            if ($saved_card_type === 'credit') {
+                $cardData['installments'] = $saved_installments;
+            }
             
             $this->regOrderLogs($order->get_id(), $order_total_converted, $cardData, $webhook_data, $order);
         }
@@ -456,7 +460,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Obter configuração de auto_capture do gateway debit
         $debit_settings = get_option('woocommerce_rede_debit_settings');
         $auto_capture = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
-        
+
         // Determinar se foi capturado baseado no tipo de cartão e configuração
         $capture = ($saved_card_type === 'debit') ? true : $auto_capture;
         

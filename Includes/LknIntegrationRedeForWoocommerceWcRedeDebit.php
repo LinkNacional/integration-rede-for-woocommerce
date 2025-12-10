@@ -169,7 +169,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Processa transação de débito/crédito
      */
-    private function process_debit_transaction_v2($reference, $order_total, $cardData, $order = null)
+    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order = null)
     {
         $access_token = $this->get_oauth_token();
         
@@ -187,7 +187,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         // Auto capture condicional: sempre true para debit, configurável para credit
         $capture = ($card_type === 'debit') ? true : $this->auto_capture;
-        
+
         $body = array(
             'capture' => $capture,
             'kind' => $card_type, // Dinâmico: 'debit' ou 'credit'
@@ -568,7 +568,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $saved = parent::process_admin_options();
 
         // Se a licença PRO não for válida, resetar campos PRO para valores padrão
-        if (!$this->isProLicenseValid()) {
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
             $this->enforceProFieldDefaults();
         }
 
@@ -589,7 +589,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'interest_show_percent' => 'yes',
             'installment_interest' => 'no',
             'installment_discount' => 'no',
-            'min_interest' => '0'
+            'min_interest' => '0',
+            'convert_to_brl' => 'no',
+            'auto_capture' => 'yes'
         );
 
         // Reset campos de parcelas específicas
@@ -1111,7 +1113,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 $order->update_meta_data('_wc_rede_installments', $installments);
                 $order->save();
                 
-                $transaction_response = $this->process_debit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $order);
+                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $order);
                 
                 // Handle 3DS authentication requirement
                 if (is_array($transaction_response) && isset($transaction_response['result']) && $transaction_response['result'] === '3ds_required') {

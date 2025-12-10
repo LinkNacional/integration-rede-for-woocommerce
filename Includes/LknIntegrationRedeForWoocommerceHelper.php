@@ -889,7 +889,9 @@ class LknIntegrationRedeForWoocommerceHelper
             'interest_show_percent' => 'yes',
             'installment_interest' => 'no',
             'installment_discount' => 'no',
-            'min_interest' => '0'
+            'min_interest' => '0',
+            'convert_to_brl' => 'no',
+            'auto_capture' => 'yes'
         );
 
         // Reset campos de parcelas específicas
@@ -926,7 +928,9 @@ class LknIntegrationRedeForWoocommerceHelper
             'interest_show_percent' => 'yes',
             'installment_interest' => 'no',
             'installment_discount' => 'no',
-            'min_interest' => '0'
+            'min_interest' => '0',
+            'convert_to_brl' => 'no',
+            'auto_capture' => 'yes'
         );
 
         // Reset campos de parcelas específicas
