@@ -41,6 +41,11 @@ textarea:disabled {
     font-size: 0.84rem;
     font-weight: bold;
     font-family: "Inter", sans-serif;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    line-height: normal;
+    transform: translateY(-50%);
 }
 
 .lknIntegrationRedeForWoocommerceBecomePRO:hover {
@@ -226,6 +231,8 @@ textarea:disabled {
     font-weight: bold;
     font-size: 16px;
     margin: 6px 4px;
+    padding-right: 40px;
+    position: relative;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsLayoutDiv tr td div.lkn-field-description {

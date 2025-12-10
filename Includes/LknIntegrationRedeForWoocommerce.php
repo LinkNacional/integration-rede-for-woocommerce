@@ -545,6 +545,19 @@ final class LknIntegrationRedeForWoocommerce
             ];
         }
         
+        // Definir installment de debit como 1 na sessão e capturar tipo de cartão se enviado
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set('lkn_installments_number_rede_debit', 1);
+            
+            // Se o tipo de cartão foi enviado na requisição, salvar na sessão
+            if (isset($_POST['card_type']) && !empty($_POST['card_type'])) {
+                $card_type = sanitize_text_field($_POST['card_type']);
+                if (in_array($card_type, ['credit', 'debit'])) {
+                    WC()->session->set('lkn_card_type_rede_debit', $card_type);
+                }
+            }
+        }
+        
         wp_send_json([
             'cartTotal' => $cart_total,
             'installments' => $installments
@@ -560,8 +573,6 @@ final class LknIntegrationRedeForWoocommerce
         $installments = intval($_POST['installments']);
         $nonce = sanitize_text_field($_POST['nonce']);
 
-        error_log('chamouuuu');
-        
         // Capturar tipo de cartão (apenas para rede_debit)
         $card_type = null;
         if ($payment_method === 'rede_debit' && isset($_POST['card_type'])) {

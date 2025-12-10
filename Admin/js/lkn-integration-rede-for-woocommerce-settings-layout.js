@@ -189,6 +189,42 @@
                     if (fieldConfig) {
                         const dataTitleDescription = fieldConfig.getAttribute('data-title-description');
                         descriptionTitle.innerHTML = dataTitleDescription ?? '';
+                        
+                        // Verificar se o campo tem atributo lkn-is-pro="true"
+                        const isProField = fieldConfig.getAttribute('lkn-is-pro') === 'true';
+                        if (isProField) {
+                            // Criar o link PRO dinamicamente
+                            const proLink = document.createElement('a');
+                            proLink.className = 'lknIntegrationRedeForWoocommerceBecomePRO';
+                            proLink.href = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
+                            proLink.target = '_blank';
+                            
+                            // Verificar se existe a variável global com o texto do PRO
+                            if (typeof lknPhpProFieldsVariables !== 'undefined' && lknPhpProFieldsVariables.becomePRO) {
+                                proLink.textContent = lknPhpProFieldsVariables.becomePRO;
+                            } else {
+                                proLink.textContent = 'Become PRO'; // fallback text
+                            }
+                            
+                            titleHeader.appendChild(proLink);
+                            
+                            // Desabilitar o campo automaticamente
+                            if (!fieldConfig.hasAttribute('disabled')) {
+                                fieldConfig.disabled = true;
+                            }
+                            // fieldConfig.readOnly = true;
+                            
+                            // Se for um campo select, aplicar estilo cinza no select2
+                            if (fieldConfig.tagName.toLowerCase() === 'select') {
+                                const selectId = fieldConfig.id;
+                                const select2Container = document.querySelector(`#select2-${selectId}-container`);
+                                if (select2Container) {
+                                    select2Container.style.opacity = '0.6';
+                                    select2Container.style.filter = 'grayscale(0.5)';
+                                    select2Container.style.pointerEvents = 'none';
+                                }
+                            }
+                        }
                     } else {
                         descriptionTitle.innerHTML = '';
                     }

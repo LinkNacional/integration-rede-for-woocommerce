@@ -127,7 +127,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
      */
     private function process_order_status_v2($order, $transaction_response, $note = '')
     {
-        error_log(json_encode($transaction_response));
         $return_code = $transaction_response['returnCode'] ?? '';
         $return_message = $transaction_response['returnMessage'] ?? '';
         
@@ -559,6 +558,95 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         return $configs;
     }
 
+    /**
+     * Verifica se a licença PRO está ativa e válida
+     * 
+     * @return bool
+     */
+    private function isProLicenseValid(): bool
+    {
+        // Verifica se o plugin PRO está ativo
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            return false;
+        }
+
+        // Pega a licença do banco de dados
+        $license = get_option('lknRedeForWoocommerceProLicense');
+        
+        if (empty($license)) {
+            return false;
+        }
+
+        // Decodifica a licença base64
+        $decoded_license = base64_decode($license);
+        
+        if ($decoded_license === false) {
+            return false;
+        }
+
+        // Verifica se o status é 'active'
+        return $decoded_license === 'active';
+    }
+
+    /**
+     * Processa as opções administrativas e aplica validação PRO
+     * 
+     * @return bool
+     */
+    public function process_admin_options()
+    {
+        $saved = parent::process_admin_options();
+
+        // Se a licença PRO não for válida, resetar campos PRO para valores padrão
+        if (!$this->isProLicenseValid()) {
+            $this->enforceProFieldDefaults();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Força valores padrão para campos PRO se a licença não for válida
+     */
+    private function enforceProFieldDefaults(): void
+    {
+        $option_key = "woocommerce_{$this->id}_settings";
+        $settings = get_option($option_key, array());
+
+        // Campos PRO que devem ser resetados para valores padrão
+        $pro_fields_defaults = array(
+            'interest_or_discount' => 'interest',
+            'interest_show_percent' => 'yes',
+            'installment_interest' => 'no',
+            'installment_discount' => 'no',
+            'min_interest' => '0'
+        );
+
+        // Reset campos de parcelas específicas
+        $max_installments = (int) ($settings['max_parcels_number'] ?? 12);
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $pro_fields_defaults["{$i}x"] = '0';
+            $pro_fields_defaults["{$i}x_discount"] = '0';
+        }
+
+        // Aplica os valores padrão para campos PRO
+        foreach ($pro_fields_defaults as $field => $default_value) {
+            if (isset($settings[$field])) {
+                $settings[$field] = $default_value;
+            }
+        }
+
+        // Atualiza as configurações no banco
+        update_option($option_key, $settings);
+
+        // Adiciona uma notificação para o administrador
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-warning is-dismissible">';
+            echo '<p>' . __('PRO license is required to modify installment settings. Settings have been reset to default values.', 'woo-rede') . '</p>';
+            echo '</div>';
+        });
+    }
+
     public function initFormFields(): void
     {
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
@@ -708,44 +796,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
-            'min_parcels_value' => array(
-                'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
-                'type' => 'number',
-                'default' => 5,
-                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value by REDE: 5.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
-                'custom_attributes' => array(
-                    'min' => 5,
-                    'step' => 'any',
-                    'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede')
-                )
-            ),
-            'max_parcels_number' => array(
-                'title' => esc_attr__('Max installments', 'woo-rede'),
-                'type' => 'select',
-                'class' => 'wc-enhanced-select',
-                'default' => '12',
-                'options' => array(
-                    '1' => '1x',
-                    '2' => '2x',
-                    '3' => '3x',
-                    '4' => '4x',
-                    '5' => '5x',
-                    '6' => '6x',
-                    '7' => '7x',
-                    '8' => '8x',
-                    '9' => '9x',
-                    '10' => '10x',
-                    '11' => '11x',
-                    '12' => '12x',
-                ),
-                'description' => esc_attr__('Define the maximum number of credit installments.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Set the maximum number of installments allowed in credit transactions.', 'woo-rede'),
-                'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Choose the maximum number of installments per order.', 'woo-rede')
-                )
-            ),
-
             'payment_complete_status' => array(
                 'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
                 'type' => 'select',
@@ -763,22 +813,46 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
-            'auto_capture' => array(
-                'title' => esc_attr__('Auto Capture (Credit Only)', 'woo-rede'),
-                'type' => 'checkbox',
-                'label' => esc_attr__('Enable automatic capture for credit card transactions', 'woo-rede'),
-                'default' => 'yes',
-                'desc_tip' => esc_attr__('When enabled, credit card transactions will be automatically captured. Debit card transactions are always captured immediately.', 'woo-rede'),
-                'description' => esc_attr__('This setting only applies when the card type is detected as credit. Debit transactions are always captured automatically.', 'woo-rede'),
-                'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Enable auto-capture for credit card transactions processed through the debit gateway when credit card is detected.', 'woo-rede')
-                )
-            ),
-
             'installment' => array(
                 'title' => esc_attr__('Installments', 'woo-rede'),
                 'type' => 'title',
             ),
+            'min_parcels_value' => array(
+                'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
+                'type' => 'number',
+                'default' => 5,
+                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value by REDE: 5.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
+                'custom_attributes' => array(
+                    'min' => 5,
+                    'step' => 'any',
+                    'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede')
+                )
+            ),
+        );
+        
+        // Field to define maximum number of installments with dynamic options
+        $parcels_options = array();
+        for ($i = 1; $i <= 24; $i++) {
+            $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
+        }
+
+        $this->form_fields['max_parcels_number'] = array(
+            'title' => __('Maximum Number of Installments', 'woo-rede'),
+            'type' => 'select',
+            'options' => $parcels_options,
+            'custom_attributes' => array(
+                'data-merge-top' => 'true',
+                'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
+            ),
+            'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
+            'default' => '12',
+        );
+        
+        // Verifica se a licença PRO é válida
+        $isProValid = $this->isProLicenseValid();
+        
+        $this->form_fields = array_merge($this->form_fields, array(
             'interest_or_discount' => array(
                 'title' => esc_attr__('Installment Settings', 'woo-rede'),
                 'type' => 'select',
@@ -790,17 +864,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => 'interest',
                 'desc_tip' => esc_attr__('Select the option interest or discount. Save to continue configuration.', 'woo-rede'),
                 'description' => esc_attr__('Allows the user to select discount or interest on credit card installments.', 'woo-rede'),
-                'custom_attributes' => array(
+                'custom_attributes' => array_merge(array(
                     'data-title-description' => esc_attr__("Defines whether the installment will apply interest or offer a discount. Save to load more settings.", 'woo-rede')
-                ),
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
             ),
             'interest_show_percent' => array(
                 'title' => __('Display interest percentage', 'woo-rede'),
-                'label' => __('Display interest percentage. Default (enabled)', 'woo-rede'),
+                'label' => __('Display interest percentage.', 'woo-rede'),
                 'type' => 'checkbox',
                 'description' => __('By enabling this feature, the percentage applied to each installment will be displayed to the customer during checkout.', 'woo-rede'),
-                'default' => 'yes',
-                'desc_tip' => true,
+                'custom_attributes' => !$isProValid ? array('lkn-is-pro' => 'true') : array(),
+                'default' => 'yes'
             ),
             'installment_interest' => array(
                 'title' => __('Interest on installments', 'woo-rede'),
@@ -809,71 +883,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => 'no',
                 'desc_tip' => esc_attr__('Enable to allow interest to be charged on installment payments.', 'woo-rede'),
                 'description' => esc_attr__('Allows payment with interest in installments. Save to continue configuration.', 'woo-rede'),
-                'custom_attributes' => array(
+                'custom_attributes' => array_merge(array(
                     'data-title-description' => esc_attr__("Applies an interest rate to each installment. Use this if you want to charge extra per installment.", 'woo-rede')
-                ),
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
             ),
             'installment_discount' => array(
                 'title' => __('Discount on installments', 'woo-rede'),
                 'type' => 'checkbox',
                 'desc_tip' => esc_attr__('Enable to give a discount when the customer chooses to pay in installments.', 'woo-rede'),
                 'description' => esc_attr__('Enables payment with discount on installments.', 'woo-rede'),
-                'custom_attributes' => array(
+                'custom_attributes' => array_merge(array(
                     'data-title-description' => esc_attr__("Applies a discount per installment when selected. Useful to encourage multi-payment options.", 'woo-rede')
-                ),
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
                 'default' => 'no',
             )
-        );
-
-        // Minimum interest field per transaction
-        $this->form_fields['min_interest'] = array(
-            'title' => __('Minimum Interest', 'woo-rede'),
-            'type' => 'number',
-            'default' => '0',
-            'custom_attributes' => array(
-                'step' => '0.01',
-                'min' => '0',
-                'max' => '100',
-                'merge-top' => "woocommerce_{$this->id}_installment_interest",
-                'data-title-description' => esc_attr__('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede')
-            ),
-            'description' => __('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede'),
-        );
-
-        // Dynamic fields for each installment
-        $max_installments = (int) $this->get_option('max_parcels_number', 12);
-        for ($i = 1; $i <= $max_installments; $i++) {
-            // Interest field for specific installment
-            $this->form_fields["{$i}x"] = array(
-                'title' => sprintf(__('Interest %dx', 'woo-rede'), $i),
-                'type' => 'number',
-                'default' => '0',
-
-                'custom_attributes' => array(
-                    'step' => '0.01',
-                    'min' => '0',
-                    'max' => '100',
-                    'merge-top' => "woocommerce_{$this->id}_installment_interest",
-                    'data-title-description' => sprintf(esc_attr__('Interest applied when customer selects to pay in %dx. Leave 0 for no interest.', 'woo-rede'), $i)
-                ),
-                'description' => __('This option defines the interest on the installment as a percentage. Only accepts numbers. For example, for 10% interest, enter 10. Leave it blank or enter zero for an installment without an interest rate.', 'woo-rede'),
-            );
-
-            // Discount field for specific installment  
-            $this->form_fields["{$i}x_discount"] = array(
-                'title' => sprintf(__('Discount %dx', 'woo-rede'), $i),
-                'type' => 'number',
-                'default' => '0',
-                'custom_attributes' => array(
-                    'step' => '0.01',
-                    'min' => '0',
-                    'max' => '100',
-                    'merge-top' => "woocommerce_{$this->id}_installment_discount",
-                    'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
-                ),
-                'description' => __('This option defines the discount on the installment as a percentage. Only accepts numbers. For example, for 10% discount, enter 10. Leave it blank or enter zero for an installment without a discount rate.', 'woo-rede'),
-            );
-        }
+        ));
 
         // Field to define maximum number of installments with dynamic options
         $parcels_options = array();
@@ -886,12 +910,62 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'type' => 'select',
             'options' => $parcels_options,
             'custom_attributes' => array(
-                'data-merge-top' => 'true'
+                'data-merge-top' => 'true',
+                'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
             ),
             'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
             'default' => '12',
-            'desc_tip' => true,
         );
+
+        // Minimum interest field per transaction
+        $this->form_fields['min_interest'] = array(
+            'title' => __('Minimum Interest', 'woo-rede'),
+            'type' => 'number',
+            'default' => '0',
+            'custom_attributes' => array_merge(array(
+                'step' => '0.01',
+                'min' => '0',
+                'max' => '100',
+                'merge-top' => "woocommerce_{$this->id}_installment_interest",
+                'data-title-description' => esc_attr__('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede')
+            ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
+            'description' => __('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede'),
+        );
+
+        // Dynamic fields for each installment
+        $max_installments = (int) $this->get_option('max_parcels_number', 12);
+        for ($i = 1; $i <= $max_installments; $i++) {
+            // Interest field for specific installment
+            $this->form_fields["{$i}x"] = array(
+                'title' => sprintf(__('Interest %dx', 'woo-rede'), $i),
+                'type' => 'number',
+                'default' => '0',
+
+                'custom_attributes' => array_merge(array(
+                    'step' => '0.01',
+                    'min' => '0',
+                    'max' => '100',
+                    'merge-top' => "woocommerce_{$this->id}_installment_interest",
+                    'data-title-description' => sprintf(esc_attr__('Interest applied when customer selects to pay in %dx. Leave 0 for no interest.', 'woo-rede'), $i)
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
+                'description' => __('This option defines the interest on the installment as a percentage. Only accepts numbers. For example, for 10% interest, enter 10. Leave it blank or enter zero for an installment without an interest rate.', 'woo-rede'),
+            );
+
+            // Discount field for specific installment  
+            $this->form_fields["{$i}x_discount"] = array(
+                'title' => sprintf(__('Discount %dx', 'woo-rede'), $i),
+                'type' => 'number',
+                'default' => '0',
+                'custom_attributes' => array_merge(array(
+                    'step' => '0.01',
+                    'min' => '0',
+                    'max' => '100',
+                    'merge-top' => "woocommerce_{$this->id}_installment_discount",
+                    'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
+                'description' => __('This option defines the discount on the installment as a percentage. Only accepts numbers. For example, for 10% discount, enter 10. Leave it blank or enter zero for an installment without a discount rate.', 'woo-rede'),
+            );
+        }
 
         $this->form_fields['developers'] = array(
             'title' => esc_attr__('Developer', 'woo-rede'),

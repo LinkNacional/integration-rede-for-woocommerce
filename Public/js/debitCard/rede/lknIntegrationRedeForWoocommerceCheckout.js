@@ -16,6 +16,29 @@ const ContentRedeDebit = props => {
     const value = String(event.target.value); // Garante que seja string
     setSelectedValue(value);
     updateDebitObject('rede_debit_installments', value);
+    
+    // Faz requisição AJAX para atualizar a sessão de parcelas
+    window.jQuery.ajax({
+      url: window.redeDebitAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        action: 'lkn_update_installment_session',
+        payment_method: 'rede_debit',
+        installments: value,
+        card_type: debitObject.card_type,
+        nonce: window.redeDebitAjax?.installment_nonce
+      },
+      success: function (response) {
+        // Invalida o cache do store para atualizar os dados apenas no sucesso da requisição
+        if (window.wp && window.wp.data && window.wp.data.dispatch) {
+          window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+        }
+      },
+      error: function () {
+        // Em caso de erro, pode manter o comportamento atual ou mostrar uma mensagem
+      }
+    });
   };
   const {
     eventRegistration,
@@ -33,6 +56,7 @@ const ContentRedeDebit = props => {
     rede_debit_holder_name: '',
     card_type: cardTypeRestriction === 'both' ? 'debit' : (cardTypeRestriction === 'credit_only' ? 'credit' : 'debit')
   });
+  
   const [focus, setFocus] = window.wp.element.useState('');
   const [options, setOptions] = window.wp.element.useState([]);
 
@@ -48,9 +72,15 @@ const ContentRedeDebit = props => {
           dataType: 'json',
           data: {
             action: 'lkn_get_rede_debit_data',
+            card_type: debitObject.card_type,
             nonce: window.redeDebitAjax?.nonce || nonceRedeDebit
           },
           success: function (response) {
+            // Invalida o cache do store para atualizar os dados
+            if (window.wp && window.wp.data && window.wp.data.dispatch) {
+              window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+            }
+            
             if (response && Array.isArray(response.installments)) {
               // Remove tags HTML do label para exibir texto plano
               const plainOptions = response.installments.map(opt => {
@@ -79,6 +109,11 @@ const ContentRedeDebit = props => {
                 setSelectedValue(String(validOption.key));
                 updateDebitObject('rede_debit_installments', String(validOption.key));
               }
+              
+              // Invalida o cache do store após atualizar as opções
+              if (window.wp && window.wp.data && window.wp.data.dispatch) {
+                window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+              }
             }
           },
           error: function () {
@@ -93,9 +128,14 @@ const ContentRedeDebit = props => {
 
   // Intercepta requisições para atualizar parcelas após mudanças no shipping
   window.wp.element.useEffect(() => {
-    // Chama só uma vez ao carregar a página se for cartão de crédito ou credit_only
-    if (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') {
-      generateRedeInstallmentOptions();
+    // Sempre faz a requisição para atualizar a sessão (tanto para crédito quanto débito)
+    generateRedeInstallmentOptions();
+    
+    // Se for débito, ainda limpa as opções do frontend
+    if (debitObject.card_type === 'debit') {
+      setOptions([]);
+      setSelectedValue('1');
+      updateDebitObject('rede_debit_installments', '1');
     }
 
     // Intercepta o fetch original para capturar requisições de shipping
@@ -141,18 +181,6 @@ const ContentRedeDebit = props => {
     return () => {
       window.fetch = originalFetch;
     };
-  }, [debitObject.card_type]);
-
-  // Atualizar opções de parcela quando o tipo de cartão mudar
-  window.wp.element.useEffect(() => {
-    if (debitObject.card_type === 'credit') {
-      generateRedeInstallmentOptions();
-    } else {
-      // Limpa opções e reseta para 1 parcela quando for débito
-      setOptions([]);
-      setSelectedValue('1');
-      updateDebitObject('rede_debit_installments', '1');
-    }
   }, [debitObject.card_type]);
 
   const formatDebitCardNumber = value => {
@@ -293,11 +321,6 @@ const ContentRedeDebit = props => {
             onChange={e => {
               const value = e.target.value;
               updateDebitObject('card_type', value);
-              // Reset installments to 1 when switching to debit
-              if (value === 'debit') {
-                updateDebitObject('rede_debit_installments', '1');
-                setSelectedValue('1');
-              }
             }}
           >
             <option value="debit">{translationsRedeDebit.debitCard}</option>
