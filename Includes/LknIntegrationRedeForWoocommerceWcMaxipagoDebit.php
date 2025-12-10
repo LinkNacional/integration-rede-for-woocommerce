@@ -289,7 +289,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             );
         }
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);
+        $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(), $this->id);
 
         if (! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
@@ -660,7 +660,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
                 $order->update_meta_data('_wc_maxipago_transaction_holder', $cardData['card_holder']);
                 $order->update_meta_data('_wc_maxipago_transaction_expiration', $debitExpiry);
                 $order->update_status('processing');
-                apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
             } elseif (isset($xml_decode['responseCode']) && "1" == $xml_decode['responseCode']) {
                 throw new Exception($xml_decode['processorMessage']);
             }
@@ -815,6 +815,6 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             'nonce' => wp_create_nonce('maxipago_debit_payment_fields_nonce'),
         ));
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_debit_settings')['custom_css_short_code'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_maxipago_debit_settings')['custom_css_short_code'] ?? false);
     }
 }

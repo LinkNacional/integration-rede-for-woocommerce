@@ -358,7 +358,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             );
         }
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
+        $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
         ), $this->id);
@@ -460,7 +460,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         wp_enqueue_script('woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-rede-js'), '2.5.0', true);
 
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
     }
 
     public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order, $brand = null): void
@@ -554,7 +554,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     // Status configurável pelo usuário para pagamentos aprovados com captura
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                     $order->update_status($payment_complete_status);
-                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                    apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {
                     // Para pagamentos sem captura, sempre aguardando
                     $order->update_status('on-hold');

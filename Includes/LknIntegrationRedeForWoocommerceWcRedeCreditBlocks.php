@@ -50,7 +50,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             wp_set_script_translations('rede_credit-blocks-integration');
         }
         
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor'] ?? false);
 
         return array('rede_credit-blocks-integration');
     }

@@ -133,8 +133,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->LknIntegrationRedeForWoocommerceEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
         $this->LknIntegrationRedeForWoocommercePixHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
         $this->LknIntegrationRedeForWoocommerceHelperClass = new LknIntegrationRedeForWoocommerceHelper();
-        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'getCardToken', 10, 3);
-        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'setSupports', 10, 1);
+        $this->loader->add_filter('integration_rede_for_woocommerce_get_card_token', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'getCardToken', 10, 3);
+        $this->loader->add_filter('integration_rede_for_woocommerce_set_supports', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'setSupports', 10, 1);
     }
 
     /**

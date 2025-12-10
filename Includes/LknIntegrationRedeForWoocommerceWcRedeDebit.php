@@ -149,7 +149,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     // Status configurável pelo usuário para pagamentos aprovados com captura
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                     $order->update_status($payment_complete_status);
-                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                    apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {
                     // Para pagamentos credit sem captura, aguardando captura manual
                     $order->update_status('on-hold');
@@ -1014,7 +1014,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             );
         }
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(), $this->id);
+        $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(), $this->id);
 
         if (! empty($customConfigs)) {
             $this->form_fields = array_merge($this->form_fields, $customConfigs);
@@ -1051,7 +1051,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'nonce' => wp_create_nonce('rede_debit_payment_fields_nonce'),
         ));
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_short_code'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_debit_settings')['custom_css_short_code'] ?? false);
     }
 
     public function process_payment($order_id)

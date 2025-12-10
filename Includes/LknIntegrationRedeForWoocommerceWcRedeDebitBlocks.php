@@ -49,7 +49,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             wp_set_script_translations('rede_debit-blocks-integration');
         }
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_debit_settings')['custom_css_block_editor'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_debit_settings')['custom_css_block_editor'] ?? false);
         return array('rede_debit-blocks-integration');
     }
 

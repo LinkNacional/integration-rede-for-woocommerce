@@ -49,7 +49,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             wp_set_script_translations('maxipago_credit-blocks-integration');
         }
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
 
         return array('maxipago_credit-blocks-integration');
     }
