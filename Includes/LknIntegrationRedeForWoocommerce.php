@@ -233,8 +233,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -342,8 +342,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -458,8 +458,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -678,8 +678,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }

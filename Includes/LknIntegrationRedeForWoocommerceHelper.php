@@ -340,8 +340,8 @@ class LknIntegrationRedeForWoocommerceHelper
                 $additional_fees = 0;
                 foreach (WC()->cart->get_fees() as $fee) {
                     // Ignorar fees criados pelo próprio plugin
-                    if ($fee->name !== __('Juros', 'rede-for-woocommerce-pro') && 
-                        $fee->name !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                    if ($fee->name !== __('Interest', 'rede-for-woocommerce-pro') && 
+                        $fee->name !== __('Discount', 'rede-for-woocommerce-pro')) {
                         $additional_fees += $fee->total;
                     }
                 }
@@ -365,8 +365,8 @@ class LknIntegrationRedeForWoocommerceHelper
                     $additional_fees = 0;
                     foreach ($order->get_fees() as $fee) {
                         // Ignorar fees criados pelo próprio plugin
-                        if ($fee->get_name() !== __('Juros', 'rede-for-woocommerce-pro') && 
-                            $fee->get_name() !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                        if ($fee->get_name() !== __('Interest', 'rede-for-woocommerce-pro') && 
+                            $fee->get_name() !== __('Discount', 'rede-for-woocommerce-pro')) {
                             $additional_fees += $fee->get_total();
                         }
                     }
