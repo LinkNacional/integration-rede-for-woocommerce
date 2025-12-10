@@ -2,12 +2,12 @@
 if (! defined('ABSPATH')) {
     exit();
 }
-$option = get_option('woocommerce_rede_debit_settings');
+$integration_rede_for_woocommerce_option = get_option('woocommerce_rede_debit_settings');
 
 ?>
 <fieldset id="rede-debit-payment-form" class="rede-payment-form">
     <div class="payment-method-description">
-        <p><?php echo esc_html($option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')); ?>
+        <p><?php echo esc_html($integration_rede_for_woocommerce_option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')); ?>
             <svg id="logo-rede" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480.72 156.96">
                 <defs>
                     <style>
@@ -138,13 +138,13 @@ $option = get_option('woocommerce_rede_debit_settings');
                     style="font-size: 1.5em; padding: 10px; width: 100%;"
                     autocomplete="off">
                     <?php
-                    $default_installment = isset($installments_number) ? (int)$installments_number : 1;
-                    foreach ($installments as $installment) {
-                        $selected = ($installment['num'] == $default_installment) ? 'selected' : '';
+                    $integration_rede_for_woocommerce_default_installment = isset($installments_number) ? (int)$installments_number : 1;
+                    foreach ($installments as $integration_rede_for_woocommerce_installment) {
+                        $integration_rede_for_woocommerce_selected = ($integration_rede_for_woocommerce_installment['num'] == $integration_rede_for_woocommerce_default_installment) ? 'selected' : '';
                         printf('<option value="%d" %s>%s</option>', 
-                            esc_attr($installment['num']), 
-                            esc_attr($selected), 
-                            esc_html($installment['label'])
+                            esc_attr($integration_rede_for_woocommerce_installment['num']), 
+                            esc_attr($integration_rede_for_woocommerce_selected), 
+                            esc_html($integration_rede_for_woocommerce_installment['label'])
                         );
                     }
                     ?>
