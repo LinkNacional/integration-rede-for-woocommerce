@@ -1,6 +1,6 @@
 <?php
 
-namespace LknIntegrationRedeForWoocommerce\Admin;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Admin;
 
 /**
  * The admin-specific functionality of the plugin.

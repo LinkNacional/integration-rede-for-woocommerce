@@ -1,6 +1,6 @@
 <?php
 
-namespace LknIntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use Exception;
 use WC_Logger;

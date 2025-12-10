@@ -1,6 +1,6 @@
 <?php
 
-namespace LknIntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use WP_Error;
 use WP_REST_Response;
@@ -404,7 +404,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             
             if ($tId) {
                 // Cria uma instância temporária do gateway para usar o helper
-                $gateway = new \LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+                $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
                 $brandDetails = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
             }
 
@@ -498,7 +498,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 }
                 
                 if ($tId) {
-                    $gateway = new \LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+                    $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
                     $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
                 }
             }

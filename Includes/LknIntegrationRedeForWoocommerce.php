@@ -1,10 +1,10 @@
 <?php
 
-namespace LknIntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
-use LknIntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
-use LknIntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
-use LknIntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
+use Lknwoo\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
+use Lknwoo\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
 
 /**
  * The file that defines the core plugin class
