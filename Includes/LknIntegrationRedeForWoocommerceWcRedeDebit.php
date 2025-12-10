@@ -559,36 +559,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     }
 
     /**
-     * Verifica se a licença PRO está ativa e válida
-     * 
-     * @return bool
-     */
-    private function isProLicenseValid(): bool
-    {
-        // Verifica se o plugin PRO está ativo
-        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
-            return false;
-        }
-
-        // Pega a licença do banco de dados
-        $license = get_option('lknRedeForWoocommerceProLicense');
-        
-        if (empty($license)) {
-            return false;
-        }
-
-        // Decodifica a licença base64
-        $decoded_license = base64_decode($license);
-        
-        if ($decoded_license === false) {
-            return false;
-        }
-
-        // Verifica se o status é 'active'
-        return $decoded_license === 'active';
-    }
-
-    /**
      * Processa as opções administrativas e aplica validação PRO
      * 
      * @return bool
@@ -852,7 +822,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         );
         
         // Verifica se a licença PRO é válida
-        $isProValid = $this->isProLicenseValid();
+        $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
         
         $this->form_fields = array_merge($this->form_fields, array(
             'interest_or_discount' => array(

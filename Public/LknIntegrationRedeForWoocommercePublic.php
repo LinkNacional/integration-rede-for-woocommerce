@@ -1,6 +1,8 @@
 <?php
 namespace Lknwoo\IntegrationRedeForWoocommerce\PublicView;
 
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceHelper;
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -71,6 +73,9 @@ final class LknIntegrationRedeForWoocommercePublic {
 
         // Enqueue shortcode checkout script only on checkout pages
         if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout')) {
+            // Verifica e redefine configurações PRO se a licença não for válida
+            LknIntegrationRedeForWoocommerceHelper::checkAndResetProConfigurations();
+            
             $session = WC()->session;
             if ($session) {
                 $session->set('lkn_installments_number_rede_credit', 1);
