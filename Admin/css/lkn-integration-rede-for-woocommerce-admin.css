@@ -493,6 +493,10 @@ textarea:disabled {
         display: flex;
         flex-direction: column;
     }
+
+    .lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
+        min-width: unset;
+    }
 }
 
 /* Feature Message Component */
