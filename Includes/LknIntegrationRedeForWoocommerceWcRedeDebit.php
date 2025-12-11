@@ -211,9 +211,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Add 3D Secure configuration if enabled (para débito e crédito)
         if ($this->enable_3ds) {
             
+            // Determina o comportamento de fallback baseado no tipo de cartão
+            $fallback_behavior = ($card_type === 'debit') ? 'decline' : $this->threeds_fallback_behavior;
+            
             $body['threeDSecure'] = array(
                 'embedded' => true, // Integração direta na página (true) ou redirecionamento (false)
-                'onFailure' => $this->threeds_fallback_behavior, // Para débito: obrigatório 'decline'. Para crédito: 'decline' ou 'continue'
+                'onFailure' => $fallback_behavior, // Para débito: sempre 'decline'. Para crédito: configurável
                 'device' => array(
                     'colorDepth' => 24, // Profundidade de cores do monitor. Aceita: 1, 4, 8, 15, 16, 24, 32, 48
                     'deviceType3ds' => 'BROWSER', // Tipo de dispositivo. Aceita: 'BROWSER', 'SDK'
@@ -289,13 +292,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             } elseif (isset($response_data['returnCode']) && $response_data['returnCode'] === '204') {
-                // Cardholder not registered for 3DS - check fallback behavior
+                // Cardholder not registered for 3DS - check fallback behavior baseado no tipo de cartão
                 
-                if ($this->threeds_fallback_behavior === 'decline') {
-                    // Stop transaction - 3DS is required but not available
+                if ($card_type === 'debit') {
+                    // Para débito, 3DS é sempre obrigatório - sempre decline
                     throw new Exception(esc_html(__('3D Secure authentication is mandatory for debit card transactions but is not available for this card. Transaction declined for regulatory compliance.', 'woo-rede')));
+                } elseif ($this->threeds_fallback_behavior === 'decline') {
+                    // Para crédito com fallback configurado como decline
+                    throw new Exception(esc_html(__('3D Secure authentication failed and fallback is set to decline. Transaction declined.', 'woo-rede')));
                 } else {
-                    // Continue without 3DS - ONLY for testing
+                    // Para crédito com fallback configurado como continue - ONLY for testing
                     return $this->retry_transaction_without_3ds($reference, $amount, $cardData);
                 }
             }
@@ -723,6 +729,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 ),
             ),
 
+            'payment_complete_status' => array(
+                'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'description' => esc_attr__('Choose what status to set orders after successful payment.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Select the order status that will be applied when payment is successfully processed.', 'woo-rede'),
+                'default' => 'processing',
+                'options' => array(
+                    'processing' => esc_attr__('Processing', 'woo-rede'),
+                    'completed' => esc_attr__('Completed', 'woo-rede'),
+                    'on-hold' => esc_attr__('On Hold', 'woo-rede'),
+                ),
+                'custom_attributes' => array(
+                    'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
+                )
+            ),
+
             'enabled_fix_load_script' => array(
                 'title' => __('Load on checkout', 'woo-rede'),
                 'type' => 'checkbox',
@@ -757,6 +780,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
+            'auto_capture' => array(
+                'title' => esc_attr__('Auto Capture', 'woo-rede'),
+                'label' => esc_attr__('Enable automatic capture for credit card transactions', 'woo-rede'),
+                'type' => 'checkbox',
+                'description' => esc_attr__('If disabled, payments will only be authorized and must be captured manually.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Allows the transaction to be captured after authentication automatically.', 'woo-rede'),
+                'default' => 'yes',
+                'custom_attributes' => array_merge(array(
+                    'data-title-description' => esc_attr__("Automatically captures the payment once authorized by Rede.", 'woo-rede')
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
+            ),
+
             '3ds_fallback_behavior' => array(
                 'title' => esc_attr__('3DS Fallback Behavior', 'woo-rede'),
                 'type' => 'select',
@@ -774,7 +809,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             '3ds_template_style' => array(
-                'title' => esc_attr__('3DS Template Style', 'woo-rede'),
+                'title' => esc_attr__('Template Style', 'woo-rede'),
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'description' => esc_attr__('Choose the visual style for the 3D Secure authentication interface. The modern template provides an enhanced user experience with improved design and usability.', 'woo-rede'),
@@ -787,23 +822,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'custom_attributes' => array_merge(array(
                     'data-title-description' => esc_attr__('Choose between basic and modern 3DS authentication templates. Modern template provides enhanced visual design and better user experience during payment authentication.', 'woo-rede')
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array())
-            ),
-
-            'payment_complete_status' => array(
-                'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
-                'type' => 'select',
-                'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('Choose what status to set orders after successful payment.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Select the order status that will be applied when payment is successfully processed.', 'woo-rede'),
-                'default' => 'processing',
-                'options' => array(
-                    'processing' => esc_attr__('Processing', 'woo-rede'),
-                    'completed' => esc_attr__('Completed', 'woo-rede'),
-                    'on-hold' => esc_attr__('On Hold', 'woo-rede'),
-                ),
-                'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
-                )
             ),
 
             'installment' => array(

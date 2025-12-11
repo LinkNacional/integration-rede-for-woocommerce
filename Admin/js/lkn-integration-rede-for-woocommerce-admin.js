@@ -1,85 +1,116 @@
 (function ($) {
   $(window).load(function () {
-    const adminPage = lknFindGetParameter('section')
-    const pluginPages = [
-      'maxipago_credit',
-      'maxipago_debit',
-      'maxipago_pix',
-      'rede_credit',
-      'rede_debit',
-      'rede_pix',
-      'integration_rede_pix'
-    ]
-    if (adminPage && pluginPages.includes(adminPage)) {
-      const wcForm = document.getElementById('mainform')
-      // Pega sempre o ultimo form-table para mostraro link
-      const cardContainer = document.getElementById('lknIntegrationRedeForWoocommerceSettingsCardContainer')
-      const noticeDiv = document.createElement('div')
-      noticeDiv.setAttribute('style', 'background-color: #fcf9e8;color: #646970;border: solid 1px #d3d3d3;border-left: 4px #dba617 solid;font-size: 16px;margin-top: 10px;')
+    // Function to create feature message components
+    function createFeatureMessage(iconText, messageLines) {
+      const featureMessage = document.createElement('div');
+      featureMessage.className = 'custom-feature-message';
 
-      noticeDiv.innerHTML = '<a  href="https://cliente.linknacional.com.br/solicitar/wordpress-woo-gratis/" target="_blank" style="text-decoration:none; display: block;padding: 10px;">' + lknPhpVariables.freeHost + '</a>'
-      noticeDiv.id = 'lknIntegrationRedeForWoocommerceSettingsNoticeDiv'
-      if (!lknPhpVariables.isProActive) {
-        const lknCieloNoticeDiv = document.createElement('div')
-        lknCieloNoticeDiv.setAttribute('style', 'padding: 10px 5px;background-color: #fcf9e8;color: #646970;border: solid 1px lightgrey;border-left-color: #dba617;border-left-width: 4px;font-size: 14px;margin-top: 10px;')
-        lknCieloNoticeDiv.setAttribute('id', 'lkn-cielo-pro-notice')
-        if (adminPage !== 'integration_rede_pix') {
-          lknCieloNoticeDiv.innerHTML = '<div style="font-size: 21px;padding: 6px 0px 10px 0px;">' + lknPhpVariables.title + '</div>' +
-            '<a href="https://www.linknacional.com.br/wordpress/plugins/" target="_blank">' + lknPhpVariables.desc + '</a>' +
-            '<ul style="margin: 10px 28px;list-style: disclosure-closed;">' +
-            '<li>' + lknPhpVariables.capture + '</li>' +
-            '<li>' + lknPhpVariables.tax + '</li>' +
-            '<li>' + lknPhpVariables.css + '</li>' +
-            '<li>' + lknPhpVariables.pix + '</li>' +
-            '</ul>'
-          cardContainer.append(lknCieloNoticeDiv)
-        }
-        const submitButton = wcForm.querySelector('button[type="submit"]').parentElement
-        if (submitButton) {
-          submitButton.insertAdjacentHTML('beforebegin', lknIntegrationRedeForWoocommerceProFields(adminPage))
-        }
-      }
+      // Adiciona o ícone de informação
+      const infoIcon = document.createElement('span');
+      infoIcon.className = 'feature-icon';
+      infoIcon.textContent = iconText;
 
-      cardContainer.append(noticeDiv)
+      // Adiciona o texto da mensagem
+      const textContainer = document.createElement('div');
+      textContainer.className = 'feature-text-container';
+
+      // Adiciona as linhas de texto
+      messageLines.forEach(line => {
+        const messageLine = document.createElement('span');
+        messageLine.className = 'feature-text-line';
+        messageLine.innerHTML = line;
+        textContainer.appendChild(messageLine);
+      });
+
+      // Adiciona o ícone e o texto ao componente de mensagem
+      featureMessage.appendChild(infoIcon);
+      featureMessage.appendChild(textContainer);
+
+      return featureMessage;
     }
 
-    function lknFindGetParameter(parameterName) {
-      let result = null
-      let tmp = []
-      location.search
-        .substr(1)
-        .split('&')
-        .forEach(function (item) {
-          tmp = item.split('=')
-          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1])
-        })
-      return result
-    }
+    // Insere as mensagens no container de configurações
+    const cardContainer = document.getElementById('lknIntegrationRedeForWoocommerceSettingsCardContainer');
+    
+    if (cardContainer) {
+      // Cria o primeiro bloco de mensagem
+      const featureMessage1 = createFeatureMessage('✔️', [
+        '<strong>ATUALIZADO:</strong> Gateway Rede Débito agora suporta Cartões de Crédito e Débito com 3D Secure!'
+      ]);
 
-    // Código para deixar o campo de soft descriptor desabilitado caso o campo de habilitar esteja desmarcado
-    const enabledSoftDescriptorInput = document.querySelector(`#woocommerce_${adminPage}_enabled_soft_descriptor`)
-    const softDescriptorInput = document.querySelector(`#woocommerce_${adminPage}_soft_descriptor`)
+      // Cria o segundo bloco de mensagem
+      const featureMessage2 = createFeatureMessage('✔️', [
+        '<strong>NOVO:</strong> Sistema de Segurança Avançado: Implementação 3DS + OAuth2 da Rede para máxima proteção!'
+      ]);
 
-    if (enabledSoftDescriptorInput && softDescriptorInput) {
-      if (document.querySelector('#lknIntegrationRedeForWoocommerceSoftDescriptorErrorDiv') && enabledSoftDescriptorInput.checked) {
-        const newP = document.createElement('p')
-        newP.textContent = lknPhpVariables.descriptionError
-        newP.style.color = 'FF0000'
+      // Adiciona as mensagens ao container
+      cardContainer.appendChild(featureMessage1);
+      cardContainer.appendChild(featureMessage2);
+      
+      // Criar cartão promocional
+      const promotionalCard = document.createElement('div');
+      promotionalCard.className = 'woo-better-promotional-card';
 
-        enabledSoftDescriptorInput.parentElement.appendChild(newP)
+      // Adiciona um elemento de fundo decorativo
+      const backgroundDecor = document.createElement('div');
+      backgroundDecor.className = 'promotional-card-background-decor';
+      promotionalCard.appendChild(backgroundDecor);
+
+      // Conteúdo do cartão
+      const cardContent = document.createElement('div');
+      cardContent.className = 'promotional-card-content';
+
+      // Título do plugin
+      const cardTitle = document.createElement('h3');
+      cardTitle.className = 'promotional-card-title';
+      cardTitle.textContent = 'Plugin: Link de Pagamento de Faturas para WooCommerce';
+
+      // Descrição do plugin
+      const cardDescription = document.createElement('p');
+      cardDescription.className = 'promotional-card-description';
+      cardDescription.textContent = 'O Plugin Link de Pagamento é a solução completa para o seu negócio. Com ele, é possível gerar links de pagamento, parcelar compras em múltiplos cartões, configurar cobranças recorrentes, aplicar descontos e taxas, e criar orçamentos detalhados.';
+
+      // Container dos botões
+      const buttonsContainer = document.createElement('div');
+      buttonsContainer.className = 'promotional-card-buttons';
+
+      // Botão Saiba mais (sempre presente)
+      const learnMoreButton = document.createElement('button');
+      learnMoreButton.className = 'promotional-card-button learn-more';
+      learnMoreButton.textContent = 'Saiba mais';
+      
+      learnMoreButton.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.open('https://br.wordpress.org/plugins/invoice-payment-for-woocommerce/', '_blank');
+      });
+
+      buttonsContainer.appendChild(learnMoreButton);
+
+      // Botão Instalar (apenas se o plugin não estiver instalado)
+      if (!lknPhpVariables.invoice_plugin_installed) {
+        const installButton = document.createElement('button');
+        installButton.className = 'promotional-card-button install';
+        installButton.textContent = 'Instalar';
+        
+        installButton.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const installUrl = `/wp-admin/update.php?action=install-plugin&plugin=${lknPhpVariables.plugin_slug}&_wpnonce=${lknPhpVariables.install_nonce}`;
+          window.open(installUrl, '_blank');
+        });
+
+        buttonsContainer.appendChild(installButton);
       }
 
-      if (!enabledSoftDescriptorInput.checked) {
-        softDescriptorInput.setAttribute('disabled', 'disabled')
-      }
-
-      enabledSoftDescriptorInput.addEventListener('change', function () {
-        if (this.checked) {
-          softDescriptorInput.removeAttribute('disabled')
-        } else {
-          softDescriptorInput.setAttribute('disabled', 'disabled')
-        }
-      })
+      // Monta o conteúdo do cartão
+      cardContent.appendChild(cardTitle);
+      cardContent.appendChild(cardDescription);
+      cardContent.appendChild(buttonsContainer);
+      promotionalCard.appendChild(cardContent);
+      
+      // Adiciona o cartão promocional ao container
+      cardContainer.appendChild(promotionalCard);
     }
   })
 })(jQuery)

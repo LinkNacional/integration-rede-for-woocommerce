@@ -114,11 +114,19 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                     'value' => ucfirst($card_type),
                 );
                 
-                // Só mostra parcelas se for crédito e > 1
-                if ($card_type === 'credit' && $saved_installments >= 1) {
+                // Só mostra parcelas se for crédito
+                if ($card_type === 'credit') {
+                    if ($saved_installments == 1) {
+                        $installment_text = 'Cash payment';
+                    } else {
+                        $order_total = $order->get_total();
+                        $installment_value = $order_total / $saved_installments;
+                        $installment_text = sprintf('%dx of %s', $saved_installments, wc_price($installment_value));
+                    }
+                    
                     $items['installments'] = array(
                         'label' => esc_attr__('Installments', 'woo-rede'),
-                        'value' => $saved_installments . 'x',
+                        'value' => $installment_text,
                     );
                 }
             } else {

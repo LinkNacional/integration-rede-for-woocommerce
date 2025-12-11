@@ -114,6 +114,13 @@ final class LknIntegrationRedeForWoocommerceAdmin
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
 
+        // Localize the script with custom data
+        wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
+            'plugin_slug' => 'invoice-payment-for-woocommerce',
+            'install_nonce' => wp_create_nonce('install-plugin_invoice-payment-for-woocommerce'),
+            'invoice_plugin_installed' => is_plugin_active('invoice-payment-for-woocommerce/invoice-payment-for-woocommerce.php')
+        ));
+
         $gateways = array(
             'maxipago_credit',
             'maxipago_debit',
@@ -187,19 +194,5 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
         }
-
-        // Localize the script with custom data
-        wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
-            'title' => __('Get new features with Rede Pro', 'woo-rede'),
-            'desc' => __('Discover and purchase the PRO plugin', 'woo-rede'),
-            'capture' => __('Manual capture of transaction/order', 'woo-rede'),
-            'tax' => __('Adjust interest rate based on installment', 'woo-rede'),
-            'css' => __('Custom CSS for payment forms', 'woo-rede'),
-            'pix' => __('Enable payment with Pix', 'woo-rede'),
-            'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
-            'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede'),
-            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php'),
-        ));
     }
 }
