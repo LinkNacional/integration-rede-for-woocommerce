@@ -183,6 +183,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
                     ),
                     'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp',
                     'stars' => plugin_dir_url(__FILE__) . 'images/stars.svg',
+                    'whatsapp' => plugin_dir_url(__FILE__) . 'images/whatsapp.svg',
+                    'telegram' => plugin_dir_url(__FILE__) . 'images/telegram.svg',
                     'versions' => $versions
 
                 ),

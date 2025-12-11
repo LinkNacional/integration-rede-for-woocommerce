@@ -95,6 +95,7 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsCard {
     color: white;
+    width: 100%;
     height: fit-content;
     background-color: #121519;
     border-radius: 10px;
@@ -102,10 +103,11 @@ textarea:disabled {
     background-position: right bottom, left top calc(15px);
     background-repeat: no-repeat;
     display: flex;
+    margin: 0px !important;
     flex-direction: column;
-    padding: 15px 45px 15px 20px;
+    padding: 15px 25px 15px 25px;
     box-sizing: border-box;
-    gap: 20px;
+    gap: 25px;
 }
 
 #lknIntegrationRedeForWoocommerceDivLogo {
@@ -114,16 +116,26 @@ textarea:disabled {
     gap: 6px;
     font-family: inter;
     font-weight: 500;
+    margin-bottom: 18px !important;
 }
 
 #lknIntegrationRedeForWoocommerceDivLogo p {
     margin: 0;
     font-size: x-small;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+}
+
+#lknIntegrationRedeForWoocommerDivContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 #lknIntegrationRedeForWoocommerDivLinks {
     display: flex;
     justify-content: space-between;
+    padding-right: 30px;
     gap: 6%;
 }
 
@@ -131,7 +143,8 @@ textarea:disabled {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    font-family: 'Inter';
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
 }
 
 #lknIntegrationRedeForWoocommerceSettingsCard a {
@@ -146,7 +159,12 @@ textarea:disabled {
     display: flex;
     align-items: center;
     gap: 2px;
-    font-size: small;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+}
+
+#lknIntegrationRedeForWoocommerDivLinks div a {
+    white-space: nowrap;
 }
 
 #lknIntegrationRedeForWoocommerDivLinks a b {
@@ -156,6 +174,74 @@ textarea:disabled {
 
 #lknIntegrationRedeForWoocommerceSettingsCard img {
     height: 25px;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv {
+    width: fit-content;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv a {
+    flex-direction: column;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv p {
+    margin: 0;
+    font-size: x-small;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    width: 100%;
+}
+
+#lknIntegrationRedeForWoocommerStarsDiv img {
+    height: 10px;
+}
+
+.lknIntegrationRedeForWoocommerceSupportLinks {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lknIntegrationRedeForWoocommerceStars {
+    display: flex;
+    width: 100%;
+}
+
+.lknIntegrationRedeForWoocommerceContactLinks {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.lknIntegrationRedeForWoocommerceContactLinks a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.lknIntegrationRedeForWoocommerceContactLinks a:hover {
+    transform: scale(1.1);
+}
+
+.lknIntegrationRedeForWoocommerceContactIcon {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1);
+}
+
+.lkn-stars {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
+    width: fit-content;
+    padding: 0px;
+    margin: 0px;
+    color: #DAE300 !important;
+    font-size: 12px;
 }
 
 .lknIntegrationRedeForWoocommerceDivGeral {
@@ -169,9 +255,8 @@ textarea:disabled {
     min-width: 0;
 }
 
-/* Segundo filho - 30% do espaço */
 .lknIntegrationRedeForWoocommerceDivGeral>*:last-child {
-    flex: 0 0 25%;
+    flex: 0 0 22%;
     min-width: 320px;
     position: sticky;
     top: 102px;
