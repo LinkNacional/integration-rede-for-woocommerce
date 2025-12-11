@@ -1,5 +1,17 @@
 (function ($) {
   $(window).load(function () {
+    // Detectar a página atual
+    const adminPage = lknFindGetParameter('section')
+    const pluginPages = [
+      'maxipago_credit',
+      'maxipago_debit',
+      'maxipago_pix',
+      'rede_credit',
+      'rede_debit',
+      'rede_pix',
+      'integration_rede_pix'
+    ]
+
     // Function to create feature message components
     function createFeatureMessage(iconText, messageLines) {
       const featureMessage = document.createElement('div');
@@ -27,6 +39,19 @@
       featureMessage.appendChild(textContainer);
 
       return featureMessage;
+    }
+
+    function lknFindGetParameter(parameterName) {
+      let result = null
+      let tmp = []
+      location.search
+        .substr(1)
+        .split('&')
+        .forEach(function (item) {
+          tmp = item.split('=')
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1])
+        })
+      return result
     }
 
     // Insere as mensagens no container de configurações
@@ -111,6 +136,18 @@
       
       // Adiciona o cartão promocional ao container
       cardContainer.appendChild(promotionalCard);
+    }
+
+    // Inserir campos PRO se estiver em uma página de plugin e não for versão PRO ativa
+    if (adminPage && pluginPages.includes(adminPage)) {
+      const wcForm = document.getElementById('mainform')
+      
+      if (!lknPhpVariables.isProActive) {
+        const submitButton = wcForm.querySelector('button[type="submit"]').parentElement
+        if (submitButton && typeof lknIntegrationRedeForWoocommerceProFields === 'function') {
+          submitButton.insertAdjacentHTML('beforebegin', lknIntegrationRedeForWoocommerceProFields(adminPage))
+        }
+      }
     }
   })
 })(jQuery)

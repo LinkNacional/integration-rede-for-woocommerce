@@ -302,7 +302,6 @@
                             
                             // Função para atualizar a imagem
                             function updatePreviewImage() {
-                                console.log('mudei')
                                 const selectedValue = fieldConfig.value;
                                 if (selectedValue === 'basic' && lknWcRedeLayoutSettings.basic) {
                                     previewImage.src = lknWcRedeLayoutSettings.basic;
@@ -317,7 +316,6 @@
                             updatePreviewImage();
                             
                             // Adicionar evento de mudança usando Select2 event
-                            console.log(fieldConfig)
                             $(fieldConfig).on('select2:select', function() {
                                 updatePreviewImage();
                             });

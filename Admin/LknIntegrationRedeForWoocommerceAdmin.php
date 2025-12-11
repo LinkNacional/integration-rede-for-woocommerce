@@ -72,7 +72,6 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function enqueue_scripts(): void
     {
-        error_log('um teste');
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
 
         // Só enfileira o script se a versão PRO estiver desativada

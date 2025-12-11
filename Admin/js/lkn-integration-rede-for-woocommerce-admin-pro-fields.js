@@ -61,7 +61,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               </fieldset>
             </td>
           </tr>
-          ${(page === 'rede_credit' || page === 'rede_debit' || page === 'maxipago_credit') ? `
+          ${(page === 'rede_credit' || page === 'maxipago_credit') ? `
             <tr valign="top">
               <th scope="row" class="titledesc">
                 <label class="lowOpacity" for="woocommerce_rede_credit_auto_capture_example_field"><span>${lknPhpProFieldsVariables.autoCapture}</span>
@@ -76,7 +76,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
                   <label class="lowOpacity" for="woocommerce_rede_credit_auto_capture_example_field">
                   <input disabled class="" type="checkbox" name="woocommerce_rede_credit_auto_capture_example_field" id="woocommerce_rede_credit_auto_capture_example_field" value="1" checked="checked"
                   data-title-description="${lknPhpProFieldsVariables.autoCaptureDataDescription}" lkn-is-pro="true"
-                  ><span>${page === 'rede_debit' ? lknPhpProFieldsVariables.autoCaptureDebitLabel : lknPhpProFieldsVariables.autoCaptureLabel}</span></label><br>
+                  ><span>${lknPhpProFieldsVariables.autoCaptureLabel}</span></label><br>
                   <p class="description">${lknPhpProFieldsVariables.autoCaptureDescription}</p>
                 </fieldset>
               </td>
@@ -117,7 +117,7 @@ function lknIntegrationRedeForWoocommerceProFields(page) {
               </fieldset>
             </td>
           </tr>
-          ${(page === 'rede_credit' || page === 'rede_debit' || page === 'maxipago_credit') ? `
+          ${(page === 'rede_credit' || page === 'maxipago_credit') ? `
             
             <tr valign="top">
                 <th scope="row" class="titledesc">

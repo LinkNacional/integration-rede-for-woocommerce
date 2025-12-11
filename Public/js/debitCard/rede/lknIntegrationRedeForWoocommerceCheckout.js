@@ -10,7 +10,6 @@ const cardTypeRestriction = settingsRedeDebit.cardTypeRestriction || 'debit_only
 const minInstallmentsRede = settingsRedeDebit.minInstallmentsRede ? settingsRedeDebit.minInstallmentsRede.replace(',', '.') : '5.00';
 const templateStyle = settingsRedeDebit['3dsTemplateStyle'] || 'basic';
 const gatewayDescription = settingsRedeDebit.gatewayDescription || '';
-console.log(gatewayDescription)
 const cardTemplateAssets = window.redeDebitAjax?.cardTemplateAssets || {};
 
 // Observer global para adicionar ícones das bandeiras (fora do componente React)
