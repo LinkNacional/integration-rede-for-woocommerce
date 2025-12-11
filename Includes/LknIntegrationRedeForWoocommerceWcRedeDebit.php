@@ -591,7 +591,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'installment_discount' => 'no',
             'min_interest' => '0',
             'convert_to_brl' => 'no',
-            'auto_capture' => 'yes'
+            'auto_capture' => 'yes',
+            '3ds_template_style' => 'basic'
         );
 
         // Reset campos de parcelas específicas
@@ -622,6 +623,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function initFormFields(): void
     {
         LknIntegrationRedeForWoocommerceHelper::updateFixLoadScriptOption($this->id);
+
+        // Verifica se a licença PRO é válida
+        $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
 
         $this->form_fields = array(
             'rede' => array(
@@ -769,6 +773,22 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 )
             ),
 
+            '3ds_template_style' => array(
+                'title' => esc_attr__('3DS Template Style', 'woo-rede'),
+                'type' => 'select',
+                'class' => 'wc-enhanced-select',
+                'description' => esc_attr__('Choose the visual style for the 3D Secure authentication interface. The modern template provides an enhanced user experience with improved design and usability.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Select the template style that will be used during 3D Secure authentication. Modern template offers better visual appeal and user experience.', 'woo-rede'),
+                'default' => 'basic',
+                'options' => array(
+                    'basic' => esc_attr__('Basic Template', 'woo-rede'),
+                    'modern' => esc_attr__('Modern Template (PRO)', 'woo-rede'),
+                ),
+                'custom_attributes' => array_merge(array(
+                    'data-title-description' => esc_attr__('Choose between basic and modern 3DS authentication templates. Modern template provides enhanced visual design and better user experience during payment authentication.', 'woo-rede')
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array())
+            ),
+
             'payment_complete_status' => array(
                 'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
                 'type' => 'select',
@@ -823,9 +843,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
             'default' => '12',
         );
-        
-        // Verifica se a licença PRO é válida
-        $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
         
         $this->form_fields = array_merge($this->form_fields, array(
             'interest_or_discount' => array(
@@ -1013,6 +1030,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         wp_enqueue_style('card-style', $plugin_url . 'Public/css/card.css', array(), '1.0.0', 'all');
         wp_enqueue_style('select-style', $plugin_url . 'Public/css/lknIntegrationRedeForWoocommerceSelectStyle.css', array(), '1.0.0', 'all');
+        
+        // Enfileira CSS do template moderno apenas se PRO estiver ativo e template configurado como modern
+        if (LknIntegrationRedeForWoocommerceHelper::isProLicenseValid() && $this->get_option('3ds_template_style') === 'modern') {
+            wp_enqueue_style('lknwoo-morden-template', $plugin_url . 'Public/css/rede/LknIntegrationRedeForWoocommerceMordenTemplate.css', array(), '1.0.0', 'all');
+        }
+
         wp_enqueue_style('wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all');
 
         wp_enqueue_script('wooRedeDebit-js', $plugin_url . 'Public/js/debitCard/rede/wooRedeDebit.js', array(), '1.0.0', true);

@@ -81,7 +81,7 @@ final class LknIntegrationRedeForWoocommercePublic {
                 $session->set('lkn_installments_number_rede_credit', 1);
                 $session->set('lkn_installments_number_maxipago_credit', 1);
                 $session->set('lkn_installments_number_rede_debit', 1);
-                $session->set('lkn_card_type_rede_debit', 'debit');
+                $session->set('lkn_card_type_rede_debit', 'credit');
             }
         }
 

@@ -23,6 +23,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
 
     public function get_payment_method_script_handles()
     {
+        // Registra o CSS do template moderno
+        wp_enqueue_style(
+            'rede-modern-template-style',
+            plugin_dir_url(__FILE__) . '../Public/css/rede/LknIntegrationRedeForWoocommerceMordenTemplate.css',
+            array(),
+            '1.0.0',
+            'all'
+        );
+        
         wp_register_script(
             'rede_debit-blocks-integration',
             plugin_dir_url(__FILE__) . '../Public/js/debitCard/rede/lknIntegrationRedeForWoocommerceCheckoutCompiled.js',
@@ -43,6 +52,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce'   => wp_create_nonce('redeCardNonce'),
                 'installment_nonce' => wp_create_nonce('rede_debit_payment_fields_nonce'),
+                'bin_detection_nonce' => wp_create_nonce('redeCardNonce'),
+                'cardTemplateAssets' => array(
+                    'calendar' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/calendar.svg',
+                    'key' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/key.svg',
+                    'lock' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/lock.svg',
+                    'amex' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/amex-icon.svg',
+                    'elo' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/elo-icon.svg',
+                    'mastercard' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/mastercard-icon.svg',
+                    'visa' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/visa-icon.svg',
+                    'otherCard' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/other-card.svg',
+                ),
+                'completeOrder' => __('Complete Order', 'woo-rede')
             )
         );
         if (function_exists('wp_set_script_translations')) {
@@ -66,6 +87,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             'cardTypeRestriction' => $this->gateway->get_option('card_type_restriction', 'debit_only'),
             'maxParcels' => $this->gateway->get_option('max_parcels_number', '12'),
             'minParcelsValue' => $this->gateway->get_option('min_parcels_value', '5'),
+            '3dsTemplateStyle' => $this->gateway->get_option('3ds_template_style', 'basic'),
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
                 'cardNumber' => __('Card Number', 'woo-rede'),
