@@ -598,7 +598,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             'min_interest' => '0',
             'convert_to_brl' => 'no',
             'auto_capture' => 'yes',
-            '3ds_template_style' => 'basic'
+            '3ds_template_style' => 'basic',
+            'payment_complete_status' => 'processing'
         );
 
         // Reset campos de parcelas específicas
@@ -741,9 +742,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'completed' => esc_attr__('Completed', 'woo-rede'),
                     'on-hold' => esc_attr__('On Hold', 'woo-rede'),
                 ),
-                'custom_attributes' => array(
+                'custom_attributes' => array_merge(array(
                     'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
-                )
+                ), !$isProValid ? array('lkn-is-pro' => 'true') : array())
             ),
 
             'enabled_fix_load_script' => array(

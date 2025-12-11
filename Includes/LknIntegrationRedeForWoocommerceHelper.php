@@ -892,7 +892,8 @@ class LknIntegrationRedeForWoocommerceHelper
             'min_interest' => '0',
             'convert_to_brl' => 'no',
             'auto_capture' => 'yes',
-            '3ds_template_style' => 'basic'
+            '3ds_template_style' => 'basic',
+            'payment_complete_status' => 'processing'
         );
 
         // Reset campos de parcelas específicas
@@ -932,7 +933,8 @@ class LknIntegrationRedeForWoocommerceHelper
             'min_interest' => '0',
             'convert_to_brl' => 'no',
             'auto_capture' => 'yes',
-            '3ds_template_style' => 'basic'
+            '3ds_template_style' => 'basic',
+            'payment_complete_status' => 'processing'
         );
 
         // Reset campos de parcelas específicas
