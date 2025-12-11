@@ -118,7 +118,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
         wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
             'plugin_slug' => 'invoice-payment-for-woocommerce',
             'install_nonce' => wp_create_nonce('install-plugin_invoice-payment-for-woocommerce'),
-            'invoice_plugin_installed' => is_plugin_active('invoice-payment-for-woocommerce/invoice-payment-for-woocommerce.php')
+            'invoice_plugin_installed' => is_plugin_active('invoice-payment-for-woocommerce/invoice-payment-for-woocommerce.php'),
+            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
         ));
 
         $gateways = array(
