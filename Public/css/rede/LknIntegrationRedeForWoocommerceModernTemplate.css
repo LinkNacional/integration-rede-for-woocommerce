@@ -1,6 +1,6 @@
 /* Modern Template Styles for Rede Debit/Credit Integration */
 
-#radio-control-wc-payment-method-options-rede_debit__content {
+#radio-control-wc-payment-method-options-rede_debit__content.rede-modern-template-active {
   border: 2px solid #000000;
   padding-top: 25px;
   background-color: #f3f4f6;
@@ -217,6 +217,18 @@
 .rede-card-brands img.grayscale {
   filter: grayscale(1) !important;
   opacity: 0.4 !important;
+}
+
+/* Gateway description styling */
+.modern-gateway-description {
+  text-align: center;
+  margin-top: 0px !important;
+  padding: 0px 10px 10px 10px !important;
+  border-radius: 4px;
+  color: #6b7280;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  line-height: 1.4;
 }
 
 /* Override any conflicting styles */

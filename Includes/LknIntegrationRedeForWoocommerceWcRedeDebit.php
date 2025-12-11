@@ -1051,7 +1051,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         // Enfileira CSS do template moderno apenas se PRO estiver ativo e template configurado como modern
         if (LknIntegrationRedeForWoocommerceHelper::isProLicenseValid() && $this->get_option('3ds_template_style') === 'modern') {
-            wp_enqueue_style('lknwoo-morden-template', $plugin_url . 'Public/css/rede/LknIntegrationRedeForWoocommerceMordenTemplate.css', array(), '1.0.0', 'all');
+            wp_enqueue_style('lknwoo-modern-template', $plugin_url . 'Public/css/rede/LknIntegrationRedeForWoocommerceModernTemplate.css', array(), '1.0.0', 'all');
         }
 
         wp_enqueue_style('wooRedeDebit-style', $plugin_url . 'Public/css/rede/styleRedeDebit.css', array(), '1.0.0', 'all');

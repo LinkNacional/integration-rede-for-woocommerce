@@ -283,6 +283,55 @@
                                 parentInput.appendChild(labelCheckbox);
                             }
                         }
+
+                        // Adicionar preview de imagem para o campo de template style
+                        if (fieldId === 'woocommerce_rede_debit_3ds_template_style' && typeof lknWcRedeLayoutSettings !== 'undefined') {
+                            const previewContainer = document.createElement('div');
+                            previewContainer.style.marginTop = '10px';
+                            
+                            const previewLabel = document.createElement('p');
+                            previewLabel.textContent = 'Preview:';
+                            previewLabel.style.margin = '5px 0';
+                            previewLabel.style.fontWeight = 'bold';
+                            
+                            const previewImage = document.createElement('img');
+                            previewImage.style.maxWidth = '200px';
+                            previewImage.style.width = '100%';
+                            previewImage.style.border = '1px solid #ddd';
+                            previewImage.style.borderRadius = '4px';
+                            
+                            // Função para atualizar a imagem
+                            function updatePreviewImage() {
+                                console.log('mudei')
+                                const selectedValue = fieldConfig.value;
+                                if (selectedValue === 'basic' && lknWcRedeLayoutSettings.basic) {
+                                    previewImage.src = lknWcRedeLayoutSettings.basic;
+                                    previewImage.alt = 'Basic Template Preview';
+                                } else if (selectedValue === 'modern' && lknWcRedeLayoutSettings.modern) {
+                                    previewImage.src = lknWcRedeLayoutSettings.modern;
+                                    previewImage.alt = 'Modern Template Preview';
+                                }
+                            }
+                            
+                            // Configurar imagem inicial
+                            updatePreviewImage();
+                            
+                            // Adicionar evento de mudança usando Select2 event
+                            console.log(fieldConfig)
+                            $(fieldConfig).on('select2:select', function() {
+                                updatePreviewImage();
+                            });
+                            
+                            // Fallback para mudanças diretas no select (caso Select2 não esteja ativo)
+                            fieldConfig.addEventListener('change', function() {
+                                updatePreviewImage();
+                            });
+                            
+                            // Montar a estrutura
+                            previewContainer.appendChild(previewLabel);
+                            previewContainer.appendChild(previewImage);
+                            divBody.appendChild(previewContainer);
+                        }
                     }
                 }
             }

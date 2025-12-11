@@ -9,6 +9,8 @@ const translationsRedeDebit = settingsRedeDebit.translations;
 const cardTypeRestriction = settingsRedeDebit.cardTypeRestriction || 'debit_only';
 const minInstallmentsRede = settingsRedeDebit.minInstallmentsRede ? settingsRedeDebit.minInstallmentsRede.replace(',', '.') : '5.00';
 const templateStyle = settingsRedeDebit['3dsTemplateStyle'] || 'basic';
+const gatewayDescription = settingsRedeDebit.gatewayDescription || '';
+console.log(gatewayDescription)
 const cardTemplateAssets = window.redeDebitAjax?.cardTemplateAssets || {};
 
 // Observer global para adicionar ícones das bandeiras (fora do componente React)
@@ -22,6 +24,12 @@ if (templateStyle === 'modern') {
 
     const labelGroup = label.querySelector('.wc-block-components-radio-control__label-group');
     if (!labelGroup) return;
+
+    // Adiciona classe para estilos do template moderno ao container do payment content
+    const paymentContent = document.querySelector('#radio-control-wc-payment-method-options-rede_debit__content');
+    if (paymentContent) {
+      paymentContent.classList.add('rede-modern-template-active');
+    }
 
     // Verifica se já foram adicionados os ícones
     if (labelGroup.querySelector('.rede-card-brands')) {
@@ -122,6 +130,12 @@ if (templateStyle === 'modern') {
             img.style.setProperty('transition', 'all 0.3s ease', 'important');
           });
         }
+        
+        // Remove classe do template moderno quando não é Rede Debit
+        const paymentContent = document.querySelector('#radio-control-wc-payment-method-options-rede_debit__content');
+        if (paymentContent) {
+          paymentContent.classList.remove('rede-modern-template-active');
+        }
       }, 100);
     }
   });
@@ -130,11 +144,15 @@ if (templateStyle === 'modern') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       globalObserver.observe(document.body, { childList: true, subtree: true });
-      setTimeout(addCardBrandIcons, 100);
+      setTimeout(() => {
+        addCardBrandIcons();
+      }, 100);
     });
   } else {
     globalObserver.observe(document.body, { childList: true, subtree: true });
-    setTimeout(addCardBrandIcons, 100);
+    setTimeout(() => {
+      addCardBrandIcons();
+    }, 100);
   }
 }
 
@@ -667,6 +685,13 @@ const ContentRedeDebit = props => {
             {redeDebitAjax.completeOrder}
           </button>
         </div>
+        
+        {/* Descrição do gateway */}
+        {gatewayDescription && (
+          <div className="modern-gateway-description">
+            {gatewayDescription}
+          </div>
+        )}
       </div>
     </React.Fragment>
   );
@@ -745,6 +770,13 @@ const ContentRedeDebit = props => {
               <option key={opt.key} value={opt.key}>{opt.label}</option>
             ))}
           </select>
+        </div>
+      )}
+      
+      {/* Descrição do gateway */}
+      {gatewayDescription && (
+        <div className="basic-gateway-description" style={{textAlign: 'center', marginTop: '15px'}}>
+          {gatewayDescription}
         </div>
       )}
     </React.Fragment>

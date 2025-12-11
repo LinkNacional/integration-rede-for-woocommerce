@@ -195,6 +195,10 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 'clearLogs' => __('Limpar Logs', 'woo-rede'),
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
+            wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(
+                'basic' => plugin_dir_url(__FILE__) . 'images/basicTemplate.png',
+                'modern' => plugin_dir_url(__FILE__) . 'images/modernTemplate.png',
+            ));
         }
     }
 }

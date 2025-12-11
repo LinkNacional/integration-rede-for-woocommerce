@@ -26,7 +26,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
         // Registra o CSS do template moderno
         wp_enqueue_style(
             'rede-modern-template-style',
-            plugin_dir_url(__FILE__) . '../Public/css/rede/LknIntegrationRedeForWoocommerceMordenTemplate.css',
+            plugin_dir_url(__FILE__) . '../Public/css/rede/LknIntegrationRedeForWoocommerceModernTemplate.css',
             array(),
             '1.0.0',
             'all'
@@ -88,6 +88,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             'maxParcels' => $this->gateway->get_option('max_parcels_number', '12'),
             'minParcelsValue' => $this->gateway->get_option('min_parcels_value', '5'),
             '3dsTemplateStyle' => $this->gateway->get_option('3ds_template_style', 'basic'),
+            'gatewayDescription' => $this->gateway->get_option('description', __('Pay for your purchase with a debit card through', 'woo-rede')),
             'translations' => array(
                 'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
                 'cardNumber' => __('Card Number', 'woo-rede'),
