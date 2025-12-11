@@ -803,25 +803,33 @@ final class LknIntegrationRedeForWoocommerce
             </h3>
             <p style="font-size: 14px; line-height: 1.6;">
                 <strong><?php esc_html_e('Important:', 'woo-rede'); ?></strong>
-                <?php esc_html_e('Nosso protocolo de autenticação e autorização será alterado para OAuth 2.0. Todos os clientes que usam o e.Rede devem ajustar o padrão de integração com a API até 05/01/2026. A atualização visa trazer mais segurança e evitar ataques direcionados a suas transações. Caso não seja realizada, suas transações podem ser impactadas.', 'woo-rede'); ?>
+                <?php esc_html_e('Rede\'s authentication protocol will be changed to OAuth 2.0 on 01/05/2026. All customers using e.Rede must update the plugin. This measure will contribute to security and help prevent targeted attacks on your transactions. After the deadline, transactions can only be performed using the updated plugin.', 'woo-rede'); ?>
             </p>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong><?php esc_html_e('Action required:', 'woo-rede'); ?></strong>
+                <strong><?php esc_html_e('Action Required (For PRO Users):', 'woo-rede'); ?></strong>
                 <?php 
                 echo sprintf(
                     /* translators: %1$s is the current PRO version, %2$s is the required version */
-                    esc_html__('Your Rede Plugin PRO version (%1$s) needs to be updated to version %2$s or higher.', 'woo-rede'),
+                    esc_html__('Your Rede Plugin PRO version %1$s needs to be updated to version %2$s or higher.', 'woo-rede'),
                     '<code>' . esc_html($pro_version) . '</code>',
                     '<code>2.2.0</code>'
                 );
                 ?>
             </p>
             <p style="margin-bottom: 0;">
-                <a href="<?php echo esc_url(admin_url('plugins.php')); ?>" class="button button-primary">
-                    <?php esc_html_e('Go to Plugins Page', 'woo-rede'); ?>
-                </a>
                 <a href="https://developer.userede.com.br/e-rede" target="_blank" class="button">
-                    <?php esc_html_e('Confira o que muda', 'woo-rede'); ?>
+                    <?php esc_html_e('Check what changes', 'woo-rede'); ?>
+                </a>
+                <?php
+                // Create update URL for PRO plugin
+                $pro_plugin_slug = 'rede-for-woocommerce-pro/rede-for-woocommerce-pro.php';
+                $update_url = wp_nonce_url(
+                    admin_url('update.php?action=upgrade-plugin&plugin=' . urlencode($pro_plugin_slug)),
+                    'upgrade-plugin_' . $pro_plugin_slug
+                );
+                ?>
+                <a href="<?php echo esc_url($update_url); ?>" class="button button-primary">
+                    <?php esc_html_e('Update Plugin', 'woo-rede'); ?>
                 </a>
             </p>
         </div>

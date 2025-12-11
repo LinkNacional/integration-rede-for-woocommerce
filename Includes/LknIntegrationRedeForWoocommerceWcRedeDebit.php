@@ -707,24 +707,24 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             'enabled_soft_descriptor' => array(
-                'title' => __('Payment Description', 'woo-rede'),
+                'title' => __('Enable Payment Description', 'woo-rede'),
                 'type' => 'checkbox',
-                'desc_tip' => esc_attr__('Send payment description to the Rede. If errors occur, disable this option to ensure correct transaction processing.', 'woo-rede'),
-                'description' => esc_attr__('Enable sending the payment description to Rede.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Send a custom payment description to Rede that appears on customer statements. Disable if it causes transaction errors.', 'woo-rede'),
+                'description' => __('Enable payment descriptions in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . ' ' . __('first', 'woo-rede'),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Send payment description to Rede. Disable if it causes errors.', 'woo-rede')
+                    'data-title-description' => esc_attr__('Allow custom payment descriptions to be sent to Rede for customer statement identification.', 'woo-rede')
                 ),
-                'label' => __('I have enabled the payment description feature in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . '. ' . __('Default (Disabled)', 'woo-rede'),
+                'label' => esc_attr__('Enable custom payment description feature for Rede transactions.', 'woo-rede'),
                 'default' => 'no',
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__('Payment Description', 'woo-rede'),
+                'title' => esc_attr__('Payment Description Text', 'woo-rede'),
                 'type' => 'text',
-                'desc_tip' => esc_attr__('Set the description to be sent to Rede along with the payment transaction.', 'woo-rede'),
-                'description' => esc_attr__('Description to be sent to Rede.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Enter the custom description (max 20 characters) that will appear on customer credit card statements.', 'woo-rede'),
+                'description' => esc_attr__('Custom text displayed on customer statements (maximum 20 characters).', 'woo-rede'),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Payment description sent to Rede.', 'woo-rede'),
+                    'data-title-description' => esc_attr__('Custom identifier text for customer credit card statements.', 'woo-rede'),
                     'maxlength' => 20,
                     'merge-top' => "woocommerce_{$this->id}_enabled_soft_descriptor",
                 ),
@@ -794,23 +794,23 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             '3ds_fallback_behavior' => array(
-                'title' => esc_attr__('3DS Fallback Behavior', 'woo-rede'),
+                'title' => esc_attr__('3DS Fallback Behavior (Credit Cards Only)', 'woo-rede'),
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('3D Secure authentication is ALWAYS ACTIVE for debit card transactions. This setting controls what happens when 3DS authentication fails or is unavailable.', 'woo-rede'),
-                'desc_tip' => esc_attr__('According to Rede documentation: "3DS authentication is mandatory for all debit card transactions." Use "decline" in production for compliance.', 'woo-rede'),
+                'description' => esc_attr__('This setting only applies to credit card transactions. For debit cards, 3DS authentication is ALWAYS mandatory and transactions will always be declined if 3DS fails. For credit cards, you can choose the fallback behavior when 3DS authentication is unavailable.', 'woo-rede'),
+                'desc_tip' => esc_attr__('Debit cards: 3DS is mandatory (always decline if unavailable). Credit cards: You can choose to decline or continue without 3DS for testing purposes only.', 'woo-rede'),
                 'default' => 'decline',
                 'options' => array(
-                    'decline' => esc_attr__('Decline transaction (REQUIRED for debit cards)', 'woo-rede'),
+                    'decline' => esc_attr__('Decline transaction (RECOMMENDED for production)', 'woo-rede'),
                     'continue' => esc_attr__('Continue without 3DS (TESTING ONLY - NOT for production)', 'woo-rede'),
                 ),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('REGULATORY COMPLIANCE: For debit cards, 3DS is mandatory. Select "Decline" for production use. "Continue" should only be used for testing purposes.', 'woo-rede')
+                    'data-title-description' => esc_attr__('Credit card fallback behavior when 3DS is unavailable. Debit cards always require 3DS authentication and cannot be bypassed.', 'woo-rede')
                 )
             ),
 
             '3ds_template_style' => array(
-                'title' => esc_attr__('Template Style', 'woo-rede'),
+                'title' => esc_attr__('Template Style for Blocks Editor', 'woo-rede'),
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'description' => esc_attr__('Choose the visual style for the 3D Secure authentication interface. The modern template provides an enhanced user experience with improved design and usability.', 'woo-rede'),
@@ -851,15 +851,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         $this->form_fields['max_parcels_number'] = array(
-            'title' => __('Maximum Number of Installments', 'woo-rede'),
+            'title' => __('Maximum Number of Installments (Credit Cards Only)', 'woo-rede'),
             'type' => 'select',
+            'desc_tip' => esc_attr__('Credit cards only - debit always uses single payment.', 'woo-rede'),
             'options' => $parcels_options,
             'custom_attributes' => array(
                 'data-merge-top' => 'true',
                 // translators: %d is the number of installments
-                'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
+                'data-title-description' => esc_attr__('Maximum number of installments available for credit card transactions. Debit cards are always processed in a single payment.', 'woo-rede')
             ),
-            'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
+            'description' => __('Select the maximum number of installments allowed for credit card payments (up to 24). This setting does not affect debit card transactions, which are always processed as single payments.', 'woo-rede'),
             'default' => '12',
         );
         
@@ -909,26 +910,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'default' => 'no',
             )
         ));
-
-        // Field to define maximum number of installments with dynamic options
-        $parcels_options = array();
-        for ($i = 1; $i <= 24; $i++) {
-            // translators: %d is the number of installments
-            $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
-        }
-
-        $this->form_fields['max_parcels_number'] = array(
-            'title' => __('Maximum Number of Installments', 'woo-rede'),
-            'type' => 'select',
-            'options' => $parcels_options,
-            'custom_attributes' => array(
-                'data-merge-top' => 'true',
-                // translators: %d is the number of installments
-                'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
-            ),
-            'description' => __('Select the maximum number of allowed installments.', 'woo-rede'),
-            'default' => '12',
-        );
 
         // Minimum interest field per transaction
         $this->form_fields['min_interest'] = array(

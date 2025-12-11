@@ -88,12 +88,17 @@
       // Título do plugin
       const cardTitle = document.createElement('h3');
       cardTitle.className = 'promotional-card-title';
-      cardTitle.textContent = 'Plugin: Link de Pagamento de Faturas para WooCommerce';
+      cardTitle.textContent = 'Plugin Link de Pagamento de Faturas';
+
+      // Traço decorativo
+      const titleDivider = document.createElement('hr');
+      titleDivider.className = 'promotional-card-title-divider';
+      titleDivider.style.cssText = 'width: 100%; height: 1px; background: white; border: none; margin: 8px 0 16px 0;';
 
       // Descrição do plugin
       const cardDescription = document.createElement('p');
       cardDescription.className = 'promotional-card-description';
-      cardDescription.textContent = 'O Plugin Link de Pagamento é a solução completa para o seu negócio. Com ele, é possível gerar links de pagamento, parcelar compras em múltiplos cartões, configurar cobranças recorrentes, aplicar descontos e taxas, e criar orçamentos detalhados.';
+      cardDescription.textContent = 'O Plugin Link de Pagamento oferece a solução completa para o seu negócio. Gere links personalizados, aceite parcelamento em múltiplos cartões, configure cobranças recorrentes, crie orçamentos e venda diretamente pelo WhatsApp!';
 
       // Container dos botões
       const buttonsContainer = document.createElement('div');
@@ -130,6 +135,7 @@
 
       // Monta o conteúdo do cartão
       cardContent.appendChild(cardTitle);
+      cardContent.appendChild(titleDivider);
       cardContent.appendChild(cardDescription);
       cardContent.appendChild(buttonsContainer);
       promotionalCard.appendChild(cardContent);
