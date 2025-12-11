@@ -799,7 +799,7 @@ final class LknIntegrationRedeForWoocommerce
         ?>
         <div class="notice notice-warning" style="border-left-color: #ffb900; padding: 15px;">
             <h3 style="margin-top: 0; color: #000;">
-                <?php esc_html_e('⚠️ Plugin Update Required - Rede Plugin PRO', 'woo-rede'); ?>
+                <?php esc_html_e('⚠️ Plugin Update Required - Rede Integration for WooCommerce Pro', 'woo-rede'); ?>
             </h3>
             <p style="font-size: 14px; line-height: 1.6;">
                 <strong><?php esc_html_e('Important:', 'woo-rede'); ?></strong>
@@ -829,7 +829,7 @@ final class LknIntegrationRedeForWoocommerce
                 );
                 ?>
                 <a href="<?php echo esc_url($update_url); ?>" class="button button-primary">
-                    <?php esc_html_e('Update Plugin', 'woo-rede'); ?>
+                    <?php esc_html_e('Update Now', 'woo-rede'); ?>
                 </a>
             </p>
         </div>
