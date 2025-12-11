@@ -189,6 +189,9 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
+        // Aviso crítico para atualização do plugin PRO
+        $this->loader->add_action('admin_notices', $this, 'lkn_pro_update_critical_notice');
+
         // Hook para ações personalizadas da ordem PIX
         $this->loader->add_filter('woocommerce_order_actions', $this, 'add_pix_verification_action');
         $this->loader->add_action('woocommerce_order_action_verify_pix_status', $this, 'process_pix_verification_action');
@@ -764,6 +767,65 @@ final class LknIntegrationRedeForWoocommerce
         if (!file_exists(WP_PLUGIN_DIR . '/fraud-detection-for-woocommerce/fraud-detection-for-woocommerce.php')) {
             require INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/views/notices/lkn-integration-rede-for-woocommerce-notice-download.php';
         }
+    }
+
+    /**
+     * Exibe aviso crítico para atualização obrigatória do plugin PRO
+     * Este aviso é relacionado às novas normas da Rede que entram em vigor em 05/01/2026
+     */
+    public function lkn_pro_update_critical_notice()
+    {
+        // Verificar se o plugin PRO existe (independente se está ativo)
+        $pro_plugin_file = WP_PLUGIN_DIR . '/rede-for-woocommerce-pro/rede-for-woocommerce-pro.php';
+        
+        if (!file_exists($pro_plugin_file)) {
+            return; // Plugin PRO não está instalado
+        }
+
+        // Obter dados do plugin PRO
+        if (!function_exists('get_plugin_data')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+        
+        $pro_plugin_data = get_plugin_data($pro_plugin_file);
+        $pro_version = $pro_plugin_data['Version'] ?? '0.0.0';
+        
+        // Verificar se a versão é menor que 2.2.0
+        if (version_compare($pro_version, '2.2.0', '>=')) {
+            return; // Versão é adequada, não mostrar aviso
+        }
+
+        // Exibir o aviso crítico
+        ?>
+        <div class="notice notice-warning" style="border-left-color: #ffb900; padding: 15px;">
+            <h3 style="margin-top: 0; color: #000;">
+                <?php esc_html_e('⚠️ Plugin Update Required - Rede Plugin PRO', 'woo-rede'); ?>
+            </h3>
+            <p style="font-size: 14px; line-height: 1.6;">
+                <strong><?php esc_html_e('Important:', 'woo-rede'); ?></strong>
+                <?php esc_html_e('Nosso protocolo de autenticação e autorização será alterado para OAuth 2.0. Todos os clientes que usam o e.Rede devem ajustar o padrão de integração com a API até 05/01/2026. A atualização visa trazer mais segurança e evitar ataques direcionados a suas transações. Caso não seja realizada, suas transações podem ser impactadas.', 'woo-rede'); ?>
+            </p>
+            <p style="font-size: 14px; line-height: 1.6;">
+                <strong><?php esc_html_e('Action required:', 'woo-rede'); ?></strong>
+                <?php 
+                echo sprintf(
+                    /* translators: %1$s is the current PRO version, %2$s is the required version */
+                    esc_html__('Your Rede Plugin PRO version (%1$s) needs to be updated to version %2$s or higher.', 'woo-rede'),
+                    '<code>' . esc_html($pro_version) . '</code>',
+                    '<code>2.2.0</code>'
+                );
+                ?>
+            </p>
+            <p style="margin-bottom: 0;">
+                <a href="<?php echo esc_url(admin_url('plugins.php')); ?>" class="button button-primary">
+                    <?php esc_html_e('Go to Plugins Page', 'woo-rede'); ?>
+                </a>
+                <a href="https://developer.userede.com.br/e-rede" target="_blank" class="button">
+                    <?php esc_html_e('Confira o que muda', 'woo-rede'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
     }
 
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
