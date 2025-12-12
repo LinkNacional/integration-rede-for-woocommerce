@@ -6,7 +6,186 @@ const labelRedeDebit = window.wp.htmlEntities.decodeEntities(settingsRedeDebit.t
 // Obtendo o nonce da variável global
 const nonceRedeDebit = settingsRedeDebit.nonceRedeDebit;
 const translationsRedeDebit = settingsRedeDebit.translations;
+const cardTypeRestriction = settingsRedeDebit.cardTypeRestriction || 'debit_only';
+const minInstallmentsRede = settingsRedeDebit.minInstallmentsRede ? settingsRedeDebit.minInstallmentsRede.replace(',', '.') : '5.00';
+const templateStyle = settingsRedeDebit['3dsTemplateStyle'] || 'basic';
+const gatewayDescription = settingsRedeDebit.gatewayDescription || '';
+const cardTemplateAssets = window.redeDebitAjax?.cardTemplateAssets || {};
+
+// Observer global para adicionar ícones das bandeiras (fora do componente React)
+if (templateStyle === 'modern') {
+  const addCardBrandIcons = () => {
+    const radioInput = document.querySelector('input[value="rede_debit"][type="radio"]');
+    if (!radioInput) return;
+
+    const label = radioInput.closest('label');
+    if (!label) return;
+
+    const labelGroup = label.querySelector('.wc-block-components-radio-control__label-group');
+    if (!labelGroup) return;
+
+    // Adiciona classe para estilos do template moderno ao container do payment content
+    const paymentContent = document.querySelector('#radio-control-wc-payment-method-options-rede_debit__content');
+    if (paymentContent) {
+      paymentContent.classList.add('rede-modern-template-active');
+    }
+
+    // Verifica se já foram adicionados os ícones
+    if (labelGroup.querySelector('.rede-card-brands')) {
+      return;
+    }
+
+    // Aplica estilos ao labelGroup
+    labelGroup.style.display = 'flex';
+    labelGroup.style.justifyContent = 'space-between';
+    labelGroup.style.alignItems = 'center';
+    labelGroup.style.gap = '10px';
+    
+    // Função para aplicar estilos responsivos
+    const applyResponsiveStyles = () => {
+      if (window.innerWidth <= 768) {
+        labelGroup.style.flexDirection = 'column';
+      } else {
+        labelGroup.style.flexDirection = 'row';
+      }
+    };
+    
+    // Aplica estilos iniciais
+    applyResponsiveStyles();
+    
+    // Adiciona listener para mudanças de tamanho da tela (apenas uma vez)
+    if (!labelGroup.hasAttribute('data-resize-listener')) {
+      labelGroup.setAttribute('data-resize-listener', 'true');
+      window.addEventListener('resize', applyResponsiveStyles);
+    }
+
+    // Cria container dos ícones das bandeiras
+    const cardBrandsContainer = document.createElement('div');
+    cardBrandsContainer.className = 'rede-card-brands';
+    cardBrandsContainer.style.display = 'flex';
+    cardBrandsContainer.style.flexDirection = 'row';
+    cardBrandsContainer.style.flexWrap = 'wrap';
+    cardBrandsContainer.style.alignItems = 'center';
+    cardBrandsContainer.style.gap = '8px';
+
+    // Adiciona ícones das bandeiras
+    const brands = [
+      { key: 'visa', src: cardTemplateAssets.visa },
+      { key: 'mastercard', src: cardTemplateAssets.mastercard },
+      { key: 'amex', src: cardTemplateAssets.amex },
+      { key: 'elo', src: cardTemplateAssets.elo },
+      { key: 'otherCard', src: cardTemplateAssets.otherCard }
+    ];
+
+    brands.forEach(brand => {
+      if (brand.src) {
+        const img = document.createElement('img');
+        img.src = brand.src;
+        img.alt = brand.key;
+        img.style.width = '40px';
+        img.style.height = '40px';
+        img.style.objectFit = 'contain';
+        cardBrandsContainer.appendChild(img);
+      }
+    });
+
+    labelGroup.appendChild(cardBrandsContainer);
+  };
+
+  // Observer global que roda independentemente do React
+  const globalObserver = new MutationObserver((mutations) => {
+    let shouldCheck = false;
+    let shouldResetBrands = false;
+    
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList' && mutation.target.closest && 
+          (mutation.target.closest('.wc-block-components-radio-control') || 
+           mutation.target.querySelector && mutation.target.querySelector('input[value="rede_debit"]'))) {
+        shouldCheck = true;
+      }
+      
+      // Detecta mudanças em outros gateways (quando Rede Debit é desmarcado)
+      if (mutation.type === 'childList') {
+        const redeDebitRadio = document.querySelector('input[value="rede_debit"][type="radio"]');
+        if (redeDebitRadio && !redeDebitRadio.checked) {
+          shouldResetBrands = true;
+        }
+      }
+    });
+    
+    if (shouldCheck) {
+      setTimeout(addCardBrandIcons, 50);
+    }
+    
+    if (shouldResetBrands) {
+      // Reset das bandeiras quando gateway não é Rede Debit
+      setTimeout(() => {
+        const brandContainer = document.querySelector('.rede-card-brands');
+        if (brandContainer) {
+          const allBrandImages = brandContainer.querySelectorAll('img');
+          allBrandImages.forEach((img) => {
+            img.style.setProperty('filter', 'none', 'important');
+            img.style.setProperty('opacity', '1', 'important');
+            img.style.setProperty('transition', 'all 0.3s ease', 'important');
+          });
+        }
+        
+        // Remove classe do template moderno quando não é Rede Debit
+        const paymentContent = document.querySelector('#radio-control-wc-payment-method-options-rede_debit__content');
+        if (paymentContent) {
+          paymentContent.classList.remove('rede-modern-template-active');
+        }
+      }, 100);
+    }
+  });
+
+  // Inicia observação quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      globalObserver.observe(document.body, { childList: true, subtree: true });
+      setTimeout(() => {
+        addCardBrandIcons();
+      }, 100);
+    });
+  } else {
+    globalObserver.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => {
+      addCardBrandIcons();
+    }, 100);
+  }
+}
+
 const ContentRedeDebit = props => {
+  const totalAmountFloat = settingsRedeDebit.cartTotal;
+  const [selectedValue, setSelectedValue] = window.wp.element.useState('1');
+  const handleSortChange = event => {
+    const value = String(event.target.value); // Garante que seja string
+    setSelectedValue(value);
+    updateDebitObject('rede_debit_installments', value);
+    
+    // Faz requisição AJAX para atualizar a sessão de parcelas
+    window.jQuery.ajax({
+      url: window.redeDebitAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        action: 'lkn_update_installment_session',
+        payment_method: 'rede_debit',
+        installments: value,
+        card_type: debitObject.card_type,
+        nonce: window.redeDebitAjax?.installment_nonce
+      },
+      success: function (response) {
+        // Invalida o cache do store para atualizar os dados apenas no sucesso da requisição
+        if (window.wp && window.wp.data && window.wp.data.dispatch) {
+          window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+        }
+      },
+      error: function () {
+        // Em caso de erro, pode manter o comportamento atual ou mostrar uma mensagem
+      }
+    });
+  };
   const {
     eventRegistration,
     emitResponse
@@ -20,9 +199,156 @@ const ContentRedeDebit = props => {
     rede_debit_installments: '1',
     rede_debit_expiry: '',
     rede_debit_cvc: '',
-    rede_debit_holder_name: ''
+    rede_debit_holder_name: '',
+    card_type: cardTypeRestriction === 'both' ? 'credit' : (cardTypeRestriction === 'credit_only' ? 'credit' : 'debit')
   });
+  
   const [focus, setFocus] = window.wp.element.useState('');
+  const [options, setOptions] = window.wp.element.useState([]);
+  const [detectedBrand, setDetectedBrand] = window.wp.element.useState(null);
+  const [brandDetectionTimeout, setBrandDetectionTimeout] = window.wp.element.useState(null);
+
+  // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
+  let installmentTimeout = null;
+  const generateRedeInstallmentOptions = async () => {
+    if (installmentTimeout) clearTimeout(installmentTimeout);
+    installmentTimeout = setTimeout(() => {
+      try {
+        window.jQuery.ajax({
+          url: window.redeDebitAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            action: 'lkn_get_rede_debit_data',
+            card_type: debitObject.card_type,
+            nonce: window.redeDebitAjax?.nonce || nonceRedeDebit
+          },
+          success: function (response) {
+            // Invalida o cache do store para atualizar os dados
+            if (window.wp && window.wp.data && window.wp.data.dispatch) {
+              window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+            }
+            
+            if (response && Array.isArray(response.installments)) {
+              // Remove tags HTML do label para exibir texto plano
+              const plainOptions = response.installments.map(opt => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = opt.label;
+                return {
+                  ...opt,
+                  label: tempDiv.textContent || tempDiv.innerText || ''
+                };
+              });
+              
+              // Remove todas as opções atuais e adiciona as novas
+              setOptions(plainOptions);
+              
+              // Sempre garante que há uma opção selecionada válida
+              const currentSelection = selectedValue || '1';
+              const validOption = plainOptions.find(opt => String(opt.key) === String(currentSelection));
+              
+              if (!validOption && plainOptions.length > 0) {
+                // Se a seleção atual não é válida, seleciona a primeira opção
+                const firstOption = String(plainOptions[0].key);
+                setSelectedValue(firstOption);
+                updateDebitObject('rede_debit_installments', firstOption);
+              } else if (validOption && selectedValue !== String(validOption.key)) {
+                // Se a opção é válida mas o state não está sincronizado, atualiza
+                setSelectedValue(String(validOption.key));
+                updateDebitObject('rede_debit_installments', String(validOption.key));
+              }
+              
+              // Invalida o cache do store após atualizar as opções
+              if (window.wp && window.wp.data && window.wp.data.dispatch) {
+                window.wp.data.dispatch('wc/store/cart').invalidateResolutionForStore();
+              }
+            }
+          },
+          error: function () {
+            // Se falhar, mantém as opções atuais
+          }
+        });
+      } catch (error) {
+        // Se falhar, mantém as opções atuais
+      }
+    }, 400); // 400ms de debounce
+  };
+
+  // Intercepta requisições para atualizar parcelas após mudanças no shipping
+  window.wp.element.useEffect(() => {
+    // Sempre faz a requisição para atualizar a sessão (tanto para crédito quanto débito)
+    generateRedeInstallmentOptions();
+    
+    // Se for débito, ainda limpa as opções do frontend
+    if (debitObject.card_type === 'debit') {
+      setOptions([]);
+      setSelectedValue('1');
+      updateDebitObject('rede_debit_installments', '1');
+    }
+
+    // Intercepta o fetch original para capturar requisições de shipping
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      const [url, options] = args;
+      
+      // Verifica se é uma requisição para select-shipping-rate
+      if (url && url.includes('/wp-json/wc/store/v1/cart/select-shipping-rate')) {
+        // Executa a requisição original
+        return originalFetch.apply(this, args).then(response => {
+          // Clona a response para poder ler o conteúdo
+          const responseClone = response.clone();
+          
+          // Verifica se a requisição foi bem-sucedida
+          if (response.ok) {
+            // Aguarda um breve momento para a atualização do carrinho e então atualiza as parcelas
+            setTimeout(() => {
+              // Só atualiza se for cartão de crédito
+              if (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') {
+                // Limpa as opções atuais e busca as novas
+                setOptions([]);
+                setSelectedValue('1');
+                updateDebitObject('rede_debit_installments', '1'); // Garante que seja string
+                generateRedeInstallmentOptions();
+              }
+            }, 500);
+          }
+          
+          // Retorna a response original
+          return response;
+        }).catch(error => {
+          // Em caso de erro, retorna a response original
+          return originalFetch.apply(this, args);
+        });
+      }
+      
+      // Para outras requisições, executa normalmente
+      return originalFetch.apply(this, args);
+    };
+
+    // Cleanup: restaura o fetch original quando o componente é desmontado
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [debitObject.card_type]);
+
+  // useEffect para resetar bandeiras quando componente for desmontado
+  window.wp.element.useEffect(() => {
+    return () => {
+      // Cleanup: reset das bandeiras quando o componente é desmontado (mudança de gateway)
+      if (templateStyle === 'modern') {
+        const brandContainer = document.querySelector('.rede-card-brands');
+        if (brandContainer) {
+          const allBrandImages = brandContainer.querySelectorAll('img');
+          allBrandImages.forEach((img) => {
+            img.style.setProperty('filter', 'none', 'important');
+            img.style.setProperty('opacity', '1', 'important');
+            img.style.setProperty('transition', 'all 0.3s ease', 'important');
+          });
+        }
+      }
+    };
+  }, []);
+
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number;
     // Remove caracteres não numéricos
@@ -31,6 +357,111 @@ const ContentRedeDebit = props => {
     const formattedValue = cleanedValue?.replace(/(.{4})/g, '$1 ')?.trim();
     return formattedValue;
   };
+
+  // Função para detectar bandeira do cartão
+  const detectCardBrand = (cardNumber) => {
+    const cleanNumber = cardNumber.replace(/\s/g, '');
+    
+    // Limpa timeout anterior sempre
+    if (brandDetectionTimeout) {
+      clearTimeout(brandDetectionTimeout);
+    }
+    
+    // Se não tiver nada digitado, volta ao estado normal
+    if (cleanNumber.length === 0) {
+      setDetectedBrand(null);
+      updateCardBrandStyles(null);
+      return;
+    }
+    
+    // Se tem menos de 6 dígitos, deixa tudo cinza sem timeout
+    if (cleanNumber.length > 0 && cleanNumber.length < 6) {
+      setDetectedBrand('loading');
+      updateCardBrandStyles('loading');
+      return;
+    }
+
+    // Cria novo timeout apenas se tem 6+ dígitos
+    const timeout = setTimeout(() => {
+      window.jQuery.ajax({
+        url: window.redeDebitAjax?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          action: 'lkn_get_offline_bin_card',
+          number: cleanNumber,
+          nonce: window.redeDebitAjax?.bin_detection_nonce
+        },
+        success: function (response) {
+          if (response.status && response.brand) {
+            setDetectedBrand(response.brand);
+            updateCardBrandStyles(response.brand);
+          } else {
+            setDetectedBrand('other');
+            updateCardBrandStyles('other');
+          }
+        },
+        error: function () {
+          setDetectedBrand('other');
+          updateCardBrandStyles('other');
+        }
+      });
+    }, 1500);
+
+    setBrandDetectionTimeout(timeout);
+  };
+
+  // Função para atualizar estilos das bandeiras no radio button
+  const updateCardBrandStyles = (detectedBrand) => {
+    const brandContainer = document.querySelector('.rede-card-brands');
+    if (!brandContainer) {
+      return;
+    }
+
+    const supportedBrands = ['visa', 'mastercard', 'amex', 'elo'];
+    const allBrandImages = brandContainer.querySelectorAll('img');
+
+    if (allBrandImages.length === 0) {
+      return;
+    }
+
+    allBrandImages.forEach((img, index) => {
+      const brandKey = img.alt;
+      
+      if (detectedBrand === null) {
+        // Sem detecção - todos normais
+        img.style.setProperty('filter', 'none', 'important');
+        img.style.setProperty('opacity', '1', 'important');
+        img.style.setProperty('transition', 'all 0.3s ease', 'important');
+      } else if (detectedBrand === 'loading') {
+        // Estado de carregamento - todos cinza
+        img.style.setProperty('filter', 'grayscale(1)', 'important');
+        img.style.setProperty('opacity', '0.4', 'important');
+        img.style.setProperty('transition', 'all 0.3s ease', 'important');
+      } else if (brandKey === 'otherCard') {
+        // Other card sempre ativo se não for uma das principais
+        if (supportedBrands.includes(detectedBrand)) {
+          img.style.setProperty('filter', 'grayscale(1)', 'important');
+          img.style.setProperty('opacity', '0.4', 'important');
+        } else {
+          img.style.setProperty('filter', 'none', 'important');
+          img.style.setProperty('opacity', '1', 'important');
+        }
+        img.style.setProperty('transition', 'all 0.3s ease', 'important');
+      } else if (brandKey === detectedBrand) {
+        // Bandeira detectada - ativa
+        img.style.setProperty('filter', 'none', 'important');
+        img.style.setProperty('opacity', '1', 'important');
+        img.style.setProperty('transition', 'all 0.3s ease', 'important');
+      } else {
+        // Outras bandeiras - cinza
+        img.style.setProperty('filter', 'grayscale(1)', 'important');
+        img.style.setProperty('opacity', '0.4', 'important');
+        img.style.setProperty('transition', 'all 0.3s ease', 'important');
+      }
+    });
+  };
+
   const updateDebitObject = (key, value) => {
     let isValidDate = false;
     switch (key) {
@@ -50,10 +481,10 @@ const ContentRedeDebit = props => {
           }
 
           // Atualiza o estado
-          setDebitObject({
-            ...debitObject,
+          setDebitObject(prevState => ({
+            ...prevState,
             [key]: formattedValue
-          });
+          }));
         }
         return;
       case 'rede_debit_cvc':
@@ -62,15 +493,26 @@ const ContentRedeDebit = props => {
       default:
         break;
     }
-    setDebitObject({
-      ...debitObject,
+    setDebitObject(prevState => ({
+      ...prevState,
       [key]: value
-    });
+    }));
+
+    // Detecta bandeira do cartão quando o número é alterado
+    if (key === 'rede_debit_number' && templateStyle === 'modern') {
+      detectCardBrand(value);
+    }
   };
   window.wp.element.useEffect(() => {
     const unsubscribe = onPaymentSetup(async () => {
-      // Verifica se todos os campos do debitObject estão preenchidos
-      const allFieldsFilled = Object.values(debitObject).every(field => field.trim() !== '');
+      // Verifica se todos os campos obrigatórios estão preenchidos
+      const requiredFields = ['rede_debit_number', 'rede_debit_expiry', 'rede_debit_cvc', 'rede_debit_holder_name'];
+      if (cardTypeRestriction === 'both') {
+        requiredFields.push('card_type');
+      }
+      
+      const allFieldsFilled = requiredFields.every(field => debitObject[field] && debitObject[field].trim() !== '');
+      
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,
@@ -81,6 +523,7 @@ const ContentRedeDebit = props => {
               rede_debit_expiry: debitObject.rede_debit_expiry,
               rede_debit_cvc: debitObject.rede_debit_cvc,
               rede_debit_holder_name: debitObject.rede_debit_holder_name,
+              rede_debit_card_type: debitObject.card_type,
               rede_card_nonce: nonceRedeDebit
             }
           }
@@ -100,55 +543,245 @@ const ContentRedeDebit = props => {
   // Adiciona debitObject como dependência
   emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, translationsRedeDebit // Adicione translationsRedeDebit como dependência
   ]);
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Cards, {
-    number: debitObject.rede_debit_number,
-    name: debitObject.rede_debit_holder_name,
-    expiry: debitObject.rede_debit_expiry.replace(/\s+/g, ''),
-    cvc: debitObject.rede_debit_cvc,
-    placeholders: {
-      name: 'NOME',
-      expiry: 'MM/ANO',
-      cvc: 'CVC',
-      number: '•••• •••• •••• ••••'
-    },
-    locale: {
-      valid: 'VÁLIDO ATÉ'
-    },
-    focused: focus
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_holder_name",
-    label: translationsRedeDebit.nameOnCard,
-    value: debitObject.rede_debit_holder_name,
-    maxLength: 30,
-    onChange: value => {
-      updateDebitObject('rede_debit_holder_name', value);
-    },
-    onFocus: () => setFocus('name')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_number",
-    label: translationsRedeDebit.cardNumber,
-    value: formatDebitCardNumber(debitObject.rede_debit_number),
-    onChange: value => {
-      updateDebitObject('rede_debit_number', formatDebitCardNumber(value));
-    },
-    onFocus: () => setFocus('number')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_expiry",
-    label: translationsRedeDebit.cardExpiringDate,
-    value: debitObject.rede_debit_expiry,
-    onChange: value => {
-      updateDebitObject('rede_debit_expiry', value);
-    },
-    onFocus: () => setFocus('expiry')
-  }), /*#__PURE__*/React.createElement(wcComponents.TextInput, {
-    id: "rede_debit_cvc",
-    label: translationsRedeDebit.securityCode,
-    value: debitObject.rede_debit_cvc,
-    onChange: value => {
-      updateDebitObject('rede_debit_cvc', value);
-    },
-    onFocus: () => setFocus('cvc')
-  }));
+  
+  // Template moderno com nova estrutura
+  const renderModernTemplate = () => (
+    <React.Fragment>
+      <div className="modern-template-container">
+        {/* Card preview */}
+        <Cards
+          number={debitObject.rede_debit_number}
+          name={debitObject.rede_debit_holder_name}
+          expiry={debitObject.rede_debit_expiry.replace(/\s+/g, '')}
+          cvc={debitObject.rede_debit_cvc}
+          placeholders={{
+            name: 'NOME',
+            expiry: 'MM/ANO',
+            cvc: 'CVC',
+            number: '•••• •••• •••• ••••'
+          }}
+          locale={{ valid: 'VÁLIDO ATÉ' }}
+          focused={focus}
+        />
+
+        {/* Nome do portador - 100% */}
+        <div className="modern-field-row-full">
+          <wcComponents.TextInput
+            id="rede_debit_holder_name"
+            label={translationsRedeDebit.nameOnCard}
+            value={debitObject.rede_debit_holder_name}
+            maxLength={30}
+            onChange={value => updateDebitObject('rede_debit_holder_name', value)}
+            onFocus={() => setFocus('name')}
+          />
+        </div>
+
+        {/* Número do cartão e tipo do cartão - 50% cada */}
+        <div className="modern-field-row-half">
+          <div className="modern-field-with-icon">
+            <wcComponents.TextInput
+              id="rede_debit_number"
+              label={translationsRedeDebit.cardNumber}
+              value={formatDebitCardNumber(debitObject.rede_debit_number)}
+              onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
+              onFocus={() => setFocus('number')}
+            />
+            {cardTemplateAssets.lock && (
+              <img src={cardTemplateAssets.lock} alt="" className="modern-field-icon" />
+            )}
+          </div>
+          {cardTypeRestriction === 'both' && (
+            <div className="modern-select-wrapper">
+              <select
+                id="card_type_selector"
+                value={debitObject.card_type}
+                onChange={e => {
+                  const value = e.target.value;
+                  updateDebitObject('card_type', value);
+                }}
+                className="modern-select"
+              >
+                <option value="debit">{translationsRedeDebit.debitCard}</option>
+                <option value="credit">{translationsRedeDebit.creditCard}</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Data de expiração e código de segurança - 50% cada */}
+        <div className="modern-field-row-half">
+          <div className="modern-field-with-icon">
+            <wcComponents.TextInput
+              id="rede_debit_expiry"
+              label={translationsRedeDebit.cardExpiringDate}
+              value={debitObject.rede_debit_expiry}
+              onChange={value => updateDebitObject('rede_debit_expiry', value)}
+              onFocus={() => setFocus('expiry')}
+            />
+            {cardTemplateAssets.calendar && (
+              <img src={cardTemplateAssets.calendar} alt="" className="modern-field-icon" />
+            )}
+          </div>
+          <div className="modern-field-with-icon">
+            <wcComponents.TextInput
+              id="rede_debit_cvc"
+              label={translationsRedeDebit.securityCode}
+              value={debitObject.rede_debit_cvc}
+              onChange={value => updateDebitObject('rede_debit_cvc', value)}
+              onFocus={() => setFocus('cvc')}
+            />
+            {cardTemplateAssets.key && (
+              <img src={cardTemplateAssets.key} alt="" className="modern-field-icon" />
+            )}
+          </div>
+        </div>
+
+        {/* Parcelas - apenas para crédito */}
+        {(cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') && options.length > 1 && (
+          <div className="modern-field-row-full">
+            <div className="modern-select-wrapper">
+              <label>{translationsRedeDebit.installments}</label>
+              <select
+                value={selectedValue}
+                onChange={handleSortChange}
+                readOnly={false}
+                className="modern-select"
+              >
+                {options.map(opt => (
+                  <option key={opt.key} value={opt.key}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Botão finalizar */}
+        <div className="modern-field-row-full">
+          <button 
+            type="button" 
+            className="modern-submit-button"
+            onClick={() => {
+              // Bloqueia o botão visualmente
+              const modernButton = document.querySelector('.modern-submit-button');
+              if (modernButton) {
+                modernButton.classList.add('blocked');
+                modernButton.disabled = true;
+                
+                // Remove o bloqueio após 5 segundos (caso haja erro e o formulário não seja enviado)
+                setTimeout(() => {
+                  modernButton.classList.remove('blocked');
+                  modernButton.disabled = false;
+                }, 5000);
+              }
+              
+              // Busca e clica no botão real do checkout
+              const checkoutButton = document.querySelector('.wp-element-button.wc-block-components-checkout-place-order-button');
+              if (checkoutButton) {
+                checkoutButton.click();
+              }
+            }}
+          >
+            {redeDebitAjax.completeOrder}
+          </button>
+        </div>
+        
+        {/* Descrição do gateway */}
+        {gatewayDescription && (
+          <div className="modern-gateway-description">
+            {gatewayDescription}
+          </div>
+        )}
+      </div>
+    </React.Fragment>
+  );
+
+  // Template básico (original)
+  const renderBasicTemplate = () => (
+    <React.Fragment>
+      <Cards
+        number={debitObject.rede_debit_number}
+        name={debitObject.rede_debit_holder_name}
+        expiry={debitObject.rede_debit_expiry.replace(/\s+/g, '')}
+        cvc={debitObject.rede_debit_cvc}
+        placeholders={{
+          name: 'NOME',
+          expiry: 'MM/ANO',
+          cvc: 'CVC',
+          number: '•••• •••• •••• ••••'
+        }}
+        locale={{ valid: 'VÁLIDO ATÉ' }}
+        focused={focus}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_holder_name"
+        label={translationsRedeDebit.nameOnCard}
+        value={debitObject.rede_debit_holder_name}
+        maxLength={30}
+        onChange={value => updateDebitObject('rede_debit_holder_name', value)}
+        onFocus={() => setFocus('name')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_number"
+        label={translationsRedeDebit.cardNumber}
+        value={formatDebitCardNumber(debitObject.rede_debit_number)}
+        onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
+        onFocus={() => setFocus('number')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_expiry"
+        label={translationsRedeDebit.cardExpiringDate}
+        value={debitObject.rede_debit_expiry}
+        onChange={value => updateDebitObject('rede_debit_expiry', value)}
+        onFocus={() => setFocus('expiry')}
+      />
+      <wcComponents.TextInput
+        id="rede_debit_cvc"
+        label={translationsRedeDebit.securityCode}
+        value={debitObject.rede_debit_cvc}
+        onChange={value => updateDebitObject('rede_debit_cvc', value)}
+        onFocus={() => setFocus('cvc')}
+      />
+      {cardTypeRestriction === 'both' && (
+        <div className="lknIntegrationRedeForWoocommerceSelectBlocks lknIntegrationRedeForWoocommerceSelect3dsInstallments">
+          <label htmlFor="card_type_selector">{translationsRedeDebit.cardType}</label>
+          <select
+            id="card_type_selector"
+            value={debitObject.card_type}
+            onChange={e => {
+              const value = e.target.value;
+              updateDebitObject('card_type', value);
+            }}
+          >
+            <option value="debit">{translationsRedeDebit.debitCard}</option>
+            <option value="credit">{translationsRedeDebit.creditCard}</option>
+          </select>
+        </div>
+      )}
+      {(cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit') && options.length > 1 && (
+        <div className="lknIntegrationRedeForWoocommerceSelectBlocks">
+          <label>{translationsRedeDebit.installments}</label>
+          <select
+            value={selectedValue}
+            onChange={handleSortChange}
+            readOnly={false}
+          >
+            {options.map(opt => (
+              <option key={opt.key} value={opt.key}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      
+      {/* Descrição do gateway */}
+      {gatewayDescription && (
+        <div className="basic-gateway-description" style={{textAlign: 'center', marginTop: '15px'}}>
+          {gatewayDescription}
+        </div>
+      )}
+    </React.Fragment>
+  );
+
+  return templateStyle === 'modern' ? renderModernTemplate() : renderBasicTemplate();
 };
 const BlockGatewayRedeDebit = {
   name: 'rede_debit',

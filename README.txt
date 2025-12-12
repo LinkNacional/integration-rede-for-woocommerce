@@ -4,7 +4,7 @@ Contributors: linknacional, MarcosAlexandre
 Donate link: https://www.linknacional.com/wordpress/plugins/  
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
-Tested up to: 6.8  
+Tested up to: 6.9  
 Stable tag: 5.1.0
 Requires PHP: 7.2  
 License: GPLv3 or later  

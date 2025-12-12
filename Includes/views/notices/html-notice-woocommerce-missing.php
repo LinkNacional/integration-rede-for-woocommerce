@@ -3,15 +3,15 @@ if (! defined('ABSPATH')) {
     exit();
 }
 
-$plugin_slug = 'woocommerce';
+$integration_rede_for_woocommerce_plugin_slug = 'woocommerce';
 
 if (current_user_can('install_plugins')) {
-    $url = wp_nonce_url(
-        self_admin_url('update.php?action=install-plugin&plugin=' . $plugin_slug),
-        'install-plugin_' . $plugin_slug
+    $integration_rede_for_woocommerce_url = wp_nonce_url(
+        self_admin_url('update.php?action=install-plugin&plugin=' . $integration_rede_for_woocommerce_plugin_slug),
+        'install-plugin_' . $integration_rede_for_woocommerce_plugin_slug
     );
 } else {
-    $url = 'http://wordpress.org/plugins/' . $plugin_slug;
+    $integration_rede_for_woocommerce_url = 'http://wordpress.org/plugins/' . $integration_rede_for_woocommerce_plugin_slug;
 }
 ?>
 
@@ -32,7 +32,7 @@ if (current_user_can('install_plugins')) {
                 'This plugin depends on the last version of %s to work!',
                 'integration-rede-for-woocommerce'
             ),
-            '<a href="' . esc_url($url) . '">' . esc_attr__('WooCommerce', 'woo-rede') . '</a>'
+            '<a href="' . esc_url($integration_rede_for_woocommerce_url) . '">' . esc_attr__('WooCommerce', 'woo-rede') . '</a>'
         );
         ?>
     </p>

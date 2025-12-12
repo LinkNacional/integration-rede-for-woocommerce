@@ -1,0 +1,237 @@
+/* Modern Template Styles for Rede Debit/Credit Integration */
+
+#radio-control-wc-payment-method-options-rede_debit__content.rede-modern-template-active {
+  border: 2px solid #000000;
+  padding-top: 25px;
+  background-color: #f3f4f6;
+}
+
+.modern-template-container {
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 18px !important;
+}
+
+/* Field rows - 100% width */
+.modern-field-row-full {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Field rows - 50% width each (side by side) */
+.modern-field-row-half {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.modern-field-row-half > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Field with icon container */
+.modern-field-with-icon {
+  position: relative;
+  width: 100%;
+}
+
+.modern-field-with-icon input {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  padding: 0 40px 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 3.125em !important;
+  font-size: 18px !important;
+  font-family: inherit !important;
+  line-height: 3.125em !important;
+  vertical-align: middle !important;
+}
+
+.modern-field-with-icon input:focus {
+  outline: none;
+  border-color: #306FC5;
+  box-shadow: 0 0 0 2px rgba(48, 111, 197, 0.1);
+}
+
+/* Icons positioned on the right */
+.modern-field-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Select wrapper and styling */
+.modern-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.modern-select-wrapper label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 18px !important;
+  font-family: inherit !important;
+}
+
+.modern-select {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0 35px 0 12px !important;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  height: 3.125em !important;
+  font-size: 18px !important;
+  font-family: inherit !important;
+  line-height: 3.125em !important;
+  vertical-align: middle !important;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #306FC5;
+  box-shadow: 0 0 0 2px rgba(48, 111, 197, 0.1);
+}
+
+/* Submit button */
+.modern-submit-button {
+  width: 100%;
+  background-color: #306FC5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 15px 20px;
+  font-size: 18px !important;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: inherit !important;
+}
+
+.modern-submit-button:hover {
+  background-color: #2563eb;
+}
+
+.modern-submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(48, 111, 197, 0.3);
+}
+
+.modern-submit-button:active {
+  background-color: #1e40af;
+}
+
+/* Estado bloqueado do botão */
+.modern-submit-button.blocked,
+.modern-submit-button:disabled {
+  background-color: #cccccc !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.modern-submit-button.blocked:hover,
+.modern-submit-button:disabled:hover {
+  background-color: #cccccc !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+}
+
+/* Text inputs styling for modern template */
+.modern-template-container .wc-block-components-text-input {
+  margin: 0px !important;
+}
+
+.modern-template-container .wc-block-components-text-input input {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 3.125em !important;
+  font-size: 18px !important;
+  font-family: inherit !important;
+  line-height: 3.125em !important;
+  vertical-align: middle !important;
+}
+
+.modern-template-container .wc-block-components-text-input input:focus {
+  outline: none;
+  border-color: #306FC5;
+  box-shadow: 0 0 0 2px rgba(48, 111, 197, 0.1);
+}
+
+.modern-template-container .wc-block-components-text-input label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 18px !important;
+  font-family: inherit !important;
+}
+
+/* Responsive design - Mobile first approach */
+@media (max-width: 1000px) {
+  .modern-field-row-half {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .modern-field-row-half > * {
+    width: 100%;
+  }
+  
+}
+
+/* Ensure card preview is still visible and styled properly */
+.modern-template-container .rccs {
+  margin-bottom: 30px;
+}
+
+/* Card brand icons styling and transitions */
+.rede-card-brands img {
+  transition: all 0.3s ease !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.rede-card-brands img.grayscale {
+  filter: grayscale(1) !important;
+  opacity: 0.4 !important;
+}
+
+/* Gateway description styling */
+.modern-gateway-description {
+  text-align: center;
+  margin-top: 0px !important;
+  padding: 0px 10px 10px 10px !important;
+  border-radius: 4px;
+  color: #6b7280;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  line-height: 1.4;
+}
+
+/* Override any conflicting styles */
+.modern-template-container * {
+  box-sizing: border-box;
+}

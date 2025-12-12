@@ -189,6 +189,42 @@
                     if (fieldConfig) {
                         const dataTitleDescription = fieldConfig.getAttribute('data-title-description');
                         descriptionTitle.innerHTML = dataTitleDescription ?? '';
+                        
+                        // Verificar se o campo tem atributo lkn-is-pro="true"
+                        const isProField = fieldConfig.getAttribute('lkn-is-pro') === 'true';
+                        if (isProField) {
+                            // Criar o link PRO dinamicamente
+                            const proLink = document.createElement('a');
+                            proLink.className = 'lknIntegrationRedeForWoocommerceBecomePRO';
+                            proLink.href = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
+                            proLink.target = '_blank';
+                            
+                            // Verificar se existe a variável global com o texto do PRO
+                            if (typeof lknPhpProFieldsVariables !== 'undefined' && lknPhpProFieldsVariables.becomePRO) {
+                                proLink.textContent = lknPhpProFieldsVariables.becomePRO;
+                            } else {
+                                proLink.textContent = 'Become PRO'; // fallback text
+                            }
+                            
+                            titleHeader.appendChild(proLink);
+                            
+                            // Desabilitar o campo automaticamente
+                            if (!fieldConfig.hasAttribute('disabled')) {
+                                fieldConfig.disabled = true;
+                            }
+                            // fieldConfig.readOnly = true;
+                            
+                            // Se for um campo select, aplicar estilo cinza no select2
+                            if (fieldConfig.tagName.toLowerCase() === 'select') {
+                                const selectId = fieldConfig.id;
+                                const select2Container = document.querySelector(`#select2-${selectId}-container`);
+                                if (select2Container) {
+                                    select2Container.style.opacity = '0.6';
+                                    select2Container.style.filter = 'grayscale(0.5)';
+                                    select2Container.style.pointerEvents = 'none';
+                                }
+                            }
+                        }
                     } else {
                         descriptionTitle.innerHTML = '';
                     }
@@ -246,6 +282,53 @@
                                 fieldConfig.closest('tr').style.display = 'none';
                                 parentInput.appendChild(labelCheckbox);
                             }
+                        }
+
+                        // Adicionar preview de imagem para o campo de template style
+                        if (fieldId === 'woocommerce_rede_debit_3ds_template_style' && typeof lknWcRedeLayoutSettings !== 'undefined') {
+                            const previewContainer = document.createElement('div');
+                            previewContainer.style.marginTop = '10px';
+                            
+                            const previewLabel = document.createElement('p');
+                            previewLabel.textContent = 'Preview:';
+                            previewLabel.style.margin = '5px 0';
+                            previewLabel.style.fontWeight = 'bold';
+                            
+                            const previewImage = document.createElement('img');
+                            previewImage.style.maxWidth = '200px';
+                            previewImage.style.width = '100%';
+                            previewImage.style.border = '1px solid #ddd';
+                            previewImage.style.borderRadius = '4px';
+                            
+                            // Função para atualizar a imagem
+                            function updatePreviewImage() {
+                                const selectedValue = fieldConfig.value;
+                                if (selectedValue === 'basic' && lknWcRedeLayoutSettings.basic) {
+                                    previewImage.src = lknWcRedeLayoutSettings.basic;
+                                    previewImage.alt = 'Basic Template Preview';
+                                } else if (selectedValue === 'modern' && lknWcRedeLayoutSettings.modern) {
+                                    previewImage.src = lknWcRedeLayoutSettings.modern;
+                                    previewImage.alt = 'Modern Template Preview';
+                                }
+                            }
+                            
+                            // Configurar imagem inicial
+                            updatePreviewImage();
+                            
+                            // Adicionar evento de mudança usando Select2 event
+                            $(fieldConfig).on('select2:select', function() {
+                                updatePreviewImage();
+                            });
+                            
+                            // Fallback para mudanças diretas no select (caso Select2 não esteja ativo)
+                            fieldConfig.addEventListener('change', function() {
+                                updatePreviewImage();
+                            });
+                            
+                            // Montar a estrutura
+                            previewContainer.appendChild(previewLabel);
+                            previewContainer.appendChild(previewImage);
+                            divBody.appendChild(previewContainer);
                         }
                     }
                 }

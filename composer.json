@@ -4,9 +4,9 @@
     "license": "Proprietary",
     "autoload": {
         "psr-4": {
-            "Lkn\\IntegrationRedeForWoocommerce\\Includes\\": "Includes/",
-            "Lkn\\IntegrationRedeForWoocommerce\\Admin\\": "Admin/",
-            "Lkn\\IntegrationRedeForWoocommerce\\PublicView\\": "Public/"
+            "Lknwoo\\IntegrationRedeForWoocommerce\\Includes\\": "Includes/",
+            "Lknwoo\\IntegrationRedeForWoocommerce\\Admin\\": "Admin/",
+            "Lknwoo\\IntegrationRedeForWoocommerce\\PublicView\\": "Public/"
         }
     },
     "authors": [

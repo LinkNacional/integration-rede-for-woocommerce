@@ -1,5 +1,7 @@
 <?php
-namespace Lkn\IntegrationRedeForWoocommerce\PublicView;
+namespace Lknwoo\IntegrationRedeForWoocommerce\PublicView;
+
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceHelper;
 
 /**
  * The public-facing functionality of the plugin.
@@ -70,31 +72,36 @@ final class LknIntegrationRedeForWoocommercePublic {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lknIntegrationRedeForWoocommercePublic.js', array('jquery'), $this->version, false);
 
         // Enqueue shortcode checkout script only on checkout pages
-        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout')) {
+        if (is_checkout() || has_shortcode(get_post()->post_content ?? '', 'woocommerce_checkout') || has_block('woocommerce/checkout')) {
+            // Verifica e redefine configurações PRO se a licença não for válida
+            LknIntegrationRedeForWoocommerceHelper::checkAndResetProConfigurations();
+            
             $session = WC()->session;
             if ($session) {
                 $session->set('lkn_installments_number_rede_credit', 1);
                 $session->set('lkn_installments_number_maxipago_credit', 1);
+                $session->set('lkn_installments_number_rede_debit', 1);
+                $session->set('lkn_card_type_rede_debit', 'credit');
             }
         }
 
         // Enqueue installment label script for WooCommerce Blocks
         if (has_block('woocommerce/checkout') && !wp_script_is('lkn-installment-label', 'enqueued') && !wp_script_is('lkn-installment-label', 'done')) {
-            wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/creditCard/lkn-installment-label.js', array(), $this->version, true);
+            wp_enqueue_script('lkn-rede-installment-label', plugin_dir_url(__FILE__) . 'js/lkn-installment-label.js', array(), $this->version, true);
             
             // Configuração de tradução para o script de label de parcelamento
             wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(
-                'payment' => __('Payment', 'woo-rede'),
-                'installment' => __('Installment', 'woo-rede'),
-                'loading' => __('Loading...', 'woo-rede'),
-                'calculatingInstallments' => __('Calculating installments...', 'woo-rede'),
-                'cashPayment' => __('Cash payment', 'woo-rede'),
-                'noInterest' => __('no interest', 'woo-rede'),
-                'noDiscount' => __('no discount', 'woo-rede'),
-                'withDiscount' => __('% discount', 'woo-rede'),
-                'withInterest' => __('% interest', 'woo-rede'),
-                'fallbackInstallment' => __('Payment', 'woo-rede'),
-                'loadingPrice' => __('Loading price...', 'woo-rede')
+                'payment' => 'Pagamento',
+                'installment' => 'Parcelamento',
+                'loading' => 'Carregando...',
+                'calculatingInstallments' => 'Calculando parcelas...',
+                'cashPayment' => 'Pagamento à vista',
+                'noInterest' => 'sem juros',
+                'noDiscount' => 'sem desconto',
+                'withDiscount' => '% desconto',
+                'withInterest' => '% juros',
+                'fallbackInstallment' => 'Pagamento',
+                'loadingPrice' => 'Carregando preço...'
             ));
         }
     }

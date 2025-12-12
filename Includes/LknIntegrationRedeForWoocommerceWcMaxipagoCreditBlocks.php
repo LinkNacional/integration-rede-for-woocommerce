@@ -1,9 +1,9 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoCredit;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcMaxipagoCredit;
 
 final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends AbstractPaymentMethodType
 {
@@ -49,7 +49,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             wp_set_script_translations('maxipago_credit-blocks-integration');
         }
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_maxipago_credit_settings')['custom_css_block_editor'] ?? false);
 
         return array('maxipago_credit-blocks-integration');
     }
@@ -69,14 +69,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             'maxInstallmentsMaxipago' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
-                'cardNumber' => __('Card Number', 'woo-rede'),
-                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
-                'securityCode' => __('Security Code', 'woo-rede'),
-                'nameOnCard' => __('Name on Card', 'woo-rede'),
-                'installments' => __('Installments', 'woo-rede'),
-                'district' => __('District', 'woo-rede'),
-                'interestFree' => ' ' . __('interest-free', 'woo-rede'),
+                'fieldsNotFilled' => 'Por favor, preencha todos os campos corretamente.',
+                'cardNumber' => 'Número do Cartão',
+                'cardExpiringDate' => 'Data de Vencimento do Cartão',
+                'securityCode' => 'Código de Segurança',
+                'nameOnCard' => 'Nome no Cartão',
+                'installments' => 'Parcelas',
+                'district' => 'Bairro',
+                'interestFree' => ' ' . 'sem juros',
             )
         );
 

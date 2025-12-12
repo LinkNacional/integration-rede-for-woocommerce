@@ -1,5 +1,5 @@
 <?php
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 /**
  * Fired during plugin deactivation

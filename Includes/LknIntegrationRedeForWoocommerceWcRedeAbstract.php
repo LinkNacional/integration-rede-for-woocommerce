@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use Exception;
 use WC_Logger;
@@ -92,22 +92,52 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             $last = array_pop($items);
 
             $items['orderId'] = array(
-                'label' => esc_attr__('Order ID', 'woo-rede'),
+                'label' => 'ID do Pedido',
                 'value' => $order_id,
             );
             $items['transactionId'] = array(
-                'label' => esc_attr__('Transaction ID', 'woo-rede'),
+                'label' => 'ID da Transação',
                 'value' => $tid,
             );
             $items['authorizationCode'] = array(
-                'label' => esc_attr__('Authorization code', 'woo-rede'),
+                'label' => 'Código de Autorização',
                 'value' => $authorization_code,
             );
-            if ($installments) {
-                $items['installments'] = array(
-                    'label' => esc_attr__('Installments', 'woo-rede'),
-                    'value' => $installments,
+            
+            // Lógica específica para rede_debit: mostrar tipo de cartão e parcelas conforme o tipo
+            if ($this->id === 'rede_debit') {
+                $card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+                $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
+                
+                $card_type_text = $card_type === 'credit' ? 'Crédito' : 'Débito';
+                $items['cardType'] = array(
+                    'label' => 'Tipo do cartão',
+                    'value' => $card_type_text,
                 );
+                
+                // Só mostra parcelas se for crédito
+                if ($card_type === 'credit') {
+                    if ($saved_installments == 1) {
+                        $installment_text = 'Pagamento à vista';
+                    } else {
+                        $order_total = $order->get_total();
+                        $installment_value = $order_total / $saved_installments;
+                        $installment_text = sprintf('%dx de %s', $saved_installments, wc_price($installment_value));
+                    }
+                    
+                    $items['installments'] = array(
+                        'label' => 'Parcelamento',
+                        'value' => $installment_text,
+                    );
+                }
+            } else {
+                // Para outros gateways, usar a lógica original
+                if ($installments) {
+                    $items['installments'] = array(
+                        'label' => 'Parcelamento',
+                        'value' => $installments,
+                    );
+                }
             }
 
             $items[] = $last;
@@ -180,8 +210,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Adicionar taxas (fees) do pedido, excluindo fees do próprio plugin
             foreach ($order->get_fees() as $fee) {
                 // Ignorar fees criados pelo próprio plugin
-                if ($fee->get_name() !== __('Juros', 'rede-for-woocommerce-pro') && 
-                    $fee->get_name() !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                if ($fee->get_name() !== __('Interest', 'rede-for-woocommerce-pro') && 
+                    $fee->get_name() !== __('Discount', 'rede-for-woocommerce-pro')) {
                     $subtotal += (float) $fee->get_amount();
                 }
             }
@@ -196,8 +226,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Adicionar taxas (fees) do carrinho, excluindo fees do próprio plugin
             foreach ($woocommerce->cart->get_fees() as $fee) {
                 // Ignorar fees criados pelo próprio plugin
-                if ($fee->name !== __('Juros', 'rede-for-woocommerce-pro') && 
-                    $fee->name !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                if ($fee->name !== __('Interest', 'rede-for-woocommerce-pro') && 
+                    $fee->name !== __('Discount', 'rede-for-woocommerce-pro')) {
                     $subtotal += (float) $fee->amount;
                 }
             }
@@ -224,7 +254,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                     // Status configurável pelo usuário para pagamentos aprovados
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                     $order->update_status($payment_complete_status);
-                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                    apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {
                     $order->update_status('on-hold');
                     wc_reduce_stock_levels($order->get_id());
@@ -249,13 +279,13 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if (
-            $order->get_status() == esc_attr__('on-hold', 'woo-rede') ||
-            $order->get_status() == esc_attr__('processing', 'woo-rede') ||
-            $order->get_status() == esc_attr__('completed', 'woo-rede')
+            $order->get_status() == 'on-hold' ||
+            $order->get_status() == 'processing' ||
+            $order->get_status() == 'completed'
         ) {
-            echo '<div class="woocommerce-message">' . esc_attr__('Your order is already being processed. For more information', 'woo-rede') . ' ' . '<a href="' . esc_url($order_url) . '" class="button" style="display: block !important; visibility: visible !important;">' . esc_attr__('see order details', 'woo-rede') . '</a><br /></div>';
+            echo '<div class="woocommerce-message">' . 'Seu pedido já está sendo processado. Para mais informações' . ' ' . '<a href="' . esc_url($order_url) . '" class="button" style="display: block !important; visibility: visible !important;">' . 'veja os detalhes do pedido' . '</a><br /></div>';
         } else {
-            echo '<div class="woocommerce-info">' . esc_attr__('For more details on your order, please visit', 'woo-rede') . ' ' . '<a href="' . esc_url($order_url) . '">' . esc_attr__('order details page', 'woo-rede') . '</a></div>';
+            echo '<div class="woocommerce-info">' . 'Para mais detalhes sobre seu pedido, visite' . ' ' . '<a href="' . esc_url($order_url) . '">' . 'página de detalhes do pedido' . '</a></div>';
         }
     }
 
@@ -267,7 +297,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if (array_sum(str_split($cardNumber_checksum)) % 10 !== 0) {
-            throw new Exception(esc_attr__('Please enter a valid credit card number', 'woo-rede'));
+            throw new Exception('Por favor, insira um número de cartão de crédito válido');
             return false;
         }
 
@@ -277,7 +307,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     protected function validate_card_fields($posted)
     {
         if (! isset($posted[$this->id . '_holder_name']) || '' === $posted[$this->id . '_holder_name']) {
-            throw new Exception(esc_attr__('Please enter cardholder name', 'woo-rede'));
+            throw new Exception('Por favor, insira o nome do portador do cartão');
             return false;
         }
 
@@ -286,19 +316,19 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             '',
             $posted[$this->id . '_holder_name']
         ) != $posted[$this->id . '_holder_name']) {
-            throw new Exception(esc_attr__('Cardholder name can only contain letters', 'woo-rede'));
+            throw new Exception('O nome do portador do cartão só pode conter letras');
             return false;
         }
 
         if (! isset($posted[$this->id . '_expiry']) || '' === $posted[$this->id . '_expiry']) {
-            throw new Exception(esc_attr__('Please enter card expiration date', 'woo-rede'));
+            throw new Exception('Por favor, insira a data de vencimento do cartão');
             return false;
         }
 
         //if user filled expiry date with 3 digits,
         // throw an exception and let him/her/they know.
         if (isset($posted[$this->id . '_expiry'][2]) && ! isset($posted[$this->id . '_expiry'][3])) {
-            throw new Exception(esc_attr__('Expiration date must contain 2 or 4 digits', 'woo-rede'));
+            throw new Exception('A data de vencimento deve conter 2 ou 4 dígitos');
             return false;
         }
 
@@ -309,17 +339,17 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 $this->normalize_expiration_date($posted[$this->id . '_expiry'])
             )
         ) < strtotime(gmdate('Y-m') . '-01')) {
-            throw new Exception(esc_attr__('Card expiration date must be future.', 'woo-rede'));
+            throw new Exception('A data de vencimento do cartão deve ser futura.');
             return false;
         }
 
         if (! isset($posted[$this->id . '_cvc']) || '' === $posted[$this->id . '_cvc']) {
-            throw new Exception(esc_attr__('Please enter card security code', 'woo-rede'));
+            throw new Exception('Por favor, insira o código de segurança do cartão');
             return false;
         }
 
         if (preg_replace('/[^0-9]/', '', $posted[$this->id . '_cvc']) != $posted[$this->id . '_cvc']) {
-            throw new Exception(esc_attr__('Security code must contain only numbers', 'woo-rede'));
+            throw new Exception('O código de segurança deve conter apenas números');
             return false;
         }
 
@@ -387,7 +417,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if (! isset($posted['rede_credit_installments']) || '' === $posted['rede_credit_installments']) {
-            throw new Exception(esc_attr__('Please enter the number of installments', 'woo-rede'));
+            throw new Exception('Por favor, insira o número de parcelas');
         }
 
         $installments = absint($posted['rede_credit_installments']);
@@ -395,7 +425,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         $max_parcels = $this->get_option('max_parcels_number');
 
         if ($installments > $max_parcels || ((0 != $min_value) && (($order_total / $installments) < $min_value))) {
-            throw new Exception(esc_attr__('Invalid number of installments', 'woo-rede'));
+            throw new Exception('Número de parcelas inválido');
         }
 
         return true;

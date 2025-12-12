@@ -1,10 +1,10 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
-use Lkn\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
-use Lkn\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
+use Lknwoo\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
+use Lknwoo\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
 
 /**
  * The file that defines the core plugin class
@@ -133,8 +133,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->LknIntegrationRedeForWoocommerceEndpointClass = new LknIntegrationRedeForWoocommerceWcEndpoint();
         $this->LknIntegrationRedeForWoocommercePixHelperClass = new LknIntegrationRedeForWoocommerceWcPixHelper();
         $this->LknIntegrationRedeForWoocommerceHelperClass = new LknIntegrationRedeForWoocommerceHelper();
-        $this->loader->add_filter('integrationRedeGetCardToken', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'getCardToken', 10, 3);
-        $this->loader->add_filter('integrationRedeSetSupports', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'setSupports', 10, 1);
+        $this->loader->add_filter('integration_rede_for_woocommerce_get_card_token', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'getCardToken', 10, 3);
+        $this->loader->add_filter('integration_rede_for_woocommerce_set_supports', $this->LknIntegrationRedeForWoocommercePixHelperClass, 'setSupports', 10, 1);
     }
 
     /**
@@ -189,6 +189,9 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
+        // Aviso crítico para atualização do plugin PRO
+        $this->loader->add_action('admin_notices', $this, 'lkn_pro_update_critical_notice');
+
         // Hook para ações personalizadas da ordem PIX
         $this->loader->add_filter('woocommerce_order_actions', $this, 'add_pix_verification_action');
         $this->loader->add_action('woocommerce_order_action_verify_pix_status', $this, 'process_pix_verification_action');
@@ -199,6 +202,10 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para parcelas Rede Credit
         $this->loader->add_action('wp_ajax_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
         $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_credit_data', $this, 'ajax_get_rede_credit_data');
+
+        // Adiciona endpoint AJAX para parcelas Rede Debit
+        $this->loader->add_action('wp_ajax_lkn_get_rede_debit_data', $this, 'ajax_get_rede_debit_data');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_rede_debit_data', $this, 'ajax_get_rede_debit_data');
 
         // Adiciona endpoint AJAX para parcelas Maxipago
         $this->loader->add_action('wp_ajax_lkn_get_maxipago_credit_data', $this, 'ajax_get_maxipago_credit_data');
@@ -229,8 +236,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -338,8 +345,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -423,6 +430,137 @@ final class LknIntegrationRedeForWoocommerce
                 'label' => $label
             ];
         }
+        
+        // Definir installment de crédito como 1 na sessão
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set('lkn_installments_number_rede_credit', 1);
+        }
+        
+        wp_send_json([
+            'cartTotal' => $cart_total,
+            'installments' => $installments
+        ]);
+    }
+
+    /**
+     * Endpoint AJAX para retornar dados de parcelas do Rede Debit
+     * Reutiliza a lógica do Rede Credit, mas considera as configurações de débito
+     */
+    public function ajax_get_rede_debit_data()
+    {
+        $cart_total = 0;
+        if (function_exists('WC') && WC()->cart) {
+            // Soma dos produtos + taxa de entrega + impostos
+            $cart_total = floatval(WC()->cart->get_cart_contents_total());
+            $cart_total += floatval(WC()->cart->get_shipping_total());
+            $cart_total += floatval(WC()->cart->get_taxes_total());
+
+            WC()->cart->calculate_totals();
+
+            $fees_objects = WC()->cart->get_fees();
+            $extra_fees = 0;
+            foreach ($fees_objects as $fee) {
+                if (
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
+                ) {
+                    $extra_fees += floatval($fee->amount);
+                }
+            }
+
+            $cart_total += $extra_fees;
+        }
+        
+        $max_installments = 12;
+        $min_parcels_value = 5;
+        if (isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
+            $max_installments = intval($this->wc_rede_debit_class->get_option('max_parcels_number'));
+            $min_parcels_value = $this->wc_rede_debit_class->get_option('min_parcels_value');
+            if (!is_numeric($min_parcels_value) || $min_parcels_value < 1) {
+                $min_parcels_value = 5;
+            } else {
+                $min_parcels_value = floatval($min_parcels_value);
+            }
+            if ($max_installments < 1) {
+                $max_installments = 12;
+            }
+        }
+
+        if (function_exists('WC') && WC()->cart && !WC()->cart->is_empty()) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                $product_id = $cart_item['product_id'];
+                $product_limit = get_post_meta($product_id, 'lknRedeProdutctInterest', true);
+                if ($product_limit !== 'default' && is_numeric($product_limit)) {
+                    $product_limit = (int) $product_limit;
+                    if ($product_limit > 0 && $product_limit < $max_installments) {
+                        $max_installments = $product_limit;
+                    }
+                }
+            }
+        }
+
+        // Verificar se a licença PRO está ativa
+        $is_pro_active = false;
+        if (is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            $pro_license = get_option('lknRedeForWoocommerceProLicense');
+            if ($pro_license) {
+                $license_data = base64_decode($pro_license);
+                $is_pro_active = (strpos($license_data, 'active') !== false);
+            }
+        }
+
+        // Obter valor mínimo da parcela das configurações
+        $min_installment_value = 5; // Valor padrão
+        if (isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
+            $configured_min_value = floatval($this->wc_rede_debit_class->get_option('min_parcels_value'));
+            if ($configured_min_value > 0) {
+                $min_installment_value = $configured_min_value;
+            }
+        }
+
+        $installments = [];
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $installment_value = $cart_total / $i;
+            if ($installment_value < $min_parcels_value) {
+                // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
+                if ($i === 1) {
+                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
+                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
+                    $installments[] = [
+                        'key' => 1,
+                        'label' => $label
+                    ];
+                }
+                break;
+            }
+            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+
+            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
+            if ($is_pro_active) {
+                $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_debit');
+            } else {
+                $label = $base_label;
+            }
+
+            $installments[] = [
+                'key' => $i,
+                'label' => $label
+            ];
+        }
+        
+        // Definir installment de debit como 1 na sessão e capturar tipo de cartão se enviado
+        if (function_exists('WC') && WC()->session) {
+            WC()->session->set('lkn_installments_number_rede_debit', 1);
+            
+            // Se o tipo de cartão foi enviado na requisição, salvar na sessão
+            if (isset($_POST['card_type']) && !empty($_POST['card_type'])) {
+                $card_type = sanitize_text_field(wp_unslash($_POST['card_type']));
+                if (in_array($card_type, ['credit', 'debit'])) {
+                    WC()->session->set('lkn_card_type_rede_debit', $card_type);
+                }
+            }
+        }
+        
         wp_send_json([
             'cartTotal' => $cart_total,
             'installments' => $installments
@@ -434,15 +572,24 @@ final class LknIntegrationRedeForWoocommerce
      */
     public function ajax_update_installment_session()
     {
-        $payment_method = sanitize_text_field($_POST['payment_method']);
-        $installments = intval($_POST['installments']);
-        $nonce = sanitize_text_field($_POST['nonce']);
+        $payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash($_POST['payment_method'])) : '';
+        $installments = isset($_POST['installments']) ? intval($_POST['installments']) : 1;
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
+        // Capturar tipo de cartão (apenas para rede_debit)
+        $card_type = null;
+        if ($payment_method === 'rede_debit' && isset($_POST['card_type'])) {
+            $card_type = sanitize_text_field(wp_unslash($_POST['card_type']));
+        }
 
         // Verificar nonce baseado no método de pagamento
         $nonce_action = '';
         switch ($payment_method) {
             case 'rede_credit':
                 $nonce_action = 'rede_payment_fields_nonce';
+                break;
+            case 'rede_debit':
+                $nonce_action = 'rede_debit_payment_fields_nonce';
                 break;
             case 'maxipago_credit':
                 $nonce_action = 'maxipago_payment_fields_nonce';
@@ -469,6 +616,9 @@ final class LknIntegrationRedeForWoocommerce
             case 'rede_credit':
                 $session_key = 'lkn_installments_number_rede_credit';
                 break;
+            case 'rede_debit':
+                $session_key = 'lkn_installments_number_rede_debit';
+                break;
             case 'maxipago_credit':
                 $session_key = 'lkn_installments_number_maxipago_credit';
                 break;
@@ -480,12 +630,25 @@ final class LknIntegrationRedeForWoocommerce
         // Atualizar a sessão do WooCommerce
         if (function_exists('WC') && WC()->session) {
             WC()->session->set($session_key, $installments);
-            wp_send_json_success([
+            
+            // Para rede_debit, salvar também o tipo de cartão na sessão
+            if ($payment_method === 'rede_debit' && $card_type) {
+                WC()->session->set('lkn_card_type_rede_debit', $card_type);
+            }
+            
+            $response_data = [
                 'message' => 'Sessão atualizada com sucesso',
                 'payment_method' => $payment_method,
                 'installments' => $installments,
                 'session_key' => $session_key
-            ]);
+            ];
+            
+            // Incluir tipo de cartão na resposta se for rede_debit
+            if ($payment_method === 'rede_debit' && $card_type) {
+                $response_data['card_type'] = $card_type;
+            }
+            
+            wp_send_json_success($response_data);
         } else {
             wp_send_json_error(['message' => 'Sessão do WooCommerce não disponível']);
         }
@@ -518,8 +681,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Juros', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Desconto', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -606,10 +769,77 @@ final class LknIntegrationRedeForWoocommerce
         }
     }
 
+    /**
+     * Exibe aviso crítico para atualização obrigatória do plugin PRO
+     * Este aviso é relacionado às novas normas da Rede que entram em vigor em 05/01/2026
+     */
+    public function lkn_pro_update_critical_notice()
+    {
+        // Verificar se o plugin PRO existe (independente se está ativo)
+        $pro_plugin_file = WP_PLUGIN_DIR . '/rede-for-woocommerce-pro/rede-for-woocommerce-pro.php';
+        
+        if (!file_exists($pro_plugin_file)) {
+            return; // Plugin PRO não está instalado
+        }
+
+        // Obter dados do plugin PRO
+        if (!function_exists('get_plugin_data')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+        
+        $pro_plugin_data = get_plugin_data($pro_plugin_file);
+        $pro_version = $pro_plugin_data['Version'] ?? '0.0.0';
+        
+        // Verificar se a versão é menor que 2.2.0
+        if (version_compare($pro_version, '2.2.0', '>=')) {
+            return; // Versão é adequada, não mostrar aviso
+        }
+
+        // Exibir o aviso crítico
+        ?>
+        <div class="notice notice-warning" style="border-left-color: #ffb900; padding: 15px;">
+            <h3 style="margin-top: 0; color: #000;">
+                ⚠️ Atualização de Plugin Necessária - Integração da Rede para WooCommerce Pro
+            </h3>
+            <p style="font-size: 14px; line-height: 1.6;">
+                <strong>Importante:</strong>
+                O protocolo de autenticação da Rede será alterado para OAuth 2.0 em 05/01/2026. Todos os clientes que usam e.Rede devem atualizar o plugin. Esta medida contribuirá para a segurança e ajudará a prevenir ataques direcionados às suas transações. Após o prazo, as transações só poderão ser realizadas usando o plugin atualizado.
+            </p>
+            <p style="font-size: 14px; line-height: 1.6;">
+                <strong>Ação Necessária (Para Usuários PRO):</strong>
+                <?php 
+                echo sprintf(
+                    /* translators: %1$s is the current PRO version, %2$s is the required version */
+                    'Sua versão %1$s do Plugin PRO da Rede precisa ser atualizada para a versão %2$s ou superior.',
+                    '<code>' . esc_html($pro_version) . '</code>',
+                    '<code>2.2.0</code>'
+                );
+                ?>
+            </p>
+            <p style="margin-bottom: 0;">
+                <a href="https://developer.userede.com.br/e-rede" target="_blank" class="button">
+                    Verificar as mudanças
+                </a>
+                <?php
+                // Create update URL for PRO plugin
+                $pro_plugin_slug = 'rede-for-woocommerce-pro/rede-for-woocommerce-pro.php';
+                $update_url = wp_nonce_url(
+                    admin_url('update.php?action=upgrade-plugin&plugin=' . urlencode($pro_plugin_slug)),
+                    'upgrade-plugin_' . $pro_plugin_slug
+                );
+                ?>
+                <a href="<?php echo esc_url($update_url); ?>" class="button button-primary">
+                    Atualizar Agora
+                </a>
+            </p>
+        </div>
+        <?php
+    }
+
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = __('Rede Pix FREE', 'woo-rede');
+            $title = 'Rede Pix GRÁTIS';
         }
         return $title;
     }
@@ -629,7 +859,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Só adiciona a ação se for um pedido PIX
         if ($payment_method === 'integration_rede_pix' || $payment_method === 'rede_pix') {
-            $actions['verify_pix_status'] = __('Verificar Status PIX', 'woo-rede');
+            $actions['verify_pix_status'] = 'Verificar Status PIX';
         }
         
         return $actions;
@@ -644,7 +874,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Validar se é pedido PIX
         if ($payment_method !== 'integration_rede_pix' && $payment_method !== 'rede_pix') {
-            $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
+            $order->add_order_note('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.');
             return;
         }
         
@@ -657,7 +887,7 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         if (empty($tId)) {
-            $order->add_order_note(__('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
+            $order->add_order_note('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.');
             return;
         }
         
@@ -672,7 +902,7 @@ final class LknIntegrationRedeForWoocommerce
             $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
             
             if (!$token_data || empty($token_data['token'])) {
-                throw new \Exception(__('Erro ao obter token de autenticação.', 'woo-rede'));
+                throw new \Exception('Erro ao obter token de autenticação.');
             }
             
             // API v2 da Rede
@@ -690,7 +920,7 @@ final class LknIntegrationRedeForWoocommerce
             ));
             
             if (is_wp_error($response)) {
-                throw new \Exception(__('Erro na comunicação com a API: ', 'woo-rede') . $response->get_error_message());
+                throw new \Exception('Erro na comunicação com a API: ' . $response->get_error_message());
             }
             
             $response_body = json_decode(wp_remote_retrieve_body($response), true);
@@ -707,17 +937,19 @@ final class LknIntegrationRedeForWoocommerce
                         $paymentCompleteStatus = 'processing';
                     }
                     
-                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
+                    // translators: %s is the order total amount
+                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
                     $order->update_status($paymentCompleteStatus);
                 } else {
-                    $order->add_order_note(sprintf(__('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', 'woo-rede'), $order_total));
+                    // translators: %s is the order total amount
+                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
                 }
             } else {
-                $order->add_order_note(__('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ', 'woo-rede') . $status);
+                $order->add_order_note('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ' . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note(__('Verificação Manual PIX: Falha na consulta de pagamento na Rede. Detalhes: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note('Verificação Manual PIX: Falha ao consultar pagamento na Rede. Detalhes: ' . $e->getMessage());
         }
         
         $order->save();
@@ -746,7 +978,7 @@ final class LknIntegrationRedeForWoocommerce
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
-            __('Settings', 'woo-rede')
+            'Configurações'
         );
 
         return array_merge($plugin_meta, $new_meta_links);
@@ -758,7 +990,7 @@ final class LknIntegrationRedeForWoocommerce
         $url = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
-            __('Be pro', 'woo-rede')
+            'Seja PRO'
         );
 
         // Crie o novo link de meta
@@ -800,6 +1032,10 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para atualizar sessão de parcelas no shortcode
         $this->loader->add_action('wp_ajax_update_installment_session', $this, 'update_installment_session');
         $this->loader->add_action('wp_ajax_nopriv_update_installment_session', $this, 'update_installment_session');
+
+        // Adiciona endpoint AJAX para detecção de bandeira de cartão
+        $this->loader->add_action('wp_ajax_lkn_get_offline_bin_card', $this, 'ajax_get_offline_bin_card');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_offline_bin_card', $this, 'ajax_get_offline_bin_card');
 
         // Adiciona o nome do gateway nas notas do pedido
         $this->loader->add_filter('woocommerce_new_order_note_data', $this, 'add_gateway_name_to_notes_global', 10, 2);
@@ -932,7 +1168,7 @@ final class LknIntegrationRedeForWoocommerce
         $chosen_payment_method = WC()->session->get('chosen_payment_method');
 
         // Verificar se é um método de pagamento Rede ou Maxipago
-        if (!in_array($chosen_payment_method, ['rede_credit', 'maxipago_credit'])) {
+        if (!in_array($chosen_payment_method, ['rede_credit', 'rede_debit', 'maxipago_credit'])) {
             return;
         }
 
@@ -947,21 +1183,50 @@ final class LknIntegrationRedeForWoocommerce
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
         
+        // Para rede_debit, verificar se permite crédito através da configuração de tipo de cartão
+        $show_installments = true;
+        if ($chosen_payment_method === 'rede_debit') {
+            $card_type_restriction = isset($settings['card_type_restriction']) ? $settings['card_type_restriction'] : 'debit_only';
+            
+            // Verificar tipo de cartão na sessão
+            $session_card_type = WC()->session->get('lkn_card_type_rede_debit');
+            
+            // Se o tipo da sessão for débito, forçar para não mostrar parcelas
+            if ($session_card_type === 'debit') {
+                $show_installments = false;
+            } else {
+                // Só mostra parcelas se permitir crédito (both ou credit_only) e não for débito na sessão
+                if ($card_type_restriction === 'debit_only') {
+                    $show_installments = false;
+                }
+            }
+        }
+        
         // Verificar se é possível ter mais de uma parcela com base no valor mínimo
         $max_possible_installments = floor($cart_total / $min_parcels_value);
-        if ($max_possible_installments <= 1) {
-            return; // Não exibe se só é possível 1x à vista
+        if ($max_possible_installments <= 1 || !$show_installments) {
+            return; // Não exibe se só é possível 1x à vista ou se não permite crédito
         }
 
         // Obter a parcela selecionada da sessão baseada no método de pagamento
         $installment_session_key = '';
         if ($chosen_payment_method === 'rede_credit') {
             $installment_session_key = 'lkn_installments_number_rede_credit';
+        } elseif ($chosen_payment_method === 'rede_debit') {
+            $installment_session_key = 'lkn_installments_number_rede_debit';
         } elseif ($chosen_payment_method === 'maxipago_credit') {
             $installment_session_key = 'lkn_installments_number_maxipago_credit';
         }
 
         $installment = WC()->session->get($installment_session_key);
+
+        // Para rede_debit, se o tipo de cartão for débito, forçar parcela para 1
+        if ($chosen_payment_method === 'rede_debit') {
+            $session_card_type = WC()->session->get('lkn_card_type_rede_debit');
+            if ($session_card_type === 'debit') {
+                $installment = 1;
+            }
+        }
 
         if (!$installment || $installment <= 0) {
             return;
@@ -970,23 +1235,26 @@ final class LknIntegrationRedeForWoocommerce
         // Determinar o nome do método de pagamento
         $payment_method_name = '';
         if ($chosen_payment_method === 'rede_credit') {
-            $payment_method_name = __('Rede Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Rede';
+        } elseif ($chosen_payment_method === 'rede_debit') {
+            $payment_method_name = 'Cartão Débito/Crédito Rede';
         } elseif ($chosen_payment_method === 'maxipago_credit') {
-            $payment_method_name = __('Maxipago Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Maxipago';
         }
 
         // Gerar a informação de pagamento e label dinâmico
         if ($installment == 1) {
-            $payment_label = __('Payment', 'woo-rede');
-            $payment_info = __('Cash payment', 'woo-rede');
+            $payment_label = 'Pagamento';
+            $payment_info = 'Pagamento à vista';
         } else {
-            $payment_label = __('Installment', 'woo-rede');
+            $payment_label = 'Parcelamento';
             // Calcular valor da parcela (simples divisão)
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
             $payment_info = sprintf(
-                __('%dx of %s', 'woo-rede'),
+                // translators: %1$d is the number of installments, %2$s is the formatted price per installment
+                '%1$dx de %2$s',
                 $installment,
                 $formatted_value
             );
@@ -1016,7 +1284,7 @@ final class LknIntegrationRedeForWoocommerce
             $installments = isset($_POST['installments']) ? intval(sanitize_text_field(wp_unslash($_POST['installments']))) : 1;
 
             // Valida gateway
-            if (!in_array($gateway, ['rede_credit', 'maxipago_credit'])) {
+            if (!in_array($gateway, ['rede_credit', 'rede_debit', 'maxipago_credit'])) {
                 wp_send_json_error(['message' => 'Invalid gateway']);
                 return;
             }
@@ -1061,5 +1329,89 @@ final class LknIntegrationRedeForWoocommerce
 
         // Verifica e renova tokens expirados (15 minutos)
         LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(15);
+    }
+
+    /**
+     * Endpoint AJAX para detectar bandeira do cartão baseado no BIN
+     */
+    public function ajax_get_offline_bin_card()
+    {
+        // Verificar nonce
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'redeCardNonce')) {
+            wp_send_json_error(['message' => 'Nonce inválido']);
+            return;
+        }
+
+        // Obter número do cartão
+        $number = isset($_POST['number']) ? sanitize_text_field(wp_unslash($_POST['number'])) : '';
+        if (empty($number)) {
+            wp_send_json_error(['message' => 'Número do cartão é obrigatório']);
+            return;
+        }
+
+        $result = $this->getOfflineBinCard($number);
+        wp_send_json($result);
+    }
+
+    /**
+     * Retrieves the card brand based on the BIN number.
+     *
+     * @param string $number The card number.
+     *
+     * @return array Returns an array with the card brand if recognized, or an error message if not.
+     */
+    public function getOfflineBinCard($number)
+    {
+        $number = str_replace(' ', '', trim($number));
+
+        $bin = [
+            // visa
+            '/^4[0-9]{2,15}$/',
+            // elo
+            '/^(431274|438935|451416|457393|4576|457631|457632|504175|627780|636297|636368|636369|(6503[1-3])|(6500(3[5-9]|4[0-9]|5[0-1]))|(6504(0[5-9]|1[0-9]|2[0-9]|3[0-9]))|(650(48[5-9]|49[0-9]|50[0-9]|51[1-9]|52[0-9]|53[0-7]))|(6505(4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-8]))|(6507(0[0-9]|1[0-8]))|(6507(2[0-7]))|(650(90[1-9]|91[0-9]|920))|(6516(5[2-9]|6[0-9]|7[0-9]))|(6550(0[0-9]|1[1-9]))|(6550(2[1-9]|3[0-9]|4[0-9]|5[0-8]))|(506(699|77[0-8]|7[1-6][0-9))|(509([0-9][0-9][0-9])))/',
+            // hipercard
+            '/^(606282|3841)\d{0,13}$/',
+            // diners
+            '/^3(?:0[0-5]|[68][0-9])[0-9]{0,11}$/',
+            // discover
+            '/^6(?:011|5[0-9]{2})[0-9]{0,12}$/',
+            // jcb
+            '/^(?:2131|1800|35\d{2})\d{0,11}$/',
+            // aura
+            '/^50[0-9]{2,17}$/',
+            // amex
+            '/^3[47][0-9]{2,13}$/',
+            // mastercard
+            '/^5[1-5]\d{0,14}$|^2(?:2(?:2[1-9]|[3-9]\d)|[3-6]\d\d|7(?:[01]\d|20))\d{0,12}$/',
+        ];
+
+        // Test the cardNumber bin
+        foreach ($bin as $index => $regex) {
+            if (preg_match($regex, $number)) {
+                $brands = [
+                    'visa',
+                    'elo',
+                    'hipercard',
+                    'diners',
+                    'discover',
+                    'jcb',
+                    'aura',
+                    'amex',
+                    'mastercard',
+                ];
+
+                return [
+                    'status' => true,
+                    'brand' => $brands[$index],
+                ];
+            }
+        }
+
+        // Caso não encontre nenhuma correspondência
+        return [
+            'status' => false,
+            'message' => 'Bandeira do cartão não encontrada',
+        ];
     }
 }

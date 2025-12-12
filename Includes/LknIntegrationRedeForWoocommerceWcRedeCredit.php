@@ -1,9 +1,9 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use Exception;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
 use Symfony\Component\Console\Event\ConsoleEvent;
 use WC_Order;
 use WP_Error;
@@ -358,7 +358,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             );
         }
 
-        $customConfigs = apply_filters('integrationRedeGetCustomConfigs', $this->form_fields, array(
+        $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),
             'max_parcels_number' => $this->get_option('max_parcels_number'),
         ), $this->id);
@@ -460,7 +460,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         wp_enqueue_script('woo-rede-animated-card-jquery', $plugin_url . 'Public/js/jquery.card.js', array('jquery', 'woo-rede-js'), '2.5.0', true);
 
 
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_credit_settings')['custom_css_short_code'] ?? false);
     }
 
     public function regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction, $order, $brand = null): void
@@ -529,7 +529,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id);
         
         if ($token === null) {
-            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . $this->id);
+            throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . esc_html($this->id));
         }
         
         return $token;
@@ -554,7 +554,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                     // Status configurável pelo usuário para pagamentos aprovados com captura
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                     $order->update_status($payment_complete_status);
-                    apply_filters("integrationRedeChangeOrderStatus", $order, $this);
+                    apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {
                     // Para pagamentos sem captura, sempre aguardando
                     $order->update_status('on-hold');
@@ -614,7 +614,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -623,17 +623,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         
         if ($response_code !== 200 && $response_code !== 201) {
             $error_message = 'Erro na transação';
-            if (isset($response_data['message'])) {
-                $error_message = $response_data['message'];
+            if (isset($response_data['returnMessage'])) {
+                $error_message = $response_data['returnMessage'];
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;
@@ -843,7 +843,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         ));
 
         if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição de reembolso: ' . $response->get_error_message());
+            throw new Exception('Erro na requisição de reembolso: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -857,7 +857,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
         
         return $response_data;

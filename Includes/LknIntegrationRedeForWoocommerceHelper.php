@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use WC_Order;
 
@@ -340,8 +340,8 @@ class LknIntegrationRedeForWoocommerceHelper
                 $additional_fees = 0;
                 foreach (WC()->cart->get_fees() as $fee) {
                     // Ignorar fees criados pelo próprio plugin
-                    if ($fee->name !== __('Juros', 'rede-for-woocommerce-pro') && 
-                        $fee->name !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                    if ($fee->name !== __('Interest', 'rede-for-woocommerce-pro') && 
+                        $fee->name !== __('Discount', 'rede-for-woocommerce-pro')) {
                         $additional_fees += $fee->total;
                     }
                 }
@@ -365,8 +365,8 @@ class LknIntegrationRedeForWoocommerceHelper
                     $additional_fees = 0;
                     foreach ($order->get_fees() as $fee) {
                         // Ignorar fees criados pelo próprio plugin
-                        if ($fee->get_name() !== __('Juros', 'rede-for-woocommerce-pro') && 
-                            $fee->get_name() !== __('Desconto', 'rede-for-woocommerce-pro')) {
+                        if ($fee->get_name() !== __('Interest', 'rede-for-woocommerce-pro') && 
+                            $fee->get_name() !== __('Discount', 'rede-for-woocommerce-pro')) {
                             $additional_fees += $fee->get_total();
                         }
                     }
@@ -504,8 +504,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $oauth_body = wp_remote_retrieve_body($oauth_response);
         $oauth_data = json_decode($oauth_body, true);
 
-        error_log(json_encode($oauth_data));
-        
         if (!isset($oauth_data['access_token'])) {
             return false;
         }
@@ -843,6 +841,138 @@ class LknIntegrationRedeForWoocommerceHelper
         self::cache_rede_oauth_token($token_data, $environment);
         
         return $token_data['access_token'];
+    }
+
+    /**
+     * Verifica se a licença PRO está ativa e válida
+     * 
+     * @return bool
+     */
+    final public static function isProLicenseValid(): bool
+    {
+        // Verifica se o plugin PRO está ativo
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            return false;
+        }
+
+        // Pega a licença do banco de dados
+        $license = get_option('lknRedeForWoocommerceProLicense');
+        
+        if (empty($license)) {
+            return false;
+        }
+
+        // Decodifica a licença base64
+        $decoded_license = base64_decode($license);
+        
+        if ($decoded_license === false) {
+            return false;
+        }
+
+        // Verifica se o status é 'active'
+        return $decoded_license === 'active';
+    }
+
+    /**
+     * Força valores padrão para campos PRO se a licença não for válida (com notificação)
+     * 
+     * @param string $gateway_id ID do gateway (rede_credit, rede_debit, etc.)
+     */
+    final public static function enforceProFieldDefaults($gateway_id): void
+    {
+        $option_key = "woocommerce_{$gateway_id}_settings";
+        $settings = get_option($option_key, array());
+
+        // Campos PRO que devem ser resetados para valores padrão
+        $pro_fields_defaults = array(
+            'interest_or_discount' => 'interest',
+            'interest_show_percent' => 'yes',
+            'installment_interest' => 'no',
+            'installment_discount' => 'no',
+            'min_interest' => '0',
+            'convert_to_brl' => 'no',
+            'auto_capture' => 'yes',
+            '3ds_template_style' => 'basic',
+            'payment_complete_status' => 'processing'
+        );
+
+        // Reset campos de parcelas específicas
+        $max_installments = (int) ($settings['max_parcels_number'] ?? 12);
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $pro_fields_defaults["{$i}x"] = '0';
+            $pro_fields_defaults["{$i}x_discount"] = '0';
+        }
+
+        // Aplica os valores padrão para campos PRO
+        foreach ($pro_fields_defaults as $field => $default_value) {
+            if (isset($settings[$field])) {
+                $settings[$field] = $default_value;
+            }
+        }
+
+        // Atualiza as configurações no banco
+        update_option($option_key, $settings);
+    }
+
+    /**
+     * Força valores padrão para campos PRO se a licença não for válida (sem notificação para uso interno)
+     * 
+     * @param string $gateway_id ID do gateway (rede_credit, rede_debit, etc.)
+     */
+    final public static function resetProFieldsQuietly($gateway_id): void
+    {
+        $option_key = "woocommerce_{$gateway_id}_settings";
+        $settings = get_option($option_key, array());
+
+        // Campos PRO que devem ser resetados para valores padrão
+        $pro_fields_defaults = array(
+            'interest_or_discount' => 'interest',
+            'interest_show_percent' => 'yes',
+            'installment_interest' => 'no',
+            'installment_discount' => 'no',
+            'min_interest' => '0',
+            'convert_to_brl' => 'no',
+            'auto_capture' => 'yes',
+            '3ds_template_style' => 'basic',
+            'payment_complete_status' => 'processing'
+        );
+
+        // Reset campos de parcelas específicas
+        $max_installments = (int) ($settings['max_parcels_number'] ?? 12);
+        for ($i = 1; $i <= $max_installments; $i++) {
+            $pro_fields_defaults["{$i}x"] = '0';
+            $pro_fields_defaults["{$i}x_discount"] = '0';
+        }
+
+        // Aplica os valores padrão para campos PRO
+        foreach ($pro_fields_defaults as $field => $default_value) {
+            if (isset($settings[$field])) {
+                $settings[$field] = $default_value;
+            }
+        }
+
+        // Atualiza as configurações no banco
+        update_option($option_key, $settings);
+    }
+
+    /**
+     * Verifica e redefine configurações PRO apenas para o gateway de débito se a licença não for válida
+     */
+    final public static function checkAndResetProConfigurations(): void
+    {
+        // Só executa se a licença PRO não for válida
+        if (self::isProLicenseValid()) {
+            return;
+        }
+
+        // Aplica reset apenas ao gateway de débito
+        $gateway_id = 'rede_debit';
+        $settings = get_option("woocommerce_{$gateway_id}_settings", array());
+        
+        // Verifica se o gateway está habilitado antes de resetar
+        if (isset($settings['enabled']) && $settings['enabled'] === 'yes') {
+            self::resetProFieldsQuietly($gateway_id);
+        }
     }
 }
 ?>

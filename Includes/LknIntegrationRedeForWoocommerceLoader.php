@@ -1,5 +1,5 @@
 <?php
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 /**
  * Register all actions and filters for the plugin

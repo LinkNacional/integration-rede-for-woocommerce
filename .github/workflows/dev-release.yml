@@ -10,7 +10,7 @@ env:
   PLUGIN_NAME: woo-rede
   DIR_NAME: woo-rede
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "5.1.0-beta.1"
+  DEPLOY_TAG: "5.1.0"
 
 jobs:
   release-build:
@@ -42,6 +42,7 @@ jobs:
   #        WordPress.Security.NonceVerification.Recommended
   #        WordPress.DB.SlowDBQuery.slow_db_query_meta_key
   #        WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+  #        WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
   #        trademarked_term
   #        textdomain_mismatch
   #        hidden_files

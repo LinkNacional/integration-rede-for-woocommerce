@@ -1,9 +1,9 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeCredit;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeCredit;
 
 final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractPaymentMethodType
 {
@@ -43,13 +43,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce'   => wp_create_nonce('redeCardNonce'),
+                'installment_nonce' => wp_create_nonce('rede_payment_fields_nonce')
             )
         );
         if (function_exists('wp_set_script_translations')) {
             wp_set_script_translations('rede_credit-blocks-integration');
         }
         
-        apply_filters('integrationRedeSetCustomCSSPro', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor'] ?? false);
+        apply_filters('integration_rede_for_woocommerce_set_custom_css', get_option('woocommerce_rede_credit_settings')['custom_css_block_editor'] ?? false);
 
         return array('rede_credit-blocks-integration');
     }
@@ -69,13 +70,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             'maxInstallmentsRede' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
-                'cardNumber' => __('Card Number', 'woo-rede'),
-                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
-                'securityCode' => __('Security Code', 'woo-rede'),
-                'nameOnCard' => __('Name on Card', 'woo-rede'),
-                'installments' => __('Installments', 'woo-rede'),
-                'interestFree' => ' ' . __('interest-free', 'woo-rede'),
+                'fieldsNotFilled' => 'Por favor, preencha todos os campos corretamente.',
+                'cardNumber' => 'Número do Cartão',
+                'cardExpiringDate' => 'Data de Vencimento do Cartão',
+                'securityCode' => 'Código de Segurança',
+                'nameOnCard' => 'Nome no Cartão',
+                'installments' => 'Parcelas',
+                'interestFree' => ' ' . 'sem juros',
             )
         );
 
