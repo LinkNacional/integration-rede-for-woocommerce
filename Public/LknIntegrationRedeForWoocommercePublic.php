@@ -95,7 +95,7 @@ final class LknIntegrationRedeForWoocommercePublic {
                 'installment' => 'Parcelamento',
                 'loading' => 'Carregando...',
                 'calculatingInstallments' => 'Calculando parcelas...',
-                'cashPayment' => 'Pagamento à vista',
+                'cashPayment' => 'à vista',
                 'noInterest' => 'sem juros',
                 'noDiscount' => 'sem desconto',
                 'withDiscount' => '% desconto',
