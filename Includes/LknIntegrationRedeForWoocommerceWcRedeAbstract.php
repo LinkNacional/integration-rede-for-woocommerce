@@ -118,7 +118,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 // Só mostra parcelas se for crédito
                 if ($card_type === 'credit') {
                     if ($saved_installments == 1) {
-                        $installment_text = 'Pagamento à vista';
+                        $installment_text = 'à vista';
                     } else {
                         $order_total = $order->get_total();
                         $installment_value = $order_total / $saved_installments;

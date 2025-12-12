@@ -1245,7 +1245,7 @@ final class LknIntegrationRedeForWoocommerce
         // Gerar a informação de pagamento e label dinâmico
         if ($installment == 1) {
             $payment_label = 'Pagamento';
-            $payment_info = 'Pagamento à vista';
+            $payment_info = 'à vista';
         } else {
             $payment_label = 'Parcelamento';
             // Calcular valor da parcela (simples divisão)
