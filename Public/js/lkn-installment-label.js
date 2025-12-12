@@ -9,6 +9,22 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastSelectedMethod = null;
 
     function getInstallmentCount() {
+        // Verificar primeiro se é rede_debit com template moderna (card_installment_selector)
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const modernSelect = document.querySelector('#card_installment_selector');
+            if (modernSelect && modernSelect.options.length > 0) {
+                const validOptions = Array.from(modernSelect.options).filter(option => {
+                    const optionText = option.textContent || option.innerText;
+                    return !optionText.includes('Calculando') && 
+                           !optionText.includes('🔄') && 
+                           option.value !== 'loading';
+                });
+                
+                return validOptions.length;
+            }
+        }
+        
         const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments)');
         
         if (redeSelectContainers.length === 0) {
@@ -96,6 +112,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getInstallmentInfo() {
+        // Verificar primeiro se é rede_debit com template moderna (card_installment_selector)
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const modernSelect = document.querySelector('#card_installment_selector');
+            if (modernSelect) {
+                if (modernSelect.options.length === 0) {
+                    return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+                }
+                
+                const selectedOption = modernSelect.options[modernSelect.selectedIndex];
+                if (selectedOption) {
+                    const optionText = selectedOption.textContent || selectedOption.innerText;
+                    const selectedValue = selectedOption.value;
+
+                    if (optionText.includes('Calculando parcelas') || optionText.includes('🔄') || selectedValue === 'loading') {
+                        return { text: lknInstallmentLabelTranslations.calculatingInstallments, isLoading: true };
+                    }
+
+                    let cleanText = optionText
+                        .replace(/\s*\(.*?\)\s*/g, '')
+                        .replace(/\s*sem\s+juros\s*/gi, '')
+                        .replace(/\s*sem\s+desconto\s*/gi, '')
+                        .replace(/\s*à\s+vista\s*/gi, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/🔄/g, '')
+                        .trim();
+
+                    if (selectedValue === '1') {
+                        return { text: lknInstallmentLabelTranslations.cashPayment, isLoading: false, value: selectedValue };
+                    } else {
+                        return { text: cleanText, isLoading: false, value: selectedValue };
+                    }
+                }
+            }
+        }
+        
         const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments)');
 
         if (redeSelectContainers.length === 0) {
@@ -150,7 +202,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const fallbackSelects = document.querySelectorAll(
             'select[name*="installments"], select[name*="parcelas"], ' +
             '.rede_credit_select select, .maxipago_credit_select select, ' +
-            'select[id*="rede"], select[id*="maxipago"]'
+            'select[id*="rede"], select[id*="maxipago"], ' +
+            '#card_installment_selector'
         );
 
         for (let select of fallbackSelects) {
@@ -681,22 +734,59 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Remove todas as infos existentes primeiro
                     removeRedeInfo();
                     
-                    if (this.value === 'debit') {
-                        // Para débito, não faz nada mais (já removeu)
-                    } else if (this.value === 'credit') {
-                        // Para crédito, força nova verificação após um delay
-                        setTimeout(() => {
-                            // Reset estados para permitir recriação
-                            const processedDivs = document.querySelectorAll('.rede-processed');
-                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
-                            
-                            // Re-executa verificação completa
-                            checkPaymentMethod();
-                        }, 150);
-                    }
+                    // Aguarda um pouco e reprocessa
+                    setTimeout(() => {
+                        updateLoadingSkeletons();
+                    }, 300);
                 }
             });
+            
             cardTypeSelector.dataset.listenerAdded = 'true';
+        }
+
+        // Adicionar listener para o select de parcelas moderno (rede_debit template moderna)
+        const modernInstallmentSelector = document.querySelector('#card_installment_selector');
+        if (modernInstallmentSelector && !modernInstallmentSelector.dataset.listenerAdded) {
+            modernInstallmentSelector.addEventListener('change', function () {
+                setTimeout(() => {
+                    updateLoadingSkeletons();
+                }, 100);
+            });
+
+            // Adiciona observer para mudanças no conteúdo do select moderno
+            if (!modernInstallmentSelector.dataset.observerAdded) {
+                const modernSelectObserver = new MutationObserver(function(mutations) {
+                    let optionsChanged = false;
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            optionsChanged = true;
+                        }
+                    });
+                    
+                    if (optionsChanged) {
+                        setTimeout(() => {
+                            if (shouldShowInstallmentLabel()) {
+                                const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                if (existingLabels.length === 0) {
+                                    // Reset processed state to allow new creation
+                                    const processedDivs = document.querySelectorAll('.rede-processed');
+                                    processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                                    insertRedeInfo();
+                                }
+                            }
+                        }, 300);
+                    }
+                });
+                
+                modernSelectObserver.observe(modernInstallmentSelector, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                modernInstallmentSelector.dataset.observerAdded = 'true';
+            }
+
+            modernInstallmentSelector.dataset.listenerAdded = 'true';
         }
     }
 

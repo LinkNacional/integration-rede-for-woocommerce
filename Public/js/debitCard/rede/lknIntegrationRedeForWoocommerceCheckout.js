@@ -643,6 +643,7 @@ const ContentRedeDebit = props => {
               <label>{translationsRedeDebit.installments}</label>
               <select
                 value={selectedValue}
+                id="card_installment_selector"
                 onChange={handleSortChange}
                 readOnly={false}
                 className="modern-select"
