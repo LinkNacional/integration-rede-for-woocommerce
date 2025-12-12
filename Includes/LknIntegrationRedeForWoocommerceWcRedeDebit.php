@@ -13,8 +13,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     {
         $this->id = 'rede_debit';
         $this->has_fields = true;
-        $this->method_title = esc_attr__('Pay with Rede Debit and Credit 3DS', 'woo-rede');
-        $this->method_description = esc_attr__('Enables and configures payments with Rede Debit and Credit cards using 3D Secure', 'woo-rede');
+        $this->method_title = 'Pagar com Cartão Débito e Crédito 3DS Rede';
+        $this->method_description = 'Habilita e configura pagamentos com cartões Débito e Crédito Rede usando 3D Secure';
         $this->supports = array(
             'products',
             'refunds',
@@ -72,35 +72,35 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function validate_fields()
     {
         if (empty($_POST['rede_debit_number'])) {
-            wc_add_notice(esc_attr__('Card number is a required field', 'woo-rede'), 'error');
+            wc_add_notice('Número do cartão é um campo obrigatório', 'error');
 
             return false;
         }
 
         if (empty($_POST['rede_debit_expiry'])) {
-            wc_add_notice(esc_attr__('Card expiration is a required field', 'woo-rede'), 'error');
+            wc_add_notice('Vencimento do cartão é um campo obrigatório', 'error');
 
             return false;
         }
 
         if (empty($_POST['rede_debit_cvc'])) {
-            wc_add_notice(esc_attr__('Card security code is a required field', 'woo-rede'), 'error');
+            wc_add_notice('Código de segurança do cartão é um campo obrigatório', 'error');
 
             return false;
         }
 
         if (! ctype_digit(sanitize_text_field(wp_unslash($_POST['rede_debit_cvc'])))) {
-            wc_add_notice(esc_attr__('Card security code must be a numeric value', 'woo-rede'), 'error');
+            wc_add_notice('Código de segurança do cartão deve ser um valor numérico', 'error');
             return false;
         }
 
         if (strlen(sanitize_text_field(wp_unslash($_POST['rede_debit_cvc']))) < 3) {
-            wc_add_notice(esc_attr__('Card security code must be at least 3 digits long', 'woo-rede'), 'error');
+            wc_add_notice('Código de segurança do cartão deve ter pelo menos 3 dígitos', 'error');
             return false;
         }
 
         if (empty($_POST['rede_debit_holder_name'])) {
-            wc_add_notice(esc_attr__('Cardholder name is a required field', 'woo-rede'), 'error');
+            wc_add_notice('Nome do portador do cartão é um campo obrigatório', 'error');
 
             return false;
         }
@@ -296,10 +296,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 
                 if ($card_type === 'debit') {
                     // Para débito, 3DS é sempre obrigatório - sempre decline
-                    throw new Exception(esc_html(__('3D Secure authentication is mandatory for debit card transactions but is not available for this card. Transaction declined for regulatory compliance.', 'woo-rede')));
+                    throw new Exception('Autenticação 3D Secure é obrigatória para transações de cartão de débito, mas não está disponível para este cartão. Transação recusada para conformidade regulatória.');
                 } elseif ($this->threeds_fallback_behavior === 'decline') {
                     // Para crédito com fallback configurado como decline
-                    throw new Exception(esc_html(__('3D Secure authentication failed and fallback is set to decline. Transaction declined.', 'woo-rede')));
+                    throw new Exception('Autenticação 3D Secure falhou e o comportamento de fallback está definido para recusar. Transação recusada.');
                 } else {
                     // Para crédito com fallback configurado como continue - ONLY for testing
                     return $this->retry_transaction_without_3ds($reference, $amount, $cardData);
@@ -492,7 +492,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Valida o pedido
         $order = wc_get_order($order_id);
         if (!$order || $order->get_order_key() !== $order_key) {
-            wp_die(esc_html(__('Invalid order or order key.', 'woo-rede')));
+            wp_die('Pedido ou chave de pedido inválidos.');
             return;
         }
 
@@ -501,11 +501,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         // Adiciona nota sobre o retorno do 3DS
         if ($threeds_status === 'ok') {
-            $order->add_order_note(__('Customer returned from 3D Secure authentication - Success', 'woo-rede'));
+            $order->add_order_note('Cliente retornou da autenticação 3D Secure - Sucesso');
             // Redireciona para a página de confirmação em caso de sucesso
             $redirect_url = $order->get_checkout_order_received_url();
         } else {
-            $order->add_order_note(__('Customer returned from 3D Secure authentication - Failure', 'woo-rede'));
+            $order->add_order_note('Cliente retornou da autenticação 3D Secure - Falha');
             $order->update_status('failed');
             
             // Redireciona para a página de checkout em caso de falha
@@ -522,7 +522,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     public function show_3ds_error_message()
     {
         if (isset($_GET['3ds_error']) && $_GET['3ds_error'] == '1') {
-            wc_add_notice(__('Payment failed during 3D Secure authentication. Please try again or use a different payment method.', 'woo-rede'), 'error');
+            wc_add_notice('Pagamento falhou durante a autenticação 3D Secure. Tente novamente ou use um método de pagamento diferente.', 'error');
         }
     }
 
@@ -530,18 +530,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     {
         if ($order->get_payment_method() === 'rede_debit') {
             $metaKeys = array(
-                '_wc_rede_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
-                '_wc_rede_transaction_return_code' => esc_attr__('Return Code', 'woo-rede'),
-                '_wc_rede_transaction_return_message' => esc_attr__('Return Message', 'woo-rede'),
-                '_wc_rede_transaction_id' => esc_attr__('Transaction ID', 'woo-rede'),
-                '_wc_rede_transaction_refund_id' => esc_attr__('Refund ID', 'woo-rede'),
-                '_wc_rede_transaction_cancel_id' => esc_attr__('Cancellation ID', 'woo-rede'),
-                '_wc_rede_transaction_nsu' => esc_attr__('Nsu', 'woo-rede'),
-                '_wc_rede_transaction_authorization_code' => esc_attr__('Authorization Code', 'woo-rede'),
-                '_wc_rede_transaction_bin' => esc_attr__('Bin', 'woo-rede'),
-                '_wc_rede_transaction_last4' => esc_attr__('Last 4', 'woo-rede'),
-                '_wc_rede_transaction_holder' => esc_attr__('Cardholder', 'woo-rede'),
-                '_wc_rede_transaction_expiration' => esc_attr__('Card Expiration', 'woo-rede')
+                '_wc_rede_transaction_environment' => 'Ambiente',
+                '_wc_rede_transaction_return_code' => 'Código de Retorno',
+                '_wc_rede_transaction_return_message' => 'Mensagem de Retorno',
+                '_wc_rede_transaction_id' => 'ID da Transação',
+                '_wc_rede_transaction_refund_id' => 'ID do Reembolso',
+                '_wc_rede_transaction_cancel_id' => 'ID do Cancelamento',
+                '_wc_rede_transaction_nsu' => 'NSU',
+                '_wc_rede_transaction_authorization_code' => 'Código de Autorização',
+                '_wc_rede_transaction_bin' => 'BIN',
+                '_wc_rede_transaction_last4' => 'Últimos 4 Dígitos',
+                '_wc_rede_transaction_holder' => 'Portador do Cartão',
+                '_wc_rede_transaction_expiration' => 'Vencimento do Cartão'
             );
 
             $this->generateMetaTable($order, $metaKeys, 'Rede');
@@ -622,7 +622,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Adiciona uma notificação para o administrador
         add_action('admin_notices', function() {
             echo '<div class="notice notice-warning is-dismissible">';
-            echo '<p>' . esc_html(__('PRO license is required to modify installment settings. Settings have been reset to default values.', 'woo-rede')) . '</p>';
+            echo '<p>' . 'Licença PRO é necessária para modificar configurações de parcelamento. As configurações foram redefinidas para valores padrão.' . '</p>';
             echo '</div>';;
         });
     }
@@ -636,209 +636,209 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         $this->form_fields = array(
             'rede' => array(
-                'title' => esc_attr__('General', 'woo-rede'),
+                'title' => 'Geral',
                 'type' => 'title',
             ),
             'enabled' => array(
-                'title' => esc_attr__('Enable/Disable', 'woo-rede'),
+                'title' => 'Habilitar/Desabilitar',
                 'type' => 'checkbox',
-                'label' => esc_attr__('Enables payment with Rede', 'woo-rede'),
+                'label' => 'Habilita pagamento com Rede',
                 'default' => 'no',
-                'description' => esc_attr__('Enable or disable the debit and credit card payment method.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Check this box and save to enable debit and credit card settings.', 'woo-rede'),
+                'description' => 'Habilitar ou desabilitar o método de pagamento com cartão de débito e crédito.',
+                'desc_tip' => 'Marque esta caixa e salve para habilitar as configurações de cartão de débito e crédito.',
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Enable this option to allow customers to pay with debit and credit cards using Rede API with 3D Secure.', 'woo-rede')
+                    'data-title-description' => 'Habilite esta opção para permitir que os clientes paguem com cartões de débito e crédito usando a API Rede com 3D Secure.'
                 )
             ),
             'title' => array(
-                'title' => esc_attr__('Title', 'woo-rede'),
+                'title' => 'Título',
                 'type' => 'text',
-                'default' => esc_attr__('Pay with Rede Debit and Credit 3DS', 'woo-rede'),
-                'description' => esc_attr__('This controls the title which the user sees during checkout.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Enter the title that will be shown to customers during the checkout process.', 'woo-rede'),
+                'default' => 'Pagar com Cartão Débito e Crédito 3DS Rede',
+                'description' => 'Isto controla o título que o usuário vê durante o checkout.',
+                'desc_tip' => 'Digite o título que será exibido aos clientes durante o processo de checkout.',
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('This text will appear as the payment method title during checkout. Choose something your customers will easily understand, like “Pay with debit and credit card (Rede 3DS)”.', 'woo-rede')
                 )
             ),
             'description' => array(
-                'title' => __('Description', 'woo-rede'),
+                'title' => 'Descrição',
                 'type' => 'textarea',
-                'default' => __('Pay for your purchase with a debit or credit card through Rede with 3D Secure authentication', 'woo-rede'),
-                'desc_tip' => esc_attr__('This description appears below the payment method title at checkout. Use it to inform your customers about the payment processing details.', 'woo-rede'),
-                'description' => esc_attr__('Payment method description that the customer will see on your checkout.', 'woo-rede'),
+                'default' => 'Pague sua compra com cartão de débito ou crédito através da Rede com autenticação 3D Secure',
+                'desc_tip' => 'Esta descrição aparece abaixo do título do método de pagamento no checkout. Use para informar seus clientes sobre os detalhes do processamento do pagamento.',
+                'description' => 'Descrição do método de pagamento que o cliente verá no seu checkout.',
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Provide a brief message that informs the customer how the payment will be processed. For example: “Your payment will be securely processed by Rede.”', 'woo-rede')
                 )
             ),
             'environment' => array(
-                'title' => esc_attr__('Environment', 'woo-rede'),
+                'title' => 'Ambiente',
                 'type' => 'select',
-                'desc_tip' => esc_attr__('Choose between production or development mode for Rede API.', 'woo-rede'),
-                'description' => esc_attr__('Choose the environment', 'woo-rede'),
+                'desc_tip' => 'Escolha entre modo de produção ou desenvolvimento para a API da Rede.',
+                'description' => 'Escolha o ambiente',
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__('Select "Tests" to test transactions in sandbox mode. Use "Production" for real transactions.”', 'woo-rede')
                 ),
                 'class' => 'wc-enhanced-select',
-                'default' => esc_attr__('test', 'woo-rede'),
+                'default' => 'test',
                 'options' => array(
-                    'test' => esc_attr__('Tests', 'woo-rede'),
-                    'production' => esc_attr__('Production', 'woo-rede'),
+                    'test' => 'Testes',
+                    'production' => 'Produção',
                 ),
             ),
             'pv' => array(
-                'title' => esc_attr__('PV', 'woo-rede'),
+                'title' => 'PV',
                 'type' => 'password',
-                'desc_tip' => esc_attr__('Your Rede PV (affiliation number).', 'woo-rede'),
+                'desc_tip' => 'Seu PV da Rede (número de afiliação).',
                 'description' => esc_attr__('Rede credentials.', 'woo-rede'),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Your Rede PV (affiliation number) should be provided here.', 'woo-rede')
+                    'data-title-description' => 'Seu PV da Rede (número de afiliação) deve ser fornecido aqui.'
                 ),
                 'default' => $options['pv'] ?? '',
             ),
             'token' => array(
-                'title' => esc_attr__('Token', 'woo-rede'),
+                'title' => 'Token',
                 'type' => 'password',
-                'desc_tip' => esc_attr__('Your Rede Token.', 'woo-rede'),
-                'description' => esc_attr__('Rede credentials.', 'woo-rede'),
+                'desc_tip' => 'Seu Token da Rede.',
+                'description' => 'Credenciais da Rede.',
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Your Rede Token should be placed here.', 'woo-rede')
+                    'data-title-description' => 'Seu Token da Rede deve ser colocado aqui.'
                 ),
                 'default' => $options['token'] ?? '',
             ),
 
             'enabled_soft_descriptor' => array(
-                'title' => __('Enable Payment Description', 'woo-rede'),
+                'title' => 'Habilitar Descrição de Pagamento',
                 'type' => 'checkbox',
-                'desc_tip' => esc_attr__('Send a custom payment description to Rede that appears on customer statements. Disable if it causes transaction errors.', 'woo-rede'),
-                'description' => __('Enable payment descriptions in the', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . __('Rede Dashboard', 'woo-rede') . '</a>') . ' ' . __('first', 'woo-rede'),
+                'desc_tip' => 'Envie uma descrição de pagamento personalizada para a Rede que aparece nos extratos do cliente. Desabilite se causar erros na transação.',
+                'description' => 'Habilite descrições de pagamento no' . ' ' . wp_kses_post('<a href="' . esc_url('https://meu.userede.com.br/ecommerce/identificacao-fatura') . '" target="_blank">' . 'Painel Rede' . '</a>') . ' ' . 'primeiro',
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Allow custom payment descriptions to be sent to Rede for customer statement identification.', 'woo-rede')
+                    'data-title-description' => 'Permite que descrições de pagamento personalizadas sejam enviadas à Rede para identificação no extrato do cliente.'
                 ),
-                'label' => esc_attr__('Enable custom payment description feature for Rede transactions.', 'woo-rede'),
+                'label' => 'Habilitar recurso de descrição de pagamento personalizada para transações Rede.',
                 'default' => 'no',
             ),
 
             'soft_descriptor' => array(
-                'title' => esc_attr__('Payment Description Text', 'woo-rede'),
+                'title' => 'Texto da Descrição de Pagamento',
                 'type' => 'text',
-                'desc_tip' => esc_attr__('Enter the custom description (max 20 characters) that will appear on customer credit card statements.', 'woo-rede'),
-                'description' => esc_attr__('Custom text displayed on customer statements (maximum 20 characters).', 'woo-rede'),
+                'desc_tip' => 'Digite a descrição personalizada (máx. 20 caracteres) que aparecerá nos extratos do cartão de crédito do cliente.',
+                'description' => 'Texto personalizado exibido nos extratos do cliente (máximo 20 caracteres).',
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Custom identifier text for customer credit card statements.', 'woo-rede'),
+                    'data-title-description' => 'Texto identificador personalizado para extratos de cartão de crédito do cliente.',
                     'maxlength' => 20,
                     'merge-top' => "woocommerce_{$this->id}_enabled_soft_descriptor",
                 ),
             ),
 
             'payment_complete_status' => array(
-                'title' => esc_attr__('Payment Complete Status', 'woo-rede'),
+                'title' => 'Status de Pagamento Completo',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('Choose what status to set orders after successful payment.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Select the order status that will be applied when payment is successfully processed.', 'woo-rede'),
+                'description' => 'Escolha que status definir para pedidos após pagamento bem-sucedido.',
+                'desc_tip' => 'Selecione o status do pedido que será aplicado quando o pagamento for processado com sucesso.',
                 'default' => 'processing',
                 'options' => array(
-                    'processing' => esc_attr__('Processing', 'woo-rede'),
-                    'completed' => esc_attr__('Completed', 'woo-rede'),
-                    'on-hold' => esc_attr__('On Hold', 'woo-rede'),
+                    'processing' => 'Processando',
+                    'completed' => 'Completo',
+                    'on-hold' => 'Aguardando',
                 ),
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__('Choose the status that approved payments should have. "Processing" is recommended for most cases.', 'woo-rede')
+                    'data-title-description' => 'Escolha o status que os pagamentos aprovados devem ter. "Processando" é recomendado para a maioria dos casos.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array())
             ),
 
             'enabled_fix_load_script' => array(
-                'title' => __('Load on checkout', 'woo-rede'),
+                'title' => 'Carregar no checkout',
                 'type' => 'checkbox',
-                'desc_tip' => esc_attr__('Disable to load the plugin during checkout. Enable to prevent infinite loading errors.', 'woo-rede'),
-                'description' => esc_attr__('Selecione a posição onde o layout PIX será exibido na página de checkout.', 'woo-rede'),
+                'desc_tip' => 'Desabilite para carregar o plugin durante o checkout. Habilite para evitar erros de carregamento infinito.',
+                'description' => 'Controla o carregamento do plugin na página de checkout.',
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__("This feature controls the plugin's loading on the checkout page. It's enabled by default to prevent infinite loading errors and should only be disabled if you're experiencing issues with the gateway.", 'woo-rede')
+                    'data-title-description' => 'Este recurso controla o carregamento do plugin na página de checkout. Está habilitado por padrão para evitar erros de carregamento infinito e só deve ser desabilitado se você estiver enfrentando problemas com o gateway.'
                 ),
-                'label' => __('Load plugin on checkout. Default (enabled)', 'woo-rede'),
+                'label' => 'Carregar plugin no checkout. Padrão (habilitado)',
                 'default' => 'yes',
             ),
 
             'card' => array(
-                'title' => esc_attr__('Card', 'woo-rede'),
+                'title' => 'Cartão',
                 'type' => 'title',
             ),
 
             'card_type_restriction' => array(
-                'title' => esc_attr__('Card Type Restriction', 'woo-rede'),
+                'title' => 'Restrição de Tipo de Cartão',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('Choose which card types are accepted for payment. This setting controls whether customers can use credit cards, debit cards, or both.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Select the card types that will be accepted during payment processing. This helps control the payment flow based on your business needs.', 'woo-rede'),
+                'description' => 'Escolha quais tipos de cartão são aceitos para pagamento. Esta configuração controla se os clientes podem usar cartões de crédito, cartões de débito ou ambos.',
+                'desc_tip' => 'Selecione os tipos de cartão que serão aceitos durante o processamento do pagamento. Isso ajuda a controlar o fluxo de pagamento com base nas necessidades do seu negócio.',
                 'default' => 'debit_only',
                 'options' => array(
-                    'debit_only' => esc_attr__('Debit Cards Only', 'woo-rede'),
-                    'credit_only' => esc_attr__('Credit Cards Only', 'woo-rede'),
-                    'both' => esc_attr__('Both Credit and Debit Cards', 'woo-rede'),
+                    'debit_only' => 'Apenas Cartões de Débito',
+                    'credit_only' => 'Apenas Cartões de Crédito',
+                    'both' => 'Cartões de Crédito e Débito',
                 ),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Control which card types customers can use for payment. Choose "Debit Only" for the current debit gateway configuration.', 'woo-rede')
+                    'data-title-description' => 'Controle quais tipos de cartão os clientes podem usar para pagamento. Escolha "Apenas Débito" para a configuração atual do gateway de débito.'
                 )
             ),
 
             'auto_capture' => array(
-                'title' => esc_attr__('Auto Capture', 'woo-rede'),
-                'label' => esc_attr__('Enable automatic capture for credit card transactions', 'woo-rede'),
+                'title' => 'Captura Automática',
+                'label' => 'Habilitar captura automática para transações de cartão de crédito',
                 'type' => 'checkbox',
-                'description' => esc_attr__('If disabled, payments will only be authorized and must be captured manually.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Allows the transaction to be captured after authentication automatically.', 'woo-rede'),
+                'description' => 'Se desabilitado, os pagamentos serão apenas autorizados e devem ser capturados manualmente.',
+                'desc_tip' => 'Permite que a transação seja capturada após a autenticação automaticamente.',
                 'default' => 'yes',
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__("Automatically captures the payment once authorized by Rede.", 'woo-rede')
+                    'data-title-description' => 'Captura automaticamente o pagamento uma vez autorizado pela Rede.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
             ),
 
             '3ds_fallback_behavior' => array(
-                'title' => esc_attr__('3DS Fallback Behavior (Credit Cards Only)', 'woo-rede'),
+                'title' => 'Comportamento de Fallback 3DS (Apenas Cartões de Crédito)',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('This setting only applies to credit card transactions. For debit cards, 3DS authentication is ALWAYS mandatory and transactions will always be declined if 3DS fails. For credit cards, you can choose the fallback behavior when 3DS authentication is unavailable.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Debit cards: 3DS is mandatory (always decline if unavailable). Credit cards: You can choose to decline or continue without 3DS for testing purposes only.', 'woo-rede'),
+                'description' => 'Esta configuração se aplica apenas a transações de cartão de crédito. Para cartões de débito, a autenticação 3DS é SEMPRE obrigatória e as transações sempre serão recusadas se o 3DS falhar. Para cartões de crédito, você pode escolher o comportamento de fallback quando a autenticação 3DS não estiver disponível.',
+                'desc_tip' => 'Cartões de débito: 3DS é obrigatório (sempre recusar se indisponível). Cartões de crédito: Você pode escolher recusar ou continuar sem 3DS apenas para fins de teste.',
                 'default' => 'decline',
                 'options' => array(
-                    'decline' => esc_attr__('Decline transaction (RECOMMENDED for production)', 'woo-rede'),
-                    'continue' => esc_attr__('Continue without 3DS (TESTING ONLY - NOT for production)', 'woo-rede'),
+                    'decline' => 'Recusar transação (RECOMENDADO para produção)',
+                    'continue' => 'Continuar sem 3DS (APENAS TESTES - NÃO para produção)',
                 ),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Credit card fallback behavior when 3DS is unavailable. Debit cards always require 3DS authentication and cannot be bypassed.', 'woo-rede')
+                    'data-title-description' => 'Comportamento de fallback do cartão de crédito quando o 3DS não está disponível. Cartões de débito sempre exigem autenticação 3DS e não podem ser contornados.'
                 )
             ),
 
             '3ds_template_style' => array(
-                'title' => esc_attr__('Template Style for Blocks Editor', 'woo-rede'),
+                'title' => 'Estilo de Template para Editor de Blocos',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('Choose the visual style for the 3D Secure authentication interface. The modern template provides an enhanced user experience with improved design and usability.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Select the template style that will be used during 3D Secure authentication. Modern template offers better visual appeal and user experience.', 'woo-rede'),
+                'description' => 'Escolha o estilo visual para a interface de autenticação 3D Secure. O template moderno oferece uma experiência de usuário aprimorada com design e usabilidade melhorados.',
+                'desc_tip' => 'Selecione o estilo de template que será usado durante a autenticação 3D Secure. O template moderno oferece melhor apelo visual e experiência do usuário.',
                 'default' => 'basic',
                 'options' => array(
-                    'basic' => esc_attr__('Basic Template', 'woo-rede'),
-                    'modern' => esc_attr__('Modern Template (PRO)', 'woo-rede'),
+                    'basic' => 'Template Básico',
+                    'modern' => 'Template Moderno (PRO)',
                 ),
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__('Choose between basic and modern 3DS authentication templates. Modern template provides enhanced visual design and better user experience during payment authentication.', 'woo-rede')
+                    'data-title-description' => 'Escolha entre templates de autenticação 3DS básico e moderno. O template moderno oferece design visual aprimorado e melhor experiência do usuário durante a autenticação de pagamento.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array())
             ),
 
             'installment' => array(
-                'title' => esc_attr__('Installments', 'woo-rede'),
+                'title' => 'Parcelamento',
                 'type' => 'title',
             ),
             'min_parcels_value' => array(
-                'title' => esc_attr__('Value of the smallest installment', 'woo-rede'),
+                'title' => 'Valor da menor parcela',
                 'type' => 'number',
                 'default' => 5,
-                'description' => esc_attr__('Set the minimum installment value for credit card payments. Accepted minimum value by REDE: 5.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Set the minimum allowed amount for each installment in credit transactions.', 'woo-rede'),
+                'description' => 'Defina o valor mínimo da parcela para pagamentos com cartão de crédito. Valor mínimo aceito pela REDE: 5.',
+                'desc_tip' => 'Defina o valor mínimo permitido para cada parcela em transações de crédito.',
                 'custom_attributes' => array(
                     'min' => 5,
                     'step' => 'any',
-                    'data-title-description' => esc_attr__('Enter the minimum value each installment must have.', 'woo-rede')
+                    'data-title-description' => 'Digite o valor mínimo que cada parcela deve ter.'
                 )
             ),
         );
@@ -847,65 +847,65 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         $parcels_options = array();
         for ($i = 1; $i <= 24; $i++) {
             // translators: %d is the number of installments
-            $parcels_options[$i] = sprintf(__('%dx', 'woo-rede'), $i);
+            $parcels_options[$i] = sprintf('%dx', $i);
         }
 
         $this->form_fields['max_parcels_number'] = array(
-            'title' => __('Maximum Number of Installments (Credit Cards Only)', 'woo-rede'),
+            'title' => 'Número Máximo de Parcelas (Apenas Cartões de Crédito)',
             'type' => 'select',
-            'desc_tip' => esc_attr__('Credit cards only - debit always uses single payment.', 'woo-rede'),
+            'desc_tip' => 'Apenas cartões de crédito - débito sempre usa pagamento único.',
             'options' => $parcels_options,
             'custom_attributes' => array(
                 'data-merge-top' => 'true',
                 // translators: %d is the number of installments
-                'data-title-description' => esc_attr__('Maximum number of installments available for credit card transactions. Debit cards are always processed in a single payment.', 'woo-rede')
+                'data-title-description' => 'Número máximo de parcelas disponíveis para transações de cartão de crédito. Cartões de débito são sempre processados em um único pagamento.'
             ),
-            'description' => __('Select the maximum number of installments allowed for credit card payments (up to 24). This setting does not affect debit card transactions, which are always processed as single payments.', 'woo-rede'),
+            'description' => 'Selecione o número máximo de parcelas permitidas para pagamentos com cartão de crédito (até 24). Esta configuração não afeta transações de cartão de débito, que são sempre processadas como pagamentos únicos.',
             'default' => '12',
         );
         
         $this->form_fields = array_merge($this->form_fields, array(
             'interest_or_discount' => array(
-                'title' => esc_attr__('Installment Settings', 'woo-rede'),
+                'title' => 'Configurações de Parcelamento',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'options' => array(
-                    'interest' => __('Interest', 'woo-rede'),
-                    'discount' => __('Discount', 'woo-rede'),
+                    'interest' => 'Juros',
+                    'discount' => 'Desconto',
                 ),
                 'default' => 'interest',
-                'desc_tip' => esc_attr__('Select the option interest or discount. Save to continue configuration.', 'woo-rede'),
-                'description' => esc_attr__('Allows the user to select discount or interest on credit card installments.', 'woo-rede'),
+                'desc_tip' => 'Selecione a opção juros ou desconto. Salve para continuar a configuração.',
+                'description' => 'Permite ao usuário selecionar desconto ou juros no parcelamento do cartão de crédito.',
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__("Defines whether the installment will apply interest or offer a discount. Save to load more settings.", 'woo-rede')
+                    'data-title-description' => 'Define se o parcelamento aplicará juros ou oferecerá desconto. Salve para carregar mais configurações.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
             ),
             'interest_show_percent' => array(
-                'title' => __('Display interest percentage', 'woo-rede'),
-                'label' => __('Display interest percentage.', 'woo-rede'),
+                'title' => 'Exibir porcentagem de juros',
+                'label' => 'Exibir porcentagem de juros.',
                 'type' => 'checkbox',
-                'description' => __('By enabling this feature, the percentage applied to each installment will be displayed to the customer during checkout.', 'woo-rede'),
+                'description' => 'Ao habilitar este recurso, a porcentagem aplicada a cada parcela será exibida ao cliente durante o checkout.',
                 'custom_attributes' => !$isProValid ? array('lkn-is-pro' => 'true') : array(),
                 'default' => 'yes'
             ),
             'installment_interest' => array(
-                'title' => __('Interest on installments', 'woo-rede'),
+                'title' => 'Juros no parcelamento',
                 'type' => 'checkbox',
-                'description' => __('Enables payment with interest on installments.', 'woo-rede'),
+                'description' => 'Habilita pagamento com juros no parcelamento.',
                 'default' => 'no',
-                'desc_tip' => esc_attr__('Enable to allow interest to be charged on installment payments.', 'woo-rede'),
-                'description' => esc_attr__('Allows payment with interest in installments. Save to continue configuration.', 'woo-rede'),
+                'desc_tip' => 'Habilite para permitir que juros sejam cobrados nos pagamentos parcelados.',
+                'description' => 'Permite pagamento com juros no parcelamento. Salve para continuar a configuração.',
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__("Applies an interest rate to each installment. Use this if you want to charge extra per installment.", 'woo-rede')
+                    'data-title-description' => 'Aplica uma taxa de juros a cada parcela. Use isso se quiser cobrar extra por parcela.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
             ),
             'installment_discount' => array(
-                'title' => __('Discount on installments', 'woo-rede'),
+                'title' => 'Desconto no parcelamento',
                 'type' => 'checkbox',
-                'desc_tip' => esc_attr__('Enable to give a discount when the customer chooses to pay in installments.', 'woo-rede'),
-                'description' => esc_attr__('Enables payment with discount on installments.', 'woo-rede'),
+                'desc_tip' => 'Habilite para dar desconto quando o cliente escolher pagar em parcelas.',
+                'description' => 'Habilita pagamento com desconto no parcelamento.',
                 'custom_attributes' => array_merge(array(
-                    'data-title-description' => esc_attr__("Applies a discount per installment when selected. Useful to encourage multi-payment options.", 'woo-rede')
+                    'data-title-description' => 'Aplica um desconto por parcela quando selecionado. Útil para incentivar opções de pagamento múltiplo.'
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
                 'default' => 'no',
             )
@@ -913,7 +913,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         // Minimum interest field per transaction
         $this->form_fields['min_interest'] = array(
-            'title' => __('Minimum Interest', 'woo-rede'),
+            'title' => 'Juros Mínimo',
             'type' => 'number',
             'default' => '0',
             'custom_attributes' => array_merge(array(
@@ -921,9 +921,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'min' => '0',
                 'max' => '100',
                 'merge-top' => "woocommerce_{$this->id}_installment_interest",
-                'data-title-description' => esc_attr__('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede')
+                'data-title-description' => 'Porcentagem de juros mínima que será aplicada independentemente do número de parcelas.'
             ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
-            'description' => __('Minimum interest percentage that will be applied regardless of installment number.', 'woo-rede'),
+            'description' => 'Porcentagem de juros mínima que será aplicada independentemente do número de parcelas.',
         );
 
         // Dynamic fields for each installment
@@ -932,7 +932,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             // Interest field for specific installment
             $this->form_fields["{$i}x"] = array(
                 // translators: %d is the number of installments
-                'title' => sprintf(__('Interest %dx', 'woo-rede'), $i),
+                'title' => sprintf('Juros %dx', $i),
                 'type' => 'number',
                 'default' => '0',
 
@@ -942,15 +942,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'max' => '100',
                     'merge-top' => "woocommerce_{$this->id}_installment_interest",
                     // translators: %d is the number of installments
-                    'data-title-description' => sprintf(esc_attr__('Interest applied when customer selects to pay in %dx. Leave 0 for no interest.', 'woo-rede'), $i)
+                    'data-title-description' => sprintf('Juros aplicado quando o cliente seleciona pagar em %dx. Deixe 0 para sem juros.', $i)
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
-                'description' => __('This option defines the interest on the installment as a percentage. Only accepts numbers. For example, for 10% interest, enter 10. Leave it blank or enter zero for an installment without an interest rate.', 'woo-rede'),
+                'description' => 'Esta opção define os juros do parcelamento como porcentagem. Aceita apenas números. Por exemplo, para 10% de juros, digite 10. Deixe em branco ou digite zero para uma parcela sem taxa de juros.',
             );
 
             // Discount field for specific installment  
             $this->form_fields["{$i}x_discount"] = array(
                 // translators: %d is the number of installments
-                'title' => sprintf(__('Discount %dx', 'woo-rede'), $i),
+                'title' => sprintf('Desconto %dx', $i),
                 'type' => 'number',
                 'default' => '0',
                 'custom_attributes' => array_merge(array(
@@ -959,48 +959,48 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'max' => '100',
                     'merge-top' => "woocommerce_{$this->id}_installment_discount",
                     // translators: %d is the number of installments
-                    'data-title-description' => sprintf(esc_attr__('Discount applied when customer selects to pay in %dx. Leave 0 for no discount.', 'woo-rede'), $i)
+                    'data-title-description' => sprintf('Desconto aplicado quando o cliente seleciona pagar em %dx. Deixe 0 para sem desconto.', $i)
                 ), !$isProValid ? array('lkn-is-pro' => 'true') : array()),
-                'description' => __('This option defines the discount on the installment as a percentage. Only accepts numbers. For example, for 10% discount, enter 10. Leave it blank or enter zero for an installment without a discount rate.', 'woo-rede'),
+                'description' => 'Esta opção define o desconto do parcelamento como porcentagem. Aceita apenas números. Por exemplo, para 10% de desconto, digite 10. Deixe em branco ou digite zero para uma parcela sem taxa de desconto.',
             );
         }
 
         $this->form_fields['developers'] = array(
-            'title' => esc_attr__('Developer', 'woo-rede'),
+            'title' => 'Desenvolvedor',
             'type' => 'title',
         );
 
         $this->form_fields['debug'] = array(
-            'title' => esc_attr__('Debug', 'woo-rede'),
+            'title' => 'Debug',
             'type' => 'checkbox',
-            'label' => esc_attr__('Enable debug logs.', 'woo-rede') . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . __('See logs', 'woo-rede') . '</a>'),
+            'label' => 'Habilitar logs de debug.' . ' ' . wp_kses_post('<a href="' . esc_url(admin_url('admin.php?page=wc-status&tab=logs')) . '" target="_blank">' . 'Ver logs' . '</a>'),
             'default' => 'no',
-            'desc_tip' => esc_attr__('Enable transaction logging.', 'woo-rede'),
+            'desc_tip' => 'Habilitar log de transações.',
             'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
             'custom_attributes' => array(
-                'data-title-description' => esc_attr__("When enabled, all Rede transactions will be logged.", 'woo-rede')
+                'data-title-description' => 'Quando habilitado, todas as transações da Rede serão registradas.'
             ),
         );
 
         if ($this->get_option('debug') == 'yes') {
             $this->form_fields['show_order_logs'] =  array(
-                'title' => __('Visualizar Log no Pedido', 'woo-rede'),
+                'title' => 'Visualizar Log no Pedido',
                 'type' => 'checkbox',
                 'label' => sprintf('Habilita visualização do log da transação dentro do pedido.', 'woo-rede'),
                 'default' => 'no',
-                'desc_tip' => esc_attr__('Useful for quickly viewing payment log data without accessing the system log files.', 'woo-rede'),
-                'description' => esc_attr__('Enable this option to log payment requests and responses for troubleshooting purposes.', 'woo-rede'),
+                'desc_tip' => 'Útil para visualizar rapidamente dados de log de pagamento sem acessar os arquivos de log do sistema.',
+                'description' => 'Habilite esta opção para registrar solicitações e respostas de pagamento para fins de solução de problemas.',
                 'custom_attributes' => array(
                     'data-title-description' => esc_attr__("Enable this to show the transaction details for Rede payments directly in each order’s admin panel.", 'woo-rede')
                 ),
             );
             $this->form_fields['clear_order_records'] =  array(
-                'title' => __('Limpar logs nos Pedidos', 'woo-rede'),
+                'title' => 'Limpar logs nos Pedidos',
                 'type' => 'button',
                 'id' => 'validateLicense',
                 'class' => 'woocommerce-save-button components-button is-primary',
-                'desc_tip' => esc_attr__('Use only if you no longer need the Rede transaction logs for past orders.', 'woo-rede'),
-                'description' => esc_attr__('Click this button to delete all Rede log data stored in orders.', 'woo-rede'),
+                'desc_tip' => 'Use apenas se você não precisar mais dos logs de transação da Rede para pedidos passados.',
+                'description' => 'Clique neste botão para excluir todos os dados de log da Rede armazenados em pedidos.',
             );
         }
 
@@ -1097,12 +1097,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         try {
             $valid = $this->validate_card_number($cardNumber);
             if (false === $valid) {
-                throw new Exception(__('Please enter a valid debit card number', 'woo-rede'));
+                throw new Exception('Por favor, insira um número de cartão de débito válido');
             }
 
             $valid = $this->validate_card_fields($_POST);
             if (false === $valid) {
-                throw new Exception(__('One or more invalid fields', 'woo-rede'), 500);
+                throw new Exception('Um ou mais campos inválidos', 500);
             }
 
             $orderId = $order->get_id();
@@ -1142,7 +1142,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 if (is_array($transaction_response) && isset($transaction_response['result']) && $transaction_response['result'] === '3ds_required') {
                     
                     // Add order note
-                    $order->add_order_note(__('3D Secure authentication required. Customer redirected to bank authentication.', 'woo-rede'));
+                    $order->add_order_note('Autenticação 3D Secure necessária. Cliente redirecionado para autenticação do banco.');
                     
                     return array(
                         'result' => 'success',
@@ -1307,7 +1307,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
 
             if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
+                $order->add_order_note('Rede[Refund Error] ' . 'Reembolso total já processado, verifique o bloco de notas do pedido.');
                 $order->save();
                 return false;
             }

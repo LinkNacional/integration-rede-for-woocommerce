@@ -91,17 +91,17 @@ final class LknIntegrationRedeForWoocommercePublic {
             
             // Configuração de tradução para o script de label de parcelamento
             wp_localize_script('lkn-rede-installment-label', 'lknInstallmentLabelTranslations', array(
-                'payment' => __('Payment', 'woo-rede'),
-                'installment' => __('Installment', 'woo-rede'),
-                'loading' => __('Loading...', 'woo-rede'),
-                'calculatingInstallments' => __('Calculating installments...', 'woo-rede'),
-                'cashPayment' => __('Cash payment', 'woo-rede'),
-                'noInterest' => __('no interest', 'woo-rede'),
-                'noDiscount' => __('no discount', 'woo-rede'),
-                'withDiscount' => __('% discount', 'woo-rede'),
-                'withInterest' => __('% interest', 'woo-rede'),
-                'fallbackInstallment' => __('Payment', 'woo-rede'),
-                'loadingPrice' => __('Loading price...', 'woo-rede')
+                'payment' => 'Pagamento',
+                'installment' => 'Parcelamento',
+                'loading' => 'Carregando...',
+                'calculatingInstallments' => 'Calculando parcelas...',
+                'cashPayment' => 'Pagamento à vista',
+                'noInterest' => 'sem juros',
+                'noDiscount' => 'sem desconto',
+                'withDiscount' => '% desconto',
+                'withInterest' => '% juros',
+                'fallbackInstallment' => 'Pagamento',
+                'loadingPrice' => 'Carregando preço...'
             ));
         }
     }

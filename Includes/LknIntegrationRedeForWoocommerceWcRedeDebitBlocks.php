@@ -63,7 +63,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
                     'visa' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/visa-icon.svg',
                     'otherCard' => plugin_dir_url(__FILE__) . 'assets/cardTemplate/other-card.svg',
                 ),
-                'completeOrder' => __('Complete Order', 'woo-rede')
+                'completeOrder' => 'Finalizar Pedido'
             )
         );
         if (function_exists('wp_set_script_translations')) {
@@ -88,17 +88,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebitBlocks extends AbstractPa
             'maxParcels' => $this->gateway->get_option('max_parcels_number', '12'),
             'minParcelsValue' => $this->gateway->get_option('min_parcels_value', '5'),
             '3dsTemplateStyle' => $this->gateway->get_option('3ds_template_style', 'basic'),
-            'gatewayDescription' => $this->gateway->get_option('description', __('Pay for your purchase with a debit card through', 'woo-rede')),
+            'gatewayDescription' => $this->gateway->get_option('description', 'Pague sua compra com cartão de débito através'),
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
-                'cardNumber' => __('Card Number', 'woo-rede'),
-                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
-                'securityCode' => __('Security Code', 'woo-rede'),
-                'nameOnCard' => __('Name on Card', 'woo-rede'),
-                'cardType' => __('Card Type', 'woo-rede'),
-                'debitCard' => __('Debit Card', 'woo-rede'),
-                'creditCard' => __('Credit Card', 'woo-rede'),
-                'installments' => __('Installments', 'woo-rede'),
+                'fieldsNotFilled' => 'Por favor, preencha todos os campos corretamente.',
+                'cardNumber' => 'Número do Cartão',
+                'cardExpiringDate' => 'Data de Vencimento do Cartão',
+                'securityCode' => 'Código de Segurança',
+                'nameOnCard' => 'Nome no Cartão',
+                'cardType' => 'Tipo de Cartão',
+                'debitCard' => 'Cartão de Débito',
+                'creditCard' => 'Cartão de Crédito',
+                'installments' => 'Parcelas',
             )
         );
     }

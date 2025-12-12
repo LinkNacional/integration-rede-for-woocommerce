@@ -70,13 +70,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCreditBlocks extends AbstractP
             'maxInstallmentsRede' => $maxParcels,
             'cartTotal' => $cart_total,
             'translations' => array(
-                'fieldsNotFilled' => __('Please fill in all fields correctly.', 'woo-rede'),
-                'cardNumber' => __('Card Number', 'woo-rede'),
-                'cardExpiringDate' => __('Card Expiring Date', 'woo-rede'),
-                'securityCode' => __('Security Code', 'woo-rede'),
-                'nameOnCard' => __('Name on Card', 'woo-rede'),
-                'installments' => __('Installments', 'woo-rede'),
-                'interestFree' => ' ' . __('interest-free', 'woo-rede'),
+                'fieldsNotFilled' => 'Por favor, preencha todos os campos corretamente.',
+                'cardNumber' => 'Número do Cartão',
+                'cardExpiringDate' => 'Data de Vencimento do Cartão',
+                'securityCode' => 'Código de Segurança',
+                'nameOnCard' => 'Nome no Cartão',
+                'installments' => 'Parcelas',
+                'interestFree' => ' ' . 'sem juros',
             )
         );
 

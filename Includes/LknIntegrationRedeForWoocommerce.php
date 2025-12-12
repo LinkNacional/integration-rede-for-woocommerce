@@ -799,18 +799,18 @@ final class LknIntegrationRedeForWoocommerce
         ?>
         <div class="notice notice-warning" style="border-left-color: #ffb900; padding: 15px;">
             <h3 style="margin-top: 0; color: #000;">
-                <?php esc_html_e('⚠️ Plugin Update Required - Rede Integration for WooCommerce Pro', 'woo-rede'); ?>
+                ⚠️ Atualização de Plugin Necessária - Integração da Rede para WooCommerce Pro
             </h3>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong><?php esc_html_e('Important:', 'woo-rede'); ?></strong>
-                <?php esc_html_e('Rede\'s authentication protocol will be changed to OAuth 2.0 on 01/05/2026. All customers using e.Rede must update the plugin. This measure will contribute to security and help prevent targeted attacks on your transactions. After the deadline, transactions can only be performed using the updated plugin.', 'woo-rede'); ?>
+                <strong>Importante:</strong>
+                O protocolo de autenticação da Rede será alterado para OAuth 2.0 em 05/01/2026. Todos os clientes que usam e.Rede devem atualizar o plugin. Esta medida contribuirá para a segurança e ajudará a prevenir ataques direcionados às suas transações. Após o prazo, as transações só poderão ser realizadas usando o plugin atualizado.
             </p>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong><?php esc_html_e('Action Required (For PRO Users):', 'woo-rede'); ?></strong>
+                <strong>Ação Necessária (Para Usuários PRO):</strong>
                 <?php 
                 echo sprintf(
                     /* translators: %1$s is the current PRO version, %2$s is the required version */
-                    esc_html__('Your Rede Plugin PRO version %1$s needs to be updated to version %2$s or higher.', 'woo-rede'),
+                    'Sua versão %1$s do Plugin PRO da Rede precisa ser atualizada para a versão %2$s ou superior.',
                     '<code>' . esc_html($pro_version) . '</code>',
                     '<code>2.2.0</code>'
                 );
@@ -818,7 +818,7 @@ final class LknIntegrationRedeForWoocommerce
             </p>
             <p style="margin-bottom: 0;">
                 <a href="https://developer.userede.com.br/e-rede" target="_blank" class="button">
-                    <?php esc_html_e('Check what changes', 'woo-rede'); ?>
+                    Verificar as mudanças
                 </a>
                 <?php
                 // Create update URL for PRO plugin
@@ -829,7 +829,7 @@ final class LknIntegrationRedeForWoocommerce
                 );
                 ?>
                 <a href="<?php echo esc_url($update_url); ?>" class="button button-primary">
-                    <?php esc_html_e('Update Now', 'woo-rede'); ?>
+                    Atualizar Agora
                 </a>
             </p>
         </div>
@@ -839,7 +839,7 @@ final class LknIntegrationRedeForWoocommerce
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = __('Rede Pix FREE', 'woo-rede');
+            $title = 'Rede Pix GRÁTIS';
         }
         return $title;
     }
@@ -859,7 +859,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Só adiciona a ação se for um pedido PIX
         if ($payment_method === 'integration_rede_pix' || $payment_method === 'rede_pix') {
-            $actions['verify_pix_status'] = __('Verificar Status PIX', 'woo-rede');
+            $actions['verify_pix_status'] = 'Verificar Status PIX';
         }
         
         return $actions;
@@ -874,7 +874,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Validar se é pedido PIX
         if ($payment_method !== 'integration_rede_pix' && $payment_method !== 'rede_pix') {
-            $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
+            $order->add_order_note('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.');
             return;
         }
         
@@ -887,7 +887,7 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         if (empty($tId)) {
-            $order->add_order_note(__('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
+            $order->add_order_note('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.');
             return;
         }
         
@@ -902,7 +902,7 @@ final class LknIntegrationRedeForWoocommerce
             $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
             
             if (!$token_data || empty($token_data['token'])) {
-                throw new \Exception(__('Erro ao obter token de autenticação.', 'woo-rede'));
+                throw new \Exception('Erro ao obter token de autenticação.');
             }
             
             // API v2 da Rede
@@ -920,7 +920,7 @@ final class LknIntegrationRedeForWoocommerce
             ));
             
             if (is_wp_error($response)) {
-                throw new \Exception(__('Erro na comunicação com a API: ', 'woo-rede') . $response->get_error_message());
+                throw new \Exception('Erro na comunicação com a API: ' . $response->get_error_message());
             }
             
             $response_body = json_decode(wp_remote_retrieve_body($response), true);
@@ -938,18 +938,18 @@ final class LknIntegrationRedeForWoocommerce
                     }
                     
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
+                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
                     $order->update_status($paymentCompleteStatus);
                 } else {
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
+                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
                 }
             } else {
-                $order->add_order_note(__('Manual PIX Verification: Payment not confirmed by Rede. Transaction status: ', 'woo-rede') . $status);
+                $order->add_order_note('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ' . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note(__('Manual PIX Verification: Failed to query payment from Rede. Details: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note('Verificação Manual PIX: Falha ao consultar pagamento na Rede. Detalhes: ' . $e->getMessage());
         }
         
         $order->save();
@@ -978,7 +978,7 @@ final class LknIntegrationRedeForWoocommerce
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
-            __('Settings', 'woo-rede')
+            'Configurações'
         );
 
         return array_merge($plugin_meta, $new_meta_links);
@@ -990,7 +990,7 @@ final class LknIntegrationRedeForWoocommerce
         $url = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
-            __('Be pro', 'woo-rede')
+            'Seja PRO'
         );
 
         // Crie o novo link de meta
@@ -1235,26 +1235,26 @@ final class LknIntegrationRedeForWoocommerce
         // Determinar o nome do método de pagamento
         $payment_method_name = '';
         if ($chosen_payment_method === 'rede_credit') {
-            $payment_method_name = __('Rede Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Rede';
         } elseif ($chosen_payment_method === 'rede_debit') {
-            $payment_method_name = __('Rede Debit/Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão Débito/Crédito Rede';
         } elseif ($chosen_payment_method === 'maxipago_credit') {
-            $payment_method_name = __('Maxipago Credit Card', 'woo-rede');
+            $payment_method_name = 'Cartão de Crédito Maxipago';
         }
 
         // Gerar a informação de pagamento e label dinâmico
         if ($installment == 1) {
-            $payment_label = __('Payment', 'woo-rede');
-            $payment_info = __('Cash payment', 'woo-rede');
+            $payment_label = 'Pagamento';
+            $payment_info = 'Pagamento à vista';
         } else {
-            $payment_label = __('Installment', 'woo-rede');
+            $payment_label = 'Parcelamento';
             // Calcular valor da parcela (simples divisão)
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
             $payment_info = sprintf(
                 // translators: %1$d is the number of installments, %2$s is the formatted price per installment
-                __('%1$dx of %2$s', 'woo-rede'),
+                '%1$dx de %2$s',
                 $installment,
                 $formatted_value
             );
@@ -1411,7 +1411,7 @@ final class LknIntegrationRedeForWoocommerce
         // Caso não encontre nenhuma correspondência
         return [
             'status' => false,
-            'message' => __('Card brand not found', 'woo-rede'),
+            'message' => 'Bandeira do cartão não encontrada',
         ];
     }
 }

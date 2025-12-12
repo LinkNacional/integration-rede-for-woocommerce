@@ -80,36 +80,36 @@ final class LknIntegrationRedeForWoocommerceAdmin
         }
 
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
-            'proSettings' => __('PRO Settings', 'woo-rede'),
-            'license' => __('License', 'woo-rede'),
-            'currency' => __('Currency Converter', 'woo-rede'),
-            'currencyQuote' => __('Currency Quote', 'woo-rede'),
-            'autoCapture' => __('Auto Capture', 'woo-rede'),
-            'autoCaptureLabel' => __('Enables auto capture', 'woo-rede'),
-            'customCssShortcode' => __('Custom CSS (Shortcode)', 'woo-rede'),
-            'customCssBlockEditor' => __('Custom CSS (Block Editor)', 'woo-rede'),
-            'interestOnInstallments' => __('Interest on installments', 'woo-rede'),
-            'interestOnInstallmentsDescTip' => __('Select the option interest or discount. Save to continue configuration.', 'woo-rede'),
-            'licenseDescTip' => __('License for Rede for WooCommerce plugin extensions.', 'woo-rede'),
-            'currencyDescTip' => __('If enabled, automatically converts the order amount to BRL when processing payment.', 'woo-rede'),
-            'currencyQuoteDescTip' => __('These are the real-time exchange rates, indicating the value of each listed foreign currency in Brazilian Reais (BRL).', 'woo-rede'),
-            'autoCaptureDescTip' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'woo-rede'),
-            'customCssShortcodeDescTip' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'customCssBlockEditorDescTip' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'becomePRO' => __('PRO', 'woo-rede'),
-            'licenseDescription' => __('License for Rede plugin extensions.', 'woo-rede'),
-            'currencyDescription' => __('Automatically converts payment amounts to BRL.', 'woo-rede'),
-            'autoCaptureDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
-            'autoCaptureDebitLabel' => __('Enable automatic capture for credit card transactions', 'woo-rede'),
-            'customCssShortcodeDescription' => __('Define CSS rules for the shortcode.', 'woo-rede'),
-            'customCssBlockEditorDescription' => __('Define CSS rules for the block editor.', 'woo-rede'),
-            'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'woo-rede'),
-            'licenseDataDescription' => __('Save to enable other options.', 'woo-rede'),
-            'quoteDataDescription' => __('These are the real-time exchange rates, indicating the value of each listed foreign currency in Brazilian Reais (BRL).', 'woo-rede'),
-            'autoCaptureDataDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
-            'cssShortcodeDataDescription' => __('Customize the Shortcode CSS using selectors and rules.', 'woo-rede'),
-            'cssBlockEditorDataDescription' => __('Customize the Block Editor CSS using selectors and rules.', 'woo-rede'),
-            'installmentInterestDataDescription' => __('Applies an interest rate to each installment. Use this if you want to charge extra per installment.', 'woo-rede'),
+            'proSettings' => 'Configurações PRO',
+            'license' => 'Licença',
+            'currency' => 'Conversor de Moeda',
+            'currencyQuote' => 'Cotação de Moeda',
+            'autoCapture' => 'Captura Automática',
+            'autoCaptureLabel' => 'Habilita captura automática',
+            'customCssShortcode' => 'CSS Personalizado (Shortcode)',
+            'customCssBlockEditor' => 'CSS Personalizado (Editor de Blocos)',
+            'interestOnInstallments' => 'Juros no parcelamento',
+            'interestOnInstallmentsDescTip' => 'Selecione a opção juros ou desconto. Salve para continuar a configuração.',
+            'licenseDescTip' => 'Licença para extensões do plugin Rede para WooCommerce.',
+            'currencyDescTip' => 'Se habilitado, converte automaticamente o valor do pedido para BRL ao processar o pagamento.',
+            'currencyQuoteDescTip' => 'Estas são as taxas de câmbio em tempo real, indicando o valor de cada moeda estrangeira listada em Reais Brasileiros (BRL).',
+            'autoCaptureDescTip' => 'Ao habilitar a captura automática, o pagamento é capturado automaticamente imediatamente após a transação.',
+            'customCssShortcodeDescTip' => 'Possibilidade de personalizar o CSS do shortcode. Digite o seletor e as regras, exemplo: .checkout{color:green;}.',
+            'customCssBlockEditorDescTip' => 'Possibilidade de personalizar o CSS no checkout do editor de blocos. Digite o seletor e as regras, exemplo: .checkout{color:green;}.',
+            'becomePRO' => 'PRO',
+            'licenseDescription' => 'Licença para extensões do plugin Rede.',
+            'currencyDescription' => 'Converte automaticamente valores de pagamento para BRL.',
+            'autoCaptureDescription' => 'Captura automaticamente o pagamento uma vez autorizado pela Rede.',
+            'autoCaptureDebitLabel' => 'Habilitar captura automática para transações de cartão de crédito',
+            'customCssShortcodeDescription' => 'Define regras CSS para o shortcode.',
+            'customCssBlockEditorDescription' => 'Define regras CSS para o editor de blocos.',
+            'interestOnInstallmentsDescription' => 'Habilita pagamento com juros no parcelamento. Salve para continuar a configuração. Após habilitar os juros do parcelamento, você pode definir o valor dos juros de acordo com o parcelamento.',
+            'licenseDataDescription' => 'Salve para habilitar outras opções.',
+            'quoteDataDescription' => 'Estas são as taxas de câmbio em tempo real, indicando o valor de cada moeda estrangeira listada em Reais Brasileiros (BRL).',
+            'autoCaptureDataDescription' => 'Captura automaticamente o pagamento uma vez autorizado pela Rede.',
+            'cssShortcodeDataDescription' => 'Personalize o CSS do Shortcode usando seletores e regras.',
+            'cssBlockEditorDataDescription' => 'Personalize o CSS do Editor de Blocos usando seletores e regras.',
+            'installmentInterestDataDescription' => 'Aplica uma taxa de juros a cada parcela. Use isso se quiser cobrar extra por parcela.',
         ));
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
@@ -136,9 +136,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
         $tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
         $section = isset($_GET['section']) ? sanitize_text_field(wp_unslash($_GET['section'])) : '';
 
-        $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . 2.1;
+        $versions = 'Plugin Rede API v' . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . 'PRO v' . 2.1;
         if (defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION')) {
-            $versions = __('Plugin Rede API v', 'woo-rede') . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . __('PRO v', 'woo-rede') . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
+            $versions = 'Plugin Rede API v' . INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION . ' | ' . 'PRO v' . REDE_FOR_WOOCOMMERCE_PRO_VERSION;
         }
 
         if (isset($_GET['section']) && sanitize_text_field(wp_unslash($_GET['section'])) === 'integration_rede_pix') {
@@ -193,8 +193,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 plugin_dir_path(__FILE__) . '../Includes/templates/'
             );
             wp_localize_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', 'lknWcRedeTranslations', array(
-                'clearLogs' => __('Limpar Logs', 'woo-rede'),
-                'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
+                'clearLogs' => 'Limpar Logs',
+                'alertText' => 'Deseja realmente deletar todos logs dos pedidos?'
             ));
             wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(
                 'basic' => plugin_dir_url(__FILE__) . 'images/basicTemplate.png',
