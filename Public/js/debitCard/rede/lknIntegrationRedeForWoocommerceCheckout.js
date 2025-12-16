@@ -585,6 +585,8 @@ const ContentRedeDebit = props => {
               value={formatDebitCardNumber(debitObject.rede_debit_number)}
               onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
               onFocus={() => setFocus('number')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.lock && (
               <img src={cardTemplateAssets.lock} alt="" className="modern-field-icon" />
@@ -617,6 +619,8 @@ const ContentRedeDebit = props => {
               value={debitObject.rede_debit_expiry}
               onChange={value => updateDebitObject('rede_debit_expiry', value)}
               onFocus={() => setFocus('expiry')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.calendar && (
               <img src={cardTemplateAssets.calendar} alt="" className="modern-field-icon" />
@@ -629,6 +633,8 @@ const ContentRedeDebit = props => {
               value={debitObject.rede_debit_cvc}
               onChange={value => updateDebitObject('rede_debit_cvc', value)}
               onFocus={() => setFocus('cvc')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.key && (
               <img src={cardTemplateAssets.key} alt="" className="modern-field-icon" />
@@ -727,6 +733,8 @@ const ContentRedeDebit = props => {
         value={formatDebitCardNumber(debitObject.rede_debit_number)}
         onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
         onFocus={() => setFocus('number')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       <wcComponents.TextInput
         id="rede_debit_expiry"
@@ -734,6 +742,8 @@ const ContentRedeDebit = props => {
         value={debitObject.rede_debit_expiry}
         onChange={value => updateDebitObject('rede_debit_expiry', value)}
         onFocus={() => setFocus('expiry')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       <wcComponents.TextInput
         id="rede_debit_cvc"
@@ -741,6 +751,8 @@ const ContentRedeDebit = props => {
         value={debitObject.rede_debit_cvc}
         onChange={value => updateDebitObject('rede_debit_cvc', value)}
         onFocus={() => setFocus('cvc')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       {cardTypeRestriction === 'both' && (
         <div className="lknIntegrationRedeForWoocommerceSelectBlocks lknIntegrationRedeForWoocommerceSelect3dsInstallments">
