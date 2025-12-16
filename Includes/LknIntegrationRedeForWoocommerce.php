@@ -392,6 +392,17 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Para rede_credit, verificar se as configurações de juros/desconto estão ativadas
+        $apply_pro_features = false;
+        if ($is_pro_active && isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
+            $installment_interest = $this->wc_rede_credit_class->get_option('installment_interest');
+            $installment_discount = $this->wc_rede_credit_class->get_option('installment_discount');
+            
+            if ($installment_interest === 'yes' || $installment_discount === 'yes') {
+                $apply_pro_features = true;
+            }
+        }
+
         // Obter valor mínimo da parcela das configurações
         $min_installment_value = 5; // Valor padrão
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
@@ -408,7 +419,7 @@ final class LknIntegrationRedeForWoocommerce
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
                     $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -418,8 +429,8 @@ final class LknIntegrationRedeForWoocommerce
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
-            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
-            if ($is_pro_active) {
+            // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
+            if ($apply_pro_features) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_credit');
             } else {
                 $label = $base_label;
@@ -509,6 +520,17 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Para rede_debit, verificar se as configurações de juros/desconto estão ativadas
+        $apply_pro_features = false;
+        if ($is_pro_active && isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
+            $installment_interest = $this->wc_rede_debit_class->get_option('installment_interest');
+            $installment_discount = $this->wc_rede_debit_class->get_option('installment_discount');
+            
+            if ($installment_interest === 'yes' || $installment_discount === 'yes') {
+                $apply_pro_features = true;
+            }
+        }
+
         // Obter valor mínimo da parcela das configurações
         $min_installment_value = 5; // Valor padrão
         if (isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
@@ -525,7 +547,7 @@ final class LknIntegrationRedeForWoocommerce
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
                     $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -535,8 +557,8 @@ final class LknIntegrationRedeForWoocommerce
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
-            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
-            if ($is_pro_active) {
+            // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
+            if ($apply_pro_features) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_debit');
             } else {
                 $label = $base_label;
@@ -699,7 +721,17 @@ final class LknIntegrationRedeForWoocommerce
         // Verificar se há checkbox "sem juros" marcado
         $no_interest_key = "{$installment_number}x_no_interest";
         if (isset($gatewaySettings[$no_interest_key]) && $gatewaySettings[$no_interest_key] === 'yes') {
-            return $base_label . ' sem juros';
+            // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+            if ($gateway === 'rede_debit') {
+                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                if ($show_percent) {
+                    return $base_label . ' sem juros';
+                } else {
+                    return $base_label;
+                }
+            } else {
+                return $base_label . ' sem juros';
+            }
         }
 
         // Verificar o valor de juros/desconto
@@ -734,30 +766,66 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
-        // Se o valor for 0 ou vazio, adicionar "sem juros"
+        // Se o valor for 0 ou vazio, adicionar "sem juros" apenas se configurado para mostrar
         if ($value === 0) {
-            return $base_label . ' sem juros';
+            // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+            if ($gateway === 'rede_debit') {
+                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                if ($show_percent) {
+                    return $base_label . ' sem juros';
+                } else {
+                    return $base_label;
+                }
+            } else {
+                return $base_label . ' sem juros';
+            }
         }
 
         // Calcular novo valor da parcela com juros/desconto
         $newInstallmentValue = $installmentValue;
+
+        // Verificar se deve mostrar porcentagem na label (apenas para rede_debit)
+        $show_percent = true;
+        if ($gateway === 'rede_debit') {
+            $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+        }
 
         if ($is_discount) {
             // Aplicar desconto
             $total_with_discount = ($cartTotal * (1 - ($value / 100))) + $extra_fees;
             $newInstallmentValue = $total_with_discount / $installment_number;
             $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
-            return $new_label . " ({$value}% de desconto)";
+            
+            if ($show_percent) {
+                return $new_label . " ({$value}% de desconto)";
+            } else {
+                return $new_label;
+            }
         } else {
             // Para juros, verificar se deve ignorar devido ao valor mínimo da parcela
             if ($ignoreInterest) {
-                return $base_label . ' sem juros';
+                // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+                if ($gateway === 'rede_debit') {
+                    $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                    if ($show_percent) {
+                        return $base_label . ' sem juros';
+                    } else {
+                        return $base_label;
+                    }
+                } else {
+                    return $base_label . ' sem juros';
+                }
             } else {
                 // Aplicar juros
                 $total_with_interest = ($cartTotal * (1 + ($value / 100))) + $extra_fees;
                 $newInstallmentValue = $total_with_interest / $installment_number;
                 $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
-                return $new_label . " ({$value}% de juros)";
+                
+                if ($show_percent) {
+                    return $new_label . " ({$value}% de juros)";
+                } else {
+                    return $new_label;
+                }
             }
         }
     }
