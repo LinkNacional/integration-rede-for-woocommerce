@@ -58,6 +58,20 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const installmentCount = getInstallmentCount();
         
+        // Verificação especial para rede_debit em modo crédito
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const cardTypeSelector = document.querySelector('#card_type_selector');
+            const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+            const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+            
+            // Se está em modo crédito e tem select de parcelas, deve mostrar
+            if (isInCreditMode && hasInstallmentSelect && hasInstallmentSelect.options.length > 0) {
+                isSelectVisible = true;
+                return true;
+            }
+        }
+        
         // Se o número de parcelas mudou, atualiza o controle
         if (installmentCount !== lastInstallmentCount) {
             lastInstallmentCount = installmentCount;
@@ -381,8 +395,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
         const totalElements = loadingSkeletons.length + existingParcelamentos.length;
 
+        const shouldShow = shouldShowInstallmentLabel();
+
         // Se não deve mostrar o label, remove todos os elementos existentes
-        if (!shouldShowInstallmentLabel()) {
+        if (!shouldShow) {
             loadingSkeletons.forEach(function (skeleton) {
                 if (skeleton && skeleton.parentNode) {
                     skeleton.remove();
@@ -426,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateElement(parcelamento);
                 });
             }
+        } else if (shouldShow) {
+            // NOVO: Se deve mostrar mas não há elementos, cria novos
+            insertRedeInfo();
         }
     }
 
@@ -658,14 +677,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
                 if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
                     // Força nova verificação para rede_debit após mudanças no DOM
-                    setTimeout(() => {
+                    // Múltiplas tentativas para sites lentos
+                    const verifyAndAdd = (attempt = 0) => {
                         const cardTypeSelector = document.querySelector('#card_type_selector');
                         if (cardTypeSelector && !cardTypeSelector.dataset.listenerAdded) {
                             // Remove flag para re-adicionar listener
                             cardTypeSelector.dataset.listenerAdded = '';
                             addSelectChangeListeners();
+                        } else if (attempt < 3 && !cardTypeSelector) {
+                            // Se não encontrou ainda, tenta novamente
+                            setTimeout(() => verifyAndAdd(attempt + 1), 500);
                         }
-                    }, 200);
+                    };
+                    
+                    setTimeout(() => verifyAndAdd(), 200);
                 }
             }, 500);
         }
@@ -730,14 +755,46 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
                     // Reset o controle de parcelas para forçar nova verificação
                     lastInstallmentCount = -1;
+                    isSelectVisible = false; // Reset visibility
                     
                     // Remove todas as infos existentes primeiro
                     removeRedeInfo();
                     
-                    // Aguarda um pouco e reprocessa
-                    setTimeout(() => {
-                        updateLoadingSkeletons();
-                    }, 300);
+                    if (cardTypeSelector.value === 'credit') {
+                        // Quando volta para crédito, força nova detecção
+                        // Para sites lentos: múltiplas tentativas com intervalos crescentes
+                        const retryAttempts = [100, 500, 1000, 2000, 4000];
+                        let attemptIndex = 0;
+                        
+                        const retryUpdate = () => {
+                            // Verifica se ainda está em crédito
+                            if (cardTypeSelector.value !== 'credit') {
+                                return;
+                            }
+                            
+                            // Reset flags para forçar nova verificação
+                            const processedDivs = document.querySelectorAll('.rede-processed');
+                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                            
+                            // Força atualização
+                            updateLoadingSkeletons();
+                            
+                            // Verifica se conseguiu inserir as labels
+                            setTimeout(() => {
+                                const hasLabels = document.querySelectorAll('.rede-payment-info-blocks').length > 0;
+                                const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+                                const shouldContinue = !hasLabels && hasInstallmentSelect && attemptIndex < retryAttempts.length;
+                                
+                                if (shouldContinue) {
+                                    attemptIndex++;
+                                    setTimeout(retryUpdate, retryAttempts[attemptIndex - 1]);
+                                }
+                            }, 300);
+                        };
+                        
+                        // Primeira tentativa imediata
+                        retryUpdate();
+                    }
                 }
             });
             
@@ -764,17 +821,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                     
                     if (optionsChanged) {
-                        setTimeout(() => {
-                            if (shouldShowInstallmentLabel()) {
-                                const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
-                                if (existingLabels.length === 0) {
-                                    // Reset processed state to allow new creation
-                                    const processedDivs = document.querySelectorAll('.rede-processed');
-                                    processedDivs.forEach(div => div.classList.remove('rede-processed'));
-                                    insertRedeInfo();
+                        // Para sites lentos: tenta múltiplas vezes com delays diferentes
+                        const attemptUpdate = (delay, maxAttempts = 3, currentAttempt = 0) => {
+                            setTimeout(() => {
+                                if (shouldShowInstallmentLabel()) {
+                                    const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                    if (existingLabels.length === 0) {
+                                        // Reset processed state to allow new creation
+                                        const processedDivs = document.querySelectorAll('.rede-processed');
+                                        processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                                        insertRedeInfo();
+                                        
+                                        // Verifica se conseguiu inserir, senão tenta novamente
+                                        setTimeout(() => {
+                                            const newLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                            if (newLabels.length === 0 && currentAttempt < maxAttempts) {
+                                                attemptUpdate(delay * 1.5, maxAttempts, currentAttempt + 1);
+                                            }
+                                        }, 200);
+                                    }
                                 }
-                            }
-                        }, 300);
+                            }, delay);
+                        };
+                        
+                        // Primeira tentativa rápida
+                        attemptUpdate(300);
                     }
                 });
                 
@@ -798,6 +869,53 @@ document.addEventListener('DOMContentLoaded', function () {
         subtree: true
     });
 
+    // Observer específico para o container do total - detecta quando só aparece o total sem as parcelas
+    const totalsContainer = document.querySelector('.wc-block-components-totals-wrapper');
+    if (totalsContainer) {
+        const totalsObserver = new MutationObserver(function(mutations) {
+            let shouldCheck = false;
+            
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // Verifica se houve mudança no total mas não há labels de parcelas
+                    const hasTotal = totalsContainer.querySelector('.wc-block-components-totals-footer-item');
+                    const hasRedeLabels = totalsContainer.querySelector('.rede-payment-info-blocks');
+                    
+                    if (hasTotal && !hasRedeLabels) {
+                        shouldCheck = true;
+                    }
+                }
+            });
+            
+            if (shouldCheck) {
+                setTimeout(() => {
+                    // Verifica se é rede_debit em modo crédito e deveria ter labels
+                    const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+                    if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+                        const cardTypeSelector = document.querySelector('#card_type_selector');
+                        const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+                        const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+                        
+                        if (isInCreditMode && hasInstallmentSelect) {
+                            // Reset e força recriação
+                            const processedDivs = document.querySelectorAll('.rede-processed');
+                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                            lastInstallmentCount = -1;
+                            isSelectVisible = false;
+                            
+                            updateLoadingSkeletons();
+                        }
+                    }
+                }, 500);
+            }
+        });
+        
+        totalsObserver.observe(totalsContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+
     // Observer adicional para verificações periódicas mais inteligentes
     let checkAttempts = 0;
     const maxCheckAttempts = 30; // 1 minuto de tentativas (30 x 2s)
@@ -808,10 +926,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isRedeMethodSelected() && shouldShowInstallmentLabel()) {
             const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
             const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments) select').length > 0;
+            const hasModernSelect = document.querySelector('#card_installment_selector');
             
-            if (existingLabels.length === 0 && hasInstallmentSelects) {
+            // Verifica se é rede_debit e está em modo crédito
+            const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+            const isRedeDebit = selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit';
+            const cardTypeSelector = document.querySelector('#card_type_selector');
+            const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+            
+            const shouldHaveLabels = hasInstallmentSelects || (isRedeDebit && isInCreditMode && hasModernSelect);
+            
+            if (existingLabels.length === 0 && shouldHaveLabels) {
+                // Força reset e recriação
                 const processedDivs = document.querySelectorAll('.rede-processed');
                 processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                lastInstallmentCount = -1; // Reset para forçar nova detecção
                 insertRedeInfo();
             }
         }
