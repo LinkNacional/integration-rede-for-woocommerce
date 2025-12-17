@@ -714,7 +714,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             }
 
             $order_total = wc_format_decimal($order_total, $decimals);
-            
+
             try {
                 $transaction_response = $this->process_credit_transaction_v2($orderId . '-' . time(), $order_total, $installments, $cardData);
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction_response, $order);
