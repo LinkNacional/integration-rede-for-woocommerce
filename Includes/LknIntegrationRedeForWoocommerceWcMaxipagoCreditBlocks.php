@@ -71,7 +71,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             'translations' => array(
                 'fieldsNotFilled' => 'Por favor, preencha todos os campos corretamente.',
                 'cardNumber' => 'Número do Cartão',
-                'cardExpiringDate' => 'Data de Vencimento do Cartão',
+                'cardExpiringDate' => 'Data de Expiração',
                 'securityCode' => 'Código de Segurança',
                 'nameOnCard' => 'Nome no Cartão',
                 'installments' => 'Parcelas',
