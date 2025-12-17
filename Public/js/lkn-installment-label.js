@@ -395,8 +395,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
         const totalElements = loadingSkeletons.length + existingParcelamentos.length;
 
+        const shouldShow = shouldShowInstallmentLabel();
+
         // Se não deve mostrar o label, remove todos os elementos existentes
-        if (!shouldShowInstallmentLabel()) {
+        if (!shouldShow) {
             loadingSkeletons.forEach(function (skeleton) {
                 if (skeleton && skeleton.parentNode) {
                     skeleton.remove();
@@ -440,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateElement(parcelamento);
                 });
             }
+        } else if (shouldShow) {
+            // NOVO: Se deve mostrar mas não há elementos, cria novos
+            insertRedeInfo();
         }
     }
 
