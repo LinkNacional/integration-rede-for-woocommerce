@@ -11,7 +11,7 @@
   margin: 0 auto;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-  font-size: 18px !important;
+  font-size: 13px !important;
 }
 
 /* Field rows - 100% width */
@@ -47,7 +47,7 @@
   width: 100%;
   box-sizing: border-box;
   height: 3.125em !important;
-  font-size: 18px !important;
+  font-size: 13px !important;
   font-family: inherit !important;
   line-height: 3.125em !important;
   vertical-align: middle !important;
@@ -82,7 +82,7 @@
   margin-bottom: 8px;
   font-weight: 500;
   color: #374151;
-  font-size: 18px !important;
+  font-size: 13px !important;
   font-family: inherit !important;
 }
 
@@ -99,7 +99,8 @@
   background-position: right 12px center;
   background-size: 12px;
   height: 3.125em !important;
-  font-size: 18px !important;
+  font-size: 13px !important;
+  color: rgb(60, 60, 66) !important;
   font-family: inherit !important;
   line-height: 3.125em !important;
   vertical-align: middle !important;
@@ -119,7 +120,7 @@
   border: none;
   border-radius: 4px;
   padding: 15px 20px;
-  font-size: 18px !important;
+  font-size: 13px !important;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -168,7 +169,7 @@
   width: 100%;
   box-sizing: border-box;
   height: 3.125em !important;
-  font-size: 18px !important;
+  font-size: 13px !important;
   font-family: inherit !important;
   line-height: 3.125em !important;
   vertical-align: middle !important;
@@ -185,7 +186,7 @@
   margin-bottom: 8px;
   font-weight: 500;
   color: #374151;
-  font-size: 18px !important;
+  font-size: 13px !important;
   font-family: inherit !important;
 }
 

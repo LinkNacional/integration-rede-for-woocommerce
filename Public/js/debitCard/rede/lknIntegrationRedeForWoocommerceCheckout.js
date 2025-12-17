@@ -349,6 +349,101 @@ const ContentRedeDebit = props => {
     };
   }, []);
 
+  // useEffect para gerenciar eventos de focus e blur nos campos do cartão
+  window.wp.element.useEffect(() => {
+    const handleFocusBlur = () => {
+      // Lista de IDs dos campos do cartão
+      const cardFields = [
+        'rede_debit_number',
+        'rede_debit_holder_name', 
+        'rede_debit_expiry',
+        'rede_debit_cvc'
+      ];
+
+      cardFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+          // Remove event listeners existentes para evitar duplicação
+          input.removeEventListener('focus', handleFieldFocus);
+          input.removeEventListener('blur', handleFieldBlur);
+          
+          // Adiciona os novos event listeners
+          input.addEventListener('focus', handleFieldFocus);
+          input.addEventListener('blur', handleFieldBlur);
+
+          // Verifica se o campo já tem valor e aplica a classe is-active
+          const container = input.closest('.wc-block-components-text-input');
+          if (container && input.value && input.value.trim() !== '') {
+            container.classList.add('is-active');
+          }
+        }
+      });
+
+      function handleFieldFocus(event) {
+        const input = event.target;
+        const container = input.closest('.wc-block-components-text-input');
+        if (container && !container.classList.contains('is-active')) {
+          container.classList.add('is-active');
+        }
+      }
+
+      function handleFieldBlur(event) {
+        const input = event.target;
+        const container = input.closest('.wc-block-components-text-input');
+        if (container) {
+          // Remove a classe is-active apenas se o campo estiver vazio
+          if (!input.value || input.value.trim() === '') {
+            container.classList.remove('is-active');
+          }
+          // Se o campo tem valor, mantém a classe is-active
+        }
+      }
+
+      // Cleanup function para remover os event listeners
+      return () => {
+        cardFields.forEach(fieldId => {
+          const input = document.getElementById(fieldId);
+          if (input) {
+            input.removeEventListener('focus', handleFieldFocus);
+            input.removeEventListener('blur', handleFieldBlur);
+          }
+        });
+      };
+    };
+
+    // Executa imediatamente e configura um observer para mudanças no DOM
+    const setupListeners = handleFocusBlur();
+
+    // Observer para detectar quando novos elementos são adicionados ao DOM
+    const observer = new MutationObserver(() => {
+      // Aguarda um pouco para garantir que os elementos foram renderizados
+      setTimeout(handleFocusBlur, 100);
+    });
+
+    // Observa mudanças no container do formulário
+    const paymentContainer = document.querySelector('#radio-control-wc-payment-method-options-rede_debit__content');
+    if (paymentContainer) {
+      observer.observe(paymentContainer, { 
+        childList: true, 
+        subtree: true 
+      });
+    } else {
+      // Se não encontrou o container específico, observa o body
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+      });
+    }
+
+    // Cleanup geral
+    return () => {
+      observer.disconnect();
+      if (setupListeners) {
+        setupListeners();
+      }
+    };
+  }, [debitObject]); // Reexecuta quando debitObject muda
+
   const formatDebitCardNumber = value => {
     if (value?.length > 19) return debitObject.rede_debit_number;
     // Remove caracteres não numéricos
@@ -585,6 +680,8 @@ const ContentRedeDebit = props => {
               value={formatDebitCardNumber(debitObject.rede_debit_number)}
               onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
               onFocus={() => setFocus('number')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.lock && (
               <img src={cardTemplateAssets.lock} alt="" className="modern-field-icon" />
@@ -617,6 +714,8 @@ const ContentRedeDebit = props => {
               value={debitObject.rede_debit_expiry}
               onChange={value => updateDebitObject('rede_debit_expiry', value)}
               onFocus={() => setFocus('expiry')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.calendar && (
               <img src={cardTemplateAssets.calendar} alt="" className="modern-field-icon" />
@@ -629,6 +728,8 @@ const ContentRedeDebit = props => {
               value={debitObject.rede_debit_cvc}
               onChange={value => updateDebitObject('rede_debit_cvc', value)}
               onFocus={() => setFocus('cvc')}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
             {cardTemplateAssets.key && (
               <img src={cardTemplateAssets.key} alt="" className="modern-field-icon" />
@@ -727,6 +828,8 @@ const ContentRedeDebit = props => {
         value={formatDebitCardNumber(debitObject.rede_debit_number)}
         onChange={value => updateDebitObject('rede_debit_number', formatDebitCardNumber(value))}
         onFocus={() => setFocus('number')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       <wcComponents.TextInput
         id="rede_debit_expiry"
@@ -734,6 +837,8 @@ const ContentRedeDebit = props => {
         value={debitObject.rede_debit_expiry}
         onChange={value => updateDebitObject('rede_debit_expiry', value)}
         onFocus={() => setFocus('expiry')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       <wcComponents.TextInput
         id="rede_debit_cvc"
@@ -741,6 +846,8 @@ const ContentRedeDebit = props => {
         value={debitObject.rede_debit_cvc}
         onChange={value => updateDebitObject('rede_debit_cvc', value)}
         onFocus={() => setFocus('cvc')}
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
       {cardTypeRestriction === 'both' && (
         <div className="lknIntegrationRedeForWoocommerceSelectBlocks lknIntegrationRedeForWoocommerceSelect3dsInstallments">

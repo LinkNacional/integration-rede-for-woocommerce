@@ -392,6 +392,17 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Para rede_credit, verificar se as configurações de juros/desconto estão ativadas
+        $apply_pro_features = false;
+        if ($is_pro_active && isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
+            $installment_interest = $this->wc_rede_credit_class->get_option('installment_interest');
+            $installment_discount = $this->wc_rede_credit_class->get_option('installment_discount');
+            
+            if ($installment_interest === 'yes' || $installment_discount === 'yes') {
+                $apply_pro_features = true;
+            }
+        }
+
         // Obter valor mínimo da parcela das configurações
         $min_installment_value = 5; // Valor padrão
         if (isset($this->wc_rede_credit_class) && method_exists($this->wc_rede_credit_class, 'get_option')) {
@@ -408,7 +419,7 @@ final class LknIntegrationRedeForWoocommerce
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
                     $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -418,8 +429,8 @@ final class LknIntegrationRedeForWoocommerce
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
-            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
-            if ($is_pro_active) {
+            // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
+            if ($apply_pro_features) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_credit');
             } else {
                 $label = $base_label;
@@ -509,6 +520,17 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
+        // Para rede_debit, verificar se as configurações de juros/desconto estão ativadas
+        $apply_pro_features = false;
+        if ($is_pro_active && isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
+            $installment_interest = $this->wc_rede_debit_class->get_option('installment_interest');
+            $installment_discount = $this->wc_rede_debit_class->get_option('installment_discount');
+            
+            if ($installment_interest === 'yes' || $installment_discount === 'yes') {
+                $apply_pro_features = true;
+            }
+        }
+
         // Obter valor mínimo da parcela das configurações
         $min_installment_value = 5; // Valor padrão
         if (isset($this->wc_rede_debit_class) && method_exists($this->wc_rede_debit_class, 'get_option')) {
@@ -525,7 +547,7 @@ final class LknIntegrationRedeForWoocommerce
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
                     $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -535,8 +557,8 @@ final class LknIntegrationRedeForWoocommerce
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
-            // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
-            if ($is_pro_active) {
+            // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
+            if ($apply_pro_features) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_debit');
             } else {
                 $label = $base_label;
@@ -699,7 +721,17 @@ final class LknIntegrationRedeForWoocommerce
         // Verificar se há checkbox "sem juros" marcado
         $no_interest_key = "{$installment_number}x_no_interest";
         if (isset($gatewaySettings[$no_interest_key]) && $gatewaySettings[$no_interest_key] === 'yes') {
-            return $base_label . ' sem juros';
+            // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+            if ($gateway === 'rede_debit') {
+                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                if ($show_percent) {
+                    return $base_label . ' sem juros';
+                } else {
+                    return $base_label;
+                }
+            } else {
+                return $base_label . ' sem juros';
+            }
         }
 
         // Verificar o valor de juros/desconto
@@ -734,30 +766,66 @@ final class LknIntegrationRedeForWoocommerce
             }
         }
 
-        // Se o valor for 0 ou vazio, adicionar "sem juros"
+        // Se o valor for 0 ou vazio, adicionar "sem juros" apenas se configurado para mostrar
         if ($value === 0) {
-            return $base_label . ' sem juros';
+            // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+            if ($gateway === 'rede_debit') {
+                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                if ($show_percent) {
+                    return $base_label . ' sem juros';
+                } else {
+                    return $base_label;
+                }
+            } else {
+                return $base_label . ' sem juros';
+            }
         }
 
         // Calcular novo valor da parcela com juros/desconto
         $newInstallmentValue = $installmentValue;
+
+        // Verificar se deve mostrar porcentagem na label (apenas para rede_debit)
+        $show_percent = true;
+        if ($gateway === 'rede_debit') {
+            $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+        }
 
         if ($is_discount) {
             // Aplicar desconto
             $total_with_discount = ($cartTotal * (1 - ($value / 100))) + $extra_fees;
             $newInstallmentValue = $total_with_discount / $installment_number;
             $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
-            return $new_label . " ({$value}% de desconto)";
+            
+            if ($show_percent) {
+                return $new_label . " ({$value}% de desconto)";
+            } else {
+                return $new_label;
+            }
         } else {
             // Para juros, verificar se deve ignorar devido ao valor mínimo da parcela
             if ($ignoreInterest) {
-                return $base_label . ' sem juros';
+                // Para rede_debit, verificar se deve mostrar a informação "sem juros"
+                if ($gateway === 'rede_debit') {
+                    $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                    if ($show_percent) {
+                        return $base_label . ' sem juros';
+                    } else {
+                        return $base_label;
+                    }
+                } else {
+                    return $base_label . ' sem juros';
+                }
             } else {
                 // Aplicar juros
                 $total_with_interest = ($cartTotal * (1 + ($value / 100))) + $extra_fees;
                 $newInstallmentValue = $total_with_interest / $installment_number;
                 $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
-                return $new_label . " ({$value}% de juros)";
+                
+                if ($show_percent) {
+                    return $new_label . " ({$value}% de juros)";
+                } else {
+                    return $new_label;
+                }
             }
         }
     }
@@ -799,18 +867,18 @@ final class LknIntegrationRedeForWoocommerce
         ?>
         <div class="notice notice-warning" style="border-left-color: #ffb900; padding: 15px;">
             <h3 style="margin-top: 0; color: #000;">
-                ⚠️ Atualização de Plugin Necessária - Integração da Rede para WooCommerce Pro
+                <?php esc_html_e('⚠️ Plugin Update Required - Rede Integration for WooCommerce Pro', 'woo-rede'); ?>
             </h3>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong>Importante:</strong>
-                O protocolo de autenticação da Rede será alterado para OAuth 2.0 em 05/01/2026. Todos os clientes que usam e.Rede devem atualizar o plugin. Esta medida contribuirá para a segurança e ajudará a prevenir ataques direcionados às suas transações. Após o prazo, as transações só poderão ser realizadas usando o plugin atualizado.
+                <strong><?php esc_html_e('Important:', 'woo-rede'); ?></strong>
+                <?php esc_html_e('Rede\'s authentication protocol will be changed to OAuth 2.0 on 01/05/2026. All customers using e.Rede must update the plugin. This measure will contribute to security and help prevent targeted attacks on your transactions. After the deadline, transactions can only be performed using the updated plugin.', 'woo-rede'); ?>
             </p>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong>Ação Necessária (Para Usuários PRO):</strong>
+                <strong><?php esc_html_e('Action Required (For PRO Users):', 'woo-rede'); ?></strong>
                 <?php 
                 echo sprintf(
                     /* translators: %1$s is the current PRO version, %2$s is the required version */
-                    'Sua versão %1$s do Plugin PRO da Rede precisa ser atualizada para a versão %2$s ou superior.',
+                    esc_html__('Your Rede Plugin PRO version %1$s needs to be updated to version %2$s or higher.', 'woo-rede'),
                     '<code>' . esc_html($pro_version) . '</code>',
                     '<code>2.2.0</code>'
                 );
@@ -818,7 +886,7 @@ final class LknIntegrationRedeForWoocommerce
             </p>
             <p style="margin-bottom: 0;">
                 <a href="https://developer.userede.com.br/e-rede" target="_blank" class="button">
-                    Verificar as mudanças
+                    <?php esc_html_e('Check what changes', 'woo-rede'); ?>
                 </a>
                 <?php
                 // Create update URL for PRO plugin
@@ -829,7 +897,7 @@ final class LknIntegrationRedeForWoocommerce
                 );
                 ?>
                 <a href="<?php echo esc_url($update_url); ?>" class="button button-primary">
-                    Atualizar Agora
+                    <?php esc_html_e('Update Now', 'woo-rede'); ?>
                 </a>
             </p>
         </div>
@@ -839,7 +907,7 @@ final class LknIntegrationRedeForWoocommerce
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
         if ($gateway_id === 'integration_rede_pix') {
-            $title = 'Rede Pix GRÁTIS';
+            $title = __('Rede Pix FREE', 'woo-rede');
         }
         return $title;
     }
@@ -859,7 +927,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Só adiciona a ação se for um pedido PIX
         if ($payment_method === 'integration_rede_pix' || $payment_method === 'rede_pix') {
-            $actions['verify_pix_status'] = 'Verificar Status PIX';
+            $actions['verify_pix_status'] = __('Verificar Status PIX', 'woo-rede');
         }
         
         return $actions;
@@ -874,7 +942,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Validar se é pedido PIX
         if ($payment_method !== 'integration_rede_pix' && $payment_method !== 'rede_pix') {
-            $order->add_order_note('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.');
+            $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
             return;
         }
         
@@ -887,7 +955,7 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         if (empty($tId)) {
-            $order->add_order_note('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.');
+            $order->add_order_note(__('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
             return;
         }
         
@@ -902,7 +970,7 @@ final class LknIntegrationRedeForWoocommerce
             $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
             
             if (!$token_data || empty($token_data['token'])) {
-                throw new \Exception('Erro ao obter token de autenticação.');
+                throw new \Exception(__('Erro ao obter token de autenticação.', 'woo-rede'));
             }
             
             // API v2 da Rede
@@ -920,7 +988,7 @@ final class LknIntegrationRedeForWoocommerce
             ));
             
             if (is_wp_error($response)) {
-                throw new \Exception('Erro na comunicação com a API: ' . $response->get_error_message());
+                throw new \Exception(__('Erro na comunicação com a API: ', 'woo-rede') . $response->get_error_message());
             }
             
             $response_body = json_decode(wp_remote_retrieve_body($response), true);
@@ -938,18 +1006,18 @@ final class LknIntegrationRedeForWoocommerce
                     }
                     
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
+                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                     $order->update_status($paymentCompleteStatus);
                 } else {
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf('Verificação Manual PIX: Pagamento de %s confirmado pela Rede.', $order_total));
+                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                 }
             } else {
-                $order->add_order_note('Verificação Manual PIX: Pagamento não confirmado pela Rede. Status da transação: ' . $status);
+                $order->add_order_note(__('Manual PIX Verification: Payment not confirmed by Rede. Transaction status: ', 'woo-rede') . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note('Verificação Manual PIX: Falha ao consultar pagamento na Rede. Detalhes: ' . $e->getMessage());
+            $order->add_order_note(__('Manual PIX Verification: Failed to query payment from Rede. Details: ', 'woo-rede') . $e->getMessage());
         }
         
         $order->save();
@@ -978,7 +1046,7 @@ final class LknIntegrationRedeForWoocommerce
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('admin.php?page=wc-settings&tab=checkout'),
-            'Configurações'
+            __('Settings', 'woo-rede')
         );
 
         return array_merge($plugin_meta, $new_meta_links);
@@ -990,7 +1058,7 @@ final class LknIntegrationRedeForWoocommerce
         $url = 'https://www.linknacional.com.br/wordpress/woocommerce/rede/';
         $link_text = sprintf(
             '<span style="color: red; font-weight: bold;">%s</span>',
-            'Seja PRO'
+            __('Be pro', 'woo-rede')
         );
 
         // Crie o novo link de meta
@@ -1235,26 +1303,26 @@ final class LknIntegrationRedeForWoocommerce
         // Determinar o nome do método de pagamento
         $payment_method_name = '';
         if ($chosen_payment_method === 'rede_credit') {
-            $payment_method_name = 'Cartão de Crédito Rede';
+            $payment_method_name = __('Rede Credit Card', 'woo-rede');
         } elseif ($chosen_payment_method === 'rede_debit') {
-            $payment_method_name = 'Cartão Débito/Crédito Rede';
+            $payment_method_name = __('Rede Debit/Credit Card', 'woo-rede');
         } elseif ($chosen_payment_method === 'maxipago_credit') {
-            $payment_method_name = 'Cartão de Crédito Maxipago';
+            $payment_method_name = __('Maxipago Credit Card', 'woo-rede');
         }
 
         // Gerar a informação de pagamento e label dinâmico
         if ($installment == 1) {
-            $payment_label = 'Pagamento';
-            $payment_info = 'à vista';
+            $payment_label = __('Payment', 'woo-rede');
+            $payment_info = __('Cash payment', 'woo-rede');
         } else {
-            $payment_label = 'Parcelamento';
+            $payment_label = __('Installment', 'woo-rede');
             // Calcular valor da parcela (simples divisão)
             $installment_value = $cart_total / $installment;
             $formatted_value = wc_price($installment_value);
 
             $payment_info = sprintf(
                 // translators: %1$d is the number of installments, %2$s is the formatted price per installment
-                '%1$dx de %2$s',
+                __('%1$dx of %2$s', 'woo-rede'),
                 $installment,
                 $formatted_value
             );
@@ -1411,7 +1479,7 @@ final class LknIntegrationRedeForWoocommerce
         // Caso não encontre nenhuma correspondência
         return [
             'status' => false,
-            'message' => 'Bandeira do cartão não encontrada',
+            'message' => __('Card brand not found', 'woo-rede'),
         ];
     }
 }
