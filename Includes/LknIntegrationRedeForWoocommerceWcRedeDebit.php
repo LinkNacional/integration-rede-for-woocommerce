@@ -231,16 +231,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             // Add return URLs for 3DS authentication - URLs mais curtas para evitar erro de tamanho da API Rede
             $base_url = home_url('/');
             
-            if ($order instanceof WC_Order) {
-                // URLs super simplificadas para evitar limite de tamanho da API Rede
-                $success_return_url = home_url('/wp-json/redeIntegration/s/?o=' . $order->get_id() . '&k=' . substr($order->get_order_key(), 0, 8) . '&r=' . substr($reference, -8));
-                
-                $failed_return_url = home_url('/wp-json/redeIntegration/f/?o=' . $order->get_id() . '&k=' . substr($order->get_order_key(), 0, 8));
-            } else {
-                // URLs de fallback simples
-                $success_return_url = home_url('/wp-json/redeIntegration/s/');
-                $failed_return_url = home_url('/wp-json/redeIntegration/f/');
-            }
+            // URLs simplificadas - não precisamos dos parâmetros pois os dados vêm no webhook
+            $success_return_url = home_url('/wp-json/woorede/s/');
+            $failed_return_url = home_url('/wp-json/woorede/f/');
 
             $body['urls'] = array(
                 array(
