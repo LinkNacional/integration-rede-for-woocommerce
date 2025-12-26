@@ -228,9 +228,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 ),
             );
             
-            // Add return URLs for 3DS authentication - URLs mais curtas para evitar erro de tamanho da API Rede
-            $base_url = home_url('/');
-            
             // URLs simplificadas - não precisamos dos parâmetros pois os dados vêm no webhook
             $success_return_url = home_url('/wp-json/woorede/s/');
             $failed_return_url = home_url('/wp-json/woorede/f/');
