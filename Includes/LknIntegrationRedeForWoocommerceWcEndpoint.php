@@ -42,13 +42,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'permission_callback' => '__return_true',
         ));
 
-        register_rest_route('redeIntegration', '/s', array(
+        register_rest_route('woorede', '/s', array(
             'methods' => 'POST',
             'callback' => array($this, 'handle3dsSuccess'),
             'permission_callback' => '__return_true',
         ));
 
-        register_rest_route('redeIntegration', '/f', array(
+        register_rest_route('woorede', '/f', array(
             'methods' => 'POST',
             'callback' => array($this, 'handle3dsFailure'),
             'permission_callback' => '__return_true',
@@ -204,26 +204,26 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     {
         $parameters = $request->get_params();
 
-        // A Rede envia todos os dados da transação no webhook
-        $order_id = intval($parameters['o'] ?? 0);
-        $key_partial = sanitize_text_field($parameters['k'] ?? '');
+        // Extrai o order_id da reference (formato: order_id-timestamp)
+        $reference = sanitize_text_field($parameters['reference'] ?? '');
         $tid = sanitize_text_field($parameters['tid'] ?? '');
-        $return_code = sanitize_text_field($parameters['returnCode'] ?? '');
         
-        if (!$order_id || !$tid) {
-            return new WP_Error('invalid_parameters', __('Missing required parameters', 'woo-rede'), array('status' => 400));
+        if (!$reference || !$tid) {
+            return new WP_Error('invalid_parameters', __('Missing required parameters (reference or tid)', 'woo-rede'), array('status' => 400));
+        }
+
+        // Extrai order_id da reference usando explode
+        $reference_parts = explode('-', $reference);
+        $order_id = intval($reference_parts[0] ?? 0);
+        
+        if (!$order_id) {
+            return new WP_Error('invalid_reference', __('Invalid reference format', 'woo-rede'), array('status' => 400));
         }
 
         // Valida o pedido
         $order = wc_get_order($order_id);
         if (!$order) {
             return new WP_Error('invalid_order', __('Order not found', 'woo-rede'), array('status' => 404));
-        }
-        
-        // Validação parcial da chave (primeiros 8 caracteres)
-        $full_order_key = $order->get_order_key();
-        if (substr($full_order_key, 0, 8) !== $key_partial) {
-            return new WP_Error('invalid_key', __('Invalid order key', 'woo-rede'), array('status' => 403));
         }
 
         try {
@@ -243,24 +243,25 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     {
         $parameters = $request->get_params();
         
-        // Parâmetros simplificados: o=order_id, k=key_partial
-        $order_id = intval($parameters['o'] ?? 0);
-        $key_partial = sanitize_text_field($parameters['k'] ?? '');
+        // Extrai o order_id da reference (formato: order_id-timestamp)
+        $reference = sanitize_text_field($parameters['reference'] ?? '');
+        
+        if (!$reference) {
+            return new WP_Error('invalid_parameters', __('Missing reference parameter', 'woo-rede'), array('status' => 400));
+        }
+
+        // Extrai order_id da reference usando explode
+        $reference_parts = explode('-', $reference);
+        $order_id = intval($reference_parts[0] ?? 0);
         
         if (!$order_id) {
-            return new WP_Error('invalid_parameters', __('Missing order ID', 'woo-rede'), array('status' => 400));
+            return new WP_Error('invalid_reference', __('Invalid reference format', 'woo-rede'), array('status' => 400));
         }
 
         // Valida o pedido
         $order = wc_get_order($order_id);
         if (!$order) {
             return new WP_Error('invalid_order', __('Order not found', 'woo-rede'), array('status' => 404));
-        }
-        
-        // Validação parcial da chave (primeiros 8 caracteres)
-        $full_order_key = $order->get_order_key();
-        if (substr($full_order_key, 0, 8) !== $key_partial) {
-            return new WP_Error('invalid_key', __('Invalid order key', 'woo-rede'), array('status' => 403));
         }
 
         // Marca pedido como falhado
