@@ -681,6 +681,11 @@ final class LknIntegrationRedeForWoocommerce
      */
     private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit')
     {
+        
+        if ($installment_number <= 5) {
+            return $base_label;
+        }
+
         // Obter todas as configurações do gateway
         $gatewaySettings = get_option('woocommerce_' . $gateway . '_settings', array());
         if (!is_array($gatewaySettings)) {
@@ -1251,6 +1256,10 @@ final class LknIntegrationRedeForWoocommerce
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
         
+        if (empty($min_parcels_value) || !is_numeric($min_parcels_value) || $min_parcels_value < 5) {
+            $min_parcels_value = 5;
+        }
+
         // Para rede_debit, verificar se permite crédito através da configuração de tipo de cartão
         $show_installments = true;
         if ($chosen_payment_method === 'rede_debit') {

@@ -203,7 +203,7 @@
                             if (typeof lknPhpProFieldsVariables !== 'undefined' && lknPhpProFieldsVariables.becomePRO) {
                                 proLink.textContent = lknPhpProFieldsVariables.becomePRO;
                             } else {
-                                proLink.textContent = 'Become PRO'; // fallback text
+                                proLink.textContent = 'PRO'; // fallback text
                             }
                             
                             titleHeader.appendChild(proLink);
