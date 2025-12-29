@@ -681,6 +681,11 @@ final class LknIntegrationRedeForWoocommerce
      */
     private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit')
     {
+        // Validar se o número de parcelas é válido para evitar divisão por zero
+        if ($installment_number <= 0) {
+            return $base_label;
+        }
+        
         // Obter todas as configurações do gateway
         $gatewaySettings = get_option('woocommerce_' . $gateway . '_settings', array());
         if (!is_array($gatewaySettings)) {
@@ -1250,6 +1255,11 @@ final class LknIntegrationRedeForWoocommerce
         // Obter configurações do gateway para verificar valor mínimo de parcelas
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
+        
+        // Garantir que o valor mínimo de parcelas seja sempre maior que zero para evitar divisão por zero
+        if ($min_parcels_value <= 0) {
+            $min_parcels_value = 5;
+        }
         
         // Para rede_debit, verificar se permite crédito através da configuração de tipo de cartão
         $show_installments = true;
