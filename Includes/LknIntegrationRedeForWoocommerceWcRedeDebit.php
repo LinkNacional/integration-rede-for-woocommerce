@@ -561,60 +561,107 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
      */
     public function process_admin_options()
     {
+        // Aplicar validação personalizada antes de salvar
+        $this->validate_min_parcels_value();
+
         $saved = parent::process_admin_options();
 
-        // Se a licença PRO não for válida, resetar campos PRO para valores padrão
+        // Se a licença PRO não for válida, forçar valores padrão após o salvamento
         if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
-            $this->enforceProFieldDefaults();
+            
+            $option_key = "woocommerce_{$this->id}_settings";
+            $current_settings = get_option($option_key, array());
+            
+            // Campos PRO que devem ser resetados para valores padrão
+            $pro_fields_defaults = array(
+                'interest_or_discount' => 'interest',
+                'interest_show_percent' => 'yes',
+                'installment_interest' => 'no',
+                'installment_discount' => 'no',
+                'convert_to_brl' => 'no',
+                'auto_capture' => 'yes',
+                '3ds_template_style' => 'basic',
+                'payment_complete_status' => 'processing'
+            );
+            
+            // Forçar campos PRO básicos para valores padrão
+            foreach ($pro_fields_defaults as $field => $default_value) {
+                $form_field_name = "woocommerce_{$this->id}_{$field}";
+                
+                // Só modifica $_POST se o campo está sendo enviado
+                if (isset($_POST[$form_field_name])) {
+                    $_POST[$form_field_name] = $default_value;
+                }
+                
+                // Forçar no banco de dados
+                $current_settings[$field] = $default_value;
+            }
+            
+            // Forçar campos de parcelas para valores padrão
+            $max_installments = (int) ($current_settings['max_parcels_number'] ?? 12);
+            
+            for ($i = 1; $i <= $max_installments; $i++) {
+                $installment_form_field = "woocommerce_{$this->id}_{$i}x";
+                $discount_form_field = "woocommerce_{$this->id}_{$i}x_discount";
+                
+                // Só modifica $_POST se o campo está sendo enviado
+                if (isset($_POST[$installment_form_field])) {
+                    $_POST[$installment_form_field] = '0';
+                }
+                if (isset($_POST[$discount_form_field])) {
+                    $_POST[$discount_form_field] = '0';
+                }
+                
+                // Forçar no banco de dados
+                $current_settings["{$i}x"] = '0';
+                $current_settings["{$i}x_discount"] = '0';
+            }
+            
+            // Atualizar as configurações no banco
+            update_option($option_key, $current_settings);
         }
 
         return $saved;
     }
 
     /**
-     * Força valores padrão para campos PRO se a licença não for válida
+     * Valida o valor mínimo de parcelas
      */
-    private function enforceProFieldDefaults(): void
+    private function validate_min_parcels_value(): void
     {
-        $option_key = "woocommerce_{$this->id}_settings";
-        $settings = get_option($option_key, array());
-
-        // Campos PRO que devem ser resetados para valores padrão
-        $pro_fields_defaults = array(
-            'interest_or_discount' => 'interest',
-            'interest_show_percent' => 'yes',
-            'installment_interest' => 'no',
-            'installment_discount' => 'no',
-            'min_interest' => '0',
-            'convert_to_brl' => 'no',
-            'auto_capture' => 'yes',
-            '3ds_template_style' => 'basic',
-            'payment_complete_status' => 'processing'
-        );
-
-        // Reset campos de parcelas específicas
-        $max_installments = (int) ($settings['max_parcels_number'] ?? 12);
-        for ($i = 1; $i <= $max_installments; $i++) {
-            $pro_fields_defaults["{$i}x"] = '0';
-            $pro_fields_defaults["{$i}x_discount"] = '0';
-        }
-
-        // Aplica os valores padrão para campos PRO
-        foreach ($pro_fields_defaults as $field => $default_value) {
-            if (isset($settings[$field])) {
-                $settings[$field] = $default_value;
+        if (isset($_POST['woocommerce_rede_debit_min_parcels_value'])) {
+            $min_parcels_value = sanitize_text_field(wp_unslash($_POST['woocommerce_rede_debit_min_parcels_value']));
+            
+            // Converter para float para validar se é numérico
+            $numeric_value = floatval($min_parcels_value);
+            
+            // Validar se é um número válido e maior ou igual a 5
+            if (empty($min_parcels_value) || !is_numeric($min_parcels_value) || $numeric_value < 5) {
+                // Forçar valor para 5 se for inválido
+                $_POST['woocommerce_rede_debit_min_parcels_value'] = '5';
+                
+                // Adicionar notificação de erro/aviso para o administrador
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-warning is-dismissible">';
+                    echo '<p><strong>Rede Débito/Crédito:</strong> O valor mínimo de parcelas deve ser um número maior ou igual a 5. O valor foi ajustado automaticamente para 5.</p>';
+                    echo '</div>';
+                });
+            } else {
+                // Se for um número válido >= 5, garantir que seja um inteiro
+                $int_value = (int) $numeric_value;
+                if ($int_value >= 5) {
+                    $_POST['woocommerce_rede_debit_min_parcels_value'] = (string) $int_value;
+                } else {
+                    $_POST['woocommerce_rede_debit_min_parcels_value'] = '5';
+                    
+                    add_action('admin_notices', function() {
+                        echo '<div class="notice notice-warning is-dismissible">';
+                        echo '<p><strong>Rede Débito/Crédito:</strong> O valor mínimo de parcelas deve ser maior ou igual a 5. O valor foi ajustado automaticamente para 5.</p>';
+                        echo '</div>';
+                    });
+                }
             }
         }
-
-        // Atualiza as configurações no banco
-        update_option($option_key, $settings);
-
-        // Adiciona uma notificação para o administrador
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-warning is-dismissible">';
-            echo '<p>' . 'Licença PRO é necessária para modificar configurações de parcelamento. As configurações foram redefinidas para valores padrão.' . '</p>';
-            echo '</div>';;
-        });
     }
 
     public function initFormFields(): void

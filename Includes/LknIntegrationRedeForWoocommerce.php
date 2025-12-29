@@ -1256,7 +1256,7 @@ final class LknIntegrationRedeForWoocommerce
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
         
-        if (empty($min_parcels_value) || $min_parcels_value < 5) {
+        if (empty($min_parcels_value) || !is_numeric($min_parcels_value) || $min_parcels_value < 5) {
             $min_parcels_value = 5;
         }
 
