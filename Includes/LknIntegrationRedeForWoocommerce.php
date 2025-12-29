@@ -1256,11 +1256,10 @@ final class LknIntegrationRedeForWoocommerce
         $settings = get_option('woocommerce_' . $chosen_payment_method . '_settings', array());
         $min_parcels_value = isset($settings['min_parcels_value']) ? floatval($settings['min_parcels_value']) : 5;
         
-        // Garantir que o valor mínimo de parcelas seja sempre maior que zero para evitar divisão por zero
-        if ($min_parcels_value <= 0) {
+        if (empty($min_parcels_value) || $min_parcels_value < 5) {
             $min_parcels_value = 5;
         }
-        
+
         // Para rede_debit, verificar se permite crédito através da configuração de tipo de cartão
         $show_installments = true;
         if ($chosen_payment_method === 'rede_debit') {
