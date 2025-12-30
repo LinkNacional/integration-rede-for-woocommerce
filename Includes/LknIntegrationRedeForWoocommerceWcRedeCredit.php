@@ -41,7 +41,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
         }
 
-        $this->auto_capture = sanitize_text_field($this->get_option('auto_capture')) == 'no' ? false : true;
+        // Auto capture com validação PRO - se não tiver licença PRO válida, força auto_capture como true
+        $auto_capture_option = $this->get_option('auto_capture');
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            // Se não tiver licença PRO válida, força auto_capture como 'yes' (true)
+            $auto_capture_option = 'yes';
+            // Persiste a alteração na base de dados
+            $settings = get_option('woocommerce_rede_credit_settings', array());
+            $settings['auto_capture'] = 'yes';
+            update_option('woocommerce_rede_credit_settings', $settings);
+        }
+        $this->auto_capture = sanitize_text_field($auto_capture_option) === 'no' ? false : true;
         $this->max_parcels_number = $this->get_option('max_parcels_number');
         $this->min_parcels_value = $this->get_option('min_parcels_value');
 
@@ -543,7 +553,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $return_code = $transaction_response['returnCode'] ?? '';
         $return_message = $transaction_response['returnMessage'] ?? '';
         $capture = $transaction_response['capture'] ?? $this->auto_capture;
-        
+
+        // Adiciona notas ao pedido
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note($status_note . ' ' . $note);
 

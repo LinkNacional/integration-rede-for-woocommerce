@@ -224,7 +224,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     'language' => 'pt-BR', // Idioma do navegador. Formato ISO 639-1: 'pt-BR', 'en-US', etc.
                     'screenHeight' => 500, // Altura da tela em pixels. Aceita: número inteiro
                     'screenWidth' => 500, // Largura da tela em pixels. Aceita: número inteiro
-                    'timeZoneOffset' => 180 // Fuso horário em minutos vs UTC. Brasil (GMT-3), 3 * 60 = 180
+                    'timeZoneOffset' => 3 // Fuso horário em horas.
                 ),
             );
             
