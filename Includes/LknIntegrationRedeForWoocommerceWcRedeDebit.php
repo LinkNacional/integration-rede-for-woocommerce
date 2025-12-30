@@ -830,18 +830,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             ),
 
             '3ds_fallback_behavior' => array(
-                'title' => esc_attr__('3DS Fallback Behavior (Credit Cards Only)', 'woo-rede'),
+                'title' => '3DS Comportamento Alternativo',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => esc_attr__('This setting only applies to credit card transactions. For debit cards, 3DS authentication is ALWAYS mandatory and transactions will always be declined if 3DS fails. For credit cards, you can choose the fallback behavior when 3DS authentication is unavailable.', 'woo-rede'),
-                'desc_tip' => esc_attr__('Debit cards: 3DS is mandatory (always decline if unavailable). Credit cards: You can choose to decline or continue without 3DS for testing purposes only.', 'woo-rede'),
+                'description' => 'IMPORTANTE: Para cartões de débito, a autenticação 3DS é OBRIGATÓRIA e mais segura. Caso ainda sim deseje por mais flexibilidade, pode habilitar “Continuar” para proseguir com o pagamento mesmo em caso de falha do 3DS.',
+                'desc_tip' => 'Define se o pagamento prossegue ou é recusado quando a autenticação 3DS falha.',
                 'default' => 'decline',
                 'options' => array(
-                    'decline' => esc_attr__('Decline transaction (RECOMMENDED for production)', 'woo-rede'),
-                    'continue' => esc_attr__('Continue without 3DS (TESTING ONLY - NOT for production)', 'woo-rede'),
+                    'decline' => 'Recusar transação (Opção recomendada)',
+                    'continue' => 'Continuar sem 3DS',
                 ),
                 'custom_attributes' => array(
-                    'data-title-description' => esc_attr__('Credit card fallback behavior when 3DS is unavailable. Debit cards always require 3DS authentication and cannot be bypassed.', 'woo-rede')
+                    'data-title-description' => 'CONFORMIDADE REGULATÓRIA: Para cartões de débito, o 3DS é obrigatório. Por padrão a opção vem marcada como “Recusar”, caso habilite “Continuar”, o pagamento irá proseguir com os dados preenchidos do cliente.'
                 )
             ),
 
