@@ -9,7 +9,23 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastSelectedMethod = null;
 
     function getInstallmentCount() {
-        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+        // Verificar primeiro se é rede_debit com template moderna (card_installment_selector)
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const modernSelect = document.querySelector('#card_installment_selector');
+            if (modernSelect && modernSelect.options.length > 0) {
+                const validOptions = Array.from(modernSelect.options).filter(option => {
+                    const optionText = option.textContent || option.innerText;
+                    return !optionText.includes('Calculando') && 
+                           !optionText.includes('🔄') && 
+                           option.value !== 'loading';
+                });
+                
+                return validOptions.length;
+            }
+        }
+        
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments)');
         
         if (redeSelectContainers.length === 0) {
             return 0;
@@ -34,7 +50,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function shouldShowInstallmentLabel() {
+        // Verificar se deve esconder para rede_debit com cartão débito
+        if (shouldHideForRedeDebitCard()) {
+            isSelectVisible = false;
+            return false;
+        }
+        
         const installmentCount = getInstallmentCount();
+        
+        // Verificação especial para rede_debit em modo crédito
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const cardTypeSelector = document.querySelector('#card_type_selector');
+            const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+            const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+            
+            // Se está em modo crédito e tem select de parcelas, deve mostrar
+            if (isInCreditMode && hasInstallmentSelect && hasInstallmentSelect.options.length > 0) {
+                isSelectVisible = true;
+                return true;
+            }
+        }
         
         // Se o número de parcelas mudou, atualiza o controle
         if (installmentCount !== lastInstallmentCount) {
@@ -69,15 +105,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (selectedPaymentRadio) {
             const selectedMethod = selectedPaymentRadio.value;
-            const isRede = selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit';
+            const isRede = selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit' || selectedMethod === 'rede_debit';
             return isRede;
         }
 
         return false;
     }
 
+    function shouldHideForRedeDebitCard() {
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const cardTypeSelector = document.querySelector('#card_type_selector');
+            if (cardTypeSelector && cardTypeSelector.value === 'debit') {
+                return true; // Esconde para rede_debit quando tipo é debit
+            }
+        }
+        
+        return false; // Mostra para outros casos
+    }
+
     function getInstallmentInfo() {
-        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+        // Verificar primeiro se é rede_debit com template moderna (card_installment_selector)
+        const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+        if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+            const modernSelect = document.querySelector('#card_installment_selector');
+            if (modernSelect) {
+                if (modernSelect.options.length === 0) {
+                    return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
+                }
+                
+                const selectedOption = modernSelect.options[modernSelect.selectedIndex];
+                if (selectedOption) {
+                    const optionText = selectedOption.textContent || selectedOption.innerText;
+                    const selectedValue = selectedOption.value;
+
+                    if (optionText.includes('Calculando parcelas') || optionText.includes('🔄') || selectedValue === 'loading') {
+                        return { text: lknInstallmentLabelTranslations.calculatingInstallments, isLoading: true };
+                    }
+
+                    let cleanText = optionText
+                        .replace(/\s*\(.*?\)\s*/g, '')
+                        .replace(/\s*sem\s+juros\s*/gi, '')
+                        .replace(/\s*sem\s+desconto\s*/gi, '')
+                        .replace(/\s*à\s+vista\s*/gi, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/🔄/g, '')
+                        .trim();
+
+                    if (selectedValue === '1') {
+                        return { text: lknInstallmentLabelTranslations.cashPayment, isLoading: false, value: selectedValue };
+                    } else {
+                        return { text: cleanText, isLoading: false, value: selectedValue };
+                    }
+                }
+            }
+        }
+        
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments)');
 
         if (redeSelectContainers.length === 0) {
             return { text: lknInstallmentLabelTranslations.loading, isLoading: true };
@@ -131,7 +216,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const fallbackSelects = document.querySelectorAll(
             'select[name*="installments"], select[name*="parcelas"], ' +
             '.rede_credit_select select, .maxipago_credit_select select, ' +
-            'select[id*="rede"], select[id*="maxipago"]'
+            'select[id*="rede"], select[id*="maxipago"], ' +
+            '#card_installment_selector'
         );
 
         for (let select of fallbackSelects) {
@@ -251,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Verifica se deve mostrar o label de parcelamento - mais permissivo na verificação inicial
             const shouldShow = shouldShowInstallmentLabel();
-            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks select').length > 0;
+            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments) select').length > 0;
             
             if (!shouldShow && !hasInstallmentSelects) {
                 return; // Só não mostra se realmente não há parcelas disponíveis
@@ -309,8 +395,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const existingParcelamentos = document.querySelectorAll('.rede-payment-info-blocks:not(.loading-skeleton)');
         const totalElements = loadingSkeletons.length + existingParcelamentos.length;
 
+        const shouldShow = shouldShowInstallmentLabel();
+
         // Se não deve mostrar o label, remove todos os elementos existentes
-        if (!shouldShowInstallmentLabel()) {
+        if (!shouldShow) {
             loadingSkeletons.forEach(function (skeleton) {
                 if (skeleton && skeleton.parentNode) {
                     skeleton.remove();
@@ -354,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateElement(parcelamento);
                 });
             }
+        } else if (shouldShow) {
+            // NOVO: Se deve mostrar mas não há elementos, cria novos
+            insertRedeInfo();
         }
     }
 
@@ -465,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const checkedInput = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
         const selectedMethod = checkedInput ? checkedInput.value : null;
 
-        if (selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit') {
+        if (selectedMethod === 'rede_credit' || selectedMethod === 'maxipago_credit' || selectedMethod === 'rede_debit') {
             // Reset o controle de parcelas para forçar nova verificação
             lastInstallmentCount = -1;
             
@@ -536,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let shouldCheckPayments = false;
         let shouldCheckTotals = false;
         let shouldCheckSelects = false;
+        let shouldCheckCardTypeSelector = false;
 
         for (let mutation of mutations) {
             if (mutation.type === 'childList') {
@@ -555,6 +647,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             (node.querySelector && node.querySelector('.lknIntegrationRedeForWoocommerceSelectBlocks'))) {
                             shouldCheckSelects = true;
                         }
+
+                        // Verificar se o card_type_selector foi adicionado
+                        if ((node.id === 'card_type_selector') ||
+                            (node.querySelector && node.querySelector('#card_type_selector'))) {
+                            shouldCheckCardTypeSelector = true;
+                        }
                     }
                 }
             }
@@ -570,16 +668,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 300);
         }
 
-        if (shouldCheckSelects) {
+        if (shouldCheckSelects || shouldCheckCardTypeSelector) {
             setTimeout(() => {
                 updateLoadingSkeletons();
                 addSelectChangeListeners();
+                
+                // Re-verificar se é rede_debit para garantir que card_type_selector seja monitorado
+                const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+                if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+                    // Força nova verificação para rede_debit após mudanças no DOM
+                    // Múltiplas tentativas para sites lentos
+                    const verifyAndAdd = (attempt = 0) => {
+                        const cardTypeSelector = document.querySelector('#card_type_selector');
+                        if (cardTypeSelector && !cardTypeSelector.dataset.listenerAdded) {
+                            // Remove flag para re-adicionar listener
+                            cardTypeSelector.dataset.listenerAdded = '';
+                            addSelectChangeListeners();
+                        } else if (attempt < 3 && !cardTypeSelector) {
+                            // Se não encontrou ainda, tenta novamente
+                            setTimeout(() => verifyAndAdd(attempt + 1), 500);
+                        }
+                    };
+                    
+                    setTimeout(() => verifyAndAdd(), 200);
+                }
             }, 500);
         }
     });
 
     function addSelectChangeListeners() {
-        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks');
+        const redeSelectContainers = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments)');
 
         redeSelectContainers.forEach(container => {
             const select = container.querySelector('select');
@@ -626,6 +744,121 @@ document.addEventListener('DOMContentLoaded', function () {
                 select.dataset.listenerAdded = 'true';
             }
         });
+
+        // Adicionar listener para o select de tipo de cartão (rede_debit)
+        const cardTypeSelector = document.querySelector('#card_type_selector');
+        if (cardTypeSelector && !cardTypeSelector.dataset.listenerAdded) {
+            cardTypeSelector.addEventListener('change', function() {
+                // Verificar se é rede_debit selecionado
+                const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+                
+                if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+                    // Reset o controle de parcelas para forçar nova verificação
+                    lastInstallmentCount = -1;
+                    isSelectVisible = false; // Reset visibility
+                    
+                    // Remove todas as infos existentes primeiro
+                    removeRedeInfo();
+                    
+                    if (cardTypeSelector.value === 'credit') {
+                        // Quando volta para crédito, força nova detecção
+                        // Para sites lentos: múltiplas tentativas com intervalos crescentes
+                        const retryAttempts = [100, 500, 1000, 2000, 4000];
+                        let attemptIndex = 0;
+                        
+                        const retryUpdate = () => {
+                            // Verifica se ainda está em crédito
+                            if (cardTypeSelector.value !== 'credit') {
+                                return;
+                            }
+                            
+                            // Reset flags para forçar nova verificação
+                            const processedDivs = document.querySelectorAll('.rede-processed');
+                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                            
+                            // Força atualização
+                            updateLoadingSkeletons();
+                            
+                            // Verifica se conseguiu inserir as labels
+                            setTimeout(() => {
+                                const hasLabels = document.querySelectorAll('.rede-payment-info-blocks').length > 0;
+                                const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+                                const shouldContinue = !hasLabels && hasInstallmentSelect && attemptIndex < retryAttempts.length;
+                                
+                                if (shouldContinue) {
+                                    attemptIndex++;
+                                    setTimeout(retryUpdate, retryAttempts[attemptIndex - 1]);
+                                }
+                            }, 300);
+                        };
+                        
+                        // Primeira tentativa imediata
+                        retryUpdate();
+                    }
+                }
+            });
+            
+            cardTypeSelector.dataset.listenerAdded = 'true';
+        }
+
+        // Adicionar listener para o select de parcelas moderno (rede_debit template moderna)
+        const modernInstallmentSelector = document.querySelector('#card_installment_selector');
+        if (modernInstallmentSelector && !modernInstallmentSelector.dataset.listenerAdded) {
+            modernInstallmentSelector.addEventListener('change', function () {
+                setTimeout(() => {
+                    updateLoadingSkeletons();
+                }, 100);
+            });
+
+            // Adiciona observer para mudanças no conteúdo do select moderno
+            if (!modernInstallmentSelector.dataset.observerAdded) {
+                const modernSelectObserver = new MutationObserver(function(mutations) {
+                    let optionsChanged = false;
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            optionsChanged = true;
+                        }
+                    });
+                    
+                    if (optionsChanged) {
+                        // Para sites lentos: tenta múltiplas vezes com delays diferentes
+                        const attemptUpdate = (delay, maxAttempts = 3, currentAttempt = 0) => {
+                            setTimeout(() => {
+                                if (shouldShowInstallmentLabel()) {
+                                    const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                    if (existingLabels.length === 0) {
+                                        // Reset processed state to allow new creation
+                                        const processedDivs = document.querySelectorAll('.rede-processed');
+                                        processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                                        insertRedeInfo();
+                                        
+                                        // Verifica se conseguiu inserir, senão tenta novamente
+                                        setTimeout(() => {
+                                            const newLabels = document.querySelectorAll('.rede-payment-info-blocks');
+                                            if (newLabels.length === 0 && currentAttempt < maxAttempts) {
+                                                attemptUpdate(delay * 1.5, maxAttempts, currentAttempt + 1);
+                                            }
+                                        }, 200);
+                                    }
+                                }
+                            }, delay);
+                        };
+                        
+                        // Primeira tentativa rápida
+                        attemptUpdate(300);
+                    }
+                });
+                
+                modernSelectObserver.observe(modernInstallmentSelector, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                modernInstallmentSelector.dataset.observerAdded = 'true';
+            }
+
+            modernInstallmentSelector.dataset.listenerAdded = 'true';
+        }
     }
 
     const checkoutArea = document.querySelector('.wc-block-checkout') || document.body;
@@ -636,6 +869,53 @@ document.addEventListener('DOMContentLoaded', function () {
         subtree: true
     });
 
+    // Observer específico para o container do total - detecta quando só aparece o total sem as parcelas
+    const totalsContainer = document.querySelector('.wc-block-components-totals-wrapper');
+    if (totalsContainer) {
+        const totalsObserver = new MutationObserver(function(mutations) {
+            let shouldCheck = false;
+            
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // Verifica se houve mudança no total mas não há labels de parcelas
+                    const hasTotal = totalsContainer.querySelector('.wc-block-components-totals-footer-item');
+                    const hasRedeLabels = totalsContainer.querySelector('.rede-payment-info-blocks');
+                    
+                    if (hasTotal && !hasRedeLabels) {
+                        shouldCheck = true;
+                    }
+                }
+            });
+            
+            if (shouldCheck) {
+                setTimeout(() => {
+                    // Verifica se é rede_debit em modo crédito e deveria ter labels
+                    const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+                    if (selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit') {
+                        const cardTypeSelector = document.querySelector('#card_type_selector');
+                        const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+                        const hasInstallmentSelect = document.querySelector('#card_installment_selector');
+                        
+                        if (isInCreditMode && hasInstallmentSelect) {
+                            // Reset e força recriação
+                            const processedDivs = document.querySelectorAll('.rede-processed');
+                            processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                            lastInstallmentCount = -1;
+                            isSelectVisible = false;
+                            
+                            updateLoadingSkeletons();
+                        }
+                    }
+                }, 500);
+            }
+        });
+        
+        totalsObserver.observe(totalsContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+
     // Observer adicional para verificações periódicas mais inteligentes
     let checkAttempts = 0;
     const maxCheckAttempts = 30; // 1 minuto de tentativas (30 x 2s)
@@ -645,11 +925,22 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (isRedeMethodSelected() && shouldShowInstallmentLabel()) {
             const existingLabels = document.querySelectorAll('.rede-payment-info-blocks');
-            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks select').length > 0;
+            const hasInstallmentSelects = document.querySelectorAll('.lknIntegrationRedeForWoocommerceSelectBlocks:not(.lknIntegrationRedeForWoocommerceSelect3dsInstallments) select').length > 0;
+            const hasModernSelect = document.querySelector('#card_installment_selector');
             
-            if (existingLabels.length === 0 && hasInstallmentSelects) {
+            // Verifica se é rede_debit e está em modo crédito
+            const selectedPaymentRadio = document.querySelector('input[name="radio-control-wc-payment-method-options"]:checked');
+            const isRedeDebit = selectedPaymentRadio && selectedPaymentRadio.value === 'rede_debit';
+            const cardTypeSelector = document.querySelector('#card_type_selector');
+            const isInCreditMode = !cardTypeSelector || cardTypeSelector.value === 'credit';
+            
+            const shouldHaveLabels = hasInstallmentSelects || (isRedeDebit && isInCreditMode && hasModernSelect);
+            
+            if (existingLabels.length === 0 && shouldHaveLabels) {
+                // Força reset e recriação
                 const processedDivs = document.querySelectorAll('.rede-processed');
                 processedDivs.forEach(div => div.classList.remove('rede-processed'));
+                lastInstallmentCount = -1; // Reset para forçar nova detecção
                 insertRedeInfo();
             }
         }

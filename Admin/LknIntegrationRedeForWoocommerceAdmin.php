@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Admin;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Admin;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -62,17 +62,6 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function enqueue_styles(): void
     {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/lkn-integration-rede-for-woocommerce-admin.css', array(), $this->version, 'all');
     }
 
@@ -83,19 +72,12 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function enqueue_scripts(): void
     {
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in LknIntegrationRedeForWoocommerceLoader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The LknIntegrationRedeForWoocommerceLoader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
-
         wp_enqueue_script('lknIntegrationRedeForWoocommerceProFields', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-fields.js', array('jquery'), $this->version, false);
+
+        // Só enfileira o script se a versão PRO estiver desativada
+        if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
+            wp_enqueue_script('lknIntegrationRedeForWoocommerceProInstallments', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-pro-installments.js', array('jquery'), $this->version, false);
+        }
 
         wp_localize_script('lknIntegrationRedeForWoocommerceProFields', 'lknPhpProFieldsVariables', array(
             'proSettings' => __('PRO Settings', 'woo-rede'),
@@ -114,10 +96,11 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'autoCaptureDescTip' => __('By enabling automatic capture, payment is automatically captured immediately after the transaction.', 'woo-rede'),
             'customCssShortcodeDescTip' => __('Possibility to customize the shortcode CSS. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
             'customCssBlockEditorDescTip' => __('Possibility to customize the CSS in the block editor checkout. Enter the selector and rules, example: .checkout{color:green;}.', 'woo-rede'),
-            'becomePRO' => __('Become PRO', 'woo-rede'),
+            'becomePRO' => __('PRO', 'woo-rede'),
             'licenseDescription' => __('License for Rede plugin extensions.', 'woo-rede'),
             'currencyDescription' => __('Automatically converts payment amounts to BRL.', 'woo-rede'),
             'autoCaptureDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
+            'autoCaptureDebitLabel' => __('Enable automatic capture for credit card transactions', 'woo-rede'),
             'customCssShortcodeDescription' => __('Define CSS rules for the shortcode.', 'woo-rede'),
             'customCssBlockEditorDescription' => __('Define CSS rules for the block editor.', 'woo-rede'),
             'interestOnInstallmentsDescription' => __('Enables payment with interest in installments. Save to continue configuration. After enabling installment interest, you can define the amount of interest according to the installment.', 'woo-rede'),
@@ -126,12 +109,18 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'autoCaptureDataDescription' => __('Automatically captures the payment once authorized by Rede.', 'woo-rede'),
             'cssShortcodeDataDescription' => __('Customize the Shortcode CSS using selectors and rules.', 'woo-rede'),
             'cssBlockEditorDataDescription' => __('Customize the Block Editor CSS using selectors and rules.', 'woo-rede'),
-            'installmentInterestDataDescription' => __('Applies an interest rate to each installment. Use this if you want to charge extra per installment.', 'woo-rede')
+            'installmentInterestDataDescription' => __('Applies an interest rate to each installment. Use this if you want to charge extra per installment.', 'woo-rede'),
         ));
 
-        //if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin.js', array('jquery'), $this->version, false);
-        //}
+
+        // Localize the script with custom data
+        wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
+            'plugin_slug' => 'invoice-payment-for-woocommerce',
+            'install_nonce' => wp_create_nonce('install-plugin_invoice-payment-for-woocommerce'),
+            'invoice_plugin_installed' => is_plugin_active('invoice-payment-for-woocommerce/invoice-payment-for-woocommerce.php'),
+            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
+        ));
 
         $gateways = array(
             'maxipago_credit',
@@ -195,6 +184,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
                     ),
                     'logo' => plugin_dir_url(__FILE__) . 'images/linkNacionalLogo.webp',
                     'stars' => plugin_dir_url(__FILE__) . 'images/stars.svg',
+                    'whatsapp' => plugin_dir_url(__FILE__) . 'images/whatsapp.svg',
+                    'telegram' => plugin_dir_url(__FILE__) . 'images/telegram.svg',
                     'versions' => $versions
 
                 ),
@@ -205,20 +196,10 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 'clearLogs' => __('Limpar Logs', 'woo-rede'),
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
+            wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(
+                'basic' => plugin_dir_url(__FILE__) . 'images/basicTemplate.png',
+                'modern' => plugin_dir_url(__FILE__) . 'images/modernTemplate.png',
+            ));
         }
-
-        // Localize the script with custom data
-        wp_localize_script($this->plugin_name, 'lknPhpVariables', array(
-            'title' => __('Get new features with Rede Pro', 'woo-rede'),
-            'desc' => __('Discover and purchase the PRO plugin', 'woo-rede'),
-            'capture' => __('Manual capture of transaction/order', 'woo-rede'),
-            'tax' => __('Adjust interest rate based on installment', 'woo-rede'),
-            'css' => __('Custom CSS for payment forms', 'woo-rede'),
-            'pix' => __('Enable payment with Pix', 'woo-rede'),
-            'descriptionError' => __('Feature with error, disable to fix.', 'woo-rede'),
-            'dirURL' => INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL,
-            'freeHost' => __('Congratulations! You got 12 months free hosting for WooCommerce. Receive it now!', 'woo-rede'),
-            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php'),
-        ));
     }
 }

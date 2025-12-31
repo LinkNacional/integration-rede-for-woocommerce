@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use WC_Order;
 use WP_Query;
@@ -101,31 +101,6 @@ final class LknIntegrationRedeForWoocommerceWcRede
             ';
 
             echo wp_kses_post($message);
-        }
-    }
-
-    public function updateRedeOrders(): void
-    {
-        $orders = new WP_Query(
-            array(
-                'post_type' => 'shop_order',
-                'post_status' => array('wc-on-hold', 'wc-processing'),
-            )
-        );
-
-        foreach ($orders->posts as $order) {
-            $wc_order = new WC_Order($order->ID);
-            $wc_id = $wc_order->get_id();
-            $payment_gateway = wc_get_payment_gateway_by_order($wc_order);
-            $order_id = get_post_meta($wc_id, '_wc_rede_order_id', true);
-            $status = get_post_meta($wc_id, '_wc_rede_status', true);
-            $tid = $tid = get_post_meta($wc_id, '_wc_rede_transaction_id', true);
-
-            if ($payment_gateway instanceof LknIntegrationRedeForWoocommerceWcRedeAbstract) {
-                if ('PENDING' == $status || 'SUBMITTED' == $status) {
-                    $payment_gateway->consult_order($wc_order, $order_id, $tid, $status);
-                }
-            }
         }
     }
 }

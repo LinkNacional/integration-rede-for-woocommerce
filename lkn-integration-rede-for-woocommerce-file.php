@@ -1,8 +1,8 @@
 <?php
 
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerce;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceActivator;
-use Lkn\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerce;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceActivator;
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceDeactivator;
 
 // If this file is called directly, abort.
 if (! defined('WPINC')) {
@@ -17,7 +17,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Rename this for your plugin and update it as you release new versions.
  */
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION')) {
-    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '4.1.9');
+    define('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION', '5.1.1');
 }
 
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
@@ -55,7 +55,7 @@ if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_RATE_CACHE_KEY')) {
  * The code that runs during plugin activation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceActivator.php
  */
-function activate_LknIntegrationRedeForWoocommerce(): void
+function integration_rede_for_woocommerce_activate(): void
 {
     LknIntegrationRedeForWoocommerceActivator::activate();
 }
@@ -64,13 +64,13 @@ function activate_LknIntegrationRedeForWoocommerce(): void
  * The code that runs during plugin deactivation.
  * This action is documented in includes/LknIntegrationRedeForWoocommerceDeactivator.php
  */
-function deactivate_LknIntegrationRedeForWoocommerce(): void
+function integration_rede_for_woocommerce_deactivate(): void
 {
     LknIntegrationRedeForWoocommerceDeactivator::deactivate();
 }
 
-register_activation_hook(__FILE__, 'activate_LknIntegrationRedeForWoocommerce');
-register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerce');
+register_activation_hook(__FILE__, 'integration_rede_for_woocommerce_activate');
+register_deactivation_hook(__FILE__, 'integration_rede_for_woocommerce_deactivate');
 
 /**
  * Begins execution of the plugin.
@@ -81,9 +81,9 @@ register_deactivation_hook(__FILE__, 'deactivate_LknIntegrationRedeForWoocommerc
  *
  * @since    1.0.0
  */
-function run_LknIntegrationRedeForWoocommerce(): void
+function integration_rede_for_woocommerce_run(): void
 {
     $plugin = new LknIntegrationRedeForWoocommerce();
     $plugin->run();
 }
-run_LknIntegrationRedeForWoocommerce();
+integration_rede_for_woocommerce_run();

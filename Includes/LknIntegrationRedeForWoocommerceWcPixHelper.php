@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use DateTime;
 
@@ -8,6 +8,17 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
 {
     public static function getPixRede($total, $pixInstance, $reference, $order)
     {
+        // Determinar o ID do gateway baseado na instância
+        $gateway_id = isset($pixInstance->id) ? $pixInstance->id : 'integration_rede_pix';
+        
+        // Obter token OAuth2 usando o sistema de cache específico do gateway
+        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
+        
+        if ($access_token === null) {
+            return false;
+        }
+        
+        // Agora usar o token para a requisição de PIX
         $pv = sanitize_text_field($pixInstance->get_option('pv'));
         $total = str_replace(".", "", $total);
         $token = sanitize_text_field($pixInstance->get_option('token'));
@@ -19,10 +30,12 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         $date->modify('+' . $expirationCount . ' hours');
         $dateTimeExpiration = $date->format('Y-m-d\TH:i:s');
         $order->update_meta_data('_wc_rede_pix_integration_time_expiration', $dateTimeExpiration);
+        
+        // Usar a nova URL da API v2 com o Bearer token
         if ('production' === $environment) {
-            $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
         } else {
-            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
 
         $body = array(
@@ -38,7 +51,7 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             'method' => 'POST',
             'headers' => array(
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Basic ' . $auth
+                'Authorization' => 'Bearer ' . $access_token
             ),
             'body' => wp_json_encode($body),
         ));
@@ -48,6 +61,7 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         
         if ($pixInstance->get_option('debug') == 'yes') {
             $orderLogsArray = array(
+                'oauth_token_cached' => true,
                 'url' => $apiUrl,
                 'body' => $body,
                 'response' => $response_body
@@ -56,22 +70,31 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             $orderLogs = json_encode($orderLogsArray);
             $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
         }
+
         return $response_body;
     }
 
     public static function refundPixRede($total, $pixInstance, $orderId)
     {
-        $pv = sanitize_text_field($pixInstance->get_option('pv'));
-        $token = sanitize_text_field($pixInstance->get_option('token'));
-        $auth = base64_encode($pv . ':' . $token);
+        // Determinar o ID do gateway baseado na instância
+        $gateway_id = isset($pixInstance->id) ? $pixInstance->id : 'integration_rede_pix';
+        
+        // Obter token OAuth2 usando o sistema de cache específico do gateway  
+        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
+        
+        if ($access_token === null) {
+            return false;
+        }
+        
         $total = str_replace(".", "", $total);
         $environment = $pixInstance->get_option('environment');
         $order = wc_get_order($orderId);
         $tid = $order->get_meta('_wc_rede_integration_pix_transaction_tid');
+        
         if ('production' === $environment) {
-            $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
         } else {
-            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
 
         $body = array(
@@ -82,7 +105,7 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             'method' => 'POST',
             'headers' => array(
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Basic ' . $auth
+                'Authorization' => 'Bearer ' . $access_token
             ),
             'body' => wp_json_encode($body),
         ));

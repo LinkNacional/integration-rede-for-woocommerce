@@ -1,9 +1,10 @@
-name: Generate new release for plugin
+# TODO remove file after release
+name: Generate new pre-release release for plugin
 
 on:
   pull_request:
     types: [ closed ]
-    branches: [ main ]
+    branches: [ pre-release ]
 
 env:
   PLUGIN_NAME: woo-rede
@@ -18,6 +19,8 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: pre-release
 
     - name: Run composer install
       uses: php-actions/composer@v6
@@ -89,7 +92,8 @@ jobs:
       with:
         artifacts: "dist/${{ env.PLUGIN_NAME }}.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit: "main"
+        commit: "pre-release"
         draft: true
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
+        

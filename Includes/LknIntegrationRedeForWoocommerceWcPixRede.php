@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use DateTime;
 use Exception;
@@ -269,6 +269,8 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 if ($total != $pixInfos['amount'] && !empty($pixInfos['amount'])) {
                     $reference = uniqid();
                 }
+
+                $reference = $reference . '-' . time();
 
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
