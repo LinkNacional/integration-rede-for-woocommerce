@@ -51,6 +51,16 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $settings['auto_capture'] = 'yes';
             update_option('woocommerce_rede_credit_settings', $settings);
         }
+        // Auto capture com validação PRO - se não tiver licença PRO válida, força auto_capture como true
+        $auto_capture_option = $this->get_option('auto_capture');
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            // Se não tiver licença PRO válida, força auto_capture como 'yes' (true)
+            $auto_capture_option = 'yes';
+            // Persiste a alteração na base de dados
+            $settings = get_option('woocommerce_rede_credit_settings', array());
+            $settings['auto_capture'] = 'yes';
+            update_option('woocommerce_rede_credit_settings', $settings);
+        }
         $this->auto_capture = sanitize_text_field($auto_capture_option) === 'no' ? false : true;
         $this->max_parcels_number = $this->get_option('max_parcels_number');
         $this->min_parcels_value = $this->get_option('min_parcels_value');
