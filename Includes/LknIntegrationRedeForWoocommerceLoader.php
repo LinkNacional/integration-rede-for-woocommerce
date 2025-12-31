@@ -1,5 +1,5 @@
 <?php
-namespace Lkn\IntegrationRedeForWoocommerce\Includes;
+namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 /**
  * Register all actions and filters for the plugin
@@ -80,8 +80,7 @@ final class LknIntegrationRedeForWoocommerceLoader {
     }
 
     /**
-     * A utility function that is used to register the actions and hooks into a single
-     * collection.
+     * A utility function that is used to register the actions and hooks into a single collection.
      *
      * @since    1.0.0
      * @access   private

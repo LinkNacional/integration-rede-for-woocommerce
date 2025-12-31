@@ -3,41 +3,41 @@ if (! defined('ABSPATH')) {
     exit();
 }
 
-$theme = wp_get_theme();
+$integration_rede_for_woocommerce_theme = wp_get_theme();
 
 // Obtém o nome do tema
-$theme_name = $theme->get('Name');
+$integration_rede_for_woocommerce_theme_name = $integration_rede_for_woocommerce_theme->get('Name');
 
-$selectDivClass = 'select-input';
-$selectDivStyle = '';
-$selectSpanStyle = '';
-$selectStyle = '';
-$option = get_option('woocommerce_maxipago_credit_settings');
+$integration_rede_for_woocommerce_selectDivClass = 'select-input';
+$integration_rede_for_woocommerce_selectDivStyle = '';
+$integration_rede_for_woocommerce_selectSpanStyle = '';
+$integration_rede_for_woocommerce_selectStyle = '';
+$integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_credit_settings');
 
 
-/* switch ($theme_name) {
+/* switch ($integration_rede_for_woocommerce_theme_name) {
     case 'Hello Elementor':
-        $selectDivClass = "
+        $integration_rede_for_woocommerce_selectDivClass = "
             input-text
             jp-card-invalid
             wc-credit-card-form-card-number-select-input
         ";
-        $selectDivStyle="
+        $integration_rede_for_woocommerce_selectDivStyle="
             padding: 0;
             font-size: 0.8rem;
         ";
     break;
 
     case 'OceanWP':
-        $selectDivClass = "
+        $integration_rede_for_woocommerce_selectDivClass = "
             input-text
             jp-card-invalid
             wc-credit-card-form-card-number-select-input
         ";
-        $selectSpanStyle = "
+        $integration_rede_for_woocommerce_selectSpanStyle = "
             height: 148%;
         ";
-        $selectStyle = "
+        $integration_rede_for_woocommerce_selectStyle = "
             font-size: 1.95rem
         ";
     break;
@@ -48,7 +48,7 @@ $option = get_option('woocommerce_maxipago_credit_settings');
     id="maxipago-credit-payment-form"
     class="maxipago-payment-form">
     <div class="payment-method-description">
-        <p><?php echo esc_html($option['description'] ?? __('Pay for your purchase with a credit card through ', 'woo-rede')); ?>
+        <p><?php echo esc_html($integration_rede_for_woocommerce_option['description'] ?? __('Pay for your purchase with a credit card through ', 'woo-rede')); ?>
         </p>
         <img
             id="logo-maxipago"
@@ -292,13 +292,13 @@ $option = get_option('woocommerce_maxipago_credit_settings');
                         id="maxipago-card-installments"
                         name="maxipago_credit_installments"
                         class="input-text wc-credit-card-form-card-cvc lknIntegrationRedeForWoocommerceSelect"
-                        style="<?php echo esc_attr($selectStyle) ?>"
+                        style="<?php echo esc_attr($integration_rede_for_woocommerce_selectStyle) ?>"
                         autocomplete="off">
                         <?php
-                        $default_installment = isset($installments_number) ? (int)$installments_number : 1;
-                        foreach ($installments as $installment) {
-                            $selected = ($installment['num'] == $default_installment) ? 'selected' : '';
-                            printf('<option value="%d" %s>%s</option>', esc_attr($installment['num']), esc_attr($selected), esc_html($installment['label']));
+                        $integration_rede_for_woocommerce_default_installment = isset($installments_number) ? (int)$installments_number : 1;
+                        foreach ($installments as $integration_rede_for_woocommerce_installment) {
+                            $integration_rede_for_woocommerce_selected = ($integration_rede_for_woocommerce_installment['num'] == $integration_rede_for_woocommerce_default_installment) ? 'selected' : '';
+                            printf('<option value="%d" %s>%s</option>', esc_attr($integration_rede_for_woocommerce_installment['num']), esc_attr($integration_rede_for_woocommerce_selected), esc_html($integration_rede_for_woocommerce_installment['label']));
                         }
                         ?>
                     </select>

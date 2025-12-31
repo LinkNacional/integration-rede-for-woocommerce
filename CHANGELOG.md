@@ -1,3 +1,13 @@
+# 5.1.0 - 04/12/2025
+* Novo sistema de requisição via 3DS no débito da Rede.
+
+# 5.0.0 - 17/11/2025
+* Novo sistema de requisições da Rede (V2).
+* Melhoria na label das parcelas.
+* Sistema de cron para verificação automática de pagamentos PIX.
+* Otimização de scripts JavaScript para melhor performance.
+* Reset automático de parcelas em mudanças do carrinho.
+
 # 4.1.9 - 25/11/2025
 * Ajuste na parcela quando é à vista.
 
