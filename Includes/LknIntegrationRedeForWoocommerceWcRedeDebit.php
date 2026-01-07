@@ -561,10 +561,28 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
      */
     public function process_admin_options()
     {
+        // Obter configurações atuais antes de salvar as novas
+        $old_settings = get_option('woocommerce_' . $this->id . '_settings', array());
+        $old_pv = isset($old_settings['pv']) ? $old_settings['pv'] : '';
+        $old_token = isset($old_settings['token']) ? $old_settings['token'] : '';
+
         // Aplicar validação personalizada antes de salvar
         $this->validate_min_parcels_value();
 
         $saved = parent::process_admin_options();
+
+        // Verificar se PV ou Token foram alterados
+        $new_pv = $this->get_option('pv');
+        $new_token = $this->get_option('token');
+        
+        if ($old_pv !== $new_pv || $old_token !== $new_token) {
+            // Limpar tokens OAuth2 em cache para este gateway em ambos ambientes
+            $environments = array('test', 'production');
+            
+            foreach ($environments as $environment) {
+                delete_option('lkn_rede_oauth_token_' . $this->id . '_' . $environment);
+            }
+        }
 
         // Se a licença PRO não for válida, resetar campos PRO para valores padrão
         // Se a licença PRO não for válida, forçar valores padrão após o salvamento

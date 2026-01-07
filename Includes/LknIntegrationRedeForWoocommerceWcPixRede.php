@@ -50,7 +50,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 );
 
                 wp_localize_script('lkn-integration-rede-for-woocommerce-endpoint', 'lknRedeForWoocommerceProSettings', array(
-                    'endpointStatus' => get_option('LknIntegrationRedeForWoocommerceEndpointStatus', false),
+                    'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false),
                     'translations' => array(
                         'endpointSuccess' => __('Request received!', 'woo-rede'),
                         'endpointError' => __('No requests received!', 'woo-rede'),
@@ -273,6 +273,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 $reference = $reference . '-' . time();
 
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
+                
+                // Verificar se a resposta PIX contém o returnCode
+                if (!is_array($pix) || !isset($pix['returnCode'])) {
+                    throw new Exception(__('Invalid PIX response from Rede API.', 'woo-rede'));
+                }
+                
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
                     throw new Exception(__('PV or Token is invalid!', 'woo-rede'));
                 }
@@ -285,6 +291,19 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ));
                     }
                     throw new Exception(__('An error occurred while processing the payment.', 'woo-rede'));
+                }
+
+                // Validar se todos os campos necessários estão presentes na resposta PIX
+                $required_fields = array('reference', 'tid', 'amount', 'qrCodeResponse');
+                foreach ($required_fields as $field) {
+                    if (!isset($pix[$field])) {
+                        throw new Exception(__('Incomplete PIX response from Rede API.', 'woo-rede'));
+                    }
+                }
+                
+                // Validar se qrCodeResponse contém os campos necessários
+                if (!isset($pix['qrCodeResponse']['qrCodeData']) || !isset($pix['qrCodeResponse']['qrCodeImage'])) {
+                    throw new Exception(__('Invalid QR Code data in PIX response.', 'woo-rede'));
                 }
 
                 $pixReference = $pix['reference'];
@@ -311,6 +330,18 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         ),
                     ));
                 }
+                
+                // Agendar verificação automática PIX se licença PRO estiver válida e versão >= 2.2.4
+                if (LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+                    if (defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') && version_compare(REDE_FOR_WOOCOMMERCE_PRO_VERSION, '2.2.4', '>=')) {
+                        // Verificar se já não existe um cron agendado para este pedido
+                        if (!wp_next_scheduled('lkn_verify_pix_payment', array($orderId, $pixTid))) {
+                            // Agendar verificação a cada 30 minutos
+                            wp_schedule_event(time() + (30 * 60), 'lkn_pix_check_interval', 'lkn_verify_pix_payment', array($orderId, $pixTid));
+                        }
+                    }
+                }
+                
                 $order->save();
             }
         } catch (Exception $e) {
@@ -338,6 +369,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
         }
 
         $refund = LknIntegrationRedeForWoocommerceWcPixHelper::refundPixRede($amount, $this, $orderId);
+        
         if ('yes' == $this->debug) {
             $this->log->log('info', $this->id, array(
                 'order' => array(
@@ -346,10 +378,16 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
             ));
         }
 
+        // Verificar se a resposta do refund contém o returnCode
+        if (!is_array($refund) || !isset($refund['returnCode'])) {
+            throw new Exception(__('Invalid refund response from Rede API.', 'woo-rede'));
+        }
+
         if ('359' == $refund['returnCode']) {
             return true;
         } else {
-            throw new Exception(esc_html($refund['returnMessage']));
+            $refund_message = isset($refund['returnMessage']) ? $refund['returnMessage'] : __('Refund failed.', 'woo-rede');
+            throw new Exception(esc_html($refund_message));
         }
     }
 
@@ -426,6 +464,10 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
     public function process_admin_options()
     {
+        // Obter configurações atuais antes de salvar as novas
+        $old_settings = get_option('woocommerce_' . $this->id . '_settings', array());
+        $old_pv = isset($old_settings['pv']) ? $old_settings['pv'] : '';
+        $old_token = isset($old_settings['token']) ? $old_settings['token'] : '';
 
         if (isset($_POST['woocommerce_integration_rede_pix_expiration_count'])) {
             $_POST['woocommerce_integration_rede_pix_expiration_count'] = '24';
@@ -439,6 +481,21 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
             $_POST['woocommerce_integration_rede_pix_fake_convert_to_brl'] = 'no';
         }
 
-        parent::process_admin_options();
+        $saved = parent::process_admin_options();
+
+        // Verificar se PV ou Token foram alterados
+        $new_pv = $this->get_option('pv');
+        $new_token = $this->get_option('token');
+        
+        if ($old_pv !== $new_pv || $old_token !== $new_token) {
+            // Limpar tokens OAuth2 em cache para este gateway em ambos ambientes
+            $environments = array('test', 'production');
+            
+            foreach ($environments as $environment) {
+                delete_option('lkn_rede_oauth_token_' . $this->id . '_' . $environment);
+            }
+        }
+
+        return $saved;
     }
 }

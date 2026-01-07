@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.9  
-Stable tag: 5.1.1
+Stable tag: 5.1.2
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -114,8 +114,14 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.1.2 - 2026/12/07
+- New cron system linked to the PRO version of the plugin.
+
+### 5.1.1 - 2025/12/30
+- 3DS launch.
+
 ### 5.1.0 - 2025/12/04
-New 3DS request system for Rede debit transactions.
+- New 3DS request system for Rede debit transactions.
 
 ### 5.0.0 - 2025/11/26
 - New Rede API request system (V2).
