@@ -13,14 +13,14 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         if (!is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {
             register_rest_route('redePRO', '/redePixListener', array(
                 'methods' => 'POST',
-                'callback' => array($this, 'redePixListener'),
+                'callback' => array($this, 'redePixListenerPro'),
                 'permission_callback' => '__return_true',
             ));
         }
 
         register_rest_route('redeIntegration', '/pixListener', array(
             'methods' => 'POST',
-            'callback' => array($this, 'redePixListener'),
+            'callback' => array($this, 'redePixListenerLegacy'),
             'permission_callback' => '__return_true',
         ));
 
@@ -116,16 +116,101 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         return new WP_REST_Response('', 200);
     }
 
-    public function redePixListener($request)
+    /**
+     * Listener PIX específico para versão FREE
+     */
+    public function redePixListenerLegacy($request)
     {
         add_option('lknRedeForWoocommerceProEndpointStatus', true);
         update_option('lknRedeForWoocommerceProEndpointStatus', true);
         $requestParams = $request->get_params();
 
-        $redePixOptions = get_option('woocommerce_rede_pix_settings');
+        $redePixOptions = get_option('woocommerce_integration_rede_pix_settings');
         $tid = $requestParams['data']['id'];
 
-        // Argumentos para buscar todos os pedidos
+        // Argumentos para buscar pedidos com o gateway FREE
+        $args = array(
+            'limit' => -1,
+            'status' => array_keys(wc_get_order_statuses()),
+            'meta_key' => '_wc_rede_integration_pix_transaction_tid',
+            'meta_value' => $tid,
+        );
+
+        $orders = wc_get_orders($args);
+        
+        if (!empty($orders)) {
+            $order = $orders[0];
+            
+            // Verificar se é realmente um pedido do gateway FREE
+            if ($order->get_payment_method() === 'integration_rede_pix') {
+                if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
+                    // Só altera o status se estiver pendente de pagamento
+                    if ($order->get_status() === 'pending') {
+                        $paymentCompleteStatus = $redePixOptions['payment_complete_status'] ?? '';
+                        if (empty($paymentCompleteStatus)) {
+                            $paymentCompleteStatus = 'processing';
+                        }
+                        
+                        $order->update_status($paymentCompleteStatus, __('PIX payment confirmed via webhook - FREE version', 'woo-rede'));
+                        
+                        // Limpar cron de verificação se existir
+                        wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order->get_id(), $tid));
+                    }
+                }
+            }
+        }
+
+        return new WP_REST_Response('', 200);
+    }
+
+    /**
+     * Listener PIX específico para versão PRO (mantém compatibilidade)
+     */
+    public function redePixListenerPro($request)
+    {
+        add_option('lknRedeForWoocommerceProEndpointStatus', true);
+        update_option('lknRedeForWoocommerceProEndpointStatus', true);
+        $requestParams = $request->get_params();
+
+        // Log 0: Recebimento inicial do webhook (sempre PRO)
+        $redePixOptions = get_option('woocommerce_rede_pix_settings');
+        $validPROLicense = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+        if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+            $logger = wc_get_logger();
+            $logger->info('Rede PIX PRO - Webhook Received - Initial', array(
+                'source' => 'rede-pix-pro-advanced-debug',
+                'request_params' => $requestParams,
+                'request_body' => $request->get_body(),
+                'timestamp' => current_time('mysql')
+            ));
+        }
+
+        $tid = $requestParams['data']['id'] ?? null;
+
+        // Log 1: Verificação de TID
+        if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+            $logger = wc_get_logger();
+            $logger->info('Rede PIX PRO - TID Validation', array(
+                'source' => 'rede-pix-pro-advanced-debug',
+                'tid' => $tid,
+                'tid_valid' => !empty($tid),
+                'timestamp' => current_time('mysql')
+            ));
+        }
+
+        if (empty($tid)) {
+            if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                $logger = wc_get_logger();
+                $logger->error('Rede PIX PRO - Missing TID - Aborting', array(
+                    'source' => 'rede-pix-pro-advanced-debug',
+                    'request_params' => $requestParams,
+                    'timestamp' => current_time('mysql')
+                ));
+            }
+            return new WP_REST_Response('', 400);
+        }
+
+        // Primeiro, buscar no gateway PRO
         $args = array(
             'limit' => -1,
             'status' => array_keys(wc_get_order_statuses()),
@@ -133,16 +218,188 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'meta_value' => $tid,
         );
 
-        // Usa wc_get_orders para buscar os pedidos
-        $order = wc_get_orders($args)[0];
+        $orders = wc_get_orders($args);
+        $order = !empty($orders) ? $orders[0] : null;
 
-        if (! empty($order)) {
-            if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
-                $paymentCompleteStatus = $redePixOptions['payment_complete_status'];
-                if ("" == $paymentCompleteStatus) {
-                    $paymentCompleteStatus = 'processing';
+        // Log 2: Resultado busca PRO
+        if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+            $logger = wc_get_logger();
+            $logger->info('Rede PIX PRO - PRO Search Result', array(
+                'source' => 'rede-pix-pro-advanced-debug',
+                'tid' => $tid,
+                'orders_found' => count($orders),
+                'order_found' => $order ? true : false,
+                'order_id' => $order ? $order->get_id() : null,
+                'payment_method' => $order ? $order->get_payment_method() : null,
+                'timestamp' => current_time('mysql')
+            ));
+        }
+
+        // Se não encontrou no PRO, buscar no gateway FREE
+        if (!$order) {
+            $args = array(
+                'limit' => -1,
+                'status' => array_keys(wc_get_order_statuses()),
+                'meta_key' => '_wc_rede_integration_pix_transaction_tid',
+                'meta_value' => $tid,
+            );
+
+            $orders = wc_get_orders($args);
+            $order = !empty($orders) ? $orders[0] : null;
+
+            // Log 3: Resultado busca FREE
+            if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                $logger = wc_get_logger();
+                $logger->info('Rede PIX PRO - FREE Search Result', array(
+                    'source' => 'rede-pix-pro-advanced-debug',
+                    'tid' => $tid,
+                    'orders_found' => count($orders),
+                    'order_found' => $order ? true : false,
+                    'order_id' => $order ? $order->get_id() : null,
+                    'payment_method' => $order ? $order->get_payment_method() : null,
+                    'timestamp' => current_time('mysql')
+                ));
+            }
+        }
+
+        // Log 4: Nenhum pedido encontrado
+        if (!$order) {
+            if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                $logger = wc_get_logger();
+                $logger->error('Rede PIX PRO - No Order Found - Aborting', array(
+                    'source' => 'rede-pix-pro-advanced-debug',
+                    'tid' => $tid,
+                    'searched_pro_meta' => '_wc_rede_pix_transaction_tid',
+                    'searched_free_meta' => '_wc_rede_integration_pix_transaction_tid',
+                    'timestamp' => current_time('mysql')
+                ));
+            }
+            return new WP_REST_Response('', 404);
+        }
+
+        // Log 5: Validação do evento
+        $webhook_event = $requestParams['events'][0] ?? '';
+        if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+            $logger = wc_get_logger();
+            $logger->info('Rede PIX PRO - Event Validation', array(
+                'source' => 'rede-pix-pro-advanced-debug',
+                'order_id' => $order->get_id(),
+                'webhook_event' => $webhook_event,
+                'event_valid' => $webhook_event === 'PV.UPDATE_TRANSACTION_PIX',
+                'timestamp' => current_time('mysql')
+            ));
+        }
+
+        // Processa o pedido se encontrado
+        if ($order && 'PV.UPDATE_TRANSACTION_PIX' == $webhook_event) {
+            
+            // Log 6: Status do pedido
+            if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                $logger = wc_get_logger();
+                $logger->info('Rede PIX PRO - Order Status Check', array(
+                    'source' => 'rede-pix-pro-advanced-debug',
+                    'order_id' => $order->get_id(),
+                    'current_status' => $order->get_status(),
+                    'is_pending' => $order->get_status() === 'pending',
+                    'timestamp' => current_time('mysql')
+                ));
+            }
+
+            // Só altera o status se estiver pendente de pagamento
+            if ($order->get_status() === 'pending') {
+                
+                if ($order->get_payment_method() === 'rede_pix') {
+                    // Versão PRO
+                    
+                    // Log 7: Processamento PRO
+                    if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                        $logger = wc_get_logger();
+                        $logger->info('Rede PIX PRO - Processing PRO Order', array(
+                            'source' => 'rede-pix-pro-advanced-debug',
+                            'gateway' => 'rede_pix (PRO)',
+                            'order_id' => $order->get_id(),
+                            'timestamp' => current_time('mysql')
+                        ));
+                    }
+                    
+                    $paymentCompleteStatus = $redePixOptions['payment_complete_status'] ?? '';
+                    if (empty($paymentCompleteStatus)) {
+                        $paymentCompleteStatus = 'processing';
+                    }
+                    
+                    $order->update_status($paymentCompleteStatus, __('PIX payment confirmed via webhook - PRO version', 'woo-rede'));
+
+                    // Log 8: Finalização PRO
+                    if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                        $logger = wc_get_logger();
+                        $logger->info('Rede PIX PRO - Processing Complete', array(
+                            'source' => 'rede-pix-pro-advanced-debug',
+                            'gateway' => 'rede_pix (PRO)',
+                            'order_id' => $order->get_id(),
+                            'final_status' => $order->get_status(),
+                            'cron_cleared' => true,
+                            'timestamp' => current_time('mysql')
+                        ));
+                    }
+
+                    wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order->get_id(), $tid));
+                    
+                } else if ($order->get_payment_method() === 'integration_rede_pix') {
+                    // Versão FREE - só logs PRO para debug
+                    
+                    // Log 9: Processamento FREE
+                    if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                        $logger = wc_get_logger();
+                        $logger->info('Rede PIX PRO - Processing FREE Order', array(
+                            'source' => 'rede-pix-pro-advanced-debug',
+                            'gateway' => 'integration_rede_pix (FREE)',
+                            'order_id' => $order->get_id(),
+                            'timestamp' => current_time('mysql')
+                        ));
+                    }
+                    
+                    $order->update_status('processing', __('PIX payment confirmed via webhook - FREE version', 'woo-rede'));
+                    
+                    // Log 10: Finalização FREE
+                    if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                        $logger = wc_get_logger();
+                        $logger->info('Rede PIX PRO - FREE Processing Complete', array(
+                            'source' => 'rede-pix-pro-advanced-debug',
+                            'gateway' => 'integration_rede_pix (FREE)',
+                            'order_id' => $order->get_id(),
+                            'final_status' => $order->get_status(),
+                            'cron_cleared' => true,
+                            'timestamp' => current_time('mysql')
+                        ));
+                    }
+                    
+                    // Limpar cron de verificação se existir
+                    wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order->get_id(), $tid));
                 }
-                $order->update_status($paymentCompleteStatus);
+            } else {
+                // Log 11: Status não pendente
+                if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                    $logger = wc_get_logger();
+                    $logger->warning('Rede PIX PRO - Order Not Pending - Skipped', array(
+                        'source' => 'rede-pix-pro-advanced-debug',
+                        'order_id' => $order->get_id(),
+                        'current_status' => $order->get_status(),
+                        'expected_status' => 'pending',
+                        'timestamp' => current_time('mysql')
+                    ));
+                }
+            }
+        } else {
+            // Log 12: Evento inválido
+            if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
+                $logger = wc_get_logger();
+                $logger->warning('Rede PIX PRO - Invalid Event - Skipped', array(
+                    'source' => 'rede-pix-pro-advanced-debug',
+                    'order_id' => $order ? $order->get_id() : 'unknown',
+                    'received_event' => $webhook_event,
+                    'expected_event' => 'PV.UPDATE_TRANSACTION_PIX',
+                    'timestamp' => current_time('mysql')
+                ));
             }
         }
 

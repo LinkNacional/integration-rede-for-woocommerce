@@ -1007,4 +1007,34 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
         $this->getCheckoutForm($order_total);
     }
+
+    /**
+     * Processa as opções administrativas com reset de token OAuth2
+     * 
+     * @return bool
+     */
+    public function process_admin_options()
+    {
+        // Obter configurações atuais antes de salvar as novas
+        $old_settings = get_option('woocommerce_' . $this->id . '_settings', array());
+        $old_pv = isset($old_settings['pv']) ? $old_settings['pv'] : '';
+        $old_token = isset($old_settings['token']) ? $old_settings['token'] : '';
+
+        $saved = parent::process_admin_options();
+
+        // Verificar se PV ou Token foram alterados
+        $new_pv = $this->get_option('pv');
+        $new_token = $this->get_option('token');
+        
+        if ($old_pv !== $new_pv || $old_token !== $new_token) {
+            // Limpar tokens OAuth2 em cache para este gateway em ambos ambientes
+            $environments = array('test', 'production');
+            
+            foreach ($environments as $environment) {
+                delete_option('lkn_rede_oauth_token_' . $this->id . '_' . $environment);
+            }
+        }
+
+        return $saved;
+    }
 }

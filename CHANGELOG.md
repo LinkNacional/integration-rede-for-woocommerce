@@ -1,3 +1,9 @@
+# 5.1.2 - 04/12/2025
+* Novo sistema de cron ligado a versão PRO do plugin.
+
+# 5.1.1 - 30/12/2025
+* Lançamento do 3DS.
+
 # 5.1.0 - 04/12/2025
 * Novo sistema de requisição via 3DS no débito da Rede.
 
