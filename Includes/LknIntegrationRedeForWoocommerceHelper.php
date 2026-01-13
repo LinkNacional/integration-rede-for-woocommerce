@@ -43,15 +43,19 @@ class LknIntegrationRedeForWoocommerceHelper
 
     final public static function getTransactionBrandDetails($tid, $instance)
     {
-        // Autenticação básica
-        $auth = base64_encode($instance->pv . ':' . $instance->token);
+        // Usar OAuth2 para API v2
+        $oauth_token = self::get_rede_oauth_token_for_gateway($instance->id);
+        
+        if (!$oauth_token) {
+            return null;
+        }
 
         $apiUrl = ('production' === $instance->environment)
-            ? 'https://api.userede.com.br/erede/v1/transactions'
-            : 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+            ? 'https://api.userede.com.br/redelabs/v2/transactions'
+            : 'https://rl7-sandbox-api.useredecloud.com.br/v2/transactions';
 
         $headers = array(
-            'Authorization' => 'Basic ' . $auth,
+            'Authorization' => 'Bearer ' . $oauth_token,
             'Content-Type' => 'application/json',
             'Transaction-Response' => 'brand-return-opened',
         );
@@ -79,17 +83,22 @@ class LknIntegrationRedeForWoocommerceHelper
 
     final public static function getCardBrand($tid, $instance)
     {
-        $auth = base64_encode($instance->pv . ':' . $instance->token);
+        // Usar OAuth2 para API v2
+        $oauth_token = self::get_rede_oauth_token_for_gateway($instance->id);
+        
+        if (!$oauth_token) {
+            return null;
+        }
 
         if ('production' === $instance->environment) {
-            $apiUrl = 'https://api.userede.com.br/erede/v1/transactions';
+            $apiUrl = 'https://api.userede.com.br/redelabs/v2/transactions';
         } else {
-            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+            $apiUrl = 'https://rl7-sandbox-api.useredecloud.com.br/v2/transactions';
         }
 
         $response = wp_remote_get($apiUrl . '/' . $tid, array(
             'headers' => array(
-                'Authorization' => 'Basic ' . $auth,
+                'Authorization' => 'Bearer ' . $oauth_token,
                 'Content-Type' => 'application/json',
                 'Transaction-Response' => 'brand-return-opened'
             ),
@@ -496,7 +505,7 @@ class LknIntegrationRedeForWoocommerceHelper
             'body' => 'grant_type=client_credentials',
             'timeout' => 30
         ));
-        
+
         if (is_wp_error($oauth_response)) {
             return false;
         }
@@ -685,97 +694,6 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     /**
-     * Gera token OAuth2 para API Rede v2 (mantido para compatibilidade)
-     * @deprecated Use generate_rede_oauth_token_for_gateway() instead
-     */
-    final public static function generate_rede_oauth_token($environment = 'test')
-    {
-        // Tenta usar credenciais do gateway de crédito como padrão
-        $credentials = self::get_gateway_credentials('rede_credit');
-        
-        if ($credentials === false) {
-            // Se crédito não está configurado, tenta débito
-            $credentials = self::get_gateway_credentials('rede_debit');
-        }
-        
-        if ($credentials === false) {
-            return false;
-        }
-        
-        $oauth_url = $environment === 'production' 
-            ? 'https://api.userede.com.br/redelabs/oauth2/token'
-            : 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
-
-        $auth = base64_encode($credentials['pv'] . ':' . $credentials['token']);
-
-        $oauth_response = wp_remote_post($oauth_url, array(
-            'method' => 'POST',
-            'headers' => array(
-                'Authorization' => 'Basic ' . $auth,
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ),
-            'body' => 'grant_type=client_credentials',
-            'timeout' => 30
-        ));
-        
-        if (is_wp_error($oauth_response)) {
-            return false;
-        }
-        
-        $oauth_body = wp_remote_retrieve_body($oauth_response);
-        $oauth_data = json_decode($oauth_body, true);
-        
-        if (!isset($oauth_data['access_token'])) {
-            return false;
-        }
-        
-        return $oauth_data;
-    }
-
-    /**
-     * Salva token OAuth2 no cache com timestamp
-     */
-    final public static function cache_rede_oauth_token($token_data, $environment = 'test')
-    {
-        $cache_data = array(
-            'token' => $token_data['access_token'],
-            'expires_in' => $token_data['expires_in'],
-            'generated_at' => time(),
-            'environment' => $environment
-        );
-        
-        // Codifica em base64 para segurança
-        $encoded_data = base64_encode(json_encode($cache_data));
-        
-        $option_name = 'lkn_rede_oauth_token_' . $environment;
-        update_option($option_name, $encoded_data);
-        
-        return $cache_data;
-    }
-
-    /**
-     * Recupera token OAuth2 do cache
-     */
-    final public static function get_cached_rede_oauth_token($environment = 'test')
-    {
-        $option_name = 'lkn_rede_oauth_token_' . $environment;
-        $cached_data = get_option($option_name, '');
-        
-        if (empty($cached_data)) {
-            return null;
-        }
-        
-        // Decodifica do base64
-        $decoded_data = json_decode(base64_decode($cached_data), true);
-        
-        if (!$decoded_data || !isset($decoded_data['token']) || !isset($decoded_data['generated_at'])) {
-            return null;
-        }
-        
-        return $decoded_data;
-    }
-
-    /**
      * Verifica se o token está válido (não expirou)
      */
     final public static function is_rede_oauth_token_valid($cached_token)
@@ -789,58 +707,6 @@ class LknIntegrationRedeForWoocommerceHelper
         
         // Token é válido se tem menos de 20 minutos (margem de segurança)
         return $token_age_minutes < 20;
-    }
-
-    /**
-     * Obtém token OAuth2 válido (mantido para compatibilidade)
-     * @deprecated Use get_rede_oauth_token_for_gateway() instead
-     */
-    final public static function get_rede_oauth_token($environment = 'test')
-    {
-        // Tenta recuperar do cache
-        $cached_token = self::get_cached_rede_oauth_token($environment);
-        
-        // Se token está válido, retorna ele
-        if ($cached_token && self::is_rede_oauth_token_valid($cached_token)) {
-            return $cached_token['token'];
-        }
-        
-        // Token não existe ou expirou, tenta gerar novo
-        $token_data = self::generate_rede_oauth_token($environment);
-        
-        // Se falhou ao gerar novo token
-        if ($token_data === false) {
-            // Se há um token em cache (mesmo expirado), usa ele como fallback
-            if ($cached_token && isset($cached_token['token'])) {
-                return $cached_token['token'];
-            }
-            
-            // Se não há token em cache, retorna null para forçar erro na API
-            return null;
-        }
-        
-        // Salva o novo token no cache
-        self::cache_rede_oauth_token($token_data, $environment);
-        
-        return $token_data['access_token'];
-    }
-
-    /**
-     * Força renovação do token OAuth2 (mantido para compatibilidade)
-     * @deprecated Use refresh_all_rede_oauth_tokens() instead
-     */
-    final public static function refresh_rede_oauth_token($environment = 'test')
-    {
-        $token_data = self::generate_rede_oauth_token($environment);
-        
-        // Se falhou ao gerar novo token, mantém o cache atual
-        if ($token_data === false) {
-            return false;
-        }
-        
-        self::cache_rede_oauth_token($token_data, $environment);
-        
-        return $token_data['access_token'];
     }
 
     /**
