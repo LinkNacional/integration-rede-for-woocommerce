@@ -349,8 +349,8 @@ class LknIntegrationRedeForWoocommerceHelper
                 $additional_fees = 0;
                 foreach (WC()->cart->get_fees() as $fee) {
                     // Ignorar fees criados pelo próprio plugin
-                    if ($fee->name !== __('Interest', 'rede-for-woocommerce-pro') && 
-                        $fee->name !== __('Discount', 'rede-for-woocommerce-pro')) {
+                    if ($fee->name !== __('Interest', 'woo-rede') && 
+                        $fee->name !== __('Discount', 'woo-rede')) {
                         $additional_fees += $fee->total;
                     }
                 }
@@ -374,8 +374,8 @@ class LknIntegrationRedeForWoocommerceHelper
                     $additional_fees = 0;
                     foreach ($order->get_fees() as $fee) {
                         // Ignorar fees criados pelo próprio plugin
-                        if ($fee->get_name() !== __('Interest', 'rede-for-woocommerce-pro') && 
-                            $fee->get_name() !== __('Discount', 'rede-for-woocommerce-pro')) {
+                        if ($fee->get_name() !== __('Interest', 'woo-rede') && 
+                            $fee->get_name() !== __('Discount', 'woo-rede')) {
                             $additional_fees += $fee->get_total();
                         }
                     }
@@ -413,7 +413,7 @@ class LknIntegrationRedeForWoocommerceHelper
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
                         $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
-                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'rede-for-woocommerce-pro');
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'woo-rede');
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);

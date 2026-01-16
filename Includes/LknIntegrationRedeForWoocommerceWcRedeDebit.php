@@ -2,6 +2,8 @@
 
 namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 use Exception;
 use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeAbstract;
 use WC_Order;

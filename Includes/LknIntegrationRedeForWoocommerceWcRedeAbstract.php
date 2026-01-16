@@ -209,8 +209,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Adicionar taxas (fees) do pedido, excluindo fees do próprio plugin
             foreach ($order->get_fees() as $fee) {
                 // Ignorar fees criados pelo próprio plugin
-                if ($fee->get_name() !== __('Interest', 'rede-for-woocommerce-pro') && 
-                    $fee->get_name() !== __('Discount', 'rede-for-woocommerce-pro')) {
+                if ($fee->get_name() !== __('Interest', 'woo-rede') && 
+                    $fee->get_name() !== __('Discount', 'woo-rede')) {
                     $subtotal += (float) $fee->get_amount();
                 }
             }
@@ -225,8 +225,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             // Adicionar taxas (fees) do carrinho, excluindo fees do próprio plugin
             foreach ($woocommerce->cart->get_fees() as $fee) {
                 // Ignorar fees criados pelo próprio plugin
-                if ($fee->name !== __('Interest', 'rede-for-woocommerce-pro') && 
-                    $fee->name !== __('Discount', 'rede-for-woocommerce-pro')) {
+                if ($fee->name !== __('Interest', 'woo-rede') && 
+                    $fee->name !== __('Discount', 'woo-rede')) {
                     $subtotal += (float) $fee->amount;
                 }
             }

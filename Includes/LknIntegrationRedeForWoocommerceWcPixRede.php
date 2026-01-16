@@ -380,7 +380,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
         // Verificar se a resposta do refund contém o returnCode
         if (!is_array($refund) || !isset($refund['returnCode'])) {
-            throw new Exception(__('Invalid refund response from Rede API.', 'woo-rede'));
+            throw new Exception(\esc_html(\__('Invalid refund response from Rede API.', 'woo-rede')));
         }
 
         if ('359' == $refund['returnCode']) {
