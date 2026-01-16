@@ -457,6 +457,18 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         return new WP_REST_Response($response_body['authorization']['status'] ?? 'Accepted', 200);
     }
 
+    /**
+     * Processa callback de sucesso do 3D Secure
+     * 
+     * SEGURANÇA: Este endpoint foi protegido contra bypass de pagamento através de:
+     * 1. Validação de TID contra dados armazenados no pedido
+     * 2. Verificação de correspondência entre reference e order_id
+     * 3. Consulta à API da Rede para confirmar autenticidade da transação
+     * 4. Validação de amount para evitar alteração de valores
+     * 
+     * @param WP_REST_Request $request Requisição REST
+     * @return WP_REST_Response|WP_Error
+     */
     public function handle3dsSuccess($request)
     {
         $parameters = $request->get_params();
@@ -483,6 +495,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             return new WP_Error('invalid_order', __('Order not found', 'woo-rede'), array('status' => 404));
         }
 
+        // VALIDAÇÃO DE SEGURANÇA: Verifica autenticidade da requisição
+        if (!$this->validate_webhook_security($order, $parameters, 'success')) {
+            $order->add_order_note(__('Security validation failed for 3DS webhook', 'woo-rede'));
+            return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
+        }
+
         try {
             // Usa os dados que já vêm no webhook da Rede
             $this->update_order_metadata_and_status($order, $parameters);
@@ -496,6 +514,17 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
     }
 
+    /**
+     * Processa callback de falha do 3D Secure
+     * 
+     * SEGURANÇA: Este endpoint foi protegido contra bypass de pagamento através de:
+     * 1. Validação de TID contra dados armazenados no pedido
+     * 2. Verificação de correspondência entre reference e order_id
+     * 3. Consulta à API da Rede para confirmar autenticidade da transação
+     * 
+     * @param WP_REST_Request $request Requisição REST
+     * @return WP_REST_Response|WP_Error
+     */
     public function handle3dsFailure($request)
     {
         $parameters = $request->get_params();
@@ -521,6 +550,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             return new WP_Error('invalid_order', __('Order not found', 'woo-rede'), array('status' => 404));
         }
 
+        // VALIDAÇÃO DE SEGURANÇA: Verifica autenticidade da requisição
+        if (!$this->validate_webhook_security($order, $parameters, 'failure')) {
+            return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
+        }
+
         // Marca pedido como falhado
         $order->add_order_note(__('3D Secure authentication failed', 'woo-rede'));
         // $order->update_status('failed');
@@ -530,6 +564,244 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $redirect_url = add_query_arg('3ds_error', '1', wc_get_checkout_url());
         wp_safe_redirect($redirect_url);
         exit;
+    }
+
+    /**
+     * Processa status do pedido especificamente para retorno 3DS
+     * A resposta 3DS tem estrutura diferente e precisamos do card_type dos metadados
+     */
+    private function process_3ds_order_status($order, $webhook_data, $note = '')
+    {
+        $return_code = $webhook_data['returnCode'] ?? '';
+        $return_message = $webhook_data['returnMessage'] ?? '';
+        
+        // Para 3DS, recuperar o card_type dos metadados do pedido
+        $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+        
+        // Obter configuração de auto_capture do gateway debit
+        $debit_settings = get_option('woocommerce_rede_debit_settings');
+        $auto_capture = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
+
+        // Determinar se foi capturado baseado no tipo de cartão e configuração
+        $capture = ($saved_card_type === 'debit') ? true : $auto_capture;
+        
+        // Adiciona informação sobre o tipo de cartão detectado na nota
+        $card_type_note = sprintf(' [Card Type: %s, Capture: %s]', $saved_card_type, $capture ? 'Yes' : 'No');
+        $status_note = sprintf('Rede[%s]', $return_message);
+        $order->add_order_note($status_note . ' ' . $note . $card_type_note);
+
+        // Só altera o status se o pedido estiver pendente
+        if ($order->get_status() === 'pending') {
+            if ($return_code == '00') {
+                if ($capture) {
+                    // Status configurável pelo usuário para pagamentos aprovados com captura
+                    $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
+                    $order->update_status($payment_complete_status);
+                } else {
+                    // Para pagamentos credit sem captura, aguardando captura manual
+                    $order->update_status('on-hold', 'Pagamento autorizado, aguardando captura manual.');
+                    wc_reduce_stock_levels($order->get_id());
+                }
+            } else {
+                $order->update_status('failed', $status_note);
+            }
+        }
+    }
+
+    public function regOrderLogs($orderId, $order_total, $cardData, $transaction, $order, $brand = null): void
+    {
+        $debit_settings = get_option('woocommerce_rede_debit_settings');
+        if (($debit_settings['debug'] ?? 'no') === 'yes') {
+            $tId = null;
+            $returnCode = null;
+            
+            if ($brand === null && $transaction) {
+                $brand = null;
+                if (is_array($transaction)) {
+                    $tId = $transaction['tid'] ?? null;
+                    $returnCode = $transaction['returnCode'] ?? null;
+                }
+                
+                if ($tId) {
+                    $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+                    $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
+                }
+            }
+            
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
+            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled('rede_debit');
+
+            $exchange_rate_value = 1;
+            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
+                // Exibe a cotação apenas se não for BRL
+                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
+                    $rate = $currency_data['rates'][$order_currency];
+                    // Converte para string, preservando todas as casas decimais
+                    $exchange_rate_value = (string)$rate;
+                }
+            }
+
+            // Recupera metadados do pedido se não estiverem em cardData
+            $final_card_type = isset($cardData['card_type']) ? $cardData['card_type'] : ($order->get_meta('_wc_rede_card_type') ?: 'debit');
+            $final_installments = isset($cardData['installments']) ? $cardData['installments'] : ($order->get_meta('_wc_rede_installments') ?: 1);
+            
+            $bodyArray = array(
+                'orderId' => $orderId,
+                'amount' => $order_total,
+                'orderCurrency' => $order_currency,
+                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
+                'exchangeRateValue' => $exchange_rate_value,
+                'cardData' => $cardData,
+                'cardType' => $final_card_type,
+                'installments' => ($final_card_type === 'credit' && $final_installments >= 1) ? $final_installments : null,
+                'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
+                'returnCode' => isset($returnCode) ? $returnCode : null,
+            );
+
+            $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
+
+            // Remove parâmetros desnecessários da resposta
+            $cleanedTransaction = $transaction;
+            if (is_array($cleanedTransaction)) {
+                unset($cleanedTransaction['o'], $cleanedTransaction['k'], $cleanedTransaction['r']);
+            }
+
+            $orderLogsArray = array(
+                'body' => $bodyArray,
+                'response' => $cleanedTransaction
+            );
+
+            $orderLogs = json_encode($orderLogsArray);
+            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
+            $order->save();
+        }
+    }
+
+    /**
+     * Valida a segurança do webhook 3DS para evitar bypass de pagamento
+     * 
+     * @param WC_Order $order O pedido do WooCommerce
+     * @param array $webhook_data Dados do webhook recebido
+     * @return bool True se válido, false caso contrário
+     */
+    private function validate_webhook_security($order, $webhook_data, $validation_type)
+    {
+        try {
+            $tid = sanitize_text_field($webhook_data['tid'] ?? '');
+            if($tid === '') {
+                return true;
+            }
+            
+            return $this->verify_transaction_with_rede_api($order, $tid, $webhook_data, $validation_type);
+            
+        } catch (Exception $e) {
+            // Log do erro para debug
+            if (function_exists('wc_get_logger')) {
+                $logger = wc_get_logger();
+                $logger->error('3DS Webhook security validation error: ' . $e->getMessage(), array('source' => 'rede_security'));
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica a transação diretamente na API da Rede para validar autenticidade
+     * 
+     * @param WC_Order $order O pedido do WooCommerce
+     * @param string $tid Transaction ID
+     * @param array $webhook_data Dados do webhook
+     * @return bool True se válido, false caso contrário
+     */
+    private function verify_transaction_with_rede_api($order, $tid, $webhook_data, $validation_type)
+    {
+        try {
+            // Determina o gateway usado para buscar configurações corretas
+            $payment_method = $order->get_payment_method();
+            $gateway_id = 'rede_debit'; // default
+            $gateway_settings = get_option('woocommerce_' . $gateway_id . '_settings', array());
+            $environment = isset($gateway_settings['environment']) ? $gateway_settings['environment'] : 'test';
+            // Mapeia método de pagamento para gateway ID
+            if (strpos($payment_method, 'rede_credit') !== false) {
+                $gateway_id = 'rede_credit';
+            } elseif (strpos($payment_method, 'rede_debit') !== false) {
+                $gateway_id = 'rede_debit';
+            }
+            
+            // Obtém token OAuth2 válido
+            LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
+            $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway($gateway_id, $environment);
+
+            if (!$token_data || empty($token_data['token'])) {
+                return false;
+            }
+
+            // Determina ambiente (produção/teste) baseado nas configurações do gateway
+            $gateway_settings = get_option('woocommerce_' . $gateway_id . '_settings');
+            $environment = $gateway_settings['environment'] ?? 'test';
+
+            // Define URL da API baseada no ambiente
+            if ($environment === 'production') {
+                $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $tid;
+            } else {
+                $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions/' . $tid;
+            }
+
+            // Faz requisição à API da Rede
+            $response = wp_remote_get($apiUrl, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token_data['token']
+                ),
+                'timeout' => 15
+            ));
+
+            if (is_wp_error($response)) {
+                return false;
+            }
+            
+            $response_code = wp_remote_retrieve_response_code($response);
+            $response_body = wp_remote_retrieve_body($response);
+            
+            if ($response_code !== 200) {
+                return false;
+            }
+            
+            $transaction_data = json_decode($response_body, true);
+            $authorization = $transaction_data['authorization'] ?? array();
+            if (!$transaction_data || empty($authorization)) {
+                return false;
+            }
+            // Valida dados críticos da transação
+            $api_tid = $authorization['tid'] ?? '';
+            $api_reference = $authorization['reference'] ?? '';
+            $api_amount = $authorization['amount'] ?? 0;
+            $api_status = $authorization['status'] ?? '';
+            
+            // Verifica se TID, reference e amount correspondem
+            if ($api_tid !== $tid) {
+                return false;
+            }
+            
+            if ($api_reference !== $webhook_data['reference']) {
+                return false;
+            }
+            
+            if($api_status === 'Declined' && $validation_type === 'success') {
+                return false;
+            }
+
+            if($api_status === 'Approved' && $validation_type === 'failure') {
+                return false;
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     private function query_rede_transaction_by_reference($reference)
@@ -701,120 +973,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // Processa status do pedido usando a função específica para 3DS (inclui lógica de auto_capture)
         $this->process_3ds_order_status($order, $webhook_data, '3D Secure authentication completed');
-    }
-
-    /**
-     * Processa status do pedido especificamente para retorno 3DS
-     * A resposta 3DS tem estrutura diferente e precisamos do card_type dos metadados
-     */
-    private function process_3ds_order_status($order, $webhook_data, $note = '')
-    {
-        $return_code = $webhook_data['returnCode'] ?? '';
-        $return_message = $webhook_data['returnMessage'] ?? '';
-        
-        // Para 3DS, recuperar o card_type dos metadados do pedido
-        $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
-        
-        // Obter configuração de auto_capture do gateway debit
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
-        $auto_capture = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
-
-        // Determinar se foi capturado baseado no tipo de cartão e configuração
-        $capture = ($saved_card_type === 'debit') ? true : $auto_capture;
-        
-        // Adiciona informação sobre o tipo de cartão detectado na nota
-        $card_type_note = sprintf(' [Card Type: %s, Capture: %s]', $saved_card_type, $capture ? 'Yes' : 'No');
-        $status_note = sprintf('Rede[%s]', $return_message);
-        $order->add_order_note($status_note . ' ' . $note . $card_type_note);
-
-        // Só altera o status se o pedido estiver pendente
-        if ($order->get_status() === 'pending') {
-            if ($return_code == '00') {
-                if ($capture) {
-                    // Status configurável pelo usuário para pagamentos aprovados com captura
-                    $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
-                    $order->update_status($payment_complete_status);
-                } else {
-                    // Para pagamentos credit sem captura, aguardando captura manual
-                    $order->update_status('on-hold', 'Pagamento autorizado, aguardando captura manual.');
-                    wc_reduce_stock_levels($order->get_id());
-                }
-            } else {
-                $order->update_status('failed', $status_note);
-            }
-        }
-    }
-
-    public function regOrderLogs($orderId, $order_total, $cardData, $transaction, $order, $brand = null): void
-    {
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
-        if (($debit_settings['debug'] ?? 'no') === 'yes') {
-            $tId = null;
-            $returnCode = null;
-            
-            if ($brand === null && $transaction) {
-                $brand = null;
-                if (is_array($transaction)) {
-                    $tId = $transaction['tid'] ?? null;
-                    $returnCode = $transaction['returnCode'] ?? null;
-                }
-                
-                if ($tId) {
-                    $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
-                    $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
-                }
-            }
-            
-            $default_currency = get_option('woocommerce_currency', 'BRL');
-            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
-            $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
-            $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled('rede_debit');
-
-            $exchange_rate_value = 1;
-            if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
-                // Exibe a cotação apenas se não for BRL
-                if ($order_currency !== 'BRL' && isset($currency_data['rates'][$order_currency])) {
-                    $rate = $currency_data['rates'][$order_currency];
-                    // Converte para string, preservando todas as casas decimais
-                    $exchange_rate_value = (string)$rate;
-                }
-            }
-
-            // Recupera metadados do pedido se não estiverem em cardData
-            $final_card_type = isset($cardData['card_type']) ? $cardData['card_type'] : ($order->get_meta('_wc_rede_card_type') ?: 'debit');
-            $final_installments = isset($cardData['installments']) ? $cardData['installments'] : ($order->get_meta('_wc_rede_installments') ?: 1);
-            
-            $bodyArray = array(
-                'orderId' => $orderId,
-                'amount' => $order_total,
-                'orderCurrency' => $order_currency,
-                'currencyConverted' => $convert_to_brl_enabled ? 'BRL' : null,
-                'exchangeRateValue' => $exchange_rate_value,
-                'cardData' => $cardData,
-                'cardType' => $final_card_type,
-                'installments' => ($final_card_type === 'credit' && $final_installments >= 1) ? $final_installments : null,
-                'brand' => isset($tId) && isset($brand) ? $brand['brand'] : null,
-                'returnCode' => isset($returnCode) ? $returnCode : null,
-            );
-
-            $bodyArray['cardData']['card_number'] = LknIntegrationRedeForWoocommerceHelper::censorString($bodyArray['cardData']['card_number'], 8);
-
-            // Remove parâmetros desnecessários da resposta
-            $cleanedTransaction = $transaction;
-            if (is_array($cleanedTransaction)) {
-                unset($cleanedTransaction['o'], $cleanedTransaction['k'], $cleanedTransaction['r']);
-            }
-
-            $orderLogsArray = array(
-                'body' => $bodyArray,
-                'response' => $cleanedTransaction
-            );
-
-            $orderLogs = json_encode($orderLogsArray);
-            $order->update_meta_data('lknWcRedeOrderLogs', $orderLogs);
-            $order->save();
-        }
     }
 
 }

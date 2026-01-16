@@ -2,6 +2,8 @@
 
 namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 use Lknwoo\IntegrationRedeForWoocommerce\Admin\LknIntegrationRedeForWoocommerceAdmin;
 use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceLoader;
 use Lknwoo\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocommercePublic;
@@ -236,8 +238,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'woo-rede')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'woo-rede'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -345,8 +347,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'woo-rede')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'woo-rede'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -472,8 +474,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'woo-rede')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'woo-rede'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }
@@ -708,8 +710,8 @@ final class LknIntegrationRedeForWoocommerce
             $extra_fees = 0;
             foreach ($fees_objects as $fee) {
                 if (
-                    strtolower($fee->name) !== strtolower(__('Interest', 'rede-for-woocommerce-pro')) &&
-                    strtolower($fee->name) !== strtolower(__('Discount', 'rede-for-woocommerce-pro'))
+                    strtolower($fee->name) !== strtolower(__('Interest', 'woo-rede')) &&
+                    strtolower($fee->name) !== strtolower(__('Discount', 'woo-rede'))
                 ) {
                     $extra_fees += floatval($fee->amount);
                 }

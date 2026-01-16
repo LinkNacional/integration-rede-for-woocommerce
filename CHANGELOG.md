@@ -1,3 +1,6 @@
+# 5.1.3 - 16/01/2026
+* Correção em erros encontrados pelo Wordpress.
+
 # 5.1.2 - 04/12/2025
 * Novo sistema de cron ligado a versão PRO do plugin.
 
