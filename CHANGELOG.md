@@ -1,3 +1,6 @@
+# 5.1.4 - 19/01/2026
+* Ajuste no tamanho da variavel de referencia do pedido.
+
 # 5.1.3 - 16/01/2026
 * Correção em erros encontrados pelo Wordpress.
 

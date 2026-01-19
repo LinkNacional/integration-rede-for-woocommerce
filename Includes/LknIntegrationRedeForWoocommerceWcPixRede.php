@@ -272,6 +272,10 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
                 $reference = $reference . '-' . time();
 
+                if (strlen($reference) > 20) {
+                    $reference = substr($reference, 0, 20);
+                }
+
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 
                 // Verificar se a resposta PIX contém o returnCode
