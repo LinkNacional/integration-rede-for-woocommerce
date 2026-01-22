@@ -595,7 +595,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     private function process_credit_transaction_v2($reference, $order_total, $installments, $cardData)
     {
         $access_token = $this->get_oauth_token();
-        
+
         $amount = str_replace(".", "", number_format($order_total, 2, '.', ''));
         
         if ($this->environment === 'production') {
@@ -628,7 +628,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'method' => 'POST',
             'headers' => array(
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $access_token
+                'Authorization' => 'Bearer ' . $access_token,
+                'Transaction-Response' => 'brand-return-opened'
             ),
             'body' => wp_json_encode($body),
             'timeout' => 60
@@ -765,11 +766,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data('_wc_rede_transaction_id', $transaction_response['tid'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_refund_id', $transaction_response['refundId'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_cancel_id', $transaction_response['cancelId'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_bin', $transaction_response['card']['bin'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_last4', $transaction_response['card']['last4'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['card']['brand'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_bin', $transaction_response['cardBin'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_last4', $transaction_response['last4'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['brand']['name'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_nsu', $transaction_response['nsu'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['authorizationCode'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['brand']['authorizationCode'] ?? '');
             $order->update_meta_data('_wc_rede_captured', $transaction_response['capture'] ?? $this->auto_capture);
             $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
             $order->update_meta_data('_wc_rede_total_amount_converted', $order_total);
