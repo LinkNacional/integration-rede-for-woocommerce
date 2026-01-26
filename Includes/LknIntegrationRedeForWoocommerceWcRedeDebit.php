@@ -11,6 +11,18 @@ use WP_Error;
 
 final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRedeForWoocommerceWcRedeAbstract
 {
+    /**
+     * Enable 3DS authentication
+     * @var bool
+     */
+    public $enable_3ds;
+
+    /**
+     * 3DS fallback behavior
+     * @var string
+     */
+    public $threeds_fallback_behavior;
+
     public function __construct()
     {
         $this->id = 'rede_debit';
