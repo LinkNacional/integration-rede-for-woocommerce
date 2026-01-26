@@ -497,9 +497,76 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
     }
 
+    /**
+     * Formata o nome da bandeira com ícone de imagem (apenas para licença PRO)
+     */
+    private function formatBrandWithIcon($brandName): string
+    {
+        if (empty($brandName)) {
+            return '';
+        }
+
+        // Verificar se tem licença PRO válida
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            // Modo padrão: apenas retorna o nome da bandeira sem formatação
+            return esc_html($brandName);
+        }
+
+        // Modo PRO: aplicar formatação com ícone
+        // Normalizar o nome da bandeira (tudo minúsculo para comparação)
+        $normalizedBrand = strtolower(trim($brandName));
+        
+        // Mapear variações de bandeiras para arquivos de imagem
+        $brandMappings = array(
+            'visa' => array('visa', 'visa electron', 'visa debit', 'visa credit'),
+            'mastercard' => array('mastercard', 'master', 'master card'),
+            'amex' => array('american express', 'amex', 'american', 'express'),
+            'elo' => array('elo', 'elo credit', 'elo debit'),
+            'hipercard' => array('hipercard', 'hiper', 'hiper card'),
+            'diners' => array('diners club', 'diners', 'dinners club'),
+            'discover' => array('discover', 'discover card'),
+            'jcb' => array('jcb', 'jcb card'),
+            'aura' => array('aura', 'aura card'),
+            'paypal' => array('paypal', 'pay pal')
+        );
+
+        // Buscar qual bandeira corresponde ao nome recebido
+        $detectedBrand = 'other';
+        $displayName = ucfirst($normalizedBrand);
+        
+        foreach ($brandMappings as $brandKey => $variations) {
+            foreach ($variations as $variation) {
+                // Verifica se o nome contém a variação ou vice-versa
+                if (strpos($normalizedBrand, $variation) !== false || strpos($variation, $normalizedBrand) !== false) {
+                    $detectedBrand = $brandKey;
+                    $displayName = ucfirst($brandKey);
+                    break 2; // Sair dos dois loops
+                }
+            }
+        }
+
+        // Definir o caminho base das imagens
+        $imagesPath = plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . 'Includes/assets/cardBrands/';
+        
+        // Nome do arquivo de imagem
+        $imageName = $detectedBrand . '.webp';
+        
+        $imageHtml = sprintf(
+            '<img src="%s" alt="%s" style="width: 20px; height: auto; margin-right: 5px; vertical-align: middle;" /> %s',
+            esc_url($imagesPath . $imageName),
+            esc_attr($displayName),
+            esc_html($brandName) // Mantém o nome original da bandeira para exibição
+        );
+        
+        return $imageHtml;
+    }
+
     public function displayMeta($order): void
     {
         if ($order->get_payment_method() === 'rede_debit') {
+            // Verificar licença PRO no topo para múltiplas verificações
+            $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+            
             $metaKeys = array(
                 '_wc_rede_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
                 '_wc_rede_transaction_return_code' => esc_attr__('Return Code', 'woo-rede'),
@@ -509,18 +576,60 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 '_wc_rede_transaction_cancel_id' => esc_attr__('Cancellation ID', 'woo-rede'),
                 '_wc_rede_transaction_nsu' => esc_attr__('Nsu', 'woo-rede'),
                 '_wc_rede_transaction_authorization_code' => esc_attr__('Authorization Code', 'woo-rede'),
-                '_wc_rede_transaction_card_type' => esc_attr__('Card Type', 'woo-rede'),
-                '_wc_rede_transaction_installments' => esc_attr__('Installments', 'woo-rede'),
                 '_wc_rede_transaction_bin' => esc_attr__('Bin', 'woo-rede'),
                 '_wc_rede_transaction_last4' => esc_attr__('Last 4', 'woo-rede'),
+                '_wc_rede_transaction_card_type' => esc_attr__('Card Type', 'woo-rede'),
+                '_wc_rede_transaction_installments' => esc_attr__('Installments', 'woo-rede'),
                 '_wc_rede_transaction_holder' => esc_attr__('Cardholder', 'woo-rede'),
                 '_wc_rede_transaction_expiration' => esc_attr__('Card Expiration', 'woo-rede'),
                 '_wc_rede_transaction_cvv' => esc_attr__('CVV', 'woo-rede'),
-                '_wc_rede_transaction_card_brand' => esc_attr__('Brand', 'woo-rede'),
             );
 
-            $this->generateMetaTable($order, $metaKeys, 'Rede');
+            // Adicionar campo da bandeira apenas na versão PRO
+            if ($isProValid) {
+                $metaKeys['_wc_rede_transaction_card_brand'] = esc_attr__('Brand', 'woo-rede');
+            }
+
+            // Usar método personalizado ou padrão baseado na licença PRO
+            if ($isProValid) {
+                $this->generateMetaTableWithBrandIcon($order, $metaKeys, $this->title);
+            } else {
+                $this->generateMetaTable($order, $metaKeys, 'Rede');
+            }
         }
+    }
+
+    /**
+     * Método personalizado para exibir metadados com ícone da bandeira
+     */
+    private function generateMetaTableWithBrandIcon($order, $metaKeys, $title): void
+    {
+?>
+        <h3 style="margin-bottom: 14px;"><?php echo esc_html($title); ?></h3>
+        <table>
+            <tbody>
+                <?php
+                foreach ($metaKeys as $meta_key => $label) {
+                    $meta_value = $order->get_meta($meta_key);
+                    if (! empty($meta_value)) :
+                        // Se for o campo da bandeira, formatar com ícone
+                        if ($meta_key === '_wc_rede_transaction_card_brand') {
+                            $meta_value = $this->formatBrandWithIcon($meta_value);
+                        } else {
+                            $meta_value = esc_attr($meta_value);
+                        }
+                ?>
+                        <tr>
+                            <td style="color: #555; font-weight: bold;"><?php echo esc_attr($label); ?>:</td>
+                            <td><?php echo wp_kses_post($meta_value); ?></td>
+                        </tr>
+                <?php
+                    endif;
+                }
+                ?>
+            </tbody>
+        </table>
+<?php
     }
 
     /**
