@@ -83,7 +83,7 @@ final class LknIntegrationRedeForWoocommerce
         $this->plugin_name = 'lkn-integration-rede-for-woocommerce';
 
         $this->load_dependencies();
-        $this->loader->add_action('plugins_loaded', $this, 'define_hooks');
+        $this->loader->add_action('woocommerce_init', $this, 'define_hooks');
     }
     public $wc_rede_class;
     public $wc_rede_credit_class;
