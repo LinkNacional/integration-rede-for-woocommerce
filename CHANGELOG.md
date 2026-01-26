@@ -1,3 +1,6 @@
+# 5.1.5 - 26/01/2026
+* Ajuste na obtenção da bandeira do cartão nas notas do pedido.
+
 # 5.1.4 - 19/01/2026
 * Ajuste no tamanho da variavel de referencia do pedido.
 
