@@ -51,8 +51,8 @@ class LknIntegrationRedeForWoocommerceHelper
         }
 
         $apiUrl = ('production' === $instance->environment)
-            ? 'https://api.userede.com.br/redelabs/v2/transactions'
-            : 'https://rl7-sandbox-api.useredecloud.com.br/v2/transactions';
+            ? 'https://api.userede.com.br/erede/v2/transactions'
+            : 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
 
         $headers = array(
             'Authorization' => 'Bearer ' . $oauth_token,
@@ -64,6 +64,7 @@ class LknIntegrationRedeForWoocommerceHelper
             'headers' => $headers,
         ));
 
+
         if (is_wp_error($response)) {
             return null;
         }
@@ -71,7 +72,7 @@ class LknIntegrationRedeForWoocommerceHelper
         $response_body = wp_remote_retrieve_body($response);
         $response_data = json_decode($response_body, true);
 
-        if (isset($response_data['authorization'])) {
+        if (isset($response_data['authorization']['brand'])) {
             return [
                 'brand' => $response_data['authorization']['brand'] ?? null,
                 'returnCode' => $response_data['authorization']['returnCode'] ?? null,
@@ -91,9 +92,9 @@ class LknIntegrationRedeForWoocommerceHelper
         }
 
         if ('production' === $instance->environment) {
-            $apiUrl = 'https://api.userede.com.br/redelabs/v2/transactions';
+            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
         } else {
-            $apiUrl = 'https://rl7-sandbox-api.useredecloud.com.br/v2/transactions';
+            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
         }
 
         $response = wp_remote_get($apiUrl . '/' . $tid, array(
@@ -107,7 +108,13 @@ class LknIntegrationRedeForWoocommerceHelper
         $response_body = wp_remote_retrieve_body($response);
         $response_body = json_decode($response_body, true);
 
-        return ($response_body['authorization']['brand']['name']);
+        // Verificar se a estrutura brand existe na authorization
+        if (isset($response_body['authorization']['brand']['name'])) {
+            return $response_body['authorization']['brand']['name'];
+        }
+        
+        // Fallback para casos onde não há informação da brand
+        return null;
     }
 
     final public static function censorString($string, $censorLength)

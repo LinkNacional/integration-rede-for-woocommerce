@@ -557,7 +557,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // Marca pedido como falhado
         $order->add_order_note(__('3D Secure authentication failed', 'woo-rede'));
-        // $order->update_status('failed');
+        $order->update_status('failed');
         $order->save();
         
         // Redireciona para a página de checkout com parâmetro de erro
@@ -896,8 +896,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         
         // Dados do cartão - alguns podem não vir no webhook, usar valores padrão
         $order->update_meta_data('_wc_rede_transaction_bin', $webhook_data['bin'] ?? '');
-        $order->update_meta_data('_wc_rede_transaction_last4', $webhook_data['last4'] ?? '');
-        $order->update_meta_data('_wc_rede_transaction_brand', $webhook_data['brand_name'] ?? '');
+        $order->update_meta_data('_wc_rede_transaction_card_brand', $webhook_data['brand_name'] ?? '');
         
         // Auto capture condicional baseado no tipo de cartão salvo nos metadados
         $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
@@ -955,11 +954,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             ));
             
             $cardData = array(
-                'card_number' => '**** **** **** ' . ($webhook_data['last4'] ?? '****'),
-                'holder_name' => 'Card Holder',
-                'expiry_month' => '**',
-                'expiry_year' => '****',
-                'security_code' => '***',
+                'card_number' => $order->get_meta('_wc_rede_transaction_card_number') ?: ('**** **** **** ' . ($webhook_data['last4'] ?? '****')),
+                'card_holder' => $order->get_meta('_wc_rede_transaction_holder') ?: 'Card Holder',
+                'card_expiration_month' => $order->get_meta('_wc_rede_transaction_expiration_month') ?: '**',
+                'card_expiration_year' => $order->get_meta('_wc_rede_transaction_expiration_year') ?: '****',
+                'card_cvv' => $order->get_meta('_wc_rede_transaction_cvv') ?: '***',
                 'card_type' => $saved_card_type
             );
             

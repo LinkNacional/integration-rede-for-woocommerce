@@ -130,9 +130,76 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         return $configs;
     }
 
+    /**
+     * Formata o nome da bandeira com ícone de imagem (apenas para licença PRO)
+     */
+    private function formatBrandWithIcon($brandName): string
+    {
+        if (empty($brandName)) {
+            return '';
+        }
+
+        // Verificar se tem licença PRO válida
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            // Modo padrão: apenas retorna o nome da bandeira sem formatação
+            return esc_html($brandName);
+        }
+
+        // Modo PRO: aplicar formatação com ícone
+        // Normalizar o nome da bandeira (tudo minúsculo para comparação)
+        $normalizedBrand = strtolower(trim($brandName));
+        
+        // Mapear variações de bandeiras para arquivos de imagem
+        $brandMappings = array(
+            'visa' => array('visa', 'visa electron', 'visa debit', 'visa credit'),
+            'mastercard' => array('mastercard', 'master', 'master card'),
+            'amex' => array('american express', 'amex', 'american', 'express'),
+            'elo' => array('elo', 'elo credit', 'elo debit'),
+            'hipercard' => array('hipercard', 'hiper', 'hiper card'),
+            'diners' => array('diners club', 'diners', 'dinners club'),
+            'discover' => array('discover', 'discover card'),
+            'jcb' => array('jcb', 'jcb card'),
+            'aura' => array('aura', 'aura card'),
+            'paypal' => array('paypal', 'pay pal')
+        );
+
+        // Buscar qual bandeira corresponde ao nome recebido
+        $detectedBrand = 'other';
+        $displayName = ucfirst($normalizedBrand);
+        
+        foreach ($brandMappings as $brandKey => $variations) {
+            foreach ($variations as $variation) {
+                // Verifica se o nome contém a variação ou vice-versa
+                if (strpos($normalizedBrand, $variation) !== false || strpos($variation, $normalizedBrand) !== false) {
+                    $detectedBrand = $brandKey;
+                    $displayName = ucfirst($brandKey);
+                    break 2; // Sair dos dois loops
+                }
+            }
+        }
+
+        // Definir o caminho base das imagens
+        $imagesPath = plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . 'Includes/assets/cardBrands/';
+        
+        // Nome do arquivo de imagem
+        $imageName = $detectedBrand . '.webp';
+        
+        $imageHtml = sprintf(
+            '<img src="%s" alt="%s" style="width: 20px; height: auto; margin-right: 5px; vertical-align: middle;" /> %s',
+            esc_url($imagesPath . $imageName),
+            esc_attr($displayName),
+            esc_html($brandName) // Mantém o nome original da bandeira para exibição
+        );
+        
+        return $imageHtml;
+    }
+
     public function displayMeta($order): void
     {
         if ($order->get_payment_method() === 'rede_credit') {
+            // Verificar licença PRO no topo para múltiplas verificações
+            $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+            
             $metaKeys = array(
                 '_wc_rede_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
                 '_wc_rede_transaction_return_code' => esc_attr__('Return Code', 'woo-rede'),
@@ -144,14 +211,56 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 '_wc_rede_transaction_authorization_code' => esc_attr__('Authorization Code', 'woo-rede'),
                 '_wc_rede_transaction_bin' => esc_attr__('Bin', 'woo-rede'),
                 '_wc_rede_transaction_last4' => esc_attr__('Last 4', 'woo-rede'),
-                '_wc_rede_transaction_brand' => esc_attr__('Brand', 'woo-rede'),
                 '_wc_rede_transaction_installments' => esc_attr__('Installments', 'woo-rede'),
                 '_wc_rede_transaction_holder' => esc_attr__('Cardholder', 'woo-rede'),
                 '_wc_rede_transaction_expiration' => esc_attr__('Card Expiration', 'woo-rede')
             );
 
-            $this->generateMetaTable($order, $metaKeys, 'Rede');
+            // Adicionar campo da bandeira apenas na versão PRO
+            if ($isProValid) {
+                $metaKeys['_wc_rede_transaction_brand'] = esc_attr__('Brand', 'woo-rede');
+            }
+
+            // Usar método personalizado ou padrão baseado na licença PRO
+            if ($isProValid) {
+                $this->generateMetaTableWithBrandIcon($order, $metaKeys, $this->title);
+            } else {
+                $this->generateMetaTable($order, $metaKeys, 'Rede');
+            }
         }
+    }
+
+    /**
+     * Método personalizado para exibir metadados com ícone da bandeira
+     */
+    private function generateMetaTableWithBrandIcon($order, $metaKeys, $title): void
+    {
+?>
+        <h3 style="margin-bottom: 14px;"><?php echo esc_html($title); ?></h3>
+        <table>
+            <tbody>
+                <?php
+                foreach ($metaKeys as $meta_key => $label) {
+                    $meta_value = $order->get_meta($meta_key);
+                    if (! empty($meta_value)) :
+                        // Se for o campo da bandeira, formatar com ícone
+                        if ($meta_key === '_wc_rede_transaction_brand') {
+                            $meta_value = $this->formatBrandWithIcon($meta_value);
+                        } else {
+                            $meta_value = esc_attr($meta_value);
+                        }
+                ?>
+                        <tr>
+                            <td style="color: #555; font-weight: bold;"><?php echo esc_attr($label); ?>:</td>
+                            <td><?php echo wp_kses_post($meta_value); ?></td>
+                        </tr>
+                <?php
+                    endif;
+                }
+                ?>
+            </tbody>
+        </table>
+<?php
     }
 
     public function initFormFields(): void
@@ -595,7 +704,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     private function process_credit_transaction_v2($reference, $order_total, $installments, $cardData)
     {
         $access_token = $this->get_oauth_token();
-        
+
         $amount = str_replace(".", "", number_format($order_total, 2, '.', ''));
         
         if ($this->environment === 'production') {
@@ -628,7 +737,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'method' => 'POST',
             'headers' => array(
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $access_token
+                'Authorization' => 'Bearer ' . $access_token,
+                'Transaction-Response' => 'brand-return-opened'
             ),
             'body' => wp_json_encode($body),
             'timeout' => 60
@@ -765,11 +875,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data('_wc_rede_transaction_id', $transaction_response['tid'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_refund_id', $transaction_response['refundId'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_cancel_id', $transaction_response['cancelId'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_bin', $transaction_response['card']['bin'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_last4', $transaction_response['card']['last4'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['card']['brand'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_bin', $transaction_response['cardBin'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_last4', $transaction_response['last4'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_brand', $transaction_response['brand']['name'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_nsu', $transaction_response['nsu'] ?? '');
-            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['authorizationCode'] ?? '');
+            $order->update_meta_data('_wc_rede_transaction_authorization_code', $transaction_response['brand']['authorizationCode'] ?? '');
             $order->update_meta_data('_wc_rede_captured', $transaction_response['capture'] ?? $this->auto_capture);
             $order->update_meta_data('_wc_rede_total_amount', $order->get_total());
             $order->update_meta_data('_wc_rede_total_amount_converted', $order_total);
