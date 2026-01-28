@@ -39,7 +39,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         register_rest_route('redeIntegration', '/clearOrderLogs', array(
             'methods' => 'DELETE',
             'callback' => array($this, 'clearOrderLogs'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array($this, 'check_clear_logs_permissions'),
         ));
 
         register_rest_route('woorede', '/s', array(
@@ -55,22 +55,88 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         ));
     }
 
+    /**
+     * Verifica se o usuário tem permissão para limpar logs de pedidos
+     * 
+     * @return bool True se autorizado, false caso contrário
+     */
+    public function check_clear_logs_permissions()
+    {
+        // Verifica se o usuário está logado e tem permissão para gerenciar WooCommerce
+        return current_user_can('manage_woocommerce') || current_user_can('manage_options');
+    }
+
     public function clearOrderLogs($request)
     {
-        $args = array(
-            'limit' => -1, // Sem limite, pega todas as ordens
-            'meta_key' => 'lknWcRedeOrderLogs', // Meta key específica
-            'meta_compare' => 'EXISTS', // Verifica se a meta key existe
-        );
-
-        $orders = wc_get_orders($args);
-
-        foreach ($orders as $order) {
-            $order->delete_meta_data('lknWcRedeOrderLogs');
-            $order->save();
+        // Verificação adicional de segurança
+        if (!current_user_can('manage_woocommerce') && !current_user_can('manage_options')) {
+            return new WP_Error(
+                'insufficient_permissions',
+                __('You do not have permission to clear order logs.', 'woo-rede'),
+                array('status' => 403)
+            );
         }
 
-        return new WP_REST_Response($orders, 200);
+        // Log da ação para auditoria
+        if (function_exists('wc_get_logger')) {
+            $logger = wc_get_logger();
+            $current_user = wp_get_current_user();
+            $logger->info('Order logs cleared by user', array(
+                'source' => 'rede-security-audit',
+                'user_id' => $current_user->ID,
+                'user_login' => $current_user->user_login,
+                'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                'timestamp' => current_time('mysql')
+            ));
+        }
+
+        $deleted_count = 0;
+        $batch_size = 50; // Processa 50 pedidos por vez para evitar esgotamento de memória
+        $offset = 0;
+
+        do {
+            $args = array(
+                'limit' => $batch_size,
+                'offset' => $offset,
+                'meta_key' => 'lknWcRedeOrderLogs',
+                'meta_compare' => 'EXISTS',
+                'return' => 'ids', // Retorna apenas IDs para economizar memória
+            );
+
+            $order_ids = wc_get_orders($args);
+            
+            if (empty($order_ids)) {
+                break; // Não há mais pedidos para processar
+            }
+
+            error_log('Processando lote: ' . count($order_ids) . ' pedidos (offset: ' . $offset . ')');
+
+            foreach ($order_ids as $order_id) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    $order->delete_meta_data('lknWcRedeOrderLogs');
+                    $order->save();
+                    $deleted_count++;
+                }
+                
+                // Libera memória do objeto order
+                unset($order);
+            }
+
+            $offset += $batch_size;
+            
+            // Força limpeza de memória entre lotes
+            if (function_exists('gc_collect_cycles')) {
+                gc_collect_cycles();
+            }
+
+        } while (count($order_ids) === $batch_size);
+
+        return new WP_REST_Response(array(
+            'success' => true,
+            'message' => sprintf(__('Logs cleared from %d orders.', 'woo-rede'), $deleted_count),
+            'orders_affected' => $deleted_count
+        ), 200);
     }
 
     public function maxipagoDebitListener($request)
