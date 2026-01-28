@@ -85,7 +85,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 'source' => 'rede-security-audit',
                 'user_id' => $current_user->ID,
                 'user_login' => $current_user->user_login,
-                'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                'user_ip' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown',
                 'timestamp' => current_time('mysql')
             ));
         }
@@ -132,6 +132,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         return new WP_REST_Response(array(
             'success' => true,
+            /* translators: %d: number of orders from which logs were cleared */
             'message' => sprintf(__('Logs cleared from %d orders.', 'woo-rede'), $deleted_count),
             'orders_affected' => $deleted_count
         ), 200);

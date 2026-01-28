@@ -116,6 +116,7 @@ A: Yes — tested up to WordPress 6.8.
 ## Changelog
 ### 5.1.6 - 2026/01/28
 - Fixed security vulnerability in logs deletion endpoint.
+- Added changelog link to plugin page.
 
 ### 5.1.5 - 2026/01/26
 - Fix in card brand retrieval in order notes.

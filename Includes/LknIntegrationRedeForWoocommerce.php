@@ -184,6 +184,9 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMeta', 10, 2);
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE_BASENAME, $this, 'lknIntegrationRedeForWoocommercePluginRowMetaPro', 10, 2);
 
+        // Adicionar link do Changelog
+        $this->loader->add_filter('plugin_row_meta', $this, 'add_changelog_link', 10, 2);
+
         $this->loader->add_action('rest_api_init', $this->LknIntegrationRedeForWoocommerceEndpointClass, 'registerorderRedeCaptureEndPoint');
         $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_pix_name', 10, 2);
 
@@ -1492,5 +1495,24 @@ final class LknIntegrationRedeForWoocommerce
             'status' => false,
             'message' => __('Card brand not found', 'woo-rede'),
         ];
+    }
+
+    /**
+     * Adiciona link do Changelog na página de plugins
+     */
+    public function add_changelog_link($plugin_meta, $plugin_file)
+    {
+        // Verificar se é o nosso plugin
+        if (strpos($plugin_file, 'integration-rede-for-woocommerce.php') !== false) {
+            $changelog_link = sprintf(
+                '<a href="%1$s" target="_blank">%2$s</a>',
+                'https://br.wordpress.org/plugins/woo-rede/#developers',
+                __('Changelog', 'woo-rede')
+            );
+            
+            $plugin_meta[] = $changelog_link;
+        }
+        
+        return $plugin_meta;
     }
 }
