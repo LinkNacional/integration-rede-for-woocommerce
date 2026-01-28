@@ -1,3 +1,6 @@
+# 5.1.6 - 28/01/2026
+* Ajuste de vulnerabilidade na rota de deleção de logs.
+
 # 5.1.5 - 26/01/2026
 * Ajuste na obtenção da bandeira do cartão nas notas do pedido.
 
