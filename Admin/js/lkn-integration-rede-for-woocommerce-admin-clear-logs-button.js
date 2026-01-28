@@ -43,16 +43,32 @@ document.addEventListener('DOMContentLoaded', function () {
           type: 'DELETE',
           url: wpApiSettings.root + 'redeIntegration/clearOrderLogs',
           contentType: 'application/json',
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-WP-Nonce', wpApiSettings.nonce);
+          },
           success: function (status) {
             lknWcRedeValidateButton.disabled = false
             location.reload()
           },
           error: function (error) {
             console.error(error)
+            let errorMessage = 'Error clearing logs'
+            if (error.responseJSON && error.responseJSON.message) {
+              errorMessage = error.responseJSON.message
+            } else if (error.status === 403) {
+              errorMessage = 'You do not have permission to perform this action.'
+            } else if (error.status === 401) {
+              errorMessage = 'Authentication required. Please refresh the page and try again.'
+            }
+            alert(errorMessage)
             lknWcRedeValidateButton.disabled = false
             lknWcRedeValidateButton.className = lknWcRedeValidateButton.className.replace(' is-busy', '')
           }
         })
+      } else {
+        // Usuario cancelou, restaura o botão
+        lknWcRedeValidateButton.disabled = false
+        lknWcRedeValidateButton.className = lknWcRedeValidateButton.className.replace(' is-busy', '')
       }
     })
   }
