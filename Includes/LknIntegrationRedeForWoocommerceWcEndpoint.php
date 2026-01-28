@@ -109,8 +109,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 break; // Não há mais pedidos para processar
             }
 
-            error_log('Processando lote: ' . count($order_ids) . ' pedidos (offset: ' . $offset . ')');
-
             foreach ($order_ids as $order_id) {
                 $order = wc_get_order($order_id);
                 if ($order) {
