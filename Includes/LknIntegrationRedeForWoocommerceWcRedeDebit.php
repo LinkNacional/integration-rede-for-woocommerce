@@ -579,10 +579,24 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             // Verificar licença PRO no topo para múltiplas verificações
             $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
             
+            // Tentar preencher metadados faltantes usando TID se disponível
+            $tid = $order->get_meta('_wc_rede_transaction_id');
+            if (!empty($tid)) {
+                // Verificar se brand ou reference estão faltando
+                $missing_brand = empty($order->get_meta('_wc_rede_transaction_card_brand'));
+                $missing_reference = empty($order->get_meta('_wc_rede_transaction_reference'));
+                
+                if ($missing_brand || $missing_reference) {
+                    // Buscar dados completos da transação e preencher metadados faltantes
+                    LknIntegrationRedeForWoocommerceHelper::getTransactionCompleteData($tid, $this, $order);
+                }
+            }
+            
             $metaKeys = array(
                 '_wc_rede_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
                 '_wc_rede_transaction_return_code' => esc_attr__('Return Code', 'woo-rede'),
                 '_wc_rede_transaction_return_message' => esc_attr__('Return Message', 'woo-rede'),
+                '_wc_rede_transaction_reference' => esc_attr__('Reference', 'woo-rede'),
                 '_wc_rede_transaction_id' => esc_attr__('Transaction ID', 'woo-rede'),
                 '_wc_rede_transaction_refund_id' => esc_attr__('Refund ID', 'woo-rede'),
                 '_wc_rede_transaction_cancel_id' => esc_attr__('Cancellation ID', 'woo-rede'),

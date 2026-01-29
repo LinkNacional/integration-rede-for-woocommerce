@@ -200,10 +200,24 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             // Verificar licença PRO no topo para múltiplas verificações
             $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
             
+            // Tentar preencher metadados faltantes usando TID se disponível
+            $tid = $order->get_meta('_wc_rede_transaction_id');
+            if (!empty($tid)) {
+                // Verificar se brand ou reference estão faltando
+                $missing_brand = empty($order->get_meta('_wc_rede_transaction_brand'));
+                $missing_reference = empty($order->get_meta('_wc_rede_transaction_reference'));
+                
+                if ($missing_brand || $missing_reference) {
+                    // Buscar dados completos da transação e preencher metadados faltantes
+                    LknIntegrationRedeForWoocommerceHelper::getTransactionCompleteData($tid, $this, $order);
+                }
+            }
+            
             $metaKeys = array(
                 '_wc_rede_transaction_environment' => esc_attr__('Environment', 'woo-rede'),
                 '_wc_rede_transaction_return_code' => esc_attr__('Return Code', 'woo-rede'),
                 '_wc_rede_transaction_return_message' => esc_attr__('Return Message', 'woo-rede'),
+                '_wc_rede_transaction_reference' => esc_attr__('Reference', 'woo-rede'),
                 '_wc_rede_transaction_id' => esc_attr__('Transaction ID', 'woo-rede'),
                 '_wc_rede_transaction_refund_id' => esc_attr__('Refund ID', 'woo-rede'),
                 '_wc_rede_transaction_cancel_id' => esc_attr__('Cancellation ID', 'woo-rede'),
@@ -846,8 +860,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
             $order_total = wc_format_decimal($order_total, $decimals);
 
+            $reference = $orderId . '-' . time();
+            
             try {
-                $transaction_response = $this->process_credit_transaction_v2($orderId . '-' . time(), $order_total, $installments, $cardData);
+                $transaction_response = $this->process_credit_transaction_v2($reference, $order_total, $installments, $cardData);
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction_response, $order);
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $e->getMessage(), $order);
@@ -872,6 +888,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $order->update_meta_data('_wc_rede_transaction_return_code', $transaction_response['returnCode'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_return_message', $transaction_response['returnMessage'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_installments', $installments);
+            $order->update_meta_data('_wc_rede_transaction_reference', $reference);
             $order->update_meta_data('_wc_rede_transaction_id', $transaction_response['tid'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_refund_id', $transaction_response['refundId'] ?? '');
             $order->update_meta_data('_wc_rede_transaction_cancel_id', $transaction_response['cancelId'] ?? '');
