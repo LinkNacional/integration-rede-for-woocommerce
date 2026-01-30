@@ -953,6 +953,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Salva todos os metadados da transação
         $order->update_meta_data('_wc_rede_transaction_return_code', $webhook_data['returnCode'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_return_message', $webhook_data['returnMessage'] ?? '');
+        $order->update_meta_data('_wc_rede_transaction_reference', $webhook_data['reference'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_id', $webhook_data['tid'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_refund_id', $webhook_data['refundId'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_cancel_id', $webhook_data['cancelId'] ?? '');

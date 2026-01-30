@@ -82,6 +82,98 @@ class LknIntegrationRedeForWoocommerceHelper
         return null;
     }
 
+    /**
+     * Busca dados completos da transação pela API da Rede usando TID
+     * e preenche metadados faltantes no pedido
+     */
+    final public static function getTransactionCompleteData($tid, $instance, $order = null)
+    {
+        // Usar OAuth2 para API v2
+        $oauth_token = self::get_rede_oauth_token_for_gateway($instance->id);
+        
+        if (!$oauth_token) {
+            return null;
+        }
+
+        $apiUrl = ('production' === $instance->environment)
+            ? 'https://api.userede.com.br/erede/v2/transactions'
+            : 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+
+        $headers = array(
+            'Authorization' => 'Bearer ' . $oauth_token,
+            'Content-Type' => 'application/json',
+            'Transaction-Response' => 'brand-return-opened',
+        );
+
+        $response = wp_remote_get($apiUrl . '/' . $tid, array(
+            'headers' => $headers,
+            'timeout' => 15
+        ));
+
+        if (is_wp_error($response)) {
+            return null;
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            return null;
+        }
+
+        $response_body = wp_remote_retrieve_body($response);
+        $transaction_data = json_decode($response_body, true);
+
+        if (!$transaction_data || !isset($transaction_data['authorization'])) {
+            return null;
+        }
+
+        $authorization = $transaction_data['authorization'];
+        $complete_data = array(
+            'tid' => $authorization['tid'] ?? $tid,
+            'reference' => $authorization['reference'] ?? '',
+            'returnCode' => $authorization['returnCode'] ?? '',
+            'returnMessage' => $authorization['returnMessage'] ?? '',
+            'nsu' => $authorization['nsu'] ?? '',
+            'authorizationCode' => $authorization['authorizationCode'] ?? '',
+            'cardBin' => $authorization['cardBin'] ?? '',
+            'last4' => $authorization['last4'] ?? '',
+            'brand' => isset($authorization['brand']['name']) ? $authorization['brand']['name'] : '',
+            'capture' => $transaction_data['capture'] ?? false,
+            'installments' => $transaction_data['installments'] ?? 1,
+            'amount' => $transaction_data['amount'] ?? 0,
+        );
+
+        // Se um pedido foi fornecido, preencher metadados faltantes
+        if ($order && $order instanceof \WC_Order) {
+            $meta_mappings = array(
+                '_wc_rede_transaction_reference' => 'reference',
+                '_wc_rede_transaction_return_code' => 'returnCode',
+                '_wc_rede_transaction_return_message' => 'returnMessage',
+                '_wc_rede_transaction_nsu' => 'nsu',
+                '_wc_rede_transaction_authorization_code' => 'authorizationCode',
+                '_wc_rede_transaction_bin' => 'cardBin',
+                '_wc_rede_transaction_last4' => 'last4',
+                '_wc_rede_transaction_brand' => 'brand',
+                '_wc_rede_transaction_installments' => 'installments',
+            );
+
+            $updated = false;
+            foreach ($meta_mappings as $meta_key => $data_key) {
+                // Só atualiza se o metadado estiver vazio e tivermos o dado da API
+                if (empty($order->get_meta($meta_key)) && !empty($complete_data[$data_key])) {
+                    $order->update_meta_data($meta_key, $complete_data[$data_key]);
+                    $updated = true;
+                }
+            }
+
+            // Salvar se algum metadado foi atualizado
+            if ($updated) {
+                $order->save();
+            }
+        }
+
+        return $complete_data;
+    }
+
     final public static function getCardBrand($tid, $instance)
     {
         // Usar OAuth2 para API v2
