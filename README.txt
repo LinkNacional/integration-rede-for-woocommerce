@@ -114,6 +114,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.1.7 - 2026/01/30
+- Addition of reference field to order notes.
+
 ### 5.1.6 - 2026/01/28
 - Fixed security vulnerability in logs deletion endpoint.
 - Added changelog link to plugin page.

@@ -1,3 +1,6 @@
+# 5.1.7 - 30/01/2026
+* Adição do campo de referência às notas do pedido.
+
 # 5.1.6 - 28/01/2026
 * Ajuste de vulnerabilidade na rota de deleção de logs.
 * Adição de link de CHANGELOG na página de plugin.
