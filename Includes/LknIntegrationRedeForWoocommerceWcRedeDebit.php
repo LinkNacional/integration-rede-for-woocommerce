@@ -707,7 +707,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Se a licença PRO não for válida, resetar campos PRO para valores padrão
         // Se a licença PRO não for válida, forçar valores padrão após o salvamento
         if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
-            $this->enforceProFieldDefaults($this->id);
+            LknIntegrationRedeForWoocommerceHelper::enforceProFieldDefaults($this->id);
 
             $option_key = "woocommerce_{$this->id}_settings";
             $current_settings = get_option($option_key, array());
