@@ -22,7 +22,10 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.28.5",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
     "babel-loader": "^9.2.1",
     "css-loader": "^7.1.2",
     "eslint": "^8.34.0",
@@ -32,12 +35,28 @@
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-promise": "^6.1.1",
     "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "react-credit-cards": "^0.8.3"
+    "@toon-format/toon": "^2.1.0",
+    "@wordpress/element": "^6.39.0",
+    "@wordpress/hooks": "^4.39.0",
+    "@wordpress/i18n": "^6.12.0",
+    "ajv": "^8.17.1",
+    "gridjs": "^6.2.0",
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0",
+    "react-credit-cards": "^0.8.3",
+    "react-dom": "^16.14.0"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "build:dev": "webpack --mode development",
+    "watch": "webpack --watch --mode development",
+    "analytics:build": "webpack --entry ./Admin/js/analytics/lknRedeAnalytics.tsx --mode production",
+    "analytics:watch": "webpack --entry ./Admin/js/analytics/lknRedeAnalytics.tsx --watch --mode development"
   }
 }

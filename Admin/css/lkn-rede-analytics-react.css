@@ -1,0 +1,87 @@
+/**
+ * Rede Analytics - CSS Básico
+ * Estilos mínimos para página de analytics com Grid.js nativo
+ */
+
+/* Layout principal */
+.woocommerce-layout {
+    /* max-width: 1400px; */
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Cards básicos */
+.woocommerce-card {
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.woocommerce-card__header {
+    background: #f8f9fa;
+    color: #1e1e1e;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e4e7;
+}
+
+.woocommerce-card__header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.woocommerce-card__body {
+    padding: 24px;
+}
+
+/* Container do Grid */
+.rede-grid-container {
+    overflow-x: auto;
+}
+
+.gridjs-td {
+    overflow: hidden !important;
+    background-color: transparent !important;
+}
+
+.gridjs-tr {
+    /* background-color: #f1f3f5 !important; */
+    background-color: #fff;
+}
+
+.gridjs-tr:hover {
+    background-color: #f0f0f0 !important;
+}
+
+/* Grid de configuração de colunas responsivo */
+.column-config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* Media query para mobile */
+@media (max-width: 767px) {
+    .column-config-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Botão do WhatsApp - remover outline */
+.gridjs-td a[href*="wa.me"],
+.gridjs-td a[title*="WhatsApp"] {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.gridjs-td a[href*="wa.me"]:focus,
+.gridjs-td a[title*="WhatsApp"]:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}

@@ -221,6 +221,10 @@ final class LknIntegrationRedeForWoocommerce
         // Adiciona endpoint AJAX para atualização da sessão de parcelas
         $this->loader->add_action('wp_ajax_lkn_update_installment_session', $this, 'ajax_update_installment_session');
         $this->loader->add_action('wp_ajax_nopriv_lkn_update_installment_session', $this, 'ajax_update_installment_session');
+
+        // Analytics - registra script e CSS do WooCommerce Admin
+        $this->loader->add_action('admin_enqueue_scripts', $this, 'register_rede_analytics_script');
+        $this->loader->add_filter('woocommerce_analytics_report_menu_items', $this, 'add_rede_analytics_menu_item');
     }
 
     /**
@@ -1120,6 +1124,9 @@ final class LknIntegrationRedeForWoocommerce
 
         // Adiciona informações de parcelamento na revisão do pedido
         $this->loader->add_action('woocommerce_review_order_after_order_total', $this, 'display_payment_installment_info');
+
+        $this->loader->add_action('wp_ajax_lkn_get_recent_rede_orders', $this, 'ajax_get_recent_rede_orders');
+        $this->loader->add_action('wp_ajax_nopriv_lkn_get_recent_rede_orders', $this, 'ajax_get_recent_rede_orders');
     }
 
     public function wcEditorBlocksActive(): void
@@ -1514,5 +1521,294 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         return $plugin_meta;
+    }
+
+    /**
+     * Adiciona item personalizado ao menu Analytics do WooCommerce
+     * Insere na posição correta antes das configurações
+     *
+     * @param array $items Lista de itens do menu Analytics
+     * @return array Lista modificada com o item Rede
+     */
+    public function add_rede_analytics_menu_item($items)
+    {
+        $plugin_pro_is_valid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+
+        // Item Rede Transações
+        $rede_item = array(
+            'id'       => 'woocommerce-analytics-rede-transactions',
+            'title'    => __('Rede Transações', 'lkn-integration-rede-for-woocommerce'),
+            'parent'   => 'woocommerce-analytics',
+            'path'     => '/analytics/rede-transactions',
+            'icon'     => 'dashicons-chart-bar',
+            'position' => 2,
+        );
+
+        // Encontrar a posição das configurações para inserir antes
+        $settings_key = null;
+        foreach ($items as $key => $item) {
+            if (isset($item['id']) && $item['id'] === 'woocommerce-analytics-settings') {
+                $settings_key = $key;
+                break;
+            }
+        }
+
+        // Se encontrou as configurações, insere antes dela
+        if ($settings_key !== null) {
+            // Divide o array em duas partes
+            $before_settings = array_slice($items, 0, array_search($settings_key, array_keys($items)), true);
+            $from_settings = array_slice($items, array_search($settings_key, array_keys($items)), null, true);
+            
+            // Adiciona o item Rede entre elas
+            $items = $before_settings + ['rede-transactions' => $rede_item] + $from_settings;
+        } else {
+            // Fallback: adiciona no final se não encontrar as configurações
+            $items['rede-transactions'] = $rede_item;
+        }
+
+        return $items;
+    }
+
+    /**
+     * Registra o script JavaScript e CSS para analytics do Rede
+     * Usa a versão React compilada via webpack
+     */
+    public function register_rede_analytics_script()
+    {
+        $plugin_pro_is_valid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+
+        // Só carregar em páginas do WooCommerce Admin
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'woocommerce') === false) {
+            return;
+        }
+
+        // Usar a versão React compilada
+        wp_register_script(
+            'lkn-rede-analytics',
+            plugin_dir_url(__FILE__) . '../Admin/js/analytics/lknRedeAnalyticsCompiled.js',
+            array('wp-hooks', 'wp-element', 'wp-i18n', 'wc-components', 'react', 'react-dom'),
+            INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
+            true
+        );
+
+        wp_enqueue_script('lkn-rede-analytics');
+        
+        // Enfileirar CSS do analytics também
+        wp_enqueue_style(
+            'lkn-rede-analytics-style',
+            plugin_dir_url(__FILE__) . '../Admin/css/lkn-rede-analytics-react.css',
+            array(),
+            INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION
+        );
+
+        // Localiza script com dados para AJAX
+        wp_localize_script('lkn-rede-analytics', 'lknRedeAjax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('lkn_rede_orders_nonce'),
+            'action_get_recent_orders' => 'lkn_get_recent_rede_orders',
+            'gateway_brands_url' => plugin_dir_url(__FILE__) . '/assets/cardBrands/',
+        ));
+
+        wp_localize_script('lkn-rede-analytics', 'lknRedeAnalytics', array(
+            'plugin_license' => $plugin_pro_is_valid ? 'active' : 'inactive',
+            'screenshot_url' => plugin_dir_url(__FILE__) . 'assets/img/rede-transactions.webp',
+            'pro_version' => 'https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin-rede-free-transaction',
+            'site_domain' => home_url(),
+            'version_free' => INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
+            'version_pro' => is_plugin_active('lkn-rede-api-pro/lkn-rede-api-pro.php') ? LKN_REDE_API_PRO_VERSION : 'N/A'
+        ));
+
+        // Adiciona tradução se necessário
+        wp_set_script_translations('lkn-rede-analytics', 'lkn-integration-rede-for-woocommerce');
+    }
+
+    /**
+     * AJAX handler to get recent Rede orders with metadata.
+     *
+     * @since 1.0.0
+     */
+    public function ajax_get_recent_rede_orders()
+    {
+        // Verificar nonce se fornecido
+        if (isset($_POST['nonce']) && !wp_verify_nonce(wp_unslash($_POST['nonce']), 'lkn_rede_orders_nonce')) {
+            wp_send_json_error(array('message' => 'Nonce inválido'));
+            return;
+        }
+
+        // Verificar se é um usuário com permissões adequadas
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(array('message' => 'Permissões insuficientes'));
+            return;
+        }
+
+        // Verificar se o cliente quer resposta em formato TOON
+        $response_format = isset($_POST['response_format']) ? sanitize_text_field(wp_unslash($_POST['response_format'])) : 'json';
+
+        // Parâmetros de consulta
+        $page = isset($_POST['page']) ? max(1, (int) sanitize_text_field(wp_unslash($_POST['page']))) : 1;
+        $query_limit = isset($_POST['query_limit']) ? max(1, min(1000, (int) sanitize_text_field(wp_unslash($_POST['query_limit'])))) : 50;
+        $offset = ($page - 1) * $query_limit;
+
+        // Parâmetros de filtros de data
+        $start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash($_POST['start_date'])) : '';
+        $end_date = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash($_POST['end_date'])) : '';
+
+        // Se não há filtros de data especificados, usar o filtro padrão de "hoje"
+        if (empty($start_date) && empty($end_date)) {
+            $today = gmdate('Y-m-d');
+            $start_date = $today;
+            $end_date = $today;
+        }
+
+        try {
+            global $wpdb;
+            
+            // Aplicar filtros de data (sempre há pelo menos o filtro de hoje)
+            $date_where = " WHERE 1=1";
+            $date_params = array();
+            
+            if (!empty($start_date)) {
+                $date_where .= " AND date_created_gmt >= %s";
+                $date_params[] = $start_date . ' 00:00:00';
+            }
+            
+            if (!empty($end_date)) {
+                $date_where .= " AND date_created_gmt <= %s";
+                $date_params[] = $end_date . ' 23:59:59';
+            }
+            
+            // PRIMEIRA ETAPA: Buscar TODOS os pedidos que têm dados Rede no período (sem LIMIT)
+            $all_orders_query = "SELECT o.id 
+                               FROM {$wpdb->prefix}wc_orders o
+                               INNER JOIN {$wpdb->prefix}wc_orders_meta om ON o.id = om.order_id
+                               " . $date_where . "
+                               AND om.meta_key = 'lkn_rede_transaction_data'
+                               AND om.meta_value != ''
+                               ORDER BY o.date_created_gmt DESC, o.id DESC";
+            
+            $rede_order_ids = $wpdb->get_col($wpdb->prepare($all_orders_query, $date_params));
+            
+            // Se não há pedidos Rede, retornar resultado vazio
+            if (empty($rede_order_ids)) {
+                $response_data = array(
+                    'message' => 'Nenhuma transação Rede encontrada',
+                    'orders' => array(),
+                    'pagination' => array(
+                        'page' => $page,
+                        'query_limit' => $query_limit,
+                        'total_count' => 0,
+                        'total_pages' => 0,
+                        'has_next' => false
+                    )
+                );
+                
+                if ($response_format === 'toon') {
+                    $this->send_toon_response(true, $response_data);
+                } else {
+                    wp_send_json_success($response_data);
+                }
+                return;
+            }
+            
+            // SEGUNDA ETAPA: Aplicar paginação aos pedidos Rede
+            $total_rede_count = count($rede_order_ids);
+            $paginated_order_ids = array_slice($rede_order_ids, $offset, $query_limit);
+            
+            // TERCEIRA ETAPA: Processar os pedidos paginados
+            $orders_data = array();
+
+            foreach ($paginated_order_ids as $order_id) {
+                // Usar função nativa do WooCommerce para pegar o pedido
+                $order = wc_get_order($order_id);
+                
+                if (!$order) {
+                    continue; // Pular se o pedido não existe
+                }
+                
+                // Buscar metadados específicos do Rede
+                $transaction_data = $order->get_meta('lkn_rede_transaction_data');
+                $data_format = $order->get_meta('lkn_rede_data_format') ?: 'json';
+                
+                // Decodificar dados baseado no formato
+                if ($data_format === 'toon') {
+                    $transactionData = LknIntegrationRedeForWoocommerceHelper::decodeToonData($transaction_data);
+                } else {
+                    $transactionData = json_decode($transaction_data, true);
+                }
+                
+                // Se decodificou com sucesso, adicionar aos dados
+                if ($transactionData && is_array($transactionData)) {
+                    $orders_data[] = array(
+                        'order_id' => (int) $order_id,
+                        'data_format' => $data_format,
+                        'transaction_data' => $transactionData
+                    );
+                }
+            }
+
+            $response_data = array(
+                'message' => sprintf('Página %d - %d transações Rede encontradas de %d total', 
+                    $page, 
+                    count($orders_data), 
+                    $total_rede_count
+                ),
+                'orders' => $orders_data,
+                'pagination' => array(
+                    'page' => $page,
+                    'query_limit' => $query_limit,
+                    'total_count' => (int) $total_rede_count,
+                    'total_pages' => ceil($total_rede_count / $query_limit),
+                    'has_next' => ($page * $query_limit) < $total_rede_count
+                )
+            );
+
+            // Enviar resposta no formato solicitado
+            if ($response_format === 'toon') {
+                $this->send_toon_response(true, $response_data);
+            } else {
+                wp_send_json_success($response_data);
+            }
+
+        } catch (Exception $e) {
+            $error_data = array(
+                'message' => 'Erro ao buscar pedidos: ' . $e->getMessage()
+            );
+            
+            if ($response_format === 'toon') {
+                $this->send_toon_response(false, $error_data);
+            } else {
+                wp_send_json_error($error_data);
+            }
+        }
+    }
+
+    /**
+     * Send AJAX response in TOON format
+     *
+     * @param bool $success
+     * @param array $data
+     */
+    private function send_toon_response($success, $data)
+    {
+        // Preparar dados de resposta no formato similar ao wp_send_json
+        $response = array(
+            'success' => $success,
+            'data' => $data
+        );
+
+        // Codificar em TOON
+        $toon_response = LknIntegrationRedeForWoocommerceHelper::encodeToonData($response);
+
+        // Definir headers apropriados
+        if (!headers_sent()) {
+            header('Content-Type: text/plain; charset=' . get_option('blog_charset'));
+            header('X-Content-Type-Options: nosniff');
+            header('X-Robots-Tag: noindex');
+        }
+
+        // Enviar resposta e encerrar
+        echo $toon_response;
+        wp_die('', '', array('response' => null));
     }
 }

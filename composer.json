@@ -20,7 +20,8 @@
         "phan/phan": "5.4.1"
     },
     "require": {
-        "monolog/monolog": "2.9.2"
+        "monolog/monolog": "2.9.2",
+        "helgesverre/toon": "^3.1"
     },
     "config": {
         "allow-plugins": {

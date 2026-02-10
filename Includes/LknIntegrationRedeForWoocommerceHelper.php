@@ -3,6 +3,7 @@
 namespace Lknwoo\IntegrationRedeForWoocommerce\Includes;
 
 use WC_Order;
+use HelgeSverre\Toon\Toon;
 
 class LknIntegrationRedeForWoocommerceHelper
 {
@@ -937,6 +938,300 @@ class LknIntegrationRedeForWoocommerceHelper
         // Verifica se o gateway está habilitado antes de resetar
         if (isset($settings['enabled']) && $settings['enabled'] === 'yes') {
             self::resetProFieldsQuietly($gateway_id);
+        }
+    }
+
+    /**
+     * Encode data using TOON format
+     *
+     * @param array $data
+     * @return string|false
+     */
+    public static function encodeToonData($data)
+    {
+        try {
+            return Toon::encode($data);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Decode TOON data
+     *
+     * @param string $toonString
+     * @return array|false
+     */
+    public static function decodeToonData($toonString)
+    {
+        try {
+            return Toon::decode($toonString);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Mask credentials dynamically based on string length.
+     *
+     * @param string $credential
+     * @return string
+     */
+    public static function maskCredential($credential)
+    {
+        if (empty($credential)) {
+            return 'N/A';
+        }
+        
+        $length = strlen($credential);
+        
+        // Para strings muito pequenas, mascarar tudo
+        if ($length <= 6) {
+            return str_repeat('*', $length);
+        }
+        
+        // Para strings de 7-8 caracteres, usar 3+asteriscos+3
+        if ($length <= 8) {
+            $showChars = 3;
+        } 
+        // Para strings de 9-12 caracteres, usar 4+asteriscos+4
+        elseif ($length <= 12) {
+            $showChars = 4;
+        }
+        // Para strings maiores que 12, usar mais caracteres visíveis
+        else {
+            $showChars = min(6, floor($length / 3)); // Máximo 6 caracteres de cada lado
+        }
+        
+        $start = substr($credential, 0, $showChars);
+        $end = substr($credential, -$showChars);
+        $middleLength = $length - (2 * $showChars);
+        $middle = str_repeat('*', $middleLength);
+        
+        return $start . $middle . $end;
+    }
+
+    /**
+     * Get HTTP status description.
+     *
+     * @param int $httpStatus
+     * @return string
+     */
+    public static function getHttpStatusDescription($httpStatus)
+    {
+        $httpStatusDescriptions = array(
+            200 => 'Sucesso',
+            201 => 'Criado com sucesso',
+            400 => 'Requisição inválida',
+            401 => 'Não autorizado',
+            403 => 'Proibido',
+            404 => 'Não encontrado',
+            405 => 'Método não permitido',
+            422 => 'Entidade não processável',
+            429 => 'Muitas requisições',
+            500 => 'Erro interno do servidor',
+            502 => 'Gateway inválido',
+            503 => 'Serviço indisponível',
+            504 => 'Timeout do gateway'
+        );
+
+        return isset($httpStatusDescriptions[$httpStatus]) ? $httpStatusDescriptions[$httpStatus] : 'Status HTTP desconhecido';
+    }
+
+    /**
+     * Salva metadados da transação para o gateway Rede.
+     *
+     * @param WC_Order $order
+     * @param array|object $responseDecoded
+     * @param string $cardNumber
+     * @param string $cardExpShort
+     * @param string $cardHolder
+     * @param int $installments
+     * @param float $amount
+     * @param string $currency
+     * @param string $brand
+     * @param string $merchantId
+     * @param string $merchantSecret
+     * @param string $merchantOrderId
+     * @param int $order_id
+     * @param bool $capture
+     * @param array $response
+     * @param string $gatewayType
+     * @param string $cvvField
+     * @param object|null $gatewayInstance
+     * @param string $tid
+     * @param string $nsu
+     * @param string $authorizationCode
+     * @param string $returnCode
+     * @param string $returnMessage
+     */
+    public static function saveTransactionMetadata(
+        $order,
+        $responseDecoded,
+        $cardNumber,
+        $cardExpShort,
+        $cardHolder,
+        $installments,
+        $amount,
+        $currency,
+        $brand,
+        $merchantId,
+        $merchantSecret,
+        $merchantOrderId,
+        $order_id,
+        $capture,
+        $response,
+        $gatewayType = 'Credit',
+        $cvvField = 'lkn_cc_cvc',
+        $gatewayInstance = null,
+        $tid = '',
+        $nsu = '',
+        $authorizationCode = '',
+        $returnCode = '',
+        $returnMessage = ''
+    ) {
+        // Extrair CVV dos dados apenas se não for Pix
+        $cardCvv = ($gatewayType !== 'Pix' && isset($_POST[$cvvField])) ? sanitize_text_field(wp_unslash($_POST[$cvvField])) : '';
+
+        // Calcular valor das parcelas
+        $installmentAmount = $installments > 1 ? ($amount / $installments) : $amount;
+        $installmentAmount = round($installmentAmount, wc_get_price_decimals());
+
+        // Calcular juros/desconto baseado nas parcelas
+        $interestDiscountAmount = 0;
+        $totalWithFees = $amount;
+        $originalAmount = $order->get_subtotal() + $order->get_shipping_total();
+        $difference = $totalWithFees - $originalAmount;
+        if ($difference != 0) {
+            $interestDiscountAmount = round(abs($difference), wc_get_price_decimals());
+        }
+
+        // Data da requisição
+        $requestDateTime = current_time('Y-m-d H:i:s');
+
+        // Formatar dados baseado no tipo de gateway
+        $gatewayMasked = !empty($cardNumber) && strlen($cardNumber) >= 8 ?
+            substr($cardNumber, 0, 4) . ' **** **** ' . substr($cardNumber, -4) : 'N/A';
+
+        // Status HTTP da requisição
+        $httpStatus = isset($response['response']['code']) ? $response['response']['code'] : wp_remote_retrieve_response_code($response);
+        $httpStatusDescription = method_exists(__CLASS__, 'getHttpStatusDescription') ? self::getHttpStatusDescription($httpStatus) : '';
+        $httpStatusFormatted = $httpStatus ? $httpStatus . ' - ' . $httpStatusDescription : 'N/A';
+
+        // Environment baseado no gateway
+        $environment = 'Sandbox';
+        if ($gatewayInstance && method_exists($gatewayInstance, 'get_option')) {
+            $environment = ($gatewayInstance->get_option('env') == 'production') ? 'Produção' : 'Sandbox';
+        }
+
+        // Validar e mascarar merchant credentials dinamicamente
+        $merchantIdMasked = self::maskCredential($merchantId);
+        $merchantKeyMasked = self::maskCredential($merchantSecret);
+
+        // Validar data de expiração
+        $cardExpiryFormatted = !empty($cardExpShort) ? $cardExpShort : 'N/A';
+
+        // Validar CVV baseado no tipo de pagamento
+        $cvvSent = 'N/A';
+        if (in_array($gatewayType, ['Credit', 'Debit'])) {
+            $cvvSent = !empty($cardCvv) ? 'Sim' : 'Não';
+        }
+
+        // Validar Capture baseado no tipo de pagamento
+        $captureFormatted = 'N/A';
+        if (in_array($gatewayType, ['Credit', 'Debit'])) {
+            $captureFormatted = $capture ? 'Auto' : 'Manual';
+        }
+
+        // Formatar valor das parcelas - apenas valor numérico
+        $installmentFormatted = 'N/A';
+        if ($installments > 0 && $installmentAmount > 0) {
+            $installmentFormatted = round((float) $installmentAmount, wc_get_price_decimals());
+        }
+
+        // Determinar tipo de gateway/cartão para exibição
+        $displayType = 'N/A';
+        if ($gatewayType === 'Pix') {
+            $displayType = 'PIX';
+        } elseif ($gatewayType === 'Debit') {
+            $displayType = 'Débito';
+        } elseif ($gatewayType === 'Credit') {
+            $displayType = 'Crédito';
+        }
+
+        // Criar estrutura centralizada com metadados da transação para Rede
+        $transactionMetadata = [
+            'gateway' => [
+                'masked' => $gatewayMasked,
+                'type' => $displayType,
+                'brand' => $brand,
+                'expiry' => $cardExpiryFormatted,
+                'holder_name' => !empty($cardHolder) ? $cardHolder : 'N/A',
+            ],
+            'transaction' => [
+                'cvv_sent' => $cvvSent,
+                'installments' => $installments > 0 ? $installments : 'N/A',
+                'installment_amount' => $installmentFormatted,
+                'capture' => $captureFormatted,
+                'tid' => $tid,
+                'nsu' => $nsu,
+                'authorization_code' => $authorizationCode,
+                'return_code' => $returnCode,
+                'return_message' => $returnMessage,
+            ],
+            'amounts' => [
+                'total' => round((float) $amount, wc_get_price_decimals()),
+                'subtotal' => round((float) $order->get_subtotal(), wc_get_price_decimals()),
+                'shipping' => round((float) $order->get_shipping_total(), wc_get_price_decimals()),
+                'interest_discount' => round((float) $interestDiscountAmount, wc_get_price_decimals()),
+                'currency' => $currency
+            ],
+            'system' => [
+                'request_datetime' => $requestDateTime,
+                'environment' => $environment,
+                'gateway' => $order->get_payment_method(),
+                'order_id' => $order_id,
+                'reference' => !empty($merchantOrderId) ? $merchantOrderId : 'N/A',
+                'plugin_version' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
+            ],
+            'merchant' => [
+                'id_masked' => $merchantIdMasked,
+                'key_masked' => $merchantKeyMasked
+            ],
+            'response' => [
+                'http_status' => $httpStatusFormatted
+            ]
+        ];
+
+        // Tentar codificar com TOON
+        $toonEncoded = self::encodeToonData($transactionMetadata);
+
+        if ($toonEncoded !== false) {
+            // Salvar dados como TOON
+            $order->add_meta_data('lkn_rede_transaction_data', $toonEncoded, true);
+            $order->add_meta_data('lkn_rede_data_format', 'toon', true);
+        } else {
+            // Fallback para JSON se TOON falhar
+            $jsonEncoded = wp_json_encode($transactionMetadata);
+            $order->add_meta_data('lkn_rede_transaction_data', $jsonEncoded, true);
+            $order->add_meta_data('lkn_rede_data_format', 'json', true);
+        }
+
+        // Manter campos críticos para compatibilidade backward
+        if (!empty($tid)) {
+            $order->add_meta_data('tid', $tid, true);
+        }
+        if (!empty($nsu)) {
+            $order->add_meta_data('nsu', $nsu, true);
+        }
+        if (!empty($authorizationCode)) {
+            $order->add_meta_data('authorization_code', $authorizationCode, true);
+        }
+        if (!empty($returnCode)) {
+            $order->add_meta_data('return_code', $returnCode, true);
+        }
+        if (!empty($returnMessage)) {
+            $order->add_meta_data('return_message', $returnMessage, true);
         }
     }
 }
