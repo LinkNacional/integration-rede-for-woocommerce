@@ -296,7 +296,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if (array_sum(str_split($cardNumber_checksum)) % 10 !== 0) {
-            throw new Exception(esc_attr__('Please enter a valid credit card number', 'woo-rede'));
             return false;
         }
 
@@ -306,7 +305,6 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
     protected function validate_card_fields($posted)
     {
         if (! isset($posted[$this->id . '_holder_name']) || '' === $posted[$this->id . '_holder_name']) {
-            throw new Exception(esc_attr__('Please enter cardholder name', 'woo-rede'));
             return false;
         }
 
@@ -315,12 +313,10 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
             '',
             $posted[$this->id . '_holder_name']
         ) != $posted[$this->id . '_holder_name']) {
-            throw new Exception(esc_attr__('Cardholder name can only contain letters', 'woo-rede'));
             return false;
         }
 
         if (! isset($posted[$this->id . '_expiry']) || '' === $posted[$this->id . '_expiry']) {
-            throw new Exception(esc_attr__('Please enter card expiration date', 'woo-rede'));
             return false;
         }
 
@@ -416,7 +412,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         }
 
         if (! isset($posted['rede_credit_installments']) || '' === $posted['rede_credit_installments']) {
-            throw new Exception(esc_attr__('Please enter the number of installments', 'woo-rede'));
+            return false;
         }
 
         $installments = absint($posted['rede_credit_installments']);
@@ -424,7 +420,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         $max_parcels = $this->get_option('max_parcels_number');
 
         if ($installments > $max_parcels || ((0 != $min_value) && (($order_total / $installments) < $min_value))) {
-            throw new Exception(esc_attr__('Invalid number of installments', 'woo-rede'));
+            return false;
         }
 
         return true;

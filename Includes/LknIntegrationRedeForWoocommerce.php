@@ -1615,8 +1615,8 @@ final class LknIntegrationRedeForWoocommerce
             'screenshot_url' => plugin_dir_url(__FILE__) . 'assets/img/rede-transactions.webp',
             'pro_version' => 'https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin-rede-free-transaction',
             'site_domain' => home_url(),
-            'version_free' => INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
-            'version_pro' => is_plugin_active('lkn-rede-api-pro/lkn-rede-api-pro.php') ? LKN_REDE_API_PRO_VERSION : 'N/A'
+            'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
+            'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A'
         ));
 
         // Adiciona tradução se necessário

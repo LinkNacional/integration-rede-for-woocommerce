@@ -609,7 +609,7 @@ class LknIntegrationRedeForWoocommerceHelper
         if (is_wp_error($oauth_response)) {
             return false;
         }
-        
+
         $oauth_body = wp_remote_retrieve_body($oauth_response);
         $oauth_data = json_decode($oauth_body, true);
 
@@ -942,6 +942,28 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     /**
+     * Create a standardized custom error response object
+     *
+     * @param int $httpStatus HTTP status code (e.g., 400, 401)
+     * @param string $returnCode Cielo/Braspag error code (e.g., '126', 'BP172')
+     * @param string $returnMessage Error message
+     * @param string $paymentId Payment ID (optional, defaults to empty)
+     * @param string $proofOfSale Proof of sale (optional, defaults to empty)
+     * @param string $tid Transaction ID (optional, defaults to empty)
+     * @return object Standardized error response object
+     */
+    public static function createCustomErrorResponse($httpStatus, $returnCode, $returnMessage, $paymentId = '', $proofOfSale = '', $tid = '')
+    {
+        return (object) [
+            'return_http' => $httpStatus,
+            'return_code' => $returnCode,
+            'return_message' => $returnMessage,
+            'payment_id' => $paymentId,
+            'tid' => $tid
+        ];
+    }
+
+    /**
      * Encode data using TOON format
      *
      * @param array $data
@@ -1035,7 +1057,7 @@ class LknIntegrationRedeForWoocommerceHelper
             504 => 'Timeout do gateway'
         );
 
-        return isset($httpStatusDescriptions[$httpStatus]) ? $httpStatusDescriptions[$httpStatus] : 'Status HTTP desconhecido';
+        return isset($httpStatusDescriptions[$httpStatus]) ? $httpStatusDescriptions[$httpStatus] : 'N/A';
     }
 
     /**
@@ -1080,9 +1102,8 @@ class LknIntegrationRedeForWoocommerceHelper
         $merchantOrderId,
         $order_id,
         $capture,
-        $response,
         $gatewayType = 'Credit',
-        $cvvField = 'lkn_cc_cvc',
+        $cvvField = 'N/A',
         $gatewayInstance = null,
         $tid = '',
         $nsu = '',
@@ -1090,9 +1111,6 @@ class LknIntegrationRedeForWoocommerceHelper
         $returnCode = '',
         $returnMessage = ''
     ) {
-        // Extrair CVV dos dados apenas se não for Pix
-        $cardCvv = ($gatewayType !== 'Pix' && isset($_POST[$cvvField])) ? sanitize_text_field(wp_unslash($_POST[$cvvField])) : '';
-
         // Calcular valor das parcelas
         $installmentAmount = $installments > 1 ? ($amount / $installments) : $amount;
         $installmentAmount = round($installmentAmount, wc_get_price_decimals());
@@ -1114,9 +1132,17 @@ class LknIntegrationRedeForWoocommerceHelper
             substr($cardNumber, 0, 4) . ' **** **** ' . substr($cardNumber, -4) : 'N/A';
 
         // Status HTTP da requisição
-        $httpStatus = isset($response['response']['code']) ? $response['response']['code'] : wp_remote_retrieve_response_code($response);
-        $httpStatusDescription = method_exists(__CLASS__, 'getHttpStatusDescription') ? self::getHttpStatusDescription($httpStatus) : '';
-        $httpStatusFormatted = $httpStatus ? $httpStatus . ' - ' . $httpStatusDescription : 'N/A';
+        $httpStatus = 'N/A';
+        if (is_array($responseDecoded)) {
+            $httpStatus = isset($responseDecoded['return_http']) ? $responseDecoded['return_http'] : 'N/A';
+        } elseif (is_object($responseDecoded)) {
+            $httpStatus = isset($responseDecoded->return_http) ? $responseDecoded->return_http : 'N/A';
+        }
+        
+        $httpStatusDescription = self::getHttpStatusDescription($httpStatus);
+        $httpStatusFormatted = $httpStatus && $httpStatus !== 'N/A' ? $httpStatus . ' - ' . $httpStatusDescription : 'N/A';
+
+        $returnCodeFormatted = !empty($returnCode) && !empty($returnMessage) ? $returnCode . ' - ' . $returnMessage : 'N/A';
 
         // Environment baseado no gateway
         $environment = 'Sandbox';
@@ -1134,13 +1160,34 @@ class LknIntegrationRedeForWoocommerceHelper
         // Validar CVV baseado no tipo de pagamento
         $cvvSent = 'N/A';
         if (in_array($gatewayType, ['Credit', 'Debit'])) {
-            $cvvSent = !empty($cardCvv) ? 'Sim' : 'Não';
+            $cvvSent = !empty($cvvField) && $cvvField !== '***' ? 'Sim' : 'Não';
         }
 
         // Validar Capture baseado no tipo de pagamento
         $captureFormatted = 'N/A';
-        if (in_array($gatewayType, ['Credit', 'Debit'])) {
+        if (in_array($gatewayType, ['Credit', 'Debit']) && $capture !== null && $capture !== 'N/A') {
             $captureFormatted = $capture ? 'Auto' : 'Manual';
+        }
+
+        // Verificar se é pagamento recorrente
+        $isRecurrent = 'Não';
+        if ($gatewayType === 'Credit' && class_exists('WC_Subscriptions_Order') && function_exists('WC_Subscriptions_Order::order_contains_subscription')) {
+            if (WC_Subscriptions_Order::order_contains_subscription($order_id)) {
+                $isRecurrent = 'Sim';
+            }
+        }
+
+        // Validar Recorrente baseado no tipo de pagamento
+        $recurrentFormatted = 'N/A';
+        if ($gatewayType === 'Credit') {
+            $recurrentFormatted = $isRecurrent;
+        }
+
+        $threeDSFormatted = 'N/A';
+        if (is_array($responseDecoded) && isset($responseDecoded['3ds_auth'])) {
+            $threeDSFormatted = $responseDecoded['3ds_auth'] === 'success' ? 'Sucesso' : 'Falhou';
+        } elseif (is_object($responseDecoded) && isset($responseDecoded->{'3ds_auth'})) {
+            $threeDSFormatted = $responseDecoded->{'3ds_auth'} === 'success' ? 'Sucesso' : 'Falhou';
         }
 
         // Formatar valor das parcelas - apenas valor numérico
@@ -1173,11 +1220,11 @@ class LknIntegrationRedeForWoocommerceHelper
                 'installments' => $installments > 0 ? $installments : 'N/A',
                 'installment_amount' => $installmentFormatted,
                 'capture' => $captureFormatted,
-                'tid' => $tid,
-                'nsu' => $nsu,
-                'authorization_code' => $authorizationCode,
-                'return_code' => $returnCode,
-                'return_message' => $returnMessage,
+                'tid' => !empty($tid) ? $tid : 'N/A',
+                'nsu' => !empty($nsu) ? $nsu : 'N/A',
+                'authorization_code' => !empty($authorizationCode) ? $authorizationCode : 'N/A',
+                'recurrent' => $recurrentFormatted,
+                '3ds_auth' => $threeDSFormatted,
             ],
             'amounts' => [
                 'total' => round((float) $amount, wc_get_price_decimals()),
@@ -1192,14 +1239,16 @@ class LknIntegrationRedeForWoocommerceHelper
                 'gateway' => $order->get_payment_method(),
                 'order_id' => $order_id,
                 'reference' => !empty($merchantOrderId) ? $merchantOrderId : 'N/A',
-                'plugin_version' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
+                'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
+                'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A'
             ],
             'merchant' => [
                 'id_masked' => $merchantIdMasked,
                 'key_masked' => $merchantKeyMasked
             ],
             'response' => [
-                'http_status' => $httpStatusFormatted
+                'http_status' => $httpStatusFormatted,
+                'return_code' => $returnCodeFormatted,
             ]
         ];
 
@@ -1215,23 +1264,6 @@ class LknIntegrationRedeForWoocommerceHelper
             $jsonEncoded = wp_json_encode($transactionMetadata);
             $order->add_meta_data('lkn_rede_transaction_data', $jsonEncoded, true);
             $order->add_meta_data('lkn_rede_data_format', 'json', true);
-        }
-
-        // Manter campos críticos para compatibilidade backward
-        if (!empty($tid)) {
-            $order->add_meta_data('tid', $tid, true);
-        }
-        if (!empty($nsu)) {
-            $order->add_meta_data('nsu', $nsu, true);
-        }
-        if (!empty($authorizationCode)) {
-            $order->add_meta_data('authorization_code', $authorizationCode, true);
-        }
-        if (!empty($returnCode)) {
-            $order->add_meta_data('return_code', $returnCode, true);
-        }
-        if (!empty($returnMessage)) {
-            $order->add_meta_data('return_message', $returnMessage, true);
         }
     }
 }

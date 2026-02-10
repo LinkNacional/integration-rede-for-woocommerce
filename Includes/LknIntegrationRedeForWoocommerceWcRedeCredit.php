@@ -719,6 +719,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     {
         $access_token = $this->get_oauth_token();
 
+        error_log($access_token);
+
         $amount = str_replace(".", "", number_format($order_total, 2, '.', ''));
         
         if ($this->environment === 'production') {
@@ -758,6 +760,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             'timeout' => 60
         ));
 
+        error_log(json_encode($response));
+
         if (is_wp_error($response)) {
             throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
         }
@@ -765,6 +769,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $response_code = wp_remote_retrieve_response_code($response);
         $response_body = wp_remote_retrieve_body($response);
         $response_data = json_decode($response_body, true);
+        
+        // Adicionar o status HTTP no response_data
+        if (is_array($response_data)) {
+            $response_data['return_http'] = $response_code;
+        } else {
+            $response_data = array('return_http' => $response_code);
+        }
         
         if ($response_code !== 200 && $response_code !== 201) {
             $error_message = 'Erro na transação';
@@ -821,16 +832,58 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         try {
             $valid = $this->validate_card_number($cardNumber);
             if (false === $valid) {
+                // Salvar metadados da transação com dados customizados para erro de validação
+                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                    400,
+                    'BP172',
+                    'Transaction aborted during card validation'
+                );
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order->get_total(), $order_currency, '', $this->pv, $this->token,
+                    $orderId . '-' . time(), $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, '', '', '', '400', 'Invalid card number'
+                );
+                $order->save();
+                
                 throw new Exception(__('Please enter a valid credit card number', 'woo-rede'));
             }
 
             $valid = $this->validate_card_fields($_POST);
             if (false === $valid) {
+                // Salvar metadados da transação com dados customizados para erro de validação
+                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                    400,
+                    '126',
+                    'One or more card fields are invalid'
+                );
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order->get_total(), $order_currency, '', $this->pv, $this->token,
+                    $orderId . '-' . time(), $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, '', '', '', '400', 'Invalid card fields'
+                );
+                $order->save();
+                
                 throw new Exception(__('One or more invalid fields', 'woo-rede'), 500);
             }
 
             $valid = $this->validate_installments($_POST, $order->get_total());
             if (false === $valid) {
+                // Salvar metadados da transação com dados customizados para erro de validação
+                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                    400,
+                    '126',
+                    'Invalid installments number'
+                );
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order->get_total(), $order_currency, '', $this->pv, $this->token,
+                    $orderId . '-' . time(), $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, '', '', '', '400', 'Invalid installments'
+                );
+                $order->save();
+                
                 throw new Exception(__('Invalid number of installments', 'woo-rede'));
             }
 
@@ -865,8 +918,37 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             try {
                 $transaction_response = $this->process_credit_transaction_v2($reference, $order_total, $installments, $cardData);
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction_response, $order);
+                
+                // Salvar metadados da transação (em caso de sucesso)
+                $brand = isset($transaction_response['brand']['name']) ? $transaction_response['brand']['name'] : '';
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $transaction_response, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order_total, $order_currency, $brand, $this->pv, $this->token,
+                    $reference, $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, 
+                    $transaction_response['tid'] ?? '',
+                    $transaction_response['nsu'] ?? '',
+                    $transaction_response['brand']['authorizationCode'] ?? '',
+                    $transaction_response['returnCode'] ?? '',
+                    $transaction_response['returnMessage'] ?? ''
+                );
+                
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $e->getMessage(), $order);
+                
+                // Salvar metadados da transação (em caso de erro)
+                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                    500,
+                    '999',
+                    $e->getMessage()
+                );
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order_total, $order_currency, '', $this->pv, $this->token,
+                    $reference, $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, '', '', '', '500', $e->getMessage()
+                );
+                
                 throw $e;
             }
 
@@ -916,6 +998,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             // Adaptar o process_order_status para trabalhar com array em vez de objeto SDK
             $this->process_order_status_v2($order, $transaction_response, '');
 
+            // Salvar o pedido para garantir que todos os metadados sejam persistidos
             $order->save();
 
             if ('yes' == $this->debug) {

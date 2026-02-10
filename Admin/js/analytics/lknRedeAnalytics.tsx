@@ -421,12 +421,10 @@ const RedeAnalyticsPage = () => {
     // Função para gerar mensagem completa para debug
     const generateWhatsAppMessage = (transactionData: any) => {
         const pluginSlugs = {
-            'lkn_wc_rede_pix': 'lkn-integration-rede-for-woocommerce',
-            'lkn_rede_credit': 'lkn-integration-rede-for-woocommerce',
-            'lkn_rede_debit': 'lkn-integration-rede-for-woocommerce',
-            'lkn_rede_google_pay': 'lkn-integration-rede-for-woocommerce',
-            'lkn_rede_boleto': 'lkn-integration-rede-for-woocommerce-pro',
-            'lkn_rede_pix': 'lkn-integration-rede-for-woocommerce-pro'
+            'integration_rede_pix': 'lkn-integration-rede-for-woocommerce',
+            'rede_credit': 'lkn-integration-rede-for-woocommerce',
+            'rede_debit': 'lkn-integration-rede-for-woocommerce',
+            'rede_pix': 'rede-for-woocommerce-pro',
         }
 
         const analyticsData = (window as any).lknRedeAnalytics || {};
@@ -437,7 +435,7 @@ const RedeAnalyticsPage = () => {
             `Data/Hora: ${transactionData.system?.request_datetime || 'N/A'}`,
             `Ambiente: ${transactionData.system?.environment || 'N/A'}`,
             `Plugin: lkn-integration-rede-for-woocommerce v${transactionData.system?.version_free || 'N/A'} (Lançamento v${analyticsData.version_free || 'N/A'})`,
-            `Plugin dependente: ${transactionData.system?.version_pro && transactionData.system?.version_pro !== 'N/A' ? `lkn-integration-rede-for-woocommerce-pro v${transactionData.system?.version_pro || 'N/A'} (Lançamento v${analyticsData.version_pro || 'N/A'})` : 'N/A'}`,
+            `Plugin dependente: ${transactionData.system?.version_pro && transactionData.system?.version_pro !== 'N/A' ? `rede-for-woocommerce-pro v${transactionData.system?.version_pro || 'N/A'} (Lançamento v${analyticsData.version_pro || 'N/A'})` : 'N/A'}`,
             `Site: ${analyticsData.site_domain || 'N/A'}`,
             `Gateway: ${transactionData.system?.gateway || 'N/A'}`,
             `Reference: ${transactionData.system?.reference || 'N/A'}`,

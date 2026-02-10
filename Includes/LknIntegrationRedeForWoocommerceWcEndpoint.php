@@ -538,6 +538,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     {
         $parameters = $request->get_params();
 
+        error_log(json_encode($parameters, true));
+
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
         $tid = sanitize_text_field($parameters['tid'] ?? '');
@@ -593,7 +595,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     public function handle3dsFailure($request)
     {
         $parameters = $request->get_params();
-        
+
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
         
@@ -619,6 +621,55 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         if (!$this->validate_webhook_security($order, $parameters, 'failure')) {
             return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
         }
+
+        // Salvar metadados da transação usando helper (mesmo para falhas)
+        $gateway_settings = get_option('woocommerce_rede_debit_settings');
+        $pv = $gateway_settings['pv'] ?? '';
+        $token = $gateway_settings['token'] ?? '';
+        $brand = !empty($parameters['brand_name']) && trim($parameters['brand_name']) !== '' ? $parameters['brand_name'] : '';
+        
+        // Adicionar dados do erro no webhook_data
+        $error_webhook_data = $parameters;
+        $error_webhook_data['return_http'] = '400'; // HTTP foi OK, mas transação falhou
+        $error_webhook_data['3ds_auth'] = 'failed';
+        
+        // Preparar dados do cartão para o helper
+        $cardNumber = $order->get_meta('_wc_rede_transaction_card_number') ?: ('**** **** **** ' . ($parameters['last4'] ?? '****'));
+        $cardExpiry = $order->get_meta('_wc_rede_transaction_expiration') ?: '**/**';
+        $cardHolder = $order->get_meta('_wc_rede_transaction_holder') ?: 'Card Holder';
+        
+        // Recuperar dados salvos do tipo de cartão e parcelas
+        $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
+        $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
+        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+        
+        // Criar instância temporária do gateway para passar ao helper
+        $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+
+        LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+            $order, 
+            $error_webhook_data, 
+            $cardNumber, 
+            $cardExpiry, 
+            $cardHolder,
+            $saved_installments, 
+            $order->get_total(), 
+            $order_currency, 
+            $brand, 
+            $pv, 
+            $token,
+            $parameters['reference'] ?? '', 
+            $order->get_id(), 
+            'N/A', // capture = false para falha
+            $saved_card_type === 'credit' ? 'Credit' : 'Debit', 
+            '',
+            $gateway, 
+            !empty($parameters['tid']) && trim($parameters['tid']) !== '' ? $parameters['tid'] : '',
+            !empty($parameters['nsu']) && trim($parameters['nsu']) !== '' ? $parameters['nsu'] : '',
+            !empty($parameters['authorizationCode']) && trim($parameters['authorizationCode']) !== '' ? $parameters['authorizationCode'] : '',
+            $parameters['returnCode'] ?? '',
+            $parameters['returnMessage'] ?? ''
+        );
 
         // Marca pedido como falhado
         $order->add_order_note(__('3D Secure authentication failed', 'woo-rede'));
@@ -991,6 +1042,57 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         $order->save();
 
+        // Salvar metadados da transação usando helper
+        $gateway_settings = get_option('woocommerce_rede_debit_settings');
+        $pv = $gateway_settings['pv'] ?? '';
+        $token = $gateway_settings['token'] ?? '';
+        $brand = $webhook_data['brand_name'] ?? '';
+
+        $webhook_data['return_http'] = '200';
+        $webhook_data['3ds_auth'] = 'success';
+        
+        // Preparar dados do cartão para o helper
+        $cardNumber = $order->get_meta('_wc_rede_transaction_card_number') ?: ('**** **** **** ' . ($webhook_data['last4'] ?? '****'));
+        $cardExpiry = $order->get_meta('_wc_rede_transaction_expiration') ?: '**/**';
+        $cardHolder = $order->get_meta('_wc_rede_transaction_holder') ?: 'Card Holder';
+
+        $cardData = array(
+            'card_number' => $order->get_meta('_wc_rede_transaction_card_number') ?: ('**** **** **** ' . ($webhook_data['last4'] ?? '****')),
+            'card_holder' => $order->get_meta('_wc_rede_transaction_holder') ?: 'Card Holder',
+            'card_expiration_month' => $order->get_meta('_wc_rede_transaction_expiration_month') ?: '**',
+            'card_expiration_year' => $order->get_meta('_wc_rede_transaction_expiration_year') ?: '****',
+            'card_cvv' => $order->get_meta('_wc_rede_transaction_cvv') ?: '***',
+            'card_type' => $saved_card_type
+        );
+        
+        // Criar instância temporária do gateway para passar ao helper
+        $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+        
+        LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+            $order, 
+            $webhook_data, 
+            $cardNumber, 
+            $cardExpiry, 
+            $cardHolder,
+            $saved_installments, 
+            $order_total_converted, 
+            $order_currency, 
+            $brand, 
+            $pv, 
+            $token,
+            $webhook_data['reference'] ?? '', 
+            $order->get_id(), 
+            $capture_value, 
+            $saved_card_type === 'credit' ? 'Credit' : 'Debit', 
+            isset($cardData['card_cvv']) && $cardData['card_cvv'] !== '***' ? $cardData['card_cvv'] : 'N/A',
+            $gateway, 
+            $webhook_data['tid'] ?? '',
+            $webhook_data['nsu'] ?? '',
+            $webhook_data['authorizationCode'] ?? '',
+            $webhook_data['returnCode'] ?? '',
+            $webhook_data['returnMessage'] ?? ''
+        );
+
         // Debug logging se habilitado
         if (($debit_settings['debug'] ?? 'no') === 'yes') {
             $tId = $webhook_data['tid'] ?? null;
@@ -1018,15 +1120,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                     'returnCode' => $returnCode,
                 ),
             ));
-            
-            $cardData = array(
-                'card_number' => $order->get_meta('_wc_rede_transaction_card_number') ?: ('**** **** **** ' . ($webhook_data['last4'] ?? '****')),
-                'card_holder' => $order->get_meta('_wc_rede_transaction_holder') ?: 'Card Holder',
-                'card_expiration_month' => $order->get_meta('_wc_rede_transaction_expiration_month') ?: '**',
-                'card_expiration_year' => $order->get_meta('_wc_rede_transaction_expiration_year') ?: '****',
-                'card_cvv' => $order->get_meta('_wc_rede_transaction_cvv') ?: '***',
-                'card_type' => $saved_card_type
-            );
             
             // Incluir installments apenas para cartão de crédito
             if ($saved_card_type === 'credit') {
