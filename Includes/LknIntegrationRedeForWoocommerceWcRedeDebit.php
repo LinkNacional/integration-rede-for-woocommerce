@@ -1098,6 +1098,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             );
         }
 
+        $this->form_fields['transactions'] = array(
+            'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+            'id' => 'transactions_title',
+            'type'  => 'title',
+        );
+
         $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(), $this->id);
 
         if (! empty($customConfigs)) {

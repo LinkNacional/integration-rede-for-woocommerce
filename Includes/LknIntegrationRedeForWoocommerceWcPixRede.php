@@ -226,6 +226,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'description' => esc_attr__('Click this button to delete all Rede log data stored in orders.', 'woo-rede'),
                     );
                 }
+
+                $this->form_fields['transactions'] = array(
+                    'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+                    'id' => 'transactions_title',
+                    'type'  => 'title',
+                );
             }
         }
     }

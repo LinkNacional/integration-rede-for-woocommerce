@@ -476,6 +476,22 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             )
         );
 
+        // PRO section (send configs)
+        $pro_plugin_active = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+        if ($pro_plugin_active && $this->get_option('debug') == 'yes') {
+            $this->form_fields['send_configs'] = array(
+                'title' => __('WhatsApp Support', 'woo-rede'),
+                'type'  => 'button',
+                'id'    => 'sendConfigs',
+                'description' => __('Enable Debug Mode and click Save Changes to get quick support via WhatsApp.', 'woo-rede'),
+                'desc_tip' => __('', 'woo-rede'),
+                'custom_attributes' => array(
+                    'merge-top' => "woocommerce_{$this->id}_debug",
+                    'data-title-description' => __('Send the settings for this payment method to WordPress Support.', 'woo-rede')
+                )
+            );
+        }
+
         if ($this->get_option('debug') == 'yes') {
             $this->form_fields['show_order_logs'] =  array(
                 'title' => __('Visualizar Log no Pedido', 'woo-rede'),
@@ -500,6 +516,12 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 )
             );
         }
+
+        $this->form_fields['transactions'] = array(
+            'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+            'id' => 'transactions_title',
+            'type'  => 'title',
+        );
 
         $customConfigs = apply_filters('integration_rede_for_woocommerce_get_custom_configs', $this->form_fields, array(
             'installment_interest' => $this->get_option('installment_interest'),

@@ -194,11 +194,24 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
             wp_localize_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', 'lknWcRedeTranslations', array(
                 'clearLogs' => __('Limpar Logs', 'woo-rede'),
+                'sendConfigs' => __('Wordpress Support', 'lkn-wc-gateway-cielo'),
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
             wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(
                 'basic' => plugin_dir_url(__FILE__) . 'images/basicTemplate.png',
                 'modern' => plugin_dir_url(__FILE__) . 'images/modernTemplate.png',
+            ));
+
+            $gateway_settings = get_option('woocommerce_' . $section . '_settings', array());
+            wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeTranslationsInput', array(
+                'analytics_url' => admin_url('admin.php?page=wc-admin&path=%2Fanalytics%2Frede-transactions'),
+                'gateway_settings' => $gateway_settings,
+                'whatsapp_number' => LKN_WC_REDE_WPP_NUMBER,
+                'site_domain' => home_url(),
+                'gateway_id' => $section,
+                'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
+                'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A',
+                'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false)
             ));
         }
     }

@@ -47,9 +47,23 @@
                     // Criar um novo elemento <a> e adicionar o elemento <p> a ele
                     const aElement = document.createElement('a')
                     aElement.textContent = subTitle.textContent
-                    aElement.href = '#'
+                    aElement.href = '#' + subTitle.textContent
                     aElement.className = 'nav-tab'
                     aElement.onclick = (event) => {
+                        // Verificar se é a aba Transactions/Transações
+                        const tabText = subTitle.textContent.toLowerCase();
+                        if (tabText === 'transactions' || tabText === 'transações') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            
+                            // Usar URL do wp_localize_script
+                            const analyticsUrl = lknWcRedeTranslationsInput.analytics_url;
+
+                            // Abrir em nova aba
+                            window.open(analyticsUrl, '_blank');
+                            return false;
+                        }
+                        
                         lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar = index + 1
                         aElements.forEach((pElement, indexP) => {
                             if (indexP == index) {
@@ -136,6 +150,15 @@
                         }
                     }
                 }, true)
+
+                // Verifica se há hash na URL e clica na tab correspondente
+                const urlHash = window.location.hash
+                if (urlHash) {
+                    const targetElement = aElements.find(a => a.href.endsWith(urlHash))
+                    if (targetElement) {
+                        targetElement.click()
+                    }
+                }
             }
 
             const hrElement = document.createElement('hr')
@@ -342,5 +365,116 @@
         divGeral.appendChild(divSettingsLayout);
         divGeral.appendChild(card);
         divGeral.className = 'lknIntegrationRedeForWoocommerceDivGeral';
+
+        // === LÓGICA DO WHATSAPP - INÍCIO ===
+        const sendConfigsInput = document.querySelector('input[id^="woocommerce_"][id$="_send_configs"]');
+
+        // Lógica para customizar o botão de suporte WhatsApp
+        if (sendConfigsInput) {
+            // Extrai o nome do gateway do id
+            const idMatch = sendConfigsInput.id.match(/^woocommerce_(.+)_send_configs$/);
+            let gatewayName = '';
+            if (idMatch && idMatch[1]) {
+                gatewayName = idMatch[1].replace(/_/g, ' ');
+                gatewayName = gatewayName.charAt(0).toUpperCase() + gatewayName.slice(1);
+            }
+
+            // Define o label do botão
+            const supportLabel = lknWcRedeTranslations && lknWcRedeTranslations.sendConfigs ? lknWcRedeTranslations.sendConfigs : 'Suporte';
+            sendConfigsInput.value = `${supportLabel}`.trim();
+
+            // Adiciona o ícone do WhatsApp antes do texto
+            sendConfigsInput.style.width = 'fit-content';
+            sendConfigsInput.style.paddingTop = '10px';
+            sendConfigsInput.style.paddingBottom = '10px';
+            sendConfigsInput.style.paddingLeft = '32px';
+            sendConfigsInput.style.paddingRight = '18px';
+            sendConfigsInput.style.background = 'url("https://cdn.simpleicons.org/whatsapp/white") no-repeat 8px center/18px, #25d366';
+            sendConfigsInput.style.color = '#fff';
+            sendConfigsInput.style.fill = '#fff';
+            sendConfigsInput.style.border = 'none';
+            sendConfigsInput.style.borderRadius = '2px';
+            sendConfigsInput.style.fontWeight = 'bold';
+            sendConfigsInput.style.cursor = 'pointer';
+            sendConfigsInput.style.outline = '#25d366';
+            sendConfigsInput.style.transition = 'background 0.2s';
+            sendConfigsInput.onmouseover = function() {
+                this.style.backgroundColor = '#128c7e';
+            };
+            sendConfigsInput.onmouseout = function() {
+                this.style.backgroundColor = '#25d366';
+            };
+            sendConfigsInput.style.backgroundColor = '#25d366';
+
+            // Altera o tipo para button (opcional, se não for submit)
+            sendConfigsInput.type = 'button';
+
+            // Adiciona ação para abrir WhatsApp com mensagem formatada
+            const whatsappNumber = lknWcRedeTranslationsInput && lknWcRedeTranslationsInput.whatsapp_number ? lknWcRedeTranslationsInput.whatsapp_number : '55999999999';
+            const gatewayId = lknWcRedeTranslationsInput && lknWcRedeTranslationsInput.gateway_id ? lknWcRedeTranslationsInput.gateway_id : 'unknown_gateway';
+            const siteDomain = lknWcRedeTranslationsInput && lknWcRedeTranslationsInput.site_domain ? lknWcRedeTranslationsInput.site_domain : window.location.hostname;
+            sendConfigsInput.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Remove classes de animação imediatamente após o clique
+                this.classList.remove('is-busy', 'components-button__busy-animation', 'animation');
+                const settings = lknWcRedeTranslationsInput.gateway_settings || {};
+                let message = '#suporte-info Olá! Preciso de suporte com meu gateway de pagamento Rede. Estou com problemas na transação e segue os dados para verificação:';
+                message += ` Gateway: ${gatewayId} | Site: ${siteDomain} | Plugin: lkn-integration-rede-for-woocommerce v${lknWcRedeTranslationsInput.version_free} | Plugin dependente: ${lknWcRedeTranslationsInput.version_pro && lknWcRedeTranslationsInput.version_pro !== 'N/A' ? 'lkn-integration-rede-for-woocommerce-pro v' + lknWcRedeTranslationsInput.version_pro : 'N/A'} | `;
+                message += gatewayId.includes('pix') ? 'endpoint: ' + (lknWcRedeTranslationsInput.endpointStatus ? 'true' : 'null') + ' | ' : '';
+                const sensitiveKeys = ['pv', 'token', 'license', 'card_token'];
+
+                Object.keys(settings).forEach(function(key) {
+                    if (key === 'rede') return;
+                    if (key === 'developers') return;
+                    if (key === 'gateway') return;
+                    if (key === 'credit_options') return;
+                    if (key === 'currency_quote') return;
+                    if (key === 'endpoint') return;
+                    if (key === 'send_configs') return;
+                    if (key === 'general') return; // Ignora 'general'
+                    if (key === 'validate_license') return; // Ignora 'validate_license'
+                    if (key === 'pro') return; // Ignora 'pro'
+                    if (key === 'fake_license_field') return; // Ignora 'fake_license_field'
+                    if (key === 'fake_cardholder_field') return; // Ignora 'fake_cardholder_field'
+                    if (key === 'fake_layout') return; // Ignora 'fake_layout'
+                    if (key === 'fake_and_more_field') return; // Ignora 'fake_and_more_field',
+                    if (key === 'transactions') return; // Ignora 'transactions'
+
+                    let value = settings[key];
+
+                    // 1. Normalização de valores vazios/nulos
+                    if (value === undefined || value === null || value === '') {
+                        value = 'null';
+                    }
+
+                    // 2. Lógica de Censura Dinâmica
+                    if (sensitiveKeys.includes(key) && value !== 'null') {
+                        const strValue = String(value);
+                        const len = strValue.length;
+
+                        // Regra: Mostra no máximo 4, mas nunca mais que 1/3 da string para garantir segurança em strings curtas
+                        // Ex: Se tem 32 chars, mostra 4. Se tem 4 chars, mostra 1. Se tem 2, mostra 0.
+                        const keep = Math.min(4, Math.floor(len / 3)); 
+                        
+                        const start = strValue.slice(0, keep);
+                        const end = strValue.slice(-keep);
+                        // Se keep for 0, o slice(-0) pega tudo, então tratamos isso:
+                        const safeEnd = keep > 0 ? strValue.slice(-keep) : '';
+                        
+                        // O meio é preenchido com asteriscos fixos (***) ou baseados no tamanho real
+                        const middle = '*'.repeat(Math.max(1, len - (keep * 2)));
+
+                        value = `${start}${middle}${safeEnd}`;
+                    }
+
+                    message += ` ${key}: ${value} |`;
+                });
+                message += ' Aguardo retorno, obrigado!';
+                window.open(`https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`,'_blank');
+            };
+        }
+        // === LÓGICA DO WHATSAPP - FIM ===
+
     })
 })(jQuery)
