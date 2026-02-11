@@ -10,9 +10,10 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
     {
         // Determinar o ID do gateway baseado na instância
         $gateway_id = isset($pixInstance->id) ? $pixInstance->id : 'integration_rede_pix';
+        $order_id = $order->get_id();
         
         // Obter token OAuth2 usando o sistema de cache específico do gateway
-        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id);
+        $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($gateway_id, $order_id);
         
         if ($access_token === null) {
             return false;
@@ -56,8 +57,14 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             'body' => wp_json_encode($body),
         ));
 
+        $response_code = wp_remote_retrieve_response_code($response);
         $response_body = wp_remote_retrieve_body($response);
         $response_body = json_decode($response_body, true);
+        
+        // Adicionar o status HTTP na resposta
+        if (is_array($response_body)) {
+            $response_body['return_http'] = $response_code;
+        }
         
         if ($pixInstance->get_option('debug') == 'yes') {
             $orderLogsArray = array(

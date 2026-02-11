@@ -581,7 +581,7 @@ class LknIntegrationRedeForWoocommerceHelper
     /**
      * Gera token OAuth2 para API Rede v2 usando credenciais específicas de um gateway
      */
-    final public static function generate_rede_oauth_token_for_gateway($gateway_id)
+    final public static function generate_rede_oauth_token_for_gateway($gateway_id, $order_id = null)
     {
         $credentials = self::get_gateway_credentials($gateway_id);
         
@@ -610,8 +610,30 @@ class LknIntegrationRedeForWoocommerceHelper
             return false;
         }
 
+        $response_code = wp_remote_retrieve_response_code($oauth_response);
         $oauth_body = wp_remote_retrieve_body($oauth_response);
         $oauth_data = json_decode($oauth_body, true);
+
+        // Se a requisição falhou e temos um order_id, logar o erro
+        if ($response_code !== 200 && $response_code !== 201 && !empty($order_id)) {
+            $order = wc_get_order($order_id);
+            if ($order) {
+                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                // Adaptar: returnCode = código HTTP, returnMessage = error (ex: invalid_client)
+                $customErrorResponse = self::createCustomErrorResponse(
+                    $response_code,
+                    $response_code,
+                    isset($oauth_data['error']) ? $oauth_data['error'] : __('OAuth token generation failed', 'woo-rede')
+                );
+                self::saveTransactionMetadata(
+                    $order, $customErrorResponse, 'N/A', 'N/A', $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                    1, $order->get_total(), $order_currency, '', $credentials['pv'], $credentials['token'],
+                    $order_id . '-' . time(), $order_id, true, 'OAuth', 'N/A',
+                    null, '', '', '', $response_code, isset($oauth_data['error']) ? $oauth_data['error'] : __('OAuth token generation failed', 'woo-rede')
+                );
+                $order->save();
+            }
+        }
 
         if (!isset($oauth_data['access_token'])) {
             return false;
@@ -667,7 +689,7 @@ class LknIntegrationRedeForWoocommerceHelper
     /**
      * Obtém token OAuth2 válido específico de um gateway
      */
-    final public static function get_rede_oauth_token_for_gateway($gateway_id)
+    final public static function get_rede_oauth_token_for_gateway($gateway_id, $order_id = null)
     {
         $credentials = self::get_gateway_credentials($gateway_id);
         
@@ -686,7 +708,7 @@ class LknIntegrationRedeForWoocommerceHelper
         }
         
         // Token não existe ou expirou, tenta gerar novo
-        $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+        $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id, $order_id);
         
         // Se falhou ao gerar novo token
         if ($token_data === false) {
@@ -721,7 +743,7 @@ class LknIntegrationRedeForWoocommerceHelper
             }
             
             $environment = $credentials['environment'];
-            $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+            $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id, null);
             
             if ($token_data === false) {
                 continue;
@@ -781,7 +803,7 @@ class LknIntegrationRedeForWoocommerceHelper
             }
             
             if ($should_refresh) {
-                $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id);
+                $token_data = self::generate_rede_oauth_token_for_gateway($gateway_id, null);
                 
                 if ($token_data !== false) {
                     self::cache_rede_oauth_token_for_gateway($gateway_id, $token_data, $environment);
@@ -1077,7 +1099,6 @@ class LknIntegrationRedeForWoocommerceHelper
      * @param string $merchantOrderId
      * @param int $order_id
      * @param bool $capture
-     * @param array $response
      * @param string $gatewayType
      * @param string $cvvField
      * @param object|null $gatewayInstance
@@ -1090,7 +1111,7 @@ class LknIntegrationRedeForWoocommerceHelper
     public static function saveTransactionMetadata(
         $order,
         $responseDecoded,
-        $cardNumber,
+        $paymentNumber, // Renomeado de cardNumber para paymentNumber
         $cardExpShort,
         $cardHolder,
         $installments,
@@ -1128,8 +1149,14 @@ class LknIntegrationRedeForWoocommerceHelper
         $requestDateTime = current_time('Y-m-d H:i:s');
 
         // Formatar dados baseado no tipo de gateway
-        $gatewayMasked = !empty($cardNumber) && strlen($cardNumber) >= 8 ?
-            substr($cardNumber, 0, 4) . ' **** **** ' . substr($cardNumber, -4) : 'N/A';
+        // Se for Pix, usar a função de mascaramento do merchant key/id
+        if (stripos($gatewayType, 'pix') !== false) {
+            $gatewayMasked = !empty($paymentNumber) && strlen($paymentNumber) >= 8 ?
+                substr($paymentNumber, 0, 4) . '********' . substr($paymentNumber, -4) : 'N/A';
+        } else {
+            $gatewayMasked = !empty($paymentNumber) && strlen($paymentNumber) >= 8 ?
+                substr($paymentNumber, 0, 4) . ' **** **** ' . substr($paymentNumber, -4) : 'N/A';
+        }
 
         // Status HTTP da requisição
         $httpStatus = 'N/A';

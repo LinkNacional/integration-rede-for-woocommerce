@@ -88,8 +88,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         if (empty($_POST['rede_debit_number'])) {
             wc_add_notice(esc_attr__('Card number is a required field', 'woo-rede'), 'error');
 
-            error_log('passouuuuu');
-
             return false;
         }
 
@@ -127,9 +125,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Obtém token de autenticação OAuth2 usando sistema de cache específico do gateway
      */
-    private function get_oauth_token()
+    private function get_oauth_token($order_id = null)
     {
-        $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id);
+        $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id, $order_id);
         
         if ($token === null) {
             throw new Exception('Não foi possível obter token de autenticação OAuth2 para ' . esc_html($this->id));
@@ -185,9 +183,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Processa transação de débito/crédito
      */
-    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order = null)
+    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order = null, $order_id)
     {
-        $access_token = $this->get_oauth_token();
+        $access_token = $this->get_oauth_token($order_id);
         
         $amount = str_replace(".", "", number_format($order_total, 2, '.', ''));
         
@@ -315,86 +313,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Se não há 3DS requerido, verificar se a transação foi aprovada
         if (!isset($response_data['threeDSecure']) && (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00')) {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
-            throw new Exception(esc_html($error_message));
-        }
-        
-        return $response_data;
-    }
-
-    /**
-     * Retry transaction without 3DS when cardholder is not registered
-     */
-    private function retry_transaction_without_3ds($reference, $amount, $cardData)
-    {
-        $access_token = $this->get_oauth_token();
-        
-        if ($this->environment === 'production') {
-            $apiUrl = 'https://api.userede.com.br/erede/v2/transactions';
-        } else {
-            $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
-        }
-
-        // Determinar o kind e capture baseado no tipo de cartão
-        $card_type = isset($cardData['card_type']) ? $cardData['card_type'] : 'debit';
-        $installments = isset($cardData['installments']) ? $cardData['installments'] : 1;
-        
-        // Auto capture condicional: sempre true para debit, configurável para credit
-        $capture = ($card_type === 'debit') ? true : $this->auto_capture;
-        
-        $body = array(
-            'capture' => $capture,
-            'kind' => $card_type, // Dinâmico: 'debit' ou 'credit'
-            'reference' => (string)$reference . '-no3ds',
-            'amount' => (int)$amount,
-            'cardholderName' => $cardData['card_holder'],
-            'cardNumber' => $cardData['card_number'],
-            'expirationMonth' => (int)$cardData['card_expiration_month'],
-            'expirationYear' => (int)$cardData['card_expiration_year'],
-            'securityCode' => $cardData['card_cvv'],
-            'subscription' => false,
-            'origin' => 1,
-            'distributorAffiliation' => 0
-        );
-        
-        // Adiciona parcelas apenas para crédito
-        if ($card_type === 'credit' && $installments > 1) {
-            $body['installments'] = $installments;
-        }
-        
-        if ($this->get_option('enabled_soft_descriptor') === 'yes' && !empty($this->soft_descriptor)) {
-            $body['softDescriptor'] = $this->soft_descriptor;
-        }
-
-        $response = wp_remote_post($apiUrl, array(
-            'method' => 'POST',
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $access_token
-            ),
-            'body' => wp_json_encode($body),
-            'timeout' => 60
-        ));
-
-        if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição (retry): ' . esc_html($response->get_error_message()));
-        }
-        
-        $response_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        $response_data = json_decode($response_body, true);
-        
-        if ($response_code !== 200 && $response_code !== 201) {
-            $error_message = 'Erro na transação (retry)';
-            if (isset($response_data['returnMessage'])) {
-                $error_message = $response_data['returnMessage'];
-            } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
-                $error_message = implode(', ', $response_data['errors']);
-            }
-            throw new Exception(esc_html($error_message));
-        }
-        
-        if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
-            $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada (retry)';
             throw new Exception(esc_html($error_message));
         }
         
@@ -1280,14 +1198,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
                     400,
                     38,
-                    'cardNumber: Required parameter missing'
+                    __('cardNumber: Required parameter missing', 'woo-rede')
                 );
                 LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
                     $order, $customErrorResponse, $cardData['card_number'], $debitExpiry, $cardData['card_holder'],
                     $installments, $order->get_total(), $order_currency, '', $this->pv, $this->token,
                     $orderId . '-' . time(), $orderId, $card_type === 'debit' ? true : $this->auto_capture, 
                     $card_type === 'debit' ? 'Debit' : 'Credit', $cardData['card_cvv'],
-                    $this, '', '', '', 38, 'cardNumber: Required parameter missing'
+                    $this, '', '', '', 07, __('CardNumber: Required parameter missing', 'woo-rede')
                 );
                 $order->save();
                 
@@ -1302,15 +1220,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 // Salvar metadados da transação com dados customizados para erro de validação
                 $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
                     400,
-                    '126',
-                    'One or more card fields are invalid'
+                    '09',
+                    __('CardNumber: Invalid parameter format', 'woo-rede')
                 );
                 LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
                     $order, $customErrorResponse, $cardData['card_number'], $debitExpiry, $cardData['card_holder'],
                     $installments, $order->get_total(), $order_currency, '', $this->pv, $this->token,
                     $orderId . '-' . time(), $orderId, $card_type === 'debit' ? true : $this->auto_capture,
                     $card_type === 'debit' ? 'Debit' : 'Credit', $cardData['card_cvv'],
-                    $this, '', '', '', '126', 'Invalid card fields'
+                    $this, '', '', '', '09', __('CardNumber: Invalid parameter format', 'woo-rede')
                 );
                 $order->save();
                 
@@ -1350,7 +1268,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 
                 $order->save();
                 
-                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $order);
+                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $order, $orderId);
 
                 // Handle 3DS authentication requirement - verificar se tem threeDSecure na resposta
                 if (isset($transaction_response['threeDSecure']) && isset($transaction_response['threeDSecure']['url']) && !empty($transaction_response['threeDSecure']['url'])) {
@@ -1398,7 +1316,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         // Salvar metadados da transação (erro/rejeição)
                         $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
                             400,
-                            $transaction_response['returnCode'] ?? '999',
+                            $transaction_response['returnCode'] ?? 33,
                             $error_message
                         );
                         LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
@@ -1406,7 +1324,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                             $installments, $order_total, $order_currency, '', $this->pv, $this->token,
                             $orderId . '-' . time(), $orderId, $card_type === 'debit' ? true : $this->auto_capture,
                             $card_type === 'debit' ? 'Debit' : 'Credit', $cardData['card_cvv'],
-                            $this, '', '', '', $transaction_response['returnCode'] ?? '400', $error_message
+                            $this, '', '', '', $transaction_response['returnCode'] ?? 33, $error_message
                         );
                         $order->save();
                         
@@ -1419,15 +1337,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 // Salvar metadados da transação (em caso de erro de processamento)
                 $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
                     500,
-                    '999',
-                    $e->getMessage()
+                    44,
+                    __('Internal error occurred. Please, contact Rede', 'woo-rede')
                 );
                 LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
                     $order, $customErrorResponse, $cardData['card_number'], $debitExpiry, $cardData['card_holder'],
                     $installments, $order_total, $order_currency, '', $this->pv, $this->token,
                     $orderId . '-' . time(), $orderId, $card_type === 'debit' ? true : $this->auto_capture,
                     $card_type === 'debit' ? 'Debit' : 'Credit', $cardData['card_cvv'],
-                    $this, '', '', '', '500', $e->getMessage()
+                    $this, '', '', '', 44, __('Internal error occurred. Please, contact Rede', 'woo-rede')
                 );
                 $order->save();
                 
