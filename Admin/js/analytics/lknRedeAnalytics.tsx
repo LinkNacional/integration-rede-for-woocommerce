@@ -32,8 +32,8 @@ const DEFAULT_COLUMNS = [
     { id: 'payment_gateway', name: 'Gateway', visible: true },
     { id: 'order_id', name: 'Order ID', visible: true },
     { id: 'reference', name: 'Reference', visible: true },
-    { id: 'merchant_id', name: 'Merchant ID', visible: true },
-    { id: 'merchant_key', name: 'Merchant Key', visible: true },
+    { id: 'pv', name: 'PV', visible: true },
+    { id: 'token', name: 'Token', visible: true },
     { id: 'return_code', name: 'Return Code', visible: true },
     { id: 'http_status', name: 'HTTP Status', visible: true },
     { id: 'holder_name', name: 'Portador', visible: true },
@@ -463,9 +463,9 @@ const RedeAnalyticsPage = () => {
             `Juros/Desc: ${transactionData.amounts?.interest_discount || 'N/A'}`,
             `Moeda: ${transactionData.amounts?.currency || 'N/A'}`,
             
-            // Merchant
-            `Merchant ID: ${transactionData.merchant?.id_masked || 'N/A'}`,
-            `Merchant Key: ${transactionData.merchant?.key_masked || 'N/A'}`,
+            // Credentials
+            `PV: ${transactionData.credentials?.pv_masked || 'N/A'}`,
+            `Token: ${transactionData.credentials?.token_masked || 'N/A'}`,
             
             // Resposta da API (essencial para debug)
             `Return Code: ${transactionData.response?.return_code || 'N/A'}`,
@@ -765,11 +765,11 @@ const RedeAnalyticsPage = () => {
                     case 'reference':
                         value = transaction.system?.reference || 'N/A';
                         break;
-                    case 'merchant_id':
-                        value = transaction.merchant?.id_masked || 'N/A';
+                    case 'pv':
+                        value = transaction.credentials?.pv_masked || 'N/A';
                         break;
-                    case 'merchant_key':
-                        value = transaction.merchant?.key_masked || 'N/A';
+                    case 'token':
+                        value = transaction.credentials?.token_masked || 'N/A';
                         break;
                     case 'return_code':
                         value = transaction.response?.return_code || 'N/A';
@@ -895,11 +895,11 @@ const RedeAnalyticsPage = () => {
                     case 'reference':
                         value = transaction.system?.reference || 'N/A';
                         break;
-                    case 'merchant_id':
-                        value = transaction.merchant?.id_masked || 'N/A';
+                    case 'pv':
+                        value = transaction.credentials?.pv_masked || 'N/A';
                         break;
-                    case 'merchant_key':
-                        value = transaction.merchant?.key_masked || 'N/A';
+                    case 'token':
+                        value = transaction.credentials?.token_masked || 'N/A';
                         break;
                     case 'return_code':
                         value = transaction.response?.return_code || 'N/A';
@@ -985,8 +985,8 @@ const RedeAnalyticsPage = () => {
                 transaction[18] || 'N/A', // Gateway
                 transaction[19] || 'N/A', // Order ID
                 transaction[20] || 'N/A', // Reference
-                transaction[21] || 'N/A', // Merchant ID
-                transaction[22] || 'N/A', // Merchant Key
+                transaction[21] || 'N/A', // PV
+                transaction[22] || 'N/A', // Token
                 transaction[23] || 'N/A', // Return Code
                 transaction[24] || 'N/A', // HTTP Status
                 transaction[25] || 'N/A', // Portador
@@ -1089,11 +1089,11 @@ const RedeAnalyticsPage = () => {
                 case 'reference':
                     value = (transaction && transaction.system && transaction.system.reference) ? transaction.system.reference : 'N/A';
                     break;
-                case 'merchant_id':
-                    value = (transaction && transaction.merchant && transaction.merchant.id_masked) ? transaction.merchant.id_masked : 'N/A';
+                case 'pv':
+                    value = (transaction && transaction.credentials && transaction.credentials.pv_masked) ? transaction.credentials.pv_masked : 'N/A';
                     break;
-                case 'merchant_key':
-                    value = (transaction && transaction.merchant && transaction.merchant.key_masked) ? transaction.merchant.key_masked : 'N/A';
+                case 'token':
+                    value = (transaction && transaction.credentials && transaction.credentials.token_masked) ? transaction.credentials.token_masked : 'N/A';
                     break;
                 case 'return_code':
                     value = (transaction && transaction.response && transaction.response.return_code) ? transaction.response.return_code : 'N/A';

@@ -1094,8 +1094,8 @@ class LknIntegrationRedeForWoocommerceHelper
      * @param float $amount
      * @param string $currency
      * @param string $brand
-     * @param string $merchantId
-     * @param string $merchantSecret
+     * @param string $pv
+     * @param string $token
      * @param string $merchantOrderId
      * @param int $order_id
      * @param bool $capture
@@ -1118,8 +1118,8 @@ class LknIntegrationRedeForWoocommerceHelper
         $amount,
         $currency,
         $brand,
-        $merchantId,
-        $merchantSecret,
+        $pv,
+        $token,
         $merchantOrderId,
         $order_id,
         $capture,
@@ -1177,9 +1177,9 @@ class LknIntegrationRedeForWoocommerceHelper
             $environment = ($gatewayInstance->get_option('env') == 'production') ? 'Produção' : 'Sandbox';
         }
 
-        // Validar e mascarar merchant credentials dinamicamente
-        $merchantIdMasked = self::maskCredential($merchantId);
-        $merchantKeyMasked = self::maskCredential($merchantSecret);
+        // Validar e mascarar credentials dinamicamente
+        $pvMasked = self::maskCredential($pv);
+        $tokenMasked = self::maskCredential($token);
 
         // Validar data de expiração
         $cardExpiryFormatted = !empty($cardExpShort) ? $cardExpShort : 'N/A';
@@ -1269,9 +1269,9 @@ class LknIntegrationRedeForWoocommerceHelper
                 'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
                 'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A'
             ],
-            'merchant' => [
-                'id_masked' => $merchantIdMasked,
-                'key_masked' => $merchantKeyMasked
+            'credentials' => [
+                'pv_masked' => $pvMasked,
+                'token_masked' => $tokenMasked
             ],
             'response' => [
                 'http_status' => $httpStatusFormatted,
