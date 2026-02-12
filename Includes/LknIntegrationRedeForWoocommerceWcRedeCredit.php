@@ -737,7 +737,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
     /**
      * Processa transação de crédito
      */
-    private function process_credit_transaction_v2($reference, $order_total, $installments, $cardData, $order_id)
+    private function process_credit_transaction_v2($reference, $order_total, $installments, $cardData, $order_id, $order = null, $order_currency = 'BRL', $creditExpiry = '')
     {
         $access_token = $this->get_oauth_token($order_id);
 
@@ -781,6 +781,21 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         ));
 
         if (is_wp_error($response)) {
+            // Salvar metadados em caso de erro da requisição
+            if ($order) {
+                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                    500,
+                    44,
+                    'Erro na requisição: ' . $response->get_error_message()
+                );
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order_total, $order_currency, '', $this->pv, $this->token,
+                    $reference, $order_id, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, '', '', '', 44, 'Erro na requisição: ' . $response->get_error_message()
+                );
+                $order->save();
+            }
             throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
         }
         
@@ -802,12 +817,65 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
                 $error_message = implode(', ', $response_data['errors']);
             }
+            
+            // Salvar metadados em caso de erro HTTP
+            if ($order) {
+                $brand = isset($response_data['brand']['name']) ? $response_data['brand']['name'] : '';
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $response_data, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order_total, $order_currency, $brand, $this->pv, $this->token,
+                    $reference, $order_id, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, 
+                    $response_data['tid'] ?? '',
+                    $response_data['nsu'] ?? '',
+                    $response_data['brand']['authorizationCode'] ?? '',
+                    $response_data['returnCode'] ?? '',
+                    $response_data['returnMessage'] ?? ''
+                );
+                $order->save();
+            }
+            
             throw new Exception(esc_html($error_message));
         }
         
         if (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00') {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
+            
+            // Salvar metadados em caso de transação recusada
+            if ($order) {
+                $brand = isset($response_data['brand']['name']) ? $response_data['brand']['name'] : '';
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $response_data, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                    $installments, $order_total, $order_currency, $brand, $this->pv, $this->token,
+                    $reference, $order_id, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                    $this, 
+                    $response_data['tid'] ?? '',
+                    $response_data['nsu'] ?? '',
+                    $response_data['brand']['authorizationCode'] ?? '',
+                    $response_data['returnCode'] ?? '',
+                    $response_data['returnMessage'] ?? ''
+                );
+                $order->save();
+            }
+            
             throw new Exception(esc_html($error_message));
+        }
+        
+        // Salvar metadados em caso de sucesso
+        if ($order) {
+            $brand = isset($response_data['brand']['name']) ? $response_data['brand']['name'] : '';
+            LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                $order, $response_data, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
+                $installments, $order_total, $order_currency, $brand, $this->pv, $this->token,
+                $reference, $order_id, $this->auto_capture, 'Credit', $cardData['card_cvv'],
+                $this, 
+                $response_data['tid'] ?? '',
+                $response_data['nsu'] ?? '',
+                $response_data['brand']['authorizationCode'] ?? '',
+                $response_data['returnCode'] ?? '',
+                $response_data['returnMessage'] ?? ''
+            );
+            $order->save();
         }
         
         return $response_data;
@@ -934,7 +1002,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             $reference = $orderId . '-' . time();
             
             try {
-                $transaction_response = $this->process_credit_transaction_v2($reference, $order_total, $installments, $cardData, $order_id);
+                $transaction_response = $this->process_credit_transaction_v2($reference, $order_total, $installments, $cardData, $order_id, $order, $order_currency, $creditExpiry);
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $transaction_response, $order);
                 
                 // Salvar metadados da transação (em caso de sucesso)

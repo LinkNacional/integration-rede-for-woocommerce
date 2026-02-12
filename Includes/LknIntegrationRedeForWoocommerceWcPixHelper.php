@@ -57,6 +57,28 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
             'body' => wp_json_encode($body),
         ));
 
+        if (is_wp_error($response)) {
+            // Salvar metadados em caso de erro da requisição
+            $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                500,
+                44,
+                'Erro na requisição: ' . $response->get_error_message()
+            );
+            
+            $default_currency = get_option('woocommerce_currency', 'BRL');
+            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+            
+            LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                $order, $customErrorResponse, '', '', '',
+                1, $total, $order_currency, '', $pv, $token,
+                $reference, $order_id, true, 'PIX', '',
+                $pixInstance, '', '', '', 44, 'Erro na requisição: ' . $response->get_error_message()
+            );
+            $order->save();
+            
+            return false;
+        }
+
         $response_code = wp_remote_retrieve_response_code($response);
         $response_body = wp_remote_retrieve_body($response);
         $response_body = json_decode($response_body, true);
@@ -64,6 +86,27 @@ final class LknIntegrationRedeForWoocommerceWcPixHelper
         // Adicionar o status HTTP na resposta
         if (is_array($response_body)) {
             $response_body['return_http'] = $response_code;
+        } else {
+            $response_body = array('return_http' => $response_code);
+        }
+
+        // Preparar dados para salvar metadados
+        $default_currency = get_option('woocommerce_currency', 'BRL');
+        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
+        
+        if ($response_code !== 200 && $response_code !== 201) {
+            // Salvar metadados em caso de erro HTTP
+            LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                $order, $response_body, '', '', '',
+                1, $total, $order_currency, '', $pv, $token,
+                $reference, $order_id, true, 'PIX', '',
+                $pixInstance, 
+                $response_body['tid'] ?? '',
+                $response_body['nsu'] ?? '',
+                '',
+                $response_body['returnCode'] ?? '',
+                $response_body['returnMessage'] ?? ''
+            );
         }
         
         if ($pixInstance->get_option('debug') == 'yes') {
