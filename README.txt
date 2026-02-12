@@ -116,6 +116,7 @@ A: Yes — tested up to WordPress 6.8.
 ## Changelog
 ### 5.2.0 - 2026/02/12
 - NEW Rede transactions table.
+- NEW Credentials submission system for support.
 
 ### 5.1.7 - 2026/01/30
 - Addition of reference field to order notes.
