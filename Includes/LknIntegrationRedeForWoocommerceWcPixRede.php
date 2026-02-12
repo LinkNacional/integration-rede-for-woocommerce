@@ -436,21 +436,6 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 $order->save();
             }
         } catch (Exception $e) {
-            // Salvar metadados da transação para erro geral de processamento PIX
-            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
-            $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
-                500,
-                44,
-                __('Internal error occurred. Please, contact Rede', 'woo-rede')
-            );
-            LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
-                $order, $customErrorResponse, isset($pix['tid']) ? $pix['tid'] : 'N/A', isset($pixExpiration) ? $pixExpiration : 'N/A', $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
-                1, $order->get_total(), $order_currency, '', $this->get_option('pv'), $this->get_option('token'),
-                $orderId . '-' . time(), $orderId, true, 'Pix', 'N/A',
-                $this, '', '', '', 44, $e->getMessage()
-            );
-            $order->save();
-            
             $this->add_error($e->getMessage());
             $valid = false;
         }

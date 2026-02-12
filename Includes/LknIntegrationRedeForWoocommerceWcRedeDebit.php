@@ -284,21 +284,24 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         if (is_wp_error($response)) {
             // Salvar metadados em caso de erro da requisição
+            $error_message = 'Erro na requisição: ' . $response->get_error_message();
+            $translated_error_message = $this->translateRedeErrorMessage(44, $error_message);
+            
             if ($order) {
                 $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
                     500,
                     44,
-                    'Erro na requisição: ' . $response->get_error_message()
+                    $translated_error_message
                 );
                 LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
                     $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
                     $installments, $order_total, $order_currency, '', $this->pv, $this->token,
                     $reference, $order_id, $capture, $card_type, $cardData['card_cvv'],
-                    $this, '', '', '', 44, 'Erro na requisição: ' . $response->get_error_message()
+                    $this, '', '', '', 44, $translated_error_message
                 );
                 $order->save();
             }
-            throw new Exception('Erro na requisição: ' . esc_html($response->get_error_message()));
+            throw new Exception(esc_html($translated_error_message));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -314,6 +317,8 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
         if ($response_code !== 200 && $response_code !== 201) {
             $error_message = 'Erro na transação';
+            $return_code = $response_data['returnCode'] ?? 500;
+
             if (isset($response_data['returnMessage'])) {
                 $error_message = $response_data['returnMessage'];
             } elseif (isset($response_data['errors']) && is_array($response_data['errors'])) {
@@ -330,6 +335,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 }
             }
             
+            // Traduzir mensagem de erro se disponível
+            $translated_error_message = $this->translateRedeErrorMessage($return_code, $error_message);
+            
             // Salvar metadados em caso de erro HTTP
             if ($order) {
                 $brand = isset($response_data['brand']['name']) ? $response_data['brand']['name'] : '';
@@ -341,18 +349,22 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     $response_data['tid'] ?? '',
                     $response_data['nsu'] ?? '',
                     $response_data['brand']['authorizationCode'] ?? '',
-                    $response_data['returnCode'] ?? '',
-                    $response_data['returnMessage'] ?? ''
+                    $return_code,
+                    $translated_error_message
                 );
                 $order->save();
             }
             
-            throw new Exception(esc_html($error_message));
+            throw new Exception(esc_html($translated_error_message));
         }
 
         // Se não há 3DS requerido, verificar se a transação foi aprovada
         if (!isset($response_data['threeDSecure']) && (!isset($response_data['returnCode']) || $response_data['returnCode'] !== '00')) {
             $error_message = isset($response_data['returnMessage']) ? $response_data['returnMessage'] : 'Transação recusada';
+            $return_code = $response_data['returnCode'] ?? 33;
+            
+            // Traduzir mensagem de erro se disponível
+            $translated_error_message = $this->translateRedeErrorMessage($return_code, $error_message);
             
             // Salvar metadados em caso de transação recusada
             if ($order) {
@@ -365,13 +377,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     $response_data['tid'] ?? '',
                     $response_data['nsu'] ?? '',
                     $response_data['brand']['authorizationCode'] ?? '',
-                    $response_data['returnCode'] ?? '',
-                    $response_data['returnMessage'] ?? ''
+                    $return_code,
+                    $translated_error_message
                 );
                 $order->save();
             }
             
-            throw new Exception(esc_html($error_message));
+            throw new Exception(esc_html($translated_error_message));
         }
         
         // Salvar metadados em caso de sucesso (incluindo transações com 3DS)
@@ -1418,21 +1430,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 }
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $cardData, $e->getMessage(), $order);
-                
-                // Salvar metadados da transação (em caso de erro de processamento)
-                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
-                    500,
-                    44,
-                    __('Internal error occurred. Please, contact Rede', 'woo-rede')
-                );
-                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
-                    $order, $customErrorResponse, $cardData['card_number'], $debitExpiry, $cardData['card_holder'],
-                    $installments, $order_total, $order_currency, '', $this->pv, $this->token,
-                    $orderId . '-' . time(), $orderId, $card_type === 'debit' ? true : $this->auto_capture,
-                    $card_type === 'debit' ? 'Debit' : 'Credit', $cardData['card_cvv'],
-                    $this, '', '', '', 44, __('Internal error occurred. Please, contact Rede', 'woo-rede')
-                );
-                $order->save();
                 
                 throw $e;
             }

@@ -1022,19 +1022,6 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
             } catch (Exception $e) {
                 $this->regOrderLogs($orderId, $order_total, $installments, $cardData, $e->getMessage(), $order);
                 
-                // Salvar metadados da transação (em caso de erro)
-                $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
-                    500,
-                    44,
-                    __('Internal error occurred. Please, contact Rede', 'woo-rede')
-                );
-                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
-                    $order, $customErrorResponse, $cardData['card_number'], $creditExpiry, $cardData['card_holder'],
-                    $installments, $order_total, $order_currency, '', $this->pv, $this->token,
-                    $reference, $orderId, $this->auto_capture, 'Credit', $cardData['card_cvv'],
-                    $this, '', '', '', 44, __('Internal error occurred. Please, contact Rede', 'woo-rede')
-                );
-                
                 throw $e;
             }
 
