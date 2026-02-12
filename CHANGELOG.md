@@ -1,3 +1,6 @@
+# 5.2.0 - 12/02/2026
+* NOVO Tabela de transações da Rede.
+
 # 5.1.7 - 30/01/2026
 * Adição do campo de referência às notas do pedido.
 
