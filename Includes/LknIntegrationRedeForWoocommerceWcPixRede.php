@@ -226,6 +226,12 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                         'description' => esc_attr__('Click this button to delete all Rede log data stored in orders.', 'woo-rede'),
                     );
                 }
+
+                $this->form_fields['transactions'] = array(
+                    'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+                    'id' => 'transactions_title',
+                    'type'  => 'title',
+                );
             }
         }
     }
@@ -278,12 +284,38 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
 
                 $pix = LknIntegrationRedeForWoocommerceWcPixHelper::getPixRede($order->get_total(), $this, $reference, $order);
                 
+                // Definir data de expiração do PIX
+                $pixExpiration = 'N/A';
+                if (isset($pix['qrCodeResponse']['dateTimeExpiration'])) {
+                    try {
+                        $dateTime = new DateTime($pix['qrCodeResponse']['dateTimeExpiration']);
+                        $pixExpiration = $dateTime->format('Y-m-d H:i:s');
+                    } catch (Exception $e) {
+                        $pixExpiration = 'N/A';
+                    }
+                }
+                
                 // Verificar se a resposta PIX contém o returnCode
                 if (!is_array($pix) || !isset($pix['returnCode'])) {
                     throw new Exception(__('Invalid PIX response from Rede API.', 'woo-rede'));
                 }
                 
                 if ("25" == $pix['returnCode'] || "89" == $pix['returnCode']) {
+                    // Salvar metadados da transação para erro de credenciais
+                    $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                    $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                        401,
+                        $pix['returnCode'] == '25' ? 24 : 89,
+                        $pix['returnCode'] == '25' ? __('Affiliation: Invalid parameter size', 'woo-rede') : __('Token: Invalid token', 'woo-rede')
+                    );
+                    LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                        $order, $customErrorResponse, isset($pix['tid']) ? $pix['tid'] : 'N/A', $pixExpiration, $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                        1, $order->get_total(), $order_currency, '', $this->get_option('pv'), $this->get_option('token'),
+                        $reference, $orderId, true, 'Pix', 'N/A',
+                        $this, '', '', '', $pix['returnCode'], $pix['returnMessage'] ?? ''
+                    );
+                    $order->save();
+                    
                     throw new Exception(__('PV or Token is invalid!', 'woo-rede'));
                 }
                 if ("00" != $pix['returnCode']) {
@@ -294,6 +326,22 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                             ),
                         ));
                     }
+                    
+                    // Salvar metadados da transação para erro geral PIX
+                    $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                    $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                        400,
+                        33,
+                        __('Failed', 'woo-rede')
+                    );
+                    LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                        $order, $customErrorResponse, isset($pix['tid']) ? $pix['tid'] : 'N/A', $pixExpiration, $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                        1, $order->get_total(), $order_currency, '', $this->get_option('pv'), $this->get_option('token'),
+                        $reference, $orderId, true, 'Pix', 'N/A',
+                        $this, '', '', '', $pix['returnCode'] ?? 33, $pix['returnMessage'] ?? __('An error occurred while processing the payment.', 'woo-rede')
+                    );
+                    $order->save();
+                    
                     throw new Exception(__('An error occurred while processing the payment.', 'woo-rede'));
                 }
 
@@ -301,12 +349,42 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 $required_fields = array('reference', 'tid', 'amount', 'qrCodeResponse');
                 foreach ($required_fields as $field) {
                     if (!isset($pix[$field])) {
+                        // Salvar metadados da transação para erro de resposta incompleta
+                        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                        $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                            400,
+                            44,
+                            __('Internal error occurred. Please, contact Rede', 'woo-rede')
+                        );
+                        LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                            $order, $customErrorResponse, isset($pix['tid']) ? $pix['tid'] : 'N/A', $pixExpiration, $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                            1, $order->get_total(), $order_currency, '', $this->get_option('pv'), $this->get_option('token'),
+                            $reference, $orderId, true, 'Pix', 'N/A',
+                            $this, '', '', '', 44, __('Incomplete PIX response from Rede API.', 'woo-rede')
+                        );
+                        $order->save();
+                        
                         throw new Exception(__('Incomplete PIX response from Rede API.', 'woo-rede'));
                     }
                 }
                 
                 // Validar se qrCodeResponse contém os campos necessários
                 if (!isset($pix['qrCodeResponse']['qrCodeData']) || !isset($pix['qrCodeResponse']['qrCodeImage'])) {
+                    // Salvar metadados da transação para erro de QR Code inválido
+                    $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                    $customErrorResponse = LknIntegrationRedeForWoocommerceHelper::createCustomErrorResponse(
+                        400,
+                        44,
+                        __('Internal error occurred. Please, contact Rede', 'woo-rede')
+                    );
+                    LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                        $order, $customErrorResponse, isset($pix['tid']) ? $pix['tid'] : 'N/A', $pixExpiration, $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                        1, $order->get_total(), $order_currency, '', $this->get_option('pv'), $this->get_option('token'),
+                        $reference, $orderId, true, 'Pix', 'N/A',
+                        $this, '', '', '', 44, __('Invalid QR Code data in PIX response.', 'woo-rede')
+                    );
+                    $order->save();
+                    
                     throw new Exception(__('Invalid QR Code data in PIX response.', 'woo-rede'));
                 }
 
@@ -322,6 +400,15 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_code', $pixQrCodeData);
                 $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_generated', true);
                 $order->update_meta_data('_wc_rede_pix_integration_transaction_pix_qrcode_base64', $pixQrCodeImage);
+                
+                // Salvar metadados da transação PIX (sucesso)
+                $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
+                LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
+                    $order, $pix, isset($pix['tid']) ? $pix['tid'] : 'N/A', $pixExpiration, $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+                    1, $order->get_total(), $order_currency, 'PIX', $this->get_option('pv'), $this->get_option('token'),
+                    $pixReference, $orderId, true, 'Pix', 'N/A',
+                    $this, $pixTid, '', '', $pix['returnCode'] ?? '00', $pix['returnMessage'] ?? 'PIX gerado com sucesso'
+                );
 
                 if ('yes' == $this->debug) {
                     $this->log->log('info', $this->id, array(
