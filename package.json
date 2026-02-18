@@ -45,7 +45,7 @@
     "@wordpress/element": "^6.39.0",
     "@wordpress/hooks": "^4.39.0",
     "@wordpress/i18n": "^6.12.0",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "gridjs": "^6.2.0",
     "prop-types": "^15.8.1",
     "react": "^16.14.0",
