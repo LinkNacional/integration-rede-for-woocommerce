@@ -73,8 +73,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         // Hook para processar retorno do 3DS nas URLs simplificadas
         add_action('init', array($this, 'handle_3ds_return'));
-        if (!has_action('woocommerce_init', array($this, 'show_3ds_error_message'))) {
-            add_action('woocommerce_init', array($this, 'show_3ds_error_message'));
+
+        if (!has_action('init', array($this, 'show_3ds_error_message'))) {
+            add_action('init', array($this, 'show_3ds_error_message'));
         }
     }
 
@@ -511,8 +512,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
      */
     public function show_3ds_error_message()
     {
-        if (isset($_GET['3ds_error']) && $_GET['3ds_error'] == '1') {
+        static $already_shown = false;
+        if (!$already_shown && isset($_GET['3ds_error']) && $_GET['3ds_error'] == '1') {
             wc_print_notice(__('Payment failed during 3D Secure authentication. Please try again or use a different payment method.', 'woo-rede'), 'error');
+            $already_shown = true;
         }
     }
 
