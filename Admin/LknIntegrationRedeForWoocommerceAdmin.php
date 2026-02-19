@@ -125,6 +125,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
         $gateways = array(
             'maxipago_credit',
             'maxipago_debit',
+            'rede_google_pay',
             'rede_credit',
             'rede_debit',
             'maxipago_pix',
@@ -151,17 +152,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
         }
 
-        $allowed_sections = [
-            'rede_credit',
-            'rede_debit',
-            'integration_rede_pix',
-            'maxipago_credit',
-            'maxipago_debit',
-            'maxipago_pix',
-            'rede_pix'
-        ];
-
-        if (isset($_GET['section']) && in_array(sanitize_text_field(wp_unslash($_GET['section'])), $allowed_sections, true)) {
+        if (isset($_GET['section']) && in_array(sanitize_text_field(wp_unslash($_GET['section'])), $gateways, true)) {
             wp_enqueue_script(
                 $this->plugin_name . '-plugin-rate',
                 plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-plugin-rate.js',
@@ -172,6 +163,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
         }
 
         if ('wc-settings' === $page && 'checkout' === $tab && in_array($section, $gateways, true)) {
+            error_log('Enfileirando scripts para a seção: ' . $section);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-clear-logs-button.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-settings-layout.js', array('jquery'), $this->version, false);
             wp_enqueue_script('lknIntegrationRedeForWoocommerceCard', plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-admin-card.js', array('jquery'), $this->version, false);

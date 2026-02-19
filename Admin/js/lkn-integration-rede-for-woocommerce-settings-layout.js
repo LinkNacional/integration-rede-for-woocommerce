@@ -203,10 +203,21 @@
                 descriptionTitle.className = 'lkn-field-description';
 
                 const titleTh = th.querySelector('label');
-                const textContent = titleTh.childNodes[0].textContent.trim();
+                const fieldId = titleTh.getAttribute('for');
+
+                let textContent = titleTh.childNodes[0].textContent.trim();
+                // Se o input tiver data-title-label, usa ele
+                if (fieldId) {
+                    const fieldConfig = document.getElementById(fieldId);
+                    if (fieldConfig && fieldConfig.hasAttribute('data-title-label')) {
+                        const customLabel = fieldConfig.getAttribute('data-title-label');
+                        if (customLabel && customLabel.trim() !== '') {
+                            textContent = customLabel.trim();
+                        }
+                    }
+                }
                 titleHeader.innerText = textContent;
 
-                const fieldId = titleTh.getAttribute('for');
                 if (fieldId) {
                     const fieldConfig = document.getElementById(fieldId);
                     if (fieldConfig) {
