@@ -7,6 +7,127 @@ use WP_REST_Response;
 
 final class LknIntegrationRedeForWoocommerceWcEndpoint
 {
+    // Constantes para os gateways disponíveis
+    const GATEWAY_DEBIT = 'rede_debit';
+    const GATEWAY_CREDIT = 'rede_credit';
+    const GATEWAY_PIX_FREE = 'integration_rede_pix';
+    const GATEWAY_PIX_PRO = 'rede_pix';
+    const GATEWAY_GOOGLE_PAY = 'rede_google_pay';
+    
+    // Classe padrão para fallback
+    const DEFAULT_GATEWAY = self::GATEWAY_DEBIT;
+    
+    /**
+     * Retorna o mapeamento completo dos gateways com suas respectivas classes
+     * 
+     * @return array Mapeamento de payment_method => ['gateway_id', 'class', 'pro_required']
+     */
+    private function get_gateway_mapping()
+    {
+        return array(
+            self::GATEWAY_DEBIT => array(
+                'gateway_id' => self::GATEWAY_DEBIT,
+                'class' => '\\Lknwoo\\IntegrationRedeForWoocommerce\\Includes\\LknIntegrationRedeForWoocommerceWcRedeDebit',
+                'pro_required' => false
+            ),
+            self::GATEWAY_CREDIT => array(
+                'gateway_id' => self::GATEWAY_CREDIT,
+                'class' => '\\Lknwoo\\IntegrationRedeForWoocommerce\\Includes\\LknIntegrationRedeForWoocommerceWcRedeCredit',
+                'pro_required' => false
+            ),
+            self::GATEWAY_PIX_FREE => array(
+                'gateway_id' => self::GATEWAY_PIX_FREE,
+                'class' => '\\Lknwoo\\IntegrationRedeForWoocommerce\\Includes\\LknIntegrationRedeForWoocommerceWcPixRede',
+                'pro_required' => false
+            ),
+            self::GATEWAY_PIX_PRO => array(
+                'gateway_id' => self::GATEWAY_PIX_PRO,
+                'class' => '\\Lkn\\RedeForWoocommercePro\\Includes\\LknRedeForWoocommerceProPixRede',
+                'pro_required' => true
+            ),
+            self::GATEWAY_GOOGLE_PAY => array(
+                'gateway_id' => self::GATEWAY_GOOGLE_PAY,
+                'class' => '\\Lkn\\RedeForWoocommercePro\\Includes\\LknRedeForWoocommerceProGooglePay',
+                'pro_required' => true
+            ),
+        );
+    }
+    
+    /**
+     * Retorna todos os IDs dos gateways disponíveis
+     * 
+     * @return array Array com todos os gateway IDs
+     */
+    private function get_available_gateway_ids()
+    {
+        return array(
+            self::GATEWAY_DEBIT,
+            self::GATEWAY_CREDIT,
+            self::GATEWAY_PIX_FREE,
+            self::GATEWAY_PIX_PRO,
+            self::GATEWAY_GOOGLE_PAY,
+        );
+    }
+    
+    /**
+     * Verifica se um payment method é um gateway válido da Rede
+     * 
+     * @param string $payment_method O método de pagamento
+     * @return bool True se for um gateway Rede válido
+     */
+    private function is_valid_rede_gateway($payment_method)
+    {
+        return in_array($payment_method, $this->get_available_gateway_ids(), true);
+    }
+    
+    /**
+     * Retorna todos os gateways PIX (FREE e PRO)
+     * 
+     * @return array Array com os IDs dos gateways PIX
+     */
+    private function get_pix_gateway_ids()
+    {
+        return array(
+            self::GATEWAY_PIX_FREE,
+            self::GATEWAY_PIX_PRO,
+        );
+    }
+    
+    /**
+     * Verifica se um payment method é um gateway PIX
+     * 
+     * @param string $payment_method O método de pagamento
+     * @return bool True se for um gateway PIX
+     */
+    private function is_pix_gateway($payment_method)
+    {
+        return in_array($payment_method, $this->get_pix_gateway_ids(), true);
+    }
+    
+    /**
+     * Retorna todos os gateways de cartão (débito, crédito, Google Pay)
+     * 
+     * @return array Array com os IDs dos gateways de cartão
+     */
+    private function get_card_gateway_ids()
+    {
+        return array(
+            self::GATEWAY_DEBIT,
+            self::GATEWAY_CREDIT,
+            self::GATEWAY_GOOGLE_PAY,
+        );
+    }
+    
+    /**
+     * Verifica se um payment method é um gateway de cartão
+     * 
+     * @param string $payment_method O método de pagamento
+     * @return bool True se for um gateway de cartão
+     */
+    private function is_card_gateway($payment_method)
+    {
+        return in_array($payment_method, $this->get_card_gateway_ids(), true);
+    }
     public function registerorderRedeCaptureEndPoint(): void
     {
         // Só registra a rota redePixListener se o plugin PRO não estiver ativo
@@ -190,7 +311,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         update_option('lknRedeForWoocommerceProEndpointStatus', true);
         $requestParams = $request->get_params();
 
-        $redePixOptions = get_option('woocommerce_integration_rede_pix_settings');
+        $redePixOptions = get_option('woocommerce_' . self::GATEWAY_PIX_FREE . '_settings');
         $tid = $requestParams['data']['id'];
 
         // Argumentos para buscar pedidos com o gateway FREE
@@ -206,8 +327,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         if (!empty($orders)) {
             $order = $orders[0];
             
-            // Verificar se é realmente um pedido do gateway FREE
-            if ($order->get_payment_method() === 'integration_rede_pix') {
+            // Verificar se é realmente um pedido do gateway PIX FREE
+            if ($this->is_pix_gateway($order->get_payment_method()) && $order->get_payment_method() === self::GATEWAY_PIX_FREE) {
                 if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
                     // Só altera o status se estiver pendente de pagamento
                     if ($order->get_status() === 'pending') {
@@ -373,7 +494,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             // Só altera o status se estiver pendente de pagamento
             if ($order->get_status() === 'pending') {
                 
-                if ($order->get_payment_method() === 'rede_pix') {
+                if ($order->get_payment_method() === self::GATEWAY_PIX_PRO) {
                     // Versão PRO
                     
                     // Log 7: Processamento PRO
@@ -409,7 +530,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
                     wp_clear_scheduled_hook('lkn_verify_pix_payment', array($order->get_id(), $tid));
                     
-                } else if ($order->get_payment_method() === 'integration_rede_pix') {
+                } else if ($order->get_payment_method() === self::GATEWAY_PIX_FREE) {
                     // Versão FREE - só logs PRO para debug
                     
                     // Log 9: Processamento FREE
@@ -417,7 +538,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                         $logger = wc_get_logger();
                         $logger->info('Rede PIX PRO - Processing FREE Order', array(
                             'source' => 'rede-pix-pro-advanced-debug',
-                            'gateway' => 'integration_rede_pix (FREE)',
+                            'gateway' => self::GATEWAY_PIX_FREE . ' (FREE)',
                             'order_id' => $order->get_id(),
                             'timestamp' => current_time('mysql')
                         ));
@@ -430,7 +551,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                         $logger = wc_get_logger();
                         $logger->info('Rede PIX PRO - FREE Processing Complete', array(
                             'source' => 'rede-pix-pro-advanced-debug',
-                            'gateway' => 'integration_rede_pix (FREE)',
+                            'gateway' => self::GATEWAY_PIX_FREE . ' (FREE)',
                             'order_id' => $order->get_id(),
                             'final_status' => $order->get_status(),
                             'cron_cleared' => true,
@@ -480,12 +601,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             return new WP_Error('order_not_found', __('Order not found', 'woo-rede'), array('status' => 404));
         }
 
-        $pixOptions = get_option('woocommerce_integration_rede_pix_settings');
+        $pixOptions = get_option('woocommerce_' . self::GATEWAY_PIX_FREE . '_settings');
         $environment = $pixOptions['environment'];
 
         // Obter token OAuth2 válido ou renovar se expirado (20 minutos)
         LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
-        $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway('integration_rede_pix', $environment);
+        $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway(self::GATEWAY_PIX_FREE, $environment);
 
         if (!$token_data || empty($token_data['token'])) {
             return new WP_REST_Response($response_body['authorization']['status'] ?? 'Invalid Auth', 400);
@@ -537,6 +658,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     public function handle3dsSuccess($request)
     {
         $parameters = $request->get_params();
+
+        error_log(json_encode($parameters));
 
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
@@ -621,10 +744,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         // Salvar metadados da transação usando helper (mesmo para falhas)
-        $gateway_settings = get_option('woocommerce_rede_debit_settings');
+        $gateway_config = $this->get_dynamic_gateway_config($order);
+        $gateway_settings = $gateway_config['settings'];
         $pv = $gateway_settings['pv'] ?? '';
         $token = $gateway_settings['token'] ?? '';
-        $brand = !empty($parameters['brand_name']) && trim($parameters['brand_name']) !== '' ? $parameters['brand_name'] : '';
+        $brand = !empty($parameters['brand_name']) && trim($parameters['brand_name']) !== '' && trim($parameters['brand_name']) !== 'undefined' ? $parameters['brand_name'] : '';
         
         // Adicionar dados do erro no webhook_data
         $error_webhook_data = $parameters;
@@ -641,8 +765,10 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
         $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : get_option('woocommerce_currency', 'BRL');
         
-        // Criar instância temporária do gateway para passar ao helper
-        $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+        // Obter gateway e configurações dinamicamente
+        $gateway_config = $this->get_dynamic_gateway_config($order);
+        $gateway = $gateway_config['gateway_instance'];
+        $gateway_settings = $gateway_config['settings'];
 
         LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
             $order, 
@@ -654,8 +780,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $order->get_total(), 
             $order_currency, 
             $brand, 
-            $pv, 
-            $token,
+            $gateway_settings['pv'] ?? '', 
+            $gateway_settings['token'] ?? '',
             $parameters['reference'] ?? '', 
             $order->get_id(), 
             'N/A', // capture = false para falha
@@ -692,9 +818,10 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Para 3DS, recuperar o card_type dos metadados do pedido
         $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
         
-        // Obter configuração de auto_capture do gateway debit
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
-        $auto_capture = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
+        // Obter configuração de auto_capture do gateway dinamicamente
+        $gateway_config = $this->get_dynamic_gateway_config($order);
+        $gateway_settings = $gateway_config['settings'];
+        $auto_capture = sanitize_text_field($gateway_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
 
         // Determinar se foi capturado baseado no tipo de cartão e configuração
         $capture = ($saved_card_type === 'debit') ? true : $auto_capture;
@@ -709,7 +836,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             if ($return_code == '00') {
                 if ($capture) {
                     // Status configurável pelo usuário para pagamentos aprovados com captura
-                    $payment_complete_status = $debit_settings['payment_complete_status'] ?? 'processing';
+                    $payment_complete_status = $gateway_settings['payment_complete_status'] ?? 'processing';
                     $order->update_status($payment_complete_status);
                 } else {
                     // Para pagamentos credit sem captura, aguardando captura manual
@@ -724,8 +851,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
     public function regOrderLogs($orderId, $order_total, $cardData, $transaction, $order, $brand = null): void
     {
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
-        if (($debit_settings['debug'] ?? 'no') === 'yes') {
+        // Obter configurações do gateway dinamicamente
+        $gateway_config = $this->get_dynamic_gateway_config($order);
+        $gateway_settings = $gateway_config['settings'];
+        $gateway = $gateway_config['gateway_instance'];
+        
+        if (($gateway_settings['debug'] ?? 'no') === 'yes') {
             $tId = null;
             $returnCode = null;
             
@@ -737,7 +868,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 }
                 
                 if ($tId) {
-                    $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
                     $brand = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
                 }
             }
@@ -746,7 +876,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
             $currency_json_path = INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/files/linkCurrencies.json';
             $currency_data = LknIntegrationRedeForWoocommerceHelper::lkn_get_currency_rates($currency_json_path);
-            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled('rede_debit');
+            $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled(self::GATEWAY_DEBIT);
 
             $exchange_rate_value = 1;
             if ($convert_to_brl_enabled && $currency_data !== false && is_array($currency_data) && isset($currency_data['rates']) && isset($currency_data['base'])) {
@@ -834,15 +964,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         try {
             // Determina o gateway usado para buscar configurações corretas
             $payment_method = $order->get_payment_method();
-            $gateway_id = 'rede_debit'; // default
+            $gateway_mapping = $this->get_gateway_mapping();
+            $gateway_config = $gateway_mapping[$payment_method] ?? $gateway_mapping[self::DEFAULT_GATEWAY];
+            $gateway_id = $gateway_config['gateway_id'];
+            
             $gateway_settings = get_option('woocommerce_' . $gateway_id . '_settings', array());
             $environment = isset($gateway_settings['environment']) ? $gateway_settings['environment'] : 'test';
-            // Mapeia método de pagamento para gateway ID
-            if (strpos($payment_method, 'rede_credit') !== false) {
-                $gateway_id = 'rede_credit';
-            } elseif (strpos($payment_method, 'rede_debit') !== false) {
-                $gateway_id = 'rede_debit';
-            }
             
             // Obtém token OAuth2 válido
             LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
@@ -923,15 +1050,27 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         try {
             // Obtém token OAuth2 válido
             LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
-            $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway('rede_debit', 'test'); // ou 'production'
+            $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway(self::GATEWAY_DEBIT, 'test'); // ou 'production'
 
             if (!$token_data || empty($token_data['token'])) {
                 throw new Exception('Could not obtain OAuth token');
             }
 
             // Determine environment (you might need to get this from settings)
-            $debit_settings = get_option('woocommerce_rede_debit_settings');
-            $environment = $debit_settings['environment'] ?? 'test';
+            // Extrair order_id da reference para obter as configurações dinâmicas
+            $reference_parts = explode('-', $reference);
+            $order_id = intval($reference_parts[0] ?? 0);
+            $gateway_settings = array('environment' => 'test'); // fallback
+            
+            if ($order_id > 0) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    $gateway_config = $this->get_dynamic_gateway_config($order);
+                    $gateway_settings = $gateway_config['settings'];
+                }
+            }
+            
+            $environment = $gateway_settings['environment'] ?? 'test';
 
             if ($environment === 'production') {
                 $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $reference;
@@ -971,11 +1110,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
      */
     private function update_order_metadata_and_status($order, $webhook_data)
     {
-        // Configurações do gateway debit
-        $debit_settings = get_option('woocommerce_rede_debit_settings');
+        // Configurações do gateway dinamicamente
+        $gateway_config = $this->get_dynamic_gateway_config($order);
+        $gateway_settings = $gateway_config['settings'];
+        $gateway = $gateway_config['gateway_instance'];
         
         // Configurações para conversão de moeda
-        $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled('rede_debit');
+        $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled(self::GATEWAY_DEBIT);
         $default_currency = get_option('woocommerce_currency', 'BRL');
         $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
         $decimals = get_option('woocommerce_price_num_decimals', 2);
@@ -999,6 +1140,9 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             }
         }
 
+        $brand = !empty($webhook_data['brand_name']) && trim($webhook_data['brand_name']) !== '' && trim($webhook_data['brand_name']) !== 'undefined' ? ucfirst($webhook_data['brand_name']) : '';
+
+
         // Salva todos os metadados da transação
         $order->update_meta_data('_wc_rede_transaction_return_code', $webhook_data['returnCode'] ?? '');
         $order->update_meta_data('_wc_rede_transaction_return_message', $webhook_data['returnMessage'] ?? '');
@@ -1011,12 +1155,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         
         // Dados do cartão - alguns podem não vir no webhook, usar valores padrão
         $order->update_meta_data('_wc_rede_transaction_bin', $webhook_data['bin'] ?? '');
-        $order->update_meta_data('_wc_rede_transaction_card_brand', $webhook_data['brand_name'] ?? '');
+        $order->update_meta_data('_wc_rede_transaction_card_brand', $brand);
         
         // Auto capture condicional baseado no tipo de cartão salvo nos metadados
         $saved_card_type = $order->get_meta('_wc_rede_card_type') ?: 'debit';
         $saved_installments = $order->get_meta('_wc_rede_installments') ?: 1;
-        $auto_capture_setting = sanitize_text_field($debit_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
+        $auto_capture_setting = sanitize_text_field($gateway_settings['auto_capture'] ?? 'yes') == 'no' ? false : true;
         
         // Sempre true para debit, configurável para credit
         $capture_value = ($saved_card_type === 'debit') ? true : $auto_capture_setting;
@@ -1035,16 +1179,14 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         // Ambiente de transação
-        $environment = $debit_settings['environment'] ?? 'test';
+        $environment = $gateway_settings['environment'] ?? 'test';
         $order->update_meta_data('_wc_rede_transaction_environment', $environment);
 
         $order->save();
 
         // Salvar metadados da transação usando helper
-        $gateway_settings = get_option('woocommerce_rede_debit_settings');
         $pv = $gateway_settings['pv'] ?? '';
         $token = $gateway_settings['token'] ?? '';
-        $brand = $webhook_data['brand_name'] ?? '';
 
         $webhook_data['return_http'] = '200';
         $webhook_data['3ds_auth'] = 'success';
@@ -1062,9 +1204,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'card_cvv' => $order->get_meta('_wc_rede_transaction_cvv') ?: '***',
             'card_type' => $saved_card_type
         );
-        
-        // Criar instância temporária do gateway para passar ao helper
-        $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
         
         LknIntegrationRedeForWoocommerceHelper::saveTransactionMetadata(
             $order, 
@@ -1092,20 +1231,19 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         );
 
         // Debug logging se habilitado
-        if (($debit_settings['debug'] ?? 'no') === 'yes') {
+        if (($gateway_settings['debug'] ?? 'no') === 'yes') {
             $tId = $webhook_data['tid'] ?? null;
             $returnCode = $webhook_data['returnCode'] ?? null;
             $brandDetails = null;
             
             if ($tId) {
-                // Cria uma instância temporária do gateway para usar o helper
-                $gateway = new \Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceWcRedeDebit();
+                // Usa a instância já obtida do gateway para usar o helper
                 $brandDetails = LknIntegrationRedeForWoocommerceHelper::getTransactionBrandDetails($tId, $gateway);
             }
 
             $logger = wc_get_logger();
             $logger->info('3DS Webhook - Transaction processed', array(
-                'source' => 'rede_debit',
+                'source' => $gateway_config['gateway_id'],
                 'transaction' => $webhook_data,
                 'order' => array(
                     'orderId' => $order->get_id(),
@@ -1129,6 +1267,43 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // Processa status do pedido usando a função específica para 3DS (inclui lógica de auto_capture)
         $this->process_3ds_order_status($order, $webhook_data, '3D Secure authentication completed');
+    }
+
+    /**
+     * Detecta dinamicamente o gateway e suas configurações baseado no método de pagamento
+     * 
+     * @param WC_Order $order O pedido do WooCommerce
+     * @return array Array contendo 'settings', 'gateway_instance' e 'gateway_id'
+     */
+    private function get_dynamic_gateway_config($order)
+    {
+        $payment_method = $order->get_payment_method();
+        $gateway_mapping = $this->get_gateway_mapping();
+        
+        // Busca a configuração do gateway baseada no payment method
+        $gateway_config = $gateway_mapping[$payment_method] ?? $gateway_mapping[self::DEFAULT_GATEWAY];
+        
+        $gateway_id = $gateway_config['gateway_id'];
+        $settings = get_option('woocommerce_' . $gateway_id . '_settings', array());
+        
+        // Instancia a classe do gateway apropriada
+        $gateway_instance = null;
+        
+        // Verifica se a classe existe antes de instanciar
+        if (class_exists($gateway_config['class'])) {
+            $gateway_instance = new $gateway_config['class']();
+        } else {
+            // Fallback para a classe padrão se a classe não existir (ex: plugin PRO não ativo)
+            $fallback_config = $gateway_mapping[self::DEFAULT_GATEWAY];
+            $gateway_instance = new $fallback_config['class']();
+        }
+        
+        return array(
+            'settings' => $settings,
+            'gateway_instance' => $gateway_instance,
+            'gateway_id' => $gateway_id,
+            'config' => $gateway_config
+        );
     }
 
 }

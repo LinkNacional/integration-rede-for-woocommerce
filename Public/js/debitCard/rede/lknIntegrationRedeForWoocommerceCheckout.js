@@ -274,7 +274,7 @@ const ContentRedeDebit = props => {
     }, 400); // 400ms de debounce
   };
 
-  // Intercepta requisições para atualizar parcelas após mudanças no shipping
+  // Intercepta requisições para atualizar parcelas após mudanças no shipping e cart totals
   window.wp.element.useEffect(() => {
     // Sempre faz a requisição para atualizar a sessão (tanto para crédito quanto débito)
     generateRedeInstallmentOptions();
@@ -286,7 +286,10 @@ const ContentRedeDebit = props => {
       updateDebitObject('rede_debit_installments', '1');
     }
 
-    // Intercepta o fetch original para capturar requisições de shipping
+    // Store do valor total atual para comparação
+    let currentCartTotal = settingsRedeDebit.cartTotal || 0;
+
+    // Intercepta o fetch original para capturar requisições da Store API
     const originalFetch = window.fetch;
     window.fetch = function(...args) {
       const [url, options] = args;
@@ -311,6 +314,82 @@ const ContentRedeDebit = props => {
                 generateRedeInstallmentOptions();
               }
             }, 500);
+          }
+          
+          // Retorna a response original
+          return response;
+        }).catch(error => {
+          // Em caso de erro, retorna a response original
+          return originalFetch.apply(this, args);
+        });
+      }
+      
+      // Verifica se é uma requisição batch da WooCommerce Store API
+      if (url && url.includes('/wp-json/wc/store/v1/batch')) {
+        // Executa a requisição original
+        return originalFetch.apply(this, args).then(response => {
+          // Clona a response para poder ler o conteúdo e verificar mudanças no total
+          const responseClone = response.clone();
+          
+          // Verifica se a requisição foi bem-sucedida
+          if (response.ok) {
+            // Lê o conteúdo da resposta para verificar se há mudanças no total
+            responseClone.json().then(batchData => {
+              let totalChanged = false;
+              
+              // Verifica se há dados de carrinho na resposta batch
+              if (batchData && batchData.responses) {
+                batchData.responses.forEach(batchResponse => {
+                  // Verifica se é uma resposta de carrinho e se tem dados válidos
+                  if (batchResponse && batchResponse.body && 
+                      (batchResponse.body.totals || batchResponse.body.cart_totals)) {
+                    
+                    const cartData = batchResponse.body;
+                    let newTotal = 0;
+                    
+                    // Extrai o total do carrinho da resposta
+                    if (cartData.totals && cartData.totals.total_price) {
+                      // Parse do valor removendo símbolos de moeda
+                      const totalString = cartData.totals.total_price.replace(/[^\d.,]/g, '');
+                      const normalizedTotal = totalString.replace(',', '.');
+                      newTotal = parseFloat(normalizedTotal) || 0;
+                    } else if (cartData.cart_totals && cartData.cart_totals.total_price) {
+                      // Parse do valor removendo símbolos de moeda
+                      const totalString = cartData.cart_totals.total_price.replace(/[^\d.,]/g, '');
+                      const normalizedTotal = totalString.replace(',', '.');
+                      newTotal = parseFloat(normalizedTotal) || 0;
+                    }
+                    
+                    // Compara com o total atual (tolerância de 0.01 para diferenças de arredondamento)
+                    if (Math.abs(newTotal - currentCartTotal) > 0.01) {
+                      totalChanged = true;
+                      currentCartTotal = newTotal;
+                      
+                      // Log para debug
+                      console.log('WooCommerce Store API Batch: Total do carrinho mudou de', 
+                                  (currentCartTotal - newTotal + newTotal), 'para', newTotal);
+                    }
+                  }
+                });
+              }
+              
+              // Se o total mudou e é cartão de crédito, atualiza as parcelas
+              if (totalChanged && (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit')) {
+                console.log('Atualizando lista de parcelamento devido à mudança no total do carrinho...');
+                
+                // Aguarda um momento para garantir que os dados foram processados
+                setTimeout(() => {
+                  // Limpa as opções atuais e busca as novas
+                  setOptions([]);
+                  setSelectedValue('1');
+                  updateDebitObject('rede_debit_installments', '1');
+                  generateRedeInstallmentOptions();
+                }, 300);
+              }
+            }).catch(error => {
+              // Em caso de erro ao processar o JSON, apenas continua
+              console.warn('Erro ao processar dados do batch da Store API:', error);
+            });
           }
           
           // Retorna a response original

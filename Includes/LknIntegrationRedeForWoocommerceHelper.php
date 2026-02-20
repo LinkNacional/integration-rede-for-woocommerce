@@ -1238,7 +1238,7 @@ class LknIntegrationRedeForWoocommerceHelper
             'gateway' => [
                 'masked' => $gatewayMasked,
                 'type' => $displayType,
-                'brand' => $brand,
+                'brand' => !empty($brand) ? ucfirst($brand) : 'N/A',
                 'expiry' => $cardExpiryFormatted,
                 'holder_name' => !empty($cardHolder) ? $cardHolder : 'N/A',
             ],

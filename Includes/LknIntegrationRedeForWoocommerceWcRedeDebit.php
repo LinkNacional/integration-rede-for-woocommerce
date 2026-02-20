@@ -184,7 +184,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Processa transação de débito/crédito
      */
-    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order = null, $order_id, $order_currency = 'BRL', $creditExpiry = '')
+    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order_id, $order = null, $order_currency = 'BRL', $creditExpiry = '')
     {
         $access_token = $this->get_oauth_token($order_id);
         
@@ -1364,7 +1364,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 
                 $order->save();
                 
-                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $order, $orderId, $order_currency, $debitExpiry);
+                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $orderId, $order, $order_currency, $debitExpiry);
 
                 // Handle 3DS authentication requirement - verificar se tem threeDSecure na resposta
                 if (isset($transaction_response['threeDSecure']) && isset($transaction_response['threeDSecure']['url']) && !empty($transaction_response['threeDSecure']['url'])) {
