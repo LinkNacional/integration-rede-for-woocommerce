@@ -4,7 +4,8 @@
 [for="payment_method_maxipago_credit"] img,
 [for="payment_method_maxipago_debit"] img,
 [for="payment_method_maxipago_pix"] img,
-[for="payment_method_rede_pix"] img
+[for="payment_method_rede_pix"] img,
+[for="payment_method_rede_google_pay"] img
 {
     display: none !important;
 }
