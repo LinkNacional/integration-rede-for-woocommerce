@@ -433,7 +433,7 @@
                 let message = '#suporte-info Olá! Preciso de suporte com meu gateway de pagamento Rede. Estou com problemas na transação e segue os dados para verificação:';
                 message += ` Gateway: ${gatewayId} | Site: ${siteDomain} | Plugin: lkn-integration-rede-for-woocommerce v${lknWcRedeTranslationsInput.version_free} | Plugin dependente: ${lknWcRedeTranslationsInput.version_pro && lknWcRedeTranslationsInput.version_pro !== 'N/A' ? 'lkn-integration-rede-for-woocommerce-pro v' + lknWcRedeTranslationsInput.version_pro : 'N/A'} | `;
                 message += gatewayId.includes('pix') ? 'endpoint: ' + (lknWcRedeTranslationsInput.endpointStatus ? 'true' : 'null') + ' | ' : '';
-                const sensitiveKeys = ['pv', 'token', 'license', 'card_token'];
+                const sensitiveKeys = ['pv', 'token', 'license', 'card_token', 'google_pay_private_key', 'google_pay_public_key'];
 
                 Object.keys(settings).forEach(function(key) {
                     if (key === 'rede') return;
