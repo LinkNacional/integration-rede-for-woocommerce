@@ -659,8 +659,6 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     {
         $parameters = $request->get_params();
 
-        error_log(json_encode($parameters));
-
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
         $tid = sanitize_text_field($parameters['tid'] ?? '');

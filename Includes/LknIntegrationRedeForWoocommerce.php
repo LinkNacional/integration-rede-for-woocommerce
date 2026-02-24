@@ -618,9 +618,6 @@ final class LknIntegrationRedeForWoocommerce
             }
             $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
 
-            error_log('cheguei aquiiii');
-            error_log($apply_pro_features);
-
             // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
             if ($apply_pro_features) {
                 $label = $this->get_installment_label_with_interest($i, $base_label, self::GATEWAY_DEBIT);
@@ -746,8 +743,6 @@ final class LknIntegrationRedeForWoocommerce
     private function get_installment_label_with_interest($installment_number, $base_label, $gateway = null)
     {
         // Default to credit gateway if not specified
-        error_log($installment_number);
-        error_log($gateway);
         if ($gateway === null) {
             $gateway = self::GATEWAY_CREDIT;
         }
