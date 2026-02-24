@@ -364,10 +364,6 @@ const ContentRedeDebit = props => {
                     if (Math.abs(newTotal - currentCartTotal) > 0.01) {
                       totalChanged = true;
                       currentCartTotal = newTotal;
-                      
-                      // Log para debug
-                      console.log('WooCommerce Store API Batch: Total do carrinho mudou de', 
-                                  (currentCartTotal - newTotal + newTotal), 'para', newTotal);
                     }
                   }
                 });
@@ -375,8 +371,6 @@ const ContentRedeDebit = props => {
               
               // Se o total mudou e é cartão de crédito, atualiza as parcelas
               if (totalChanged && (cardTypeRestriction === 'credit_only' || debitObject.card_type === 'credit')) {
-                console.log('Atualizando lista de parcelamento devido à mudança no total do carrinho...');
-                
                 // Aguarda um momento para garantir que os dados foram processados
                 setTimeout(() => {
                   // Limpa as opções atuais e busca as novas

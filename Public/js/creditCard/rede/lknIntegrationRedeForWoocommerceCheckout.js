@@ -194,10 +194,6 @@ const ContentRedeCredit = props => {
                     if (Math.abs(newTotal - currentCartTotal) > 0.01) {
                       totalChanged = true;
                       currentCartTotal = newTotal;
-                      
-                      // Log para debug
-                      console.log('WooCommerce Store API Batch (Rede Credit): Total do carrinho mudou de', 
-                                  (currentCartTotal - newTotal + newTotal), 'para', newTotal);
                     }
                   }
                 });
@@ -205,8 +201,6 @@ const ContentRedeCredit = props => {
               
               // Se o total mudou, atualiza as parcelas
               if (totalChanged) {
-                console.log('Atualizando lista de parcelamento de crédito devido à mudança no total do carrinho...');
-                
                 // Aguarda um momento para garantir que os dados foram processados
                 setTimeout(() => {
                   // Limpa as opções atuais e busca as novas
