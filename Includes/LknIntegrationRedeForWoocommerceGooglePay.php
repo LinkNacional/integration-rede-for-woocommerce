@@ -443,6 +443,8 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             true
         );
 
+        $license_valid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid() ? true : false;
+
         // Passar configurações e nonce para o JavaScript
         wp_localize_script('rede-google-pay-for-shortcode', 'redeGooglePayConfig', array(
             'environment' => $this->get_option('environment') === 'production' ? 'PRODUCTION' : 'TEST',
@@ -456,6 +458,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             'google_merchant_id' => $this->get_option('google_merchant_id', 'google_merchant'),
             'google_pay_public_key' => $this->get_option('google_pay_public_key', ''),
             'google_text_button' => $this->get_option('google_text_button', 'pay'),
+            'license_valid' => $license_valid,
         ));
 
         // Incluir template com variáveis

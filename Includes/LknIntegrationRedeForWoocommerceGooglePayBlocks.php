@@ -55,7 +55,13 @@ final class LknIntegrationRedeForWoocommerceGooglePayBlocks extends AbstractPaym
             INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
             true
         );
-        
+
+        // Localize: validação de licença (true/false)
+        $license_valid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid() ? true : false;
+        wp_localize_script('rede_google_pay-blocks-integration', 'lknGooglePayBlocksVars', array(
+            'license_valid' => $license_valid
+        ));
+
         if( function_exists( 'wp_set_script_translations' ) ) {            
             wp_set_script_translations( 'rede_google_pay-blocks-integration');
         }

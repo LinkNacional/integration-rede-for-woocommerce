@@ -1709,7 +1709,8 @@ final class LknIntegrationRedeForWoocommerce
             'pro_version' => 'https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin-rede-free-transaction',
             'site_domain' => home_url(),
             'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
-            'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A'
+            'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A',
+            'whatsapp_number' => LKN_WC_REDE_WPP_NUMBER
         ));
 
         // Adiciona tradução se necessário

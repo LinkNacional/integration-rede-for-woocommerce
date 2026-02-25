@@ -24,8 +24,6 @@ if (! defined('LKN_WC_REDE_WPP_NUMBER')) {
     define('LKN_WC_REDE_WPP_NUMBER', '551135223406');
 }
 
-
-
 if (! defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE')) {
     define('INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE', __DIR__ . '/integration-rede-for-woocommerce.php');
 }

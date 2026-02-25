@@ -478,7 +478,7 @@ const RedeAnalyticsPage = () => {
     // Função para gerar link do WhatsApp
     const generateWhatsAppLink = (transactionData: any) => {
         const message = generateWhatsAppMessage(transactionData);
-        return `https://api.whatsapp.com/send/?phone=551135223406&text=${encodeURIComponent(message)}`;
+        return `https://api.whatsapp.com/send/?phone=${(window as any).lknRedeAjax.whatsapp_number || ''}&text=${encodeURIComponent(message)}`;
     };
 
     // Função para buscar dados via AJAX

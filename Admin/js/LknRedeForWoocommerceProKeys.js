@@ -45,12 +45,14 @@ jQuery(document).ready(function($) {
     function createRegenerateButton(type) {
         const fieldId = type === 'public' ? 'woocommerce_rede_google_pay_google_pay_public_key' : 'woocommerce_rede_google_pay_google_pay_private_key';
         
+        // Botão de copiar
+        // <button type="button" class="button lkn-copy-key-btn" data-field="${fieldId}" style="margin-right: 5px;">
+        //     <span class="dashicons dashicons-clipboard" style="vertical-align: middle;"></span>
+        //     <span>Copiar</span>
+        // </button>
+
         return $(`
             <div class="lkn-keys-button-container" style="margin-top: 10px;">
-                <button type="button" class="button lkn-copy-key-btn" data-field="${fieldId}" style="margin-right: 5px;">
-                    <span class="dashicons dashicons-clipboard" style="vertical-align: middle;"></span>
-                    <span>Copiar</span>
-                </button>
                 <button type="button" class="button lkn-regenerate-keys-btn" data-type="${type}">
                     <span class="dashicons dashicons-update" style="vertical-align: middle;"></span>
                     <span class="btn-text">Gerar Novas Chaves</span>

@@ -147,6 +147,7 @@ jQuery(document).ready(function ($) {
             const button = paymentsClient.createButton({
                 onClick: () => handleGooglePayClickClassic(paymentsClient, baseConfig),
                 allowedPaymentMethods: [baseConfig],
+                buttonLocale: redeGooglePayConfig.license_valid ? 'pt' : 'en',
                 buttonType: settingsGooglePay.google_text_button || 'pay'
             });
             container.appendChild(button);
@@ -260,6 +261,7 @@ const ContentGooglePay = (props) => {
             const button = paymentsClient.createButton({
                 onClick: () => handleGooglePayClickBlocks(paymentsClient, baseConfig),
                 allowedPaymentMethods: [baseConfig],
+                buttonLocale: redeGooglePayConfig.license_valid ? 'pt' : 'en',
                 buttonType: settingsGooglePay.google_text_button || 'pay'
             });
             container.appendChild(button);
