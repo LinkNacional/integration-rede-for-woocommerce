@@ -99,6 +99,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCreditBlocks extends Abstr
             for ($i = 1; $i <= $maxParcels; ++$i) {
                 $parcelAmount = $cart_total / $i;
                 if ($i === 1 || $parcelAmount >= $minParcelValue) {
+                    /* translators: %1$d: number of installments, %2$s: installment price */
                     $phpArray[$i . 'x'] = html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($parcelAmount))));
                 }
             }

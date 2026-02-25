@@ -228,7 +228,7 @@ final class LknIntegrationRedeForWoocommerceWcPixRede extends WC_Payment_Gateway
                 }
 
                 $this->form_fields['transactions'] = array(
-                    'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+                    'title' => esc_attr__('Transactions', 'woo-rede'),
                     'id' => 'transactions_title',
                     'type'  => 'title',
                 );

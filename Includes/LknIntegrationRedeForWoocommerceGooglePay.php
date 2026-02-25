@@ -187,6 +187,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                         'type'        => 'text',
                         'desc_tip'    => __('Your unique Merchant ID is required to process live transactions.', 'woo-rede'),
                         'description' => sprintf(
+                            /* translators: %s: HTML link to the Google Pay Console for finding the Merchant ID. */
                             __('Required for Production. Find your ID in the Google Pay Console. %s', 'woo-rede'),
                             '<a href="https://pay.google.com/business/console/" target="_blank">' . __('Click here', 'woo-rede') . '</a>'
                         ),
@@ -320,7 +321,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                 );
 
                 // Verificar se estamos salvando configurações para usar valores atuais
-                $is_saving = isset($_POST['save']) && wp_verify_nonce($_POST['_wpnonce'], 'woocommerce-settings');
+                $is_saving = isset($_POST['save']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'woocommerce-settings');
                 $current_debug_value = 'no';
 
                 $proVersionActive = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
@@ -340,7 +341,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                         'type'  => 'button',
                         'id'    => 'sendConfigs',
                         'description' => __('Enable Debug Mode and click Save Changes to get quick support via WhatsApp.', 'woo-rede'),
-                        'desc_tip' => __('', 'woo-rede'),
+                        'desc_tip' => null,
                         'custom_attributes' => array(
                             'merge-top' => "woocommerce_{$this->id}_debug",
                             'data-title-description' => __('Send the settings for this payment method to WordPress Support.', 'woo-rede')
@@ -423,12 +424,16 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
 
     public function payment_fields(): void
     {
-        // Enqueue Google Pay API
+        /**
+         * External script required for Google Pay integration.
+         * This is the official Google Pay JS library and is necessary for payment processing.
+         * plugin-check-ignore
+         */
         wp_enqueue_script(
             'google-pay-api',
             'https://pay.google.com/gp/p/js/pay.js',
             array(),
-            null,
+            INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
             true
         );
 
@@ -481,7 +486,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             return;
         }
 
-        $google_pay_token = isset($_POST['google_pay_token']) ? $_POST['google_pay_token'] : '';
+        $google_pay_token = isset($_POST['google_pay_token']) ? sanitize_text_field(wp_unslash($_POST['google_pay_token'])) : '';
         
         if (empty($google_pay_token)) {
             wc_add_notice(__('Google Pay token is required.', 'woo-rede'), 'error');
@@ -505,6 +510,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             if ($convert_to_brl_enabled) {
                 $order->add_order_note(
                     sprintf(
+                        /* translators: %s: The original order currency code (e.g., USD, EUR) that was converted to BRL. */
                         __('Order currency %s converted to BRL.', 'woo-rede'),
                         $order_currency
                     )
@@ -545,6 +551,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                 );
             } else {
                 $error_message = isset($result['message']) ? $result['message'] : __('Payment failed', 'woo-rede');
+                /* translators: %s: The error message returned when a Google Pay payment fails. */
                 $order->add_order_note(sprintf(__('Google Pay payment failed: %s', 'woo-rede'), $error_message));
                 wc_add_notice($error_message, 'error');
                 return array(
@@ -554,6 +561,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             }
 
         } catch (Exception $e) {
+            /* translators: %s: The error message returned when a Google Pay payment fails. */
             $order->add_order_note(sprintf(__('Google Pay payment error: %s', 'woo-rede'), $e->getMessage()));
             wc_add_notice(__('Payment processing failed. Please try again.', 'woo-rede'), 'error');
             return array(

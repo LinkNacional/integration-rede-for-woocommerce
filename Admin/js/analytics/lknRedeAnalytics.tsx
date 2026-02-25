@@ -687,7 +687,7 @@ const RedeAnalyticsPage = () => {
     // Função para exportar dados em CSV
     const exportToCSV = () => {
         if (transactionData.length === 0) {
-            alert(__('Não há dados para exportar', 'lkn-integration-rede-for-woocommerce'));
+            alert(__('No data to export', 'woo-rede'));
             return;
         }
 
@@ -806,7 +806,7 @@ const RedeAnalyticsPage = () => {
     // Função para exportar dados em XLS (Excel)
     const exportToXLS = () => {
         if (transactionData.length === 0) {
-            alert(__('Não há dados para exportar', 'lkn-integration-rede-for-woocommerce'));
+            alert(__('No data to export', 'woo-rede'));
             return;
         }
 
@@ -991,11 +991,11 @@ const RedeAnalyticsPage = () => {
                 transaction[24] || 'N/A', // HTTP Status
                 transaction[25] || 'N/A', // Portador
                 transaction[26] || html(
-                    `<a href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 6px 12px; background-color: #25D366; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; transition: background-color 0.3s;" title="${escapeHtml(__('Abrir WhatsApp para suporte', 'lkn-integration-rede-for-woocommerce'))}" onmouseover="this.style.backgroundColor='#128C7E'" onmouseout="this.style.backgroundColor='#25D366'">
+                    `<a href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 6px 12px; background-color: #25D366; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; transition: background-color 0.3s;" title="${escapeHtml(__('Open WhatsApp for support', 'woo-rede'))}" onmouseover="this.style.backgroundColor='#128C7E'" onmouseout="this.style.backgroundColor='#25D366'">
                         <svg style="width: 16px; height: 16px; margin-right: 4px; fill: currentColor;" viewBox="0 0 24 24">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.087z"/>
                         </svg>
-                        ${escapeHtml(__('Suporte', 'lkn-integration-rede-for-woocommerce'))}
+                        ${escapeHtml(__('Support', 'woo-rede'))}
                     </a>`
                 ) // Suporte
             ];
@@ -1106,11 +1106,11 @@ const RedeAnalyticsPage = () => {
                     break;
                 case 'whatsapp':
                     value = html(
-                        `<a href="${generateWhatsAppLink(transaction)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 6px 12px; background-color: #25D366; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; transition: background-color 0.3s;" title="${escapeHtml(__('Abrir WhatsApp para suporte', 'lkn-integration-rede-for-woocommerce'))}" onmouseover="this.style.backgroundColor='#128C7E'" onmouseout="this.style.backgroundColor='#25D366'">
+                        `<a href="${generateWhatsAppLink(transaction)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 6px 12px; background-color: #25D366; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; transition: background-color 0.3s;" title="${escapeHtml(__('Open WhatsApp for support', 'woo-rede'))}" onmouseover="this.style.backgroundColor='#128C7E'" onmouseout="this.style.backgroundColor='#25D366'">
                             <svg style="width: 16px; height: 16px; margin-right: 4px; fill: currentColor;" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.087z"/>
                             </svg>
-                            ${escapeHtml(__('Suporte', 'lkn-integration-rede-for-woocommerce'))}
+                            ${escapeHtml(__('Support', 'woo-rede'))}
                         </a>`
                     );
                     break;
@@ -1185,21 +1185,21 @@ const RedeAnalyticsPage = () => {
                 },
                 language: {
                     search: {
-                        placeholder: __('Buscar transações...', 'lkn-integration-rede-for-woocommerce')
+                        placeholder: __('Search transactions...', 'woo-rede')
                     },
                     pagination: {
-                        previous: __('Anterior', 'lkn-integration-rede-for-woocommerce'),
-                        next: __('Próxima', 'lkn-integration-rede-for-woocommerce'),
-                        navigate: (page: number, pages: number) => `${__('Página', 'lkn-integration-rede-for-woocommerce')} ${page} ${__('de', 'lkn-integration-rede-for-woocommerce')} ${pages}`,
-                        page: (page: number) => `${__('Página', 'lkn-integration-rede-for-woocommerce')} ${page}`,
-                        showing: __('Mostrando', 'lkn-integration-rede-for-woocommerce'),
-                        of: __('de', 'lkn-integration-rede-for-woocommerce'),
-                        to: __('a', 'lkn-integration-rede-for-woocommerce'),
-                        results: () => __('registros', 'lkn-integration-rede-for-woocommerce')
+                        previous: __('Previous', 'woo-rede'),
+                        next: __('Next', 'woo-rede'),
+                        navigate: (page: number, pages: number) => `${__('Page', 'woo-rede')} ${page} ${__('of', 'woo-rede')} ${pages}`,
+                        page: (page: number) => `${__('Page', 'woo-rede')} ${page}`,
+                        showing: __('Showing', 'woo-rede'),
+                        of: __('of', 'woo-rede'),
+                        to: __('to', 'woo-rede'),
+                        results: () => __('records', 'woo-rede')
                     },
-                    loading: __('Carregando...', 'lkn-integration-rede-for-woocommerce'),
-                    noRecordsFound: __('Nenhuma transação encontrada', 'lkn-integration-rede-for-woocommerce'),
-                    error: __('Ocorreu um erro ao carregar os dados', 'lkn-integration-rede-for-woocommerce')
+                    loading: __('Loading...', 'woo-rede'),
+                    noRecordsFound: __('No transactions found', 'woo-rede'),
+                    error: __('An error occurred while loading data', 'woo-rede')
                 }
             });
 
@@ -1269,7 +1269,7 @@ const RedeAnalyticsPage = () => {
                         >
                             <img 
                                 src={analyticsData.screenshot_url} 
-                                alt={__('Click to upgrade to Rede Analytics PRO', 'lkn-integration-rede-for-woocommerce')}
+                                alt={__('Click to upgrade to Rede Analytics PRO', 'woo-rede')}
                                 style={{
                                     width: '100%',
                                     height: 'auto',
@@ -1309,7 +1309,7 @@ const RedeAnalyticsPage = () => {
                                     fontSize: '16px',
                                     minWidth: 'max-content'
                                 }}>
-                                    {__('Configuração de Colunas', 'lkn-integration-rede-for-woocommerce')}
+                                    {__('Column Configuration', 'woo-rede')}
                                 </h3>
                                 <div style={{ 
                                     display: 'flex', 
@@ -1329,7 +1329,7 @@ const RedeAnalyticsPage = () => {
                                             borderRadius: '3px'
                                         }}
                                     >
-                                        {__('Restaurar Padrão', 'lkn-integration-rede-for-woocommerce')}
+                                        {__('Restore Default', 'woo-rede')}
                                     </button>
                                     <button
                                         onClick={() => setShowColumnConfig(false)}
@@ -1343,7 +1343,7 @@ const RedeAnalyticsPage = () => {
                                             borderRadius: '3px'
                                         }}
                                     >
-                                        {__('Fechar', 'lkn-integration-rede-for-woocommerce')}
+                                        {__('Close', 'woo-rede')}
                                     </button>
                                 </div>
                             </div>
@@ -1423,7 +1423,7 @@ const RedeAnalyticsPage = () => {
                                                     fontSize: '10px',
                                                     opacity: index === 0 ? 0.5 : 1
                                                 }}
-                                                title={__('Mover para cima', 'lkn-integration-rede-for-woocommerce')}
+                                                title={__('Move up', 'woo-rede')}
                                             >
                                                 ↑
                                             </button>
@@ -1442,7 +1442,7 @@ const RedeAnalyticsPage = () => {
                                                     fontSize: '10px',
                                                     opacity: index === columnConfig.length - 1 ? 0.5 : 1
                                                 }}
-                                                title={__('Mover para baixo', 'lkn-integration-rede-for-woocommerce')}
+                                                title={__('Move down', 'woo-rede')}
                                             >
                                                 ↓
                                             </button>
@@ -1460,10 +1460,10 @@ const RedeAnalyticsPage = () => {
                                 color: '#1565c0',
                                 border: '1px solid #bbdefb'
                             }}>
-                                <strong>{__('💡 Dicas:', 'lkn-integration-rede-for-woocommerce')}</strong><br/>
-                                • {__('Marque/desmarque as caixas para mostrar/ocultar colunas', 'lkn-integration-rede-for-woocommerce')}<br/>
-                                • {__('Use ↑↓ ou arraste os cards para reordenar as colunas', 'lkn-integration-rede-for-woocommerce')}<br/>
-                                • {__('As configurações são salvas automaticamente', 'lkn-integration-rede-for-woocommerce')}
+                                <strong>{__('💡 Tips:', 'woo-rede')}</strong><br/>
+                                • {__('Check/uncheck boxes to show/hide columns', 'woo-rede')}<br/>
+                                • {__('Use ↑↓ or drag cards to reorder columns', 'woo-rede')}<br/>
+                                • {__('Settings are saved automatically', 'woo-rede')}
                             </div>
                         </div>
                     )}
@@ -1472,7 +1472,7 @@ const RedeAnalyticsPage = () => {
                     <div className="woocommerce-card">
                         <div className="woocommerce-card__header">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-                                <h2>{__('Transações Rede', 'lkn-integration-rede-for-woocommerce')}</h2>
+                                <h2>{__('Rede Transactions', 'woo-rede')}</h2>
                                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                     <button
                                         onClick={() => setShowColumnConfig(!showColumnConfig)}
@@ -1486,9 +1486,9 @@ const RedeAnalyticsPage = () => {
                                             borderRadius: '3px',
                                             cursor: 'pointer'
                                         }}
-                                        title={__('Configurar ordem e visibilidade das colunas', 'lkn-integration-rede-for-woocommerce')}
+                                        title={__('Configure column order and visibility', 'woo-rede')}
                                     >
-                                        ⚙️ {__('Configurar Colunas', 'lkn-integration-rede-for-woocommerce')}
+                                        ⚙️ {__('Configure Columns', 'woo-rede')}
                                     </button>
                                     <button
                                         onClick={exportToCSV}
@@ -1504,9 +1504,9 @@ const RedeAnalyticsPage = () => {
                                             cursor: loading || transactionData.length === 0 ? 'not-allowed' : 'pointer',
                                             opacity: loading || transactionData.length === 0 ? 0.6 : 1
                                         }}
-                                        title={__('Exportar dados em formato CSV', 'lkn-integration-rede-for-woocommerce')}
+                                        title={__('Export data in CSV format', 'woo-rede')}
                                     >
-                                        📄 {__('Exportar CSV', 'lkn-integration-rede-for-woocommerce')}
+                                        📄 {__('Export CSV', 'woo-rede')}
                                     </button>
                                     <button
                                         onClick={exportToXLS}
@@ -1522,9 +1522,9 @@ const RedeAnalyticsPage = () => {
                                             cursor: loading || transactionData.length === 0 ? 'not-allowed' : 'pointer',
                                             opacity: loading || transactionData.length === 0 ? 0.6 : 1
                                         }}
-                                        title={__('Exportar dados em formato Excel', 'lkn-integration-rede-for-woocommerce')}
+                                        title={__('Export data in Excel format', 'woo-rede')}
                                     >
-                                        📊 {__('Exportar XLS', 'lkn-integration-rede-for-woocommerce')}
+                                        📊 {__('Export XLS', 'woo-rede')}
                                     </button>
                                 </div>
                             </div>
@@ -1540,14 +1540,14 @@ const RedeAnalyticsPage = () => {
                                     borderBottom: '1px solid #ddd',
                                     paddingBottom: '5px'
                                 }}>
-                                    {__('Últimas transações:', 'lkn-integration-rede-for-woocommerce')}
+                                    {__('Recent transactions:', 'woo-rede')}
                                 </h3>
                                 
                                 {/* Limite de consultas por sessão */}
                                 <div style={{ marginBottom: '15px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                         <label htmlFor="query-limit-input" style={{ fontSize: '14px', fontWeight: '500', color: '#666' }}>
-                                            {__('Carregar até:', 'lkn-integration-rede-for-woocommerce')}
+                                            {__('Load up to:', 'woo-rede')}
                                         </label>
                                         <input
                                             id="query-limit-input"
@@ -1566,7 +1566,7 @@ const RedeAnalyticsPage = () => {
                                     </div>
                                 </div>
                                 
-                                {/* Datas da consulta */}
+                                {/* Query Dates */}
                                 <div style={{ marginBottom: '15px' }}>
                                     <h4 style={{ 
                                         fontSize: '14px', 
@@ -1574,12 +1574,12 @@ const RedeAnalyticsPage = () => {
                                         marginBottom: '10px',
                                         color: '#666'
                                     }}>
-                                        {__('Datas da consulta:', 'lkn-integration-rede-for-woocommerce')}
+                                        {__('Query Dates:', 'woo-rede')}
                                     </h4>
                                     <form onSubmit={(e) => { e.preventDefault(); applyDateFilters(); }} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                             <label style={{ fontSize: '14px', fontWeight: '500' }}>
-                                                {__('Data Inicial:', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Start Date:', 'woo-rede')}
                                             </label>
                                             <input
                                                 type="date"
@@ -1590,7 +1590,7 @@ const RedeAnalyticsPage = () => {
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                             <label style={{ fontSize: '14px', fontWeight: '500' }}>
-                                                {__('Data Final:', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('End Date:', 'woo-rede')}
                                             </label>
                                             <input
                                                 type="date"
@@ -1605,7 +1605,7 @@ const RedeAnalyticsPage = () => {
                                             className="button button-primary"
                                             style={{ padding: '5px 15px', fontSize: '14px' }}
                                         >
-                                            {__('Filtrar', 'lkn-integration-rede-for-woocommerce')}
+                                            {__('Filter', 'woo-rede')}
                                         </button>
                                     </form>
                                 </div>
@@ -1629,21 +1629,21 @@ const RedeAnalyticsPage = () => {
                                                 className={`button ${activeFilter === 'hoje' ? 'button-primary' : ''}`}
                                                 style={{ padding: '6px 12px', fontSize: '13px' }}
                                             >
-                                                {__('Hoje', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Today', 'woo-rede')}
                                             </button>
                                             <button
                                                 onClick={() => setDateFilter('7dias')}
                                                 className={`button ${activeFilter === '7dias' ? 'button-primary' : ''}`}
                                                 style={{ padding: '6px 12px', fontSize: '13px' }}
                                             >
-                                                {__('Últimos 7 dias', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Last 7 days', 'woo-rede')}
                                             </button>
                                             <button
                                                 onClick={() => setDateFilter('30dias')}
                                                 className={`button ${activeFilter === '30dias' ? 'button-primary' : ''}`}
                                                 style={{ padding: '6px 12px', fontSize: '13px' }}
                                             >
-                                                {__('Últimos 30 dias', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Last 30 days', 'woo-rede')}
                                             </button>
                                             <button
                                                 onClick={() => setActiveFilter('personalizado')}
@@ -1656,7 +1656,7 @@ const RedeAnalyticsPage = () => {
                                                 }}
                                                 disabled={activeFilter !== 'personalizado'}
                                             >
-                                                {__('Personalizado', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Personalizado', 'woo-rede')}
                                             </button>
                                             <button
                                                 onClick={clearDateFilters}
@@ -1664,7 +1664,7 @@ const RedeAnalyticsPage = () => {
                                                 className="button"
                                                 style={{ padding: '6px 12px', fontSize: '13px' }}
                                             >
-                                                {__('Restaurar Padrão', 'lkn-integration-rede-for-woocommerce')}
+                                                {__('Reset Default', 'woo-rede')}
                                             </button>
                                         </div>
                                     </div>
@@ -1672,7 +1672,7 @@ const RedeAnalyticsPage = () => {
                                     {/* Transações por página */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
                                         <label htmlFor="per-page-limit-input" style={{ fontSize: '14px', fontWeight: '500' }}>
-                                            {__('Exibição por página:', 'lkn-integration-rede-for-woocommerce')}
+                                            {__('Items per page:', 'woo-rede')}
                                         </label>
                                         <input
                                             id="per-page-limit-input"
@@ -1695,14 +1695,14 @@ const RedeAnalyticsPage = () => {
                         <div className="woocommerce-card__body">
                             {loading && (
                                 <div className="loading-indicator">
-                                    <p>{__('Carregando transações...', 'lkn-integration-rede-for-woocommerce')}</p>
+                                    <p>{__('Loading transactions...', 'woo-rede')}</p>
                                 </div>
                             )}
                             {error && (
                                 <div className="error-message">
-                                    <p>{__('Erro:', 'lkn-integration-rede-for-woocommerce')} {error}</p>
+                                    <p>{__('Erro:', 'woo-rede')} {error}</p>
                                     <button onClick={() => fetchTransactionData(1)} className="button">
-                                        {__('Tentar novamente', 'lkn-integration-rede-for-woocommerce')}
+                                        {__('Tentar novamente', 'woo-rede')}
                                     </button>
                                 </div>
                             )}
@@ -1710,10 +1710,10 @@ const RedeAnalyticsPage = () => {
                                 <>
                                     {/* Informações de paginação */}
                                     <div style={{ marginBottom: '15px', fontSize: '14px', color: '#666', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '4px' }}>
-                                        {__('Mostrando', 'lkn-integration-rede-for-woocommerce')} {transactionData.length} {__('do total de', 'lkn-integration-rede-for-woocommerce')} {totalCount} {__('transações', 'lkn-integration-rede-for-woocommerce')}
+                                        {__('Showing', 'woo-rede')} {transactionData.length} {__('of total', 'woo-rede')} {totalCount} {__('transactions', 'woo-rede')}
                                         {currentPage > 1 && (
                                             <span style={{ marginLeft: '10px' }}>
-                                                ({__('Página', 'lkn-integration-rede-for-woocommerce')} {currentPage})
+                                                ({__('Page', 'woo-rede')} {currentPage})
                                             </span>
                                         )}
                                     </div>
@@ -1734,7 +1734,7 @@ const RedeAnalyticsPage = () => {
                                                     opacity: loadingMore ? 0.6 : 1
                                                 }}
                                             >
-                                                {loadingMore ? __('Carregando...', 'lkn-integration-rede-for-woocommerce') : __('Carregar mais transações', 'lkn-integration-rede-for-woocommerce')}
+                                                {loadingMore ? __('Loading...', 'woo-rede') : __('Load more transactions', 'woo-rede')}
                                             </button>
                                         </div>
                                     )}
@@ -1758,7 +1758,7 @@ function initRedeAnalytics() {
             ...reports,
             {
                 report: 'rede-transactions',
-                title: __('Rede Transações', 'lkn-integration-rede-for-woocommerce'),
+                title: __('Rede Transactions', 'woo-rede'),
                 component: RedeAnalyticsPage
             }
         ]

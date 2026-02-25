@@ -154,6 +154,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $capture = $transaction_response['capture'] ?? $this->auto_capture;
         }
         
+        /* translators: %s: return message from payment processor */
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note($status_note . ' ' . $note);
 
@@ -573,6 +574,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Nome do arquivo de imagem
         $imageName = $detectedBrand . '.webp';
         
+        /* translators: %1$s: image URL, %2$s: image alt text, %3$s: brand name */
         $imageHtml = sprintf(
             '<img src="%s" alt="%s" style="width: 20px; height: auto; margin-right: 5px; vertical-align: middle;" /> %s',
             esc_url($imagesPath . $imageName),
@@ -1189,7 +1191,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         $this->form_fields['transactions'] = array(
-            'title' => esc_attr__('Transactions', 'lkn-wc-gateway-cielo'),
+            'title' => esc_attr__('Transactions', 'woo-rede'),
             'id' => 'transactions_title',
             'type'  => 'title',
         );
@@ -1733,6 +1735,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 if ($i === 1 || ($order_total / $i) >= $min_value) {
                     $customLabel = null; // Resetar a variável a cada iteração
                     $interest = round((float) $this->get_option($i . 'x'), 2);
+                    /* translators: %1$d: number of installments, %2$s: installment price */
                     $label = sprintf('%dx de %s', $i, wp_strip_all_tags(wc_price($order_total / $i)));
 
                     if (($this->get_option('installment_interest') == 'yes' || $this->get_option('installment_discount') == 'yes') && is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')) {

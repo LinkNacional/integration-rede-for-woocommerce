@@ -507,12 +507,15 @@ class LknIntegrationRedeForWoocommerceHelper
                         $final_total = $total_with_interest + $additional_fees - $discount_amount + $tax_amount;
                         
                         if ($instance->get_option('interest_show_percent') == 'yes') {
+                            /* translators: %1$d: number of installments, %2$s: installment price, %3$s: interest percentage */
                             return html_entity_decode(sprintf('%dx de %s (%s%% de juros)', $i, wp_strip_all_tags( wc_price( $final_total / $i)), $interest));
                         }
+                            /* translators: %1$d: number of installments, %2$s: installment price */
                             return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
                         $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
+                        /* translators: %1$d: number of installments, %2$s: installment price */
                         return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'woo-rede');
                     }
                 } else {
@@ -524,10 +527,13 @@ class LknIntegrationRedeForWoocommerceHelper
                     
                     if ($discount >= 1) {
                         if ($instance->get_option('interest_show_percent') == 'yes') {
+                            /* translators: %1$d: number of installments, %2$s: installment price, %3$s: discount percentage */
                             return html_entity_decode(sprintf( '%dx de %s (%s%% de desconto)', $i, wp_strip_all_tags( wc_price(($final_total / $i))), $discount));
                         }
+                        /* translators: %1$d: number of installments, %2$s: installment price */
                         return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     } else {
+                        /* translators: %1$d: number of installments, %2$s: installment price */
                         return html_entity_decode(sprintf( '%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     }
                 }

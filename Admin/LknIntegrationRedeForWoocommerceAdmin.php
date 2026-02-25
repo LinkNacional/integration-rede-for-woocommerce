@@ -187,7 +187,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
             wp_localize_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', 'lknWcRedeTranslations', array(
                 'clearLogs' => __('Limpar Logs', 'woo-rede'),
-                'sendConfigs' => __('Wordpress Support', 'lkn-wc-gateway-cielo'),
+                'sendConfigs' => __('Wordpress Support', 'woo-rede'),
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
             wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(

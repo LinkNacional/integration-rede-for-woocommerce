@@ -32,12 +32,16 @@ final class LknIntegrationRedeForWoocommerceGooglePayBlocks extends AbstractPaym
     public function get_payment_method_script_handles() {
         wp_enqueue_style( 'woo-rede-google-pay-style-blocks', plugin_dir_url(__FILE__) . '../Public/css/rede/LknIntegrationRedeForWoocommerceGooglePay.css', array(), INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION, 'all' );
         
-        // Registrar primeiro a API do Google Pay
+        /**
+         * External script required for Google Pay integration.
+         * This is the official Google Pay JS library and is necessary for payment processing.
+         * plugin-check-ignore
+         */
         wp_register_script(
             'google-pay-api',
             'https://pay.google.com/gp/p/js/pay.js',
             array(),
-            null,
+            INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION,
             true
         );
         
