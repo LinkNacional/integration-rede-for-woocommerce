@@ -1293,5 +1293,15 @@ class LknIntegrationRedeForWoocommerceHelper
             $order->add_meta_data('lkn_rede_data_format', 'json', true);
         }
     }
+
+    public static function lknIntegrationRedeGetOrderStatus()
+    {
+        $order_statuses = (wc_get_order_statuses());
+        unset($order_statuses["wc-failed"]);
+        unset($order_statuses["wc-checkout-draft"]);
+        unset($order_statuses["wc-refunded"]);
+        unset($order_statuses["wc-cancelled"]);
+        return $order_statuses;
+    }
 }
 ?>

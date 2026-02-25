@@ -47,8 +47,8 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             ),
             self::GATEWAY_GOOGLE_PAY => array(
                 'gateway_id' => self::GATEWAY_GOOGLE_PAY,
-                'class' => '\\Lkn\\RedeForWoocommercePro\\Includes\\LknRedeForWoocommerceProGooglePay',
-                'pro_required' => true
+                'class' => '\\Lknwoo\\IntegrationRedeForWoocommerce\\Includes\\LknIntegrationRedeForWoocommerceGooglePay',
+                'pro_required' => false
             ),
         );
     }

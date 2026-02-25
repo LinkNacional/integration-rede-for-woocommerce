@@ -146,12 +146,14 @@ final class LknIntegrationRedeForWoocommerce
     public $LknIntegrationRedeForWoocommerceEndpointClass;
     public $LknIntegrationRedeForWoocommercePixHelperClass;
     public $LknIntegrationRedeForWoocommerceHelperClass;
+    public $LknIntegrationRedeForWoocommerceGooglePayClass;
 
     //Define os hooks somente quando woocommerce está ativo
     public function define_hooks(): void
     {
         $this->wc_rede_class = new LknIntegrationRedeForWoocommerceWcRede();
         if (class_exists('WC_Payment_Gateway')) {
+            $this->LknIntegrationRedeForWoocommerceGooglePayClass = new LknIntegrationRedeForWoocommerceGooglePay();
             $this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
             $this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
             $this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
@@ -207,6 +209,7 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommercePixRedeClass->id, $this->LknIntegrationRedeForWoocommercePixRedeClass, "process_admin_options");
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommercePixRedeClass, 'displayMeta');
+        $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommerceGooglePayClass, 'displayMeta');
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->LknIntegrationRedeForWoocommercePixRedeClass, "showPix");
 
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
@@ -220,6 +223,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_credit_class, 'displayMeta', 10, 1);
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_debit_class->id, $this->wc_rede_debit_class, 'process_admin_options');
+        // Adiciona o hook para salvar as opções do gateway Google Pay
+        $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommerceGooglePayClass->id, $this->LknIntegrationRedeForWoocommerceGooglePayClass, 'process_admin_options');
         $this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_debit_class, 'check_return');
         $this->loader->add_filter('woocommerce_get_order_item_totals', $this->wc_rede_debit_class, 'order_items_payment_details', 10, 2);
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_debit_class, 'displayMeta', 10, 1);
@@ -277,6 +282,41 @@ final class LknIntegrationRedeForWoocommerce
         // Analytics - registra script e CSS do WooCommerce Admin
         $this->loader->add_action('admin_enqueue_scripts', $this, 'register_rede_analytics_script');
         $this->loader->add_filter('woocommerce_analytics_report_menu_items', $this, 'add_rede_analytics_menu_item');
+
+        // Hook AJAX para gerar novas chaves Google Pay
+        $this->loader->add_action('wp_ajax_lkn_generate_new_google_pay_keys', $this, 'lkn_generate_new_google_pay_keys');
+    }
+
+    /**
+     * Handler AJAX para gerar novas chaves Google Pay
+     */
+    public function lkn_generate_new_google_pay_keys(): void {
+        // Verificar nonce
+        if ( ! wp_verify_nonce( $_POST['nonce'], 'lkn_keys_ajax_nonce' ) ) {
+            wp_send_json_error( __( 'Invalid nonce.', 'rede-for-woocommerce-pro' ) );
+        }
+
+        // Check user capability
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'rede-for-woocommerce-pro' ) );
+        }
+        
+        try {
+            // Chamar a função de geração de novas chaves
+            $result = $this->LknIntegrationRedeForWoocommerceGooglePayClass->autoGenerateNewKeys();
+            
+            if ($result) {
+                wp_send_json_success(array(
+                    'public_key'  => $result['public_key'],
+                    'private_key' => $result['private_key'],
+                    'message'     => __('New keys generated successfully!', 'woo-rede')
+                ));
+            } else {
+                wp_send_json_error(__('Error generating new keys.', 'woo-rede'));
+            }
+        } catch (Exception $e) {
+            wp_send_json_error(__('Internal error: ', 'woo-rede') . $e->getMessage());
+        }
     }
 
     /**
@@ -1203,6 +1243,7 @@ final class LknIntegrationRedeForWoocommerce
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcRedeCreditBlocks());
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcRedeDebitBlocks());
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcPixRedeBlocks());
+        $payment_method_registry->register(new LknIntegrationRedeForWoocommerceGooglePayBlocks());
     }
 
     /**

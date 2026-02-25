@@ -205,5 +205,29 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false)
             ));
         }
+
+        if ('wc-settings' === $page && 'checkout' === $tab && $section === 'rede_google_pay' && in_array($section, $gateways, true)) {
+            // Registrar script para geração de chaves Google Pay
+            wp_enqueue_script( 
+                $this->plugin_name . '-keys', 
+                plugin_dir_url( __FILE__ ) . 'js/LknRedeForWoocommerceProKeys.js', 
+                array('jquery'), 
+                $this->version, 
+                false 
+            );
+            
+            // Localizar variáveis AJAX para o script de chaves
+            wp_localize_script($this->plugin_name . '-keys', 'lkn_keys_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('lkn_keys_ajax_nonce'),
+                'translations' => array(
+                    'generating' => __('Generating...', 'woo-rede'),
+                    'generate_new_keys' => __('Generate New Keys', 'woo-rede'),
+                    'success_message' => __('New keys generated successfully!', 'woo-rede'),
+                    'error_message' => __('Error generating new keys.', 'woo-rede'),
+                    'communication_error' => __('Communication error with the server.', 'woo-rede')
+                ),
+            ));
+        }
     }
 }
