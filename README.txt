@@ -115,7 +115,7 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 ### 5.2.1 - 2026/02/24
-- Adjustments for Google Pay.
+- Addition of the new Google Pay payment method.
 
 ### 5.2.0 - 2026/02/12
 - NEW Rede transactions table.
