@@ -249,7 +249,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
      */
     private function generateMetaTableWithBrandIcon($order, $metaKeys, $title): void
     {
-?>
+        ?>
         <h3 style="margin-bottom: 14px;"><?php echo esc_html($title); ?></h3>
         <table>
             <tbody>
@@ -274,7 +274,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 ?>
             </tbody>
         </table>
-<?php
+        <?php
     }
 
     public function initFormFields(): void
