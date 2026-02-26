@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
+final class LknIntegrationRedeForWoocommerceGooglePay extends LknIntegrationRedeForWoocommerceWcRedeAbstract
 {
     public $configs;
     public $log;
@@ -22,7 +22,8 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
     public function __construct()
     {
         $this->id = 'rede_google_pay';
-        $this->title = 'Google Pay by Rede';
+        $this->title = $this->get_option('title');
+        $this->description = $this->get_option('description');
         $this->has_fields = true;
         $this->method_title = esc_attr__('Pay with Google Pay via Rede', 'woo-rede');
         $this->method_description = esc_attr__('Enables and configures payments with Google Pay through Rede', 'woo-rede') . ' <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__('Documentation', 'woo-rede') . '</a>';
@@ -38,7 +39,6 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         $this->init_settings();
 
         // Define as configurações do método de pagamento
-        $this->title = $this->get_option('title');
         $this->log = $this->get_logger();
         $this->debug = $this->get_option('debug');
 
@@ -281,7 +281,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                     'desc_tip' => esc_attr__('Choose the order status after successful payment.', 'woo-rede'),
                     'description' => esc_attr__('Choose the status that will be automatically attributed to the order when payment is confirmed.', 'woo-rede'),
                     'class' => 'wc-enhanced-select',
-                    'default' => 'processing',
+                    'default' => 'wc-processing',
                     'options' => LknIntegrationRedeForWoocommerceHelper::lknIntegrationRedeGetOrderStatus(),
                     'custom_attributes' => array_merge(
                         array(
@@ -422,13 +422,16 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         return $is_available;
     }
 
-    public function payment_fields(): void
+    /**
+     * Renderiza o formulário de checkout do Google Pay (substitui payment_fields)
+     *
+     * @param float $order_total
+     */
+    protected function getCheckoutForm($order_total = 0)
     {
-        /**
-         * External script required for Google Pay integration.
-         * This is the official Google Pay JS library and is necessary for payment processing.
-         * plugin-check-ignore
-         */
+        // External script required for Google Pay integration.
+        // This is the official Google Pay JS library and is necessary for payment processing.
+        // plugin-check-ignore
         wp_enqueue_script(
             'google-pay-api',
             'https://pay.google.com/gp/p/js/pay.js',
@@ -455,11 +458,11 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             'environment' => $this->get_option('environment') === 'production' ? 'PRODUCTION' : 'TEST',
             'merchant_id' => $this->get_option('pv', 'rede_merchant'),
             'merchant_name' => get_bloginfo('name'),
-            'total' => WC()->cart ? WC()->cart->total : 0,
+            'total' => $order_total,
             'currency' => get_woocommerce_currency(),
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('google_pay_nonce'),
-            'gateway_id' => 'rede_google_pay', // Identificador fixo para Rede como gateway
+            'gateway_id' => 'rede_google_pay',
             'google_merchant_id' => $this->get_option('google_merchant_id', 'google_merchant'),
             'google_pay_public_key' => $this->get_option('google_pay_public_key', ''),
             'google_text_button' => $this->get_option('google_text_button', 'pay'),
@@ -548,9 +551,6 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                     );
                 }
                 
-                // Payment successful (no 3DS required or 3DS completed)
-                $order->payment_complete();
-                
                 // Update order status based on configuration
                 $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                 if (!empty($payment_complete_status) && $payment_complete_status !== $order->get_status()) {
@@ -559,9 +559,6 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
 
                 // Add order note
                 $order->add_order_note(__('Payment completed via Google Pay', 'woo-rede'));
-
-                // Empty cart
-                WC()->cart->empty_cart();
 
                 return array(
                     'result' => 'success',
@@ -725,13 +722,9 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         // 6. Requisição para a API da Rede
         $headers = array(
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $access_token
+            'Authorization' => 'Bearer ' . $access_token,
+            'Transaction-Response' => 'brand-return-opened' // Header para indicar que a resposta da transação deve incluir a marca do cartão, necessário para Google Pay
         );
-        
-        // Add 3DS header if enabled
-        if ($require_3ds === 'yes') {
-            $headers['Transaction-Response'] = 'brand-return-opened';
-        }
         
         $response = wp_remote_post($apiUrl, array(
             'method' => 'POST',
@@ -818,7 +811,11 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                 $order->update_meta_data('_wc_rede_transaction_return_code', $returnCode);
                 $order->update_meta_data('_wc_rede_transaction_return_message', $response_data['returnMessage'] ?? 'Success');
                 if (isset($response_data['brand']['name'])) {
-                    $order->update_meta_data('_wc_rede_transaction_card_brand', $response_data['brand']['name']);
+                    if($environment === 'test') {
+                        $order->update_meta_data('_wc_rede_transaction_card_brand', $card_network);
+                    } else {
+                        $order->update_meta_data('_wc_rede_transaction_card_brand', $response_data['brand']['name']);
+                    }
                 }
                 $order->save();
 
@@ -1028,6 +1025,8 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
     public function displayMeta($order): void
     {
         if ($order->get_payment_method() == $this->id) {
+            $isProValid = LknIntegrationRedeForWoocommerceHelper::isProLicenseValid();
+
             $metaKeys = array(
                 '_wc_rede_transaction_environment' => esc_html__('Environment', 'woo-rede'),
                 '_wc_rede_transaction_return_code' => esc_html__('Return code', 'woo-rede'),
@@ -1045,14 +1044,111 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
                 '_wc_rede_transaction_card_brand' => esc_html__('Card brand', 'woo-rede'),
             );
 
-            $this->generateMetaTable($order, $metaKeys, 'Google Pay');
+            // Usar método personalizado ou padrão baseado na licença PRO
+            if ($isProValid) {
+                $this->generateMetaTableWithBrandIcon($order, $metaKeys, $this->title);
+            } else {
+                $this->generateMetaTable($order, $metaKeys, 'Rede');
+            }
 
         }
     }
 
-    public function get_logger(): WC_Logger
+    /**
+     * Método personalizado para exibir metadados com ícone da bandeira
+     */
+    private function generateMetaTableWithBrandIcon($order, $metaKeys, $title): void
     {
-        return new WC_Logger();
+        ?>
+        <h3 style="margin-bottom: 14px;"><?php echo esc_html($title); ?></h3>
+        <table>
+            <tbody>
+                <?php
+                foreach ($metaKeys as $meta_key => $label) {
+                    $meta_value = $order->get_meta($meta_key);
+                    if (! empty($meta_value)) :
+                        // Se for o campo da bandeira, formatar com ícone
+                        if ($meta_key === '_wc_rede_transaction_card_brand') {
+                            $meta_value = $this->formatBrandWithIcon($meta_value);
+                        } else {
+                            $meta_value = esc_attr($meta_value);
+                        }
+                ?>
+                        <tr>
+                            <td style="color: #555; font-weight: bold;"><?php echo esc_attr($label); ?>:</td>
+                            <td><?php echo wp_kses_post($meta_value); ?></td>
+                        </tr>
+                <?php
+                    endif;
+                }
+                ?>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    /**
+     * Formata o nome da bandeira com ícone de imagem (apenas para licença PRO)
+     */
+    private function formatBrandWithIcon($brandName): string
+    {
+        if (empty($brandName)) {
+            return '';
+        }
+
+        // Verificar se tem licença PRO válida
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            // Modo padrão: apenas retorna o nome da bandeira sem formatação
+            return esc_html($brandName);
+        }
+
+        // Modo PRO: aplicar formatação com ícone
+        // Normalizar o nome da bandeira (tudo minúsculo para comparação)
+        $normalizedBrand = strtolower(trim($brandName));
+        
+        // Mapear variações de bandeiras para arquivos de imagem
+        $brandMappings = array(
+            'visa' => array('visa', 'visa electron', 'visa debit', 'visa credit'),
+            'mastercard' => array('mastercard', 'master', 'master card'),
+            'amex' => array('american express', 'amex', 'american', 'express'),
+            'elo' => array('elo', 'elo credit', 'elo debit'),
+            'hipercard' => array('hipercard', 'hiper', 'hiper card'),
+            'diners' => array('diners club', 'diners', 'dinners club'),
+            'discover' => array('discover', 'discover card'),
+            'jcb' => array('jcb', 'jcb card'),
+            'aura' => array('aura', 'aura card'),
+            'paypal' => array('paypal', 'pay pal')
+        );
+
+        // Buscar qual bandeira corresponde ao nome recebido
+        $detectedBrand = 'other';
+        $displayName = ucfirst($normalizedBrand);
+        
+        foreach ($brandMappings as $brandKey => $variations) {
+            foreach ($variations as $variation) {
+                // Verifica se o nome contém a variação ou vice-versa
+                if (strpos($normalizedBrand, $variation) !== false || strpos($variation, $normalizedBrand) !== false) {
+                    $detectedBrand = $brandKey;
+                    $displayName = ucfirst($brandKey);
+                    break 2; // Sair dos dois loops
+                }
+            }
+        }
+
+        // Definir o caminho base das imagens
+        $imagesPath = plugin_dir_url(INTEGRATION_REDE_FOR_WOOCOMMERCE_FILE) . 'Includes/assets/cardBrands/';
+        
+        // Nome do arquivo de imagem
+        $imageName = $detectedBrand . '.webp';
+        
+        $imageHtml = sprintf(
+            '<img src="%s" alt="%s" style="width: 20px; height: auto; margin-right: 5px; vertical-align: middle;" /> %s',
+            esc_url($imagesPath . $imageName),
+            esc_attr($displayName),
+            esc_html($brandName) // Mantém o nome original da bandeira para exibição
+        );
+        
+        return $imageHtml;
     }
 
     /**

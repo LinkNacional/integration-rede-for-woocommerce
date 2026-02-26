@@ -1307,6 +1307,7 @@ class LknIntegrationRedeForWoocommerceHelper
         unset($order_statuses["wc-checkout-draft"]);
         unset($order_statuses["wc-refunded"]);
         unset($order_statuses["wc-cancelled"]);
+
         return $order_statuses;
     }
 }
