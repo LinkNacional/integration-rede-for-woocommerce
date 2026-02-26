@@ -31,5 +31,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     <?php endif; ?>
     
     <div id="google-pay-button" class="lkn-rede-google-pay-button"></div>
-    <input type="hidden" id="google-pay-token" name="google_pay_token" value="" />
+    
+    <!-- Inputs hidden para dados fragmentados do Google Pay -->
+    <input type="hidden" id="google-pay-signature" name="google_pay_signature" value="" />
+    <input type="hidden" id="google-pay-signed-key" name="google_pay_signed_key" value="" />
+    <input type="hidden" id="google-pay-signature-value" name="google_pay_signature_value" value="" />
+    <input type="hidden" id="google-pay-protocol-version" name="google_pay_protocol_version" value="" />
+    <input type="hidden" id="google-pay-encrypted-message" name="google_pay_encrypted_message" value="" />
+    <input type="hidden" id="google-pay-ephemeral-public-key" name="google_pay_ephemeral_public_key" value="" />
+    <input type="hidden" id="google-pay-tag" name="google_pay_tag" value="" />
+    <input type="hidden" id="google-pay-card-network" name="google_pay_card_network" value="" />
+    <input type="hidden" id="google-pay-funding-source" name="google_pay_funding_source" value="" />
 </div>

@@ -486,10 +486,18 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             return;
         }
 
-        $google_pay_token = isset($_POST['google_pay_token']) ? sanitize_text_field(wp_unslash($_POST['google_pay_token'])) : '';
+        $google_pay_signature = isset($_POST['google_pay_signature']) ? sanitize_text_field(wp_unslash($_POST['google_pay_signature'])) : '';
+        $google_pay_signed_key = isset($_POST['google_pay_signed_key']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_signed_key'])) : '';
+        $google_pay_signature_value = isset($_POST['google_pay_signature_value']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_signature_value'])) : '';
+        $google_pay_protocol_version = isset($_POST['google_pay_protocol_version']) ? sanitize_text_field(wp_unslash($_POST['google_pay_protocol_version'])) : 'ECv2';
+        $google_pay_encrypted_message = isset($_POST['google_pay_encrypted_message']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_encrypted_message'])) : '';
+        $google_pay_ephemeral_public_key = isset($_POST['google_pay_ephemeral_public_key']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_ephemeral_public_key'])) : '';
+        $google_pay_tag = isset($_POST['google_pay_tag']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_tag'])) : '';
+        $google_pay_card_network = isset($_POST['google_pay_card_network']) ? sanitize_text_field(wp_unslash($_POST['google_pay_card_network'])) : 'VISA';
+        $google_pay_funding_source = isset($_POST['google_pay_funding_source']) ? sanitize_text_field(wp_unslash($_POST['google_pay_funding_source'])) : 'CREDIT';
         
-        if (empty($google_pay_token)) {
-            wc_add_notice(__('Google Pay token is required.', 'woo-rede'), 'error');
+        if (empty($google_pay_signature) || empty($google_pay_encrypted_message)) {
+            wc_add_notice(__('Google Pay token data is required.', 'woo-rede'), 'error');
             return;
         }
 
@@ -518,7 +526,17 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             }
 
             // Process Google Pay payment
-            $result = $this->processGooglePayPayment($order, $google_pay_token, $order_total);
+            $result = $this->processGooglePayPayment($order, array(
+                'signature' => $google_pay_signature,
+                'signed_key' => $google_pay_signed_key, 
+                'signature_value' => $google_pay_signature_value,
+                'protocol_version' => $google_pay_protocol_version,
+                'encrypted_message' => $google_pay_encrypted_message,
+                'ephemeral_public_key' => $google_pay_ephemeral_public_key,
+                'tag' => $google_pay_tag,
+                'card_network' => $google_pay_card_network,
+                'funding_source' => $google_pay_funding_source
+            ), $order_total);
 
             if ($result && isset($result['success']) && $result['success']) {
                 // Check if 3D Secure authentication is required
@@ -571,7 +589,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         }
     }
 
-    private function processGooglePayPayment($order, $google_pay_token, $total)
+    private function processGooglePayPayment($order, $google_pay_data, $total)
     {
         // 1. Get OAuth token
         $access_token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id, $order->get_id());
@@ -589,25 +607,30 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         $totalCents = intval(round($total * 100));
         $auto_capture = $this->get_option('auto_capture', 'yes') === 'yes';
 
-        // 3. Decodificador Inteligente (Trata escapes do WordPress)
-        $payment_data = json_decode($google_pay_token, true);
+        // 3. Reconstrói o token a partir dos campos separados (agora sempre strings simples)
+        // Os campos já chegam como strings simples do JavaScript, evitando corrupção pelo WordPress sanitization
+        $signed_key_data = $this->decodeGooglePayField($google_pay_data['signed_key']);
+        
+        // Reconstrói o signedMessage a partir dos campos fragmentados
+        $signed_message_data = array(
+            'encryptedMessage' => $this->decodeGooglePayField($google_pay_data['encrypted_message']),
+            'ephemeralPublicKey' => $this->decodeGooglePayField($google_pay_data['ephemeral_public_key']),
+            'tag' => $this->decodeGooglePayField($google_pay_data['tag'])
+        );
+        
+        $token_structure = array(
+            'signature' => $this->decodeGooglePayField($google_pay_data['signature']),
+            'intermediateSigningKey' => array(
+                'signedKey' => $signed_key_data, // Agora sempre uma string simples
+                'signatures' => array($this->decodeGooglePayField($google_pay_data['signature_value']))
+            ),
+            'protocolVersion' => $google_pay_data['protocol_version'],
+            'signedMessage' => $signed_message_data // Agora é array reconstruído dos campos fragmentados
+        );
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $payment_data = json_decode(stripslashes($google_pay_token), true);
-        }
-
-        if (!$payment_data || !is_array($payment_data)) {
-            return array('success' => false, 'message' => __('Invalid Google Pay token format', 'woo-rede'));
-        }
-
-        if (!isset($payment_data['paymentMethodData']['tokenizationData']['token'])) {
-            return array('success' => false, 'message' => __('Missing tokenization data', 'woo-rede'));
-        }
-
-        $payment_method_data = $payment_data['paymentMethodData'];
-        $card_network = $payment_method_data['info']['cardNetwork'] ?? 'VISA';
-        $card_funding_source = $payment_method_data['info']['cardFundingSource'] ?? 'CREDIT';
-        $encrypted_token_string = $payment_method_data['tokenizationData']['token'];
+        $card_network = $google_pay_data['card_network'];
+        $card_funding_source = $google_pay_data['funding_source'];
+        $encrypted_token_string = json_encode($token_structure);
 
         // 4. DESCRIPTOGRAFIA
         $decrypted_data = $this->decryptGooglePayToken($encrypted_token_string);
@@ -809,25 +832,41 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
     private function decryptGooglePayToken($encrypted_token_string)
     {
         $private_key_pem = $this->get_option('google_pay_private_key');
-        if (empty($private_key_pem)) return false;
+        if (empty($private_key_pem)) {
+            return false;
+        }
 
         $private_key_pem = str_replace(array("\r\n", "\r", "\n", "\\n"), "\n", trim($private_key_pem));
 
         try {
             $token_data = json_decode($encrypted_token_string, true);
-            $signed_message = json_decode($token_data['signedMessage'], true);
-
-            $encrypted_message = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signed_message['encryptedMessage']));
-            $ephemeral_public_key = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signed_message['ephemeralPublicKey']));
-            $tag = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signed_message['tag']));
-
+            if (!$token_data) {
+                return false;
+            }
+            
+            // Verificar se signedMessage é string ou array
+            $signed_message = $token_data['signedMessage'];
+            if (is_string($signed_message)) {
+                $signed_message = json_decode($signed_message, true);
+            }
+            
+            if (!$signed_message || !is_array($signed_message)) {
+                return false;
+            }
+            
+            $encrypted_message = base64_decode(str_replace(array('-', '_'), array('+', '/'), $this->decodeGooglePayField($signed_message['encryptedMessage'])));
+            $ephemeral_public_key = base64_decode(str_replace(array('-', '_'), array('+', '/'), $this->decodeGooglePayField($signed_message['ephemeralPublicKey'])));
+            $tag = base64_decode(str_replace(array('-', '_'), array('+', '/'), $this->decodeGooglePayField($signed_message['tag'])));
+            
             $asn1_header = hex2bin('3059301306072a8648ce3d020106082a8648ce3d030107034200');
             $ephemeral_pem = "-----BEGIN PUBLIC KEY-----\n" . 
                              chunk_split(base64_encode($asn1_header . $ephemeral_public_key), 64, "\n") . 
                              "-----END PUBLIC KEY-----\n";
 
             $shared_secret = openssl_pkey_derive($ephemeral_pem, $private_key_pem);
-            if (!$shared_secret) throw new Exception('Falha no ECDH.');
+            if (!$shared_secret) {
+                throw new Exception('Falha no ECDH.');
+            }
             
             // O Segredo Compartilhado é sempre os 32 bytes da coordenada X
             $shared_secret = str_pad($shared_secret, 32, "\x00", STR_PAD_LEFT);
@@ -853,14 +892,14 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
             
             // MUDANÇA 3: Descriptografar usando aes-256-ctr
             $decrypted_message = openssl_decrypt($encrypted_message, 'aes-256-ctr', $encryption_key, OPENSSL_RAW_DATA, $iv);
-
+            
             $payload = json_decode($decrypted_message, true);
             if (!$payload || !isset($payload['paymentMethodDetails'])) {
                 throw new Exception('Payload corrompido ou lixo gerado.');
             }
 
             $details = $payload['paymentMethodDetails'];
-
+            
             return array(
                 'dpan' => $details['pan'],
                 'expirationMonth' => $details['expirationMonth'],
@@ -872,6 +911,30 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends WC_Payment_Gateway
         } catch (Exception $e) {
             return false;
         }
+    }
+    
+    /**
+     * Helper function to check if a string is valid JSON
+     */
+    private function isJson($string) {
+        if (!is_string($string)) return false;
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+    
+    /**
+     * Decodifica campos do Google Pay que podem conter HTML entities
+     */
+    private function decodeGooglePayField($field) {
+        if (!is_string($field)) return $field;
+        
+        // Decodifica HTML entities (u003d = =, etc.)
+        $decoded = html_entity_decode($field, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        
+        // Se ainda tem unicode escapes, decodifica também
+        $decoded = json_decode('"' . str_replace('"', '\\"', $decoded) . '"');
+        
+        return $decoded ?: $field; // Se falhou a decodificação, retorna original
     }
 
     /**

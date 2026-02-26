@@ -158,24 +158,74 @@ jQuery(document).ready(function ($) {
         try {
             const paymentDataRequest = await buildPaymentDataRequest(baseConfig);
             const paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
-            // Injeta o token no formulário do WooCommerce (funciona para shortcode e checkout clássico)
-            let tokenInput = $('input[name="google_pay_token"]');
-            if (tokenInput.length === 0) {
-                // Procura por diferentes formas de formulário (shortcode pode ter variações)
-                let checkoutForm = $('form[name="checkout"]');
-                if (checkoutForm.length === 0) {
-                    checkoutForm = $('form.checkout, form.woocommerce-checkout');
+            
+            // Extrai dados específicos necessários como strings simples
+            const paymentMethodData = paymentData.paymentMethodData;
+            const fullToken = JSON.parse(paymentMethodData.tokenizationData.token);
+            const cardNetwork = paymentMethodData.info.cardNetwork || 'VISA';
+            const cardFundingSource = paymentMethodData.info.cardFundingSource || 'CREDIT';
+            
+            // Extrai campos específicos do token como strings simples
+            const signature = fullToken.signature;
+            const signedKey = fullToken.intermediateSigningKey.signedKey;
+            const signatureValue = fullToken.intermediateSigningKey.signatures[0];
+            const protocolVersion = fullToken.protocolVersion;
+            const signedMessage = fullToken.signedMessage;
+            
+            // SEMPRE extrair apenas o keyValue - signedKey pode ser objeto ou string JSON
+            let signedKeyValue = signedKey;
+            if (typeof signedKey === 'object' && signedKey.keyValue) {
+                signedKeyValue = signedKey.keyValue;
+            } else if (typeof signedKey === 'string') {
+                try {
+                    const parsedKey = JSON.parse(signedKey);
+                    if (parsedKey.keyValue) {
+                        signedKeyValue = parsedKey.keyValue;
+                    }
+                } catch(e) {
+                    signedKeyValue = signedKey;
                 }
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'google_pay_token',
-                    value: JSON.stringify(paymentData)
-                }).appendTo(checkoutForm);
-            } else {
-                tokenInput.val(JSON.stringify(paymentData));
             }
-            // Submete o formulário (adaptado para shortcode)
+            
+            // Fragmentar signedMessage em campos individuais
+            let encryptedMessage = '';
+            let ephemeralPublicKey = '';
+            let tag = '';
+            
+            if (typeof signedMessage === 'object') {
+                encryptedMessage = signedMessage.encryptedMessage || '';
+                ephemeralPublicKey = signedMessage.ephemeralPublicKey || '';
+                tag = signedMessage.tag || '';
+            } else if (typeof signedMessage === 'string') {
+                try {
+                    const parsedMessage = JSON.parse(signedMessage);
+                    encryptedMessage = parsedMessage.encryptedMessage || '';
+                    ephemeralPublicKey = parsedMessage.ephemeralPublicKey || '';
+                    tag = parsedMessage.tag || '';
+                } catch(e) {
+                    console.warn('Erro ao parsear signedMessage:', e);
+                }
+            }
+            
+            // Procura por diferentes formas de formulário
             let checkoutForm = $('form[name="checkout"]');
+            if (checkoutForm.length === 0) {
+                checkoutForm = $('form.checkout, form.woocommerce-checkout');
+            }
+            
+            // Preenche os inputs hidden que já estão no template
+            $('#google-pay-signature').val(signature);
+            $('#google-pay-signed-key').val(signedKeyValue);
+            $('#google-pay-signature-value').val(signatureValue);
+            $('#google-pay-protocol-version').val(protocolVersion);
+            $('#google-pay-encrypted-message').val(encryptedMessage);
+            $('#google-pay-ephemeral-public-key').val(ephemeralPublicKey);
+            $('#google-pay-tag').val(tag);
+            $('#google-pay-card-network').val(cardNetwork);
+            $('#google-pay-funding-source').val(cardFundingSource);
+            
+            // Submete o formulário (adaptado para shortcode)
+            checkoutForm = $('form[name="checkout"]');
             if (checkoutForm.length === 0) {
                 checkoutForm = $('form.checkout, form.woocommerce-checkout');
             }
@@ -218,11 +268,67 @@ const ContentGooglePay = (props) => {
     React.useEffect(() => {
         const unsubscribe = onPaymentSetup(async () => {
             if (googlePayData) {
+                // Extrai dados específicos necessários como strings simples
+                const paymentMethodData = googlePayData.paymentMethodData;
+                const fullToken = JSON.parse(paymentMethodData.tokenizationData.token);
+                const cardNetwork = paymentMethodData.info.cardNetwork || 'VISA';
+                const cardFundingSource = paymentMethodData.info.cardFundingSource || 'CREDIT';
+                
+                // Extrai campos específicos do token como strings simples
+                const signature = fullToken.signature;
+                const signedKey = fullToken.intermediateSigningKey.signedKey;
+                const signatureValue = fullToken.intermediateSigningKey.signatures[0];
+                const protocolVersion = fullToken.protocolVersion;
+                const signedMessage = fullToken.signedMessage;
+                
+                // SEMPRE extrair apenas o keyValue - signedKey pode ser objeto ou string JSON
+                let signedKeyValue = signedKey;
+                if (typeof signedKey === 'object' && signedKey.keyValue) {
+                    signedKeyValue = signedKey.keyValue;
+                } else if (typeof signedKey === 'string') {
+                    try {
+                        const parsedKey = JSON.parse(signedKey);
+                        if (parsedKey.keyValue) {
+                            signedKeyValue = parsedKey.keyValue;
+                        }
+                    } catch(e) {
+                        signedKeyValue = signedKey;
+                    }
+                }
+                
+                // Fragmentar signedMessage em campos individuais
+                let encryptedMessage = '';
+                let ephemeralPublicKey = '';
+                let tag = '';
+                
+                if (typeof signedMessage === 'object') {
+                    encryptedMessage = signedMessage.encryptedMessage || '';
+                    ephemeralPublicKey = signedMessage.ephemeralPublicKey || '';
+                    tag = signedMessage.tag || '';
+                } else if (typeof signedMessage === 'string') {
+                    try {
+                        const parsedMessage = JSON.parse(signedMessage);
+                        encryptedMessage = parsedMessage.encryptedMessage || '';
+                        ephemeralPublicKey = parsedMessage.ephemeralPublicKey || '';
+                        tag = parsedMessage.tag || '';
+                    } catch(e) {
+                        console.warn('Erro ao parsear signedMessage:', e);
+                    }
+                }
+                
                 return {
                     type: emitResponse.responseTypes.SUCCESS,
                     meta: {
                         paymentMethodData: {
-                            google_pay_token: JSON.stringify(googlePayData)
+                            google_pay_signature: signature,
+                            google_pay_signed_key: signedKeyValue,
+                            google_pay_signature_value: signatureValue,
+                            google_pay_protocol_version: protocolVersion,
+                            google_pay_encrypted_message: encryptedMessage,
+                            google_pay_ephemeral_public_key: ephemeralPublicKey,
+                            google_pay_tag: tag,
+                            google_pay_card_network: cardNetwork,
+                            google_pay_funding_source: cardFundingSource
                         }
                     }
                 };
