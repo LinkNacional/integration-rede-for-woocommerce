@@ -23,7 +23,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends LknIntegrationRede
     {
         $this->id = 'rede_google_pay';
         $this->title = $this->get_option('title');
-        $this->description = $this->get_option('description');
+        $this->description = '';
         $this->has_fields = true;
         $this->method_title = esc_attr__('Pay with Google Pay via Rede', 'woo-rede');
         $this->method_description = esc_attr__('Enables and configures payments with Google Pay through Rede', 'woo-rede') . ' <a target="_blank" href="https://www.linknacional.com.br/wordpress/woocommerce/rede/doc/">' . esc_attr__('Documentation', 'woo-rede') . '</a>';
