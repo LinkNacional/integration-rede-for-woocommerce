@@ -159,7 +159,8 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
 
     final public function payment_fields(): void
     {
-        if ($description = $this->get_description()) {
+        if ($this->get_description()) {
+            $description = $this->get_description();
             echo wp_kses_post(wpautop($description));
         }
 
