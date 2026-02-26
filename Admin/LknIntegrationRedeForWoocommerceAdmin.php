@@ -119,12 +119,15 @@ final class LknIntegrationRedeForWoocommerceAdmin
             'plugin_slug' => 'invoice-payment-for-woocommerce',
             'install_nonce' => wp_create_nonce('install-plugin_invoice-payment-for-woocommerce'),
             'invoice_plugin_installed' => is_plugin_active('invoice-payment-for-woocommerce/invoice-payment-for-woocommerce.php'),
-            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php')
+            'isProActive' => is_plugin_active('rede-for-woocommerce-pro/rede-for-woocommerce-pro.php'),
+            'whatsapp_number' => LKN_WC_REDE_WPP_NUMBER,
+            'site_url' => get_site_url(),
         ));
 
         $gateways = array(
             'maxipago_credit',
             'maxipago_debit',
+            'rede_google_pay',
             'rede_credit',
             'rede_debit',
             'maxipago_pix',
@@ -151,17 +154,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
         }
 
-        $allowed_sections = [
-            'rede_credit',
-            'rede_debit',
-            'integration_rede_pix',
-            'maxipago_credit',
-            'maxipago_debit',
-            'maxipago_pix',
-            'rede_pix'
-        ];
-
-        if (isset($_GET['section']) && in_array(sanitize_text_field(wp_unslash($_GET['section'])), $allowed_sections, true)) {
+        if (isset($_GET['section']) && in_array(sanitize_text_field(wp_unslash($_GET['section'])), $gateways, true)) {
             wp_enqueue_script(
                 $this->plugin_name . '-plugin-rate',
                 plugin_dir_url(__FILE__) . 'js/lkn-integration-rede-for-woocommerce-plugin-rate.js',
@@ -194,7 +187,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             );
             wp_localize_script('lknIntegrationRedeForWoocommerceAdminClearLogsButton', 'lknWcRedeTranslations', array(
                 'clearLogs' => __('Limpar Logs', 'woo-rede'),
-                'sendConfigs' => __('Wordpress Support', 'lkn-wc-gateway-cielo'),
+                'sendConfigs' => __('Wordpress Support', 'woo-rede'),
                 'alertText' => __('Deseja realmente deletar todos logs dos pedidos?', 'woo-rede')
             ));
             wp_localize_script('lknIntegrationRedeForWoocommerceSettingsLayoutScript', 'lknWcRedeLayoutSettings', array(
@@ -212,6 +205,30 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
                 'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A',
                 'endpointStatus' => get_option('lknRedeForWoocommerceProEndpointStatus', false)
+            ));
+        }
+
+        if ('wc-settings' === $page && 'checkout' === $tab && $section === 'rede_google_pay' && in_array($section, $gateways, true)) {
+            // Registrar script para geração de chaves Google Pay
+            wp_enqueue_script( 
+                $this->plugin_name . '-keys', 
+                plugin_dir_url( __FILE__ ) . 'js/LknRedeForWoocommerceProKeys.js', 
+                array('jquery'), 
+                $this->version, 
+                false 
+            );
+            
+            // Localizar variáveis AJAX para o script de chaves
+            wp_localize_script($this->plugin_name . '-keys', 'lkn_keys_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('lkn_keys_ajax_nonce'),
+                'translations' => array(
+                    'generating' => __('Generating...', 'woo-rede'),
+                    'generate_new_keys' => __('Generate New Keys', 'woo-rede'),
+                    'success_message' => __('New keys generated successfully!', 'woo-rede'),
+                    'error_message' => __('Error generating new keys.', 'woo-rede'),
+                    'communication_error' => __('Communication error with the server.', 'woo-rede')
+                ),
             ));
         }
     }

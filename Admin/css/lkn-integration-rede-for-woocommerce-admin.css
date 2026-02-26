@@ -507,10 +507,10 @@ textarea:disabled {
     margin-top: 20px;
     border: 1px solid #4caf50;
     border-left-width: 5px;
-    border-left-color: #4caf50;
+    border-left-color: #4caf50 !important;
     border-radius: 5px;
-    background-color: #e8f5e9;
-    color: #388e3c;
+    background-color: #e8f5e9 !important;
+    color: #388e3c !important;
     font-size: 14px;
     line-height: 1.5;
 }

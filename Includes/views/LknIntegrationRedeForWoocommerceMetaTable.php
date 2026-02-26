@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
 <h3><?php esc_attr($title); ?>
 </h3>
 <table>

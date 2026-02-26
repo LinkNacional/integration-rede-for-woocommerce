@@ -37,6 +37,58 @@ use Lknwoo\IntegrationRedeForWoocommerce\PublicView\LknIntegrationRedeForWoocomm
  */
 final class LknIntegrationRedeForWoocommerce
 {
+    // Gateway constants for consistent reference
+    const GATEWAY_DEBIT = 'rede_debit';
+    const GATEWAY_CREDIT = 'rede_credit';
+    const GATEWAY_PIX_FREE = 'integration_rede_pix';
+    const GATEWAY_PIX_PRO = 'rede_pix';
+    const GATEWAY_GOOGLE_PAY = 'rede_google_pay';
+
+    /**
+     * Get all available gateway IDs as an array
+     * @return array Array of gateway IDs
+     */
+    public static function get_available_gateway_ids()
+    {
+        return [
+            self::GATEWAY_DEBIT,
+            self::GATEWAY_CREDIT,
+            self::GATEWAY_PIX_FREE,
+            self::GATEWAY_PIX_PRO,
+            self::GATEWAY_GOOGLE_PAY
+        ];
+    }
+
+    /**
+     * Check if a gateway ID is a valid Rede gateway
+     * @param string $gateway_id Gateway ID to check
+     * @return bool True if valid Rede gateway
+     */
+    public static function is_valid_rede_gateway($gateway_id)
+    {
+        return in_array($gateway_id, self::get_available_gateway_ids(), true);
+    }
+
+    /**
+     * Check if a gateway ID is a PIX gateway
+     * @param string $gateway_id Gateway ID to check
+     * @return bool True if PIX gateway
+     */
+    public static function is_pix_gateway($gateway_id)
+    {
+        return in_array($gateway_id, [self::GATEWAY_PIX_FREE, self::GATEWAY_PIX_PRO], true);
+    }
+
+    /**
+     * Check if a gateway ID is a card gateway (debit/credit)
+     * @param string $gateway_id Gateway ID to check
+     * @return bool True if card gateway
+     */
+    public static function is_card_gateway($gateway_id)
+    {
+        return in_array($gateway_id, [self::GATEWAY_DEBIT, self::GATEWAY_CREDIT], true);
+    }
+
     /**
      * The loader that's responsible for maintaining and registering all hooks that power the plugin.
      *
@@ -94,12 +146,14 @@ final class LknIntegrationRedeForWoocommerce
     public $LknIntegrationRedeForWoocommerceEndpointClass;
     public $LknIntegrationRedeForWoocommercePixHelperClass;
     public $LknIntegrationRedeForWoocommerceHelperClass;
+    public $LknIntegrationRedeForWoocommerceGooglePayClass;
 
     //Define os hooks somente quando woocommerce está ativo
     public function define_hooks(): void
     {
         $this->wc_rede_class = new LknIntegrationRedeForWoocommerceWcRede();
         if (class_exists('WC_Payment_Gateway')) {
+            $this->LknIntegrationRedeForWoocommerceGooglePayClass = new LknIntegrationRedeForWoocommerceGooglePay();
             $this->wc_rede_credit_class = new LknIntegrationRedeForWoocommerceWcRedeCredit();
             $this->wc_rede_debit_class = new LknIntegrationRedeForWoocommerceWcRedeDebit();
             $this->wc_maxipago_credit_class = new LknIntegrationRedeForWoocommerceWcMaxipagoCredit();
@@ -155,6 +209,7 @@ final class LknIntegrationRedeForWoocommerce
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommercePixRedeClass->id, $this->LknIntegrationRedeForWoocommercePixRedeClass, "process_admin_options");
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommercePixRedeClass, 'displayMeta');
+        $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->LknIntegrationRedeForWoocommerceGooglePayClass, 'displayMeta');
         $this->loader->add_action('woocommerce_order_details_after_order_table', $this->LknIntegrationRedeForWoocommercePixRedeClass, "showPix");
 
         $this->loader->add_filter('plugin_action_links_' . INTEGRATION_REDE_FOR_WOOCOMMERCE_BASENAME, $this, 'addSettings');
@@ -168,6 +223,8 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_credit_class, 'displayMeta', 10, 1);
 
         $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->wc_rede_debit_class->id, $this->wc_rede_debit_class, 'process_admin_options');
+        // Adiciona o hook para salvar as opções do gateway Google Pay
+        $this->loader->add_action('woocommerce_update_options_payment_gateways_' . $this->LknIntegrationRedeForWoocommerceGooglePayClass->id, $this->LknIntegrationRedeForWoocommerceGooglePayClass, 'process_admin_options');
         $this->loader->add_action('woocommerce_api_wc_rede_credit', $this->wc_rede_debit_class, 'check_return');
         $this->loader->add_filter('woocommerce_get_order_item_totals', $this->wc_rede_debit_class, 'order_items_payment_details', 10, 2);
         $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $this->wc_rede_debit_class, 'displayMeta', 10, 1);
@@ -225,6 +282,41 @@ final class LknIntegrationRedeForWoocommerce
         // Analytics - registra script e CSS do WooCommerce Admin
         $this->loader->add_action('admin_enqueue_scripts', $this, 'register_rede_analytics_script');
         $this->loader->add_filter('woocommerce_analytics_report_menu_items', $this, 'add_rede_analytics_menu_item');
+
+        // Hook AJAX para gerar novas chaves Google Pay
+        $this->loader->add_action('wp_ajax_lkn_generate_new_google_pay_keys', $this, 'lkn_generate_new_google_pay_keys');
+    }
+
+    /**
+     * Handler AJAX para gerar novas chaves Google Pay
+     */
+    public function lkn_generate_new_google_pay_keys(): void {
+        // Verificar nonce
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_keys_ajax_nonce' ) ) {
+            wp_send_json_error( __( 'Invalid nonce.', 'woo-rede' ) );
+        }
+
+        // Check user capability
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'woo-rede' ) );
+        }
+        
+        try {
+            // Chamar a função de geração de novas chaves
+            $result = $this->LknIntegrationRedeForWoocommerceGooglePayClass->autoGenerateNewKeys();
+            
+            if ($result) {
+                wp_send_json_success(array(
+                    'public_key'  => $result['public_key'],
+                    'private_key' => $result['private_key'],
+                    'message'     => __('New keys generated successfully!', 'woo-rede')
+                ));
+            } else {
+                wp_send_json_error(__('Error generating new keys.', 'woo-rede'));
+            }
+        } catch (Exception $e) {
+            wp_send_json_error(__('Internal error: ', 'woo-rede') . $e->getMessage());
+        }
     }
 
     /**
@@ -307,6 +399,7 @@ final class LknIntegrationRedeForWoocommerce
             if ($installment_value < $min_parcels_value) {
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
+                    /* translators: %1$d: number of installments, %2$s: installment price */
                     $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
                     $label = $is_pro_active ? $this->get_installment_label_with_interest(1, $base_label, 'maxipago_credit') : $base_label;
                     $installments[] = [
@@ -316,7 +409,12 @@ final class LknIntegrationRedeForWoocommerce
                 }
                 break;
             }
-            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+            $base_label = sprintf(
+                /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                "%dx de %s", 
+                $i, 
+                wc_price($installment_value)
+            );
 
             // Se a licença PRO estiver ativa, aplicar lógica de juros/desconto
             if ($is_pro_active) {
@@ -427,8 +525,13 @@ final class LknIntegrationRedeForWoocommerce
             if ($installment_value < $min_parcels_value) {
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
-                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_credit') : $base_label;
+                    $base_label = sprintf(
+                        /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                        "%dx de %s", 
+                        1, 
+                        wc_price($cart_total)
+                    );
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, self::GATEWAY_CREDIT) : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -436,11 +539,16 @@ final class LknIntegrationRedeForWoocommerce
                 }
                 break;
             }
-            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+            $base_label = sprintf(
+                /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                "%dx de %s", 
+                $i, 
+                wc_price($installment_value)
+            );
 
             // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
             if ($apply_pro_features) {
-                $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_credit');
+                $label = $this->get_installment_label_with_interest($i, $base_label, self::GATEWAY_CREDIT);
             } else {
                 $label = $base_label;
             }
@@ -555,8 +663,13 @@ final class LknIntegrationRedeForWoocommerce
             if ($installment_value < $min_parcels_value) {
                 // Se nem mesmo 1x atende o valor mínimo, força 1x à vista
                 if ($i === 1) {
-                    $base_label = sprintf("%dx de %s", 1, wc_price($cart_total));
-                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, 'rede_debit') : $base_label;
+                    $base_label = sprintf(
+                        /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                        "%dx de %s", 
+                        1, 
+                        wc_price($cart_total)
+                    );
+                    $label = $apply_pro_features ? $this->get_installment_label_with_interest(1, $base_label, self::GATEWAY_DEBIT) : $base_label;
                     $installments[] = [
                         'key' => 1,
                         'label' => $label
@@ -564,11 +677,16 @@ final class LknIntegrationRedeForWoocommerce
                 }
                 break;
             }
-            $base_label = sprintf("%dx de %s", $i, wc_price($installment_value));
+            $base_label = sprintf(
+                /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                "%dx de %s", 
+                $i, 
+                wc_price($installment_value)
+            );
 
             // Se as funcionalidades PRO estiverem ativadas e configuradas, aplicar lógica de juros/desconto
             if ($apply_pro_features) {
-                $label = $this->get_installment_label_with_interest($i, $base_label, 'rede_debit');
+                $label = $this->get_installment_label_with_interest($i, $base_label, self::GATEWAY_DEBIT);
             } else {
                 $label = $base_label;
             }
@@ -609,17 +727,17 @@ final class LknIntegrationRedeForWoocommerce
 
         // Capturar tipo de cartão (apenas para rede_debit)
         $card_type = null;
-        if ($payment_method === 'rede_debit' && isset($_POST['card_type'])) {
+        if ($payment_method === self::GATEWAY_DEBIT && isset($_POST['card_type'])) {
             $card_type = sanitize_text_field(wp_unslash($_POST['card_type']));
         }
 
         // Verificar nonce baseado no método de pagamento
         $nonce_action = '';
         switch ($payment_method) {
-            case 'rede_credit':
+            case self::GATEWAY_CREDIT:
                 $nonce_action = 'rede_payment_fields_nonce';
                 break;
-            case 'rede_debit':
+            case self::GATEWAY_DEBIT:
                 $nonce_action = 'rede_debit_payment_fields_nonce';
                 break;
             case 'maxipago_credit':
@@ -644,10 +762,10 @@ final class LknIntegrationRedeForWoocommerce
         // Determinar a chave da sessão baseada no método de pagamento
         $session_key = '';
         switch ($payment_method) {
-            case 'rede_credit':
+            case self::GATEWAY_CREDIT:
                 $session_key = 'lkn_installments_number_rede_credit';
                 break;
-            case 'rede_debit':
+            case self::GATEWAY_DEBIT:
                 $session_key = 'lkn_installments_number_rede_debit';
                 break;
             case 'maxipago_credit':
@@ -663,7 +781,7 @@ final class LknIntegrationRedeForWoocommerce
             WC()->session->set($session_key, $installments);
             
             // Para rede_debit, salvar também o tipo de cartão na sessão
-            if ($payment_method === 'rede_debit' && $card_type) {
+            if ($payment_method === self::GATEWAY_DEBIT && $card_type) {
                 WC()->session->set('lkn_card_type_rede_debit', $card_type);
             }
             
@@ -675,7 +793,7 @@ final class LknIntegrationRedeForWoocommerce
             ];
             
             // Incluir tipo de cartão na resposta se for rede_debit
-            if ($payment_method === 'rede_debit' && $card_type) {
+            if ($payment_method === self::GATEWAY_DEBIT && $card_type) {
                 $response_data['card_type'] = $card_type;
             }
             
@@ -688,13 +806,13 @@ final class LknIntegrationRedeForWoocommerce
     /**
      * Gera o label da parcela com informações de juros/desconto (funcionalidade PRO)
      */
-    private function get_installment_label_with_interest($installment_number, $base_label, $gateway = 'rede_credit')
+    private function get_installment_label_with_interest($installment_number, $base_label, $gateway = null)
     {
-        
-        if ($installment_number <= 5) {
-            return $base_label;
+        // Default to credit gateway if not specified
+        if ($gateway === null) {
+            $gateway = self::GATEWAY_CREDIT;
         }
-
+        
         // Obter todas as configurações do gateway
         $gatewaySettings = get_option('woocommerce_' . $gateway . '_settings', array());
         if (!is_array($gatewaySettings)) {
@@ -736,7 +854,7 @@ final class LknIntegrationRedeForWoocommerce
         $no_interest_key = "{$installment_number}x_no_interest";
         if (isset($gatewaySettings[$no_interest_key]) && $gatewaySettings[$no_interest_key] === 'yes') {
             // Para rede_debit, verificar se deve mostrar a informação "sem juros"
-            if ($gateway === 'rede_debit') {
+            if ($gateway === self::GATEWAY_DEBIT) {
                 $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
                 if ($show_percent) {
                     return $base_label . ' sem juros';
@@ -783,7 +901,7 @@ final class LknIntegrationRedeForWoocommerce
         // Se o valor for 0 ou vazio, adicionar "sem juros" apenas se configurado para mostrar
         if ($value === 0) {
             // Para rede_debit, verificar se deve mostrar a informação "sem juros"
-            if ($gateway === 'rede_debit') {
+            if ($gateway === self::GATEWAY_DEBIT) {
                 $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
                 if ($show_percent) {
                     return $base_label . ' sem juros';
@@ -800,7 +918,7 @@ final class LknIntegrationRedeForWoocommerce
 
         // Verificar se deve mostrar porcentagem na label (apenas para rede_debit)
         $show_percent = true;
-        if ($gateway === 'rede_debit') {
+        if ($gateway === self::GATEWAY_DEBIT) {
             $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
         }
 
@@ -808,7 +926,12 @@ final class LknIntegrationRedeForWoocommerce
             // Aplicar desconto
             $total_with_discount = ($cartTotal * (1 - ($value / 100))) + $extra_fees;
             $newInstallmentValue = $total_with_discount / $installment_number;
-            $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
+            $new_label = sprintf(
+                /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                "%dx de %s", 
+                $installment_number, 
+                wc_price($newInstallmentValue)
+            );
             
             if ($show_percent) {
                 return $new_label . " ({$value}% de desconto)";
@@ -819,7 +942,7 @@ final class LknIntegrationRedeForWoocommerce
             // Para juros, verificar se deve ignorar devido ao valor mínimo da parcela
             if ($ignoreInterest) {
                 // Para rede_debit, verificar se deve mostrar a informação "sem juros"
-                if ($gateway === 'rede_debit') {
+                if ($gateway === self::GATEWAY_DEBIT) {
                     $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
                     if ($show_percent) {
                         return $base_label . ' sem juros';
@@ -833,7 +956,12 @@ final class LknIntegrationRedeForWoocommerce
                 // Aplicar juros
                 $total_with_interest = ($cartTotal * (1 + ($value / 100))) + $extra_fees;
                 $newInstallmentValue = $total_with_interest / $installment_number;
-                $new_label = sprintf("%dx de %s", $installment_number, wc_price($newInstallmentValue));
+                $new_label = sprintf(
+                    /* translators: %1$d is the number of installments, %2$s is the formatted price per installment */
+                    "%dx de %s", 
+                    $installment_number, 
+                    wc_price($newInstallmentValue)
+                );
                 
                 if ($show_percent) {
                     return $new_label . " ({$value}% de juros)";
@@ -920,7 +1048,7 @@ final class LknIntegrationRedeForWoocommerce
 
     public function customize_wc_payment_gateway_pix_name($title, $gateway_id)
     {
-        if ($gateway_id === 'integration_rede_pix') {
+        if ($gateway_id === self::GATEWAY_PIX_FREE) {
             $title = __('Rede Pix FREE', 'woo-rede');
         }
         return $title;
@@ -940,7 +1068,7 @@ final class LknIntegrationRedeForWoocommerce
         $payment_method = $theorder->get_payment_method();
         
         // Só adiciona a ação se for um pedido PIX
-        if ($payment_method === 'integration_rede_pix' || $payment_method === 'rede_pix') {
+        if (self::is_pix_gateway($payment_method)) {
             $actions['verify_pix_status'] = __('Verificar Status PIX', 'woo-rede');
         }
         
@@ -955,7 +1083,7 @@ final class LknIntegrationRedeForWoocommerce
         $payment_method = $order->get_payment_method();
         
         // Validar se é pedido PIX
-        if ($payment_method !== 'integration_rede_pix' && $payment_method !== 'rede_pix') {
+        if (!self::is_pix_gateway($payment_method)) {
             $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
             return;
         }
@@ -1151,6 +1279,7 @@ final class LknIntegrationRedeForWoocommerce
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcRedeCreditBlocks());
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcRedeDebitBlocks());
         $payment_method_registry->register(new LknIntegrationRedeForWoocommerceWcPixRedeBlocks());
+        $payment_method_registry->register(new LknIntegrationRedeForWoocommerceGooglePayBlocks());
     }
 
     /**
@@ -1537,7 +1666,7 @@ final class LknIntegrationRedeForWoocommerce
         // Item Rede Transações
         $rede_item = array(
             'id'       => 'woocommerce-analytics-rede-transactions',
-            'title'    => __('Rede Transações', 'lkn-integration-rede-for-woocommerce'),
+            'title'    => __('Rede Transações', 'woo-rede'),
             'parent'   => 'woocommerce-analytics',
             'path'     => '/analytics/rede-transactions',
             'icon'     => 'dashicons-chart-bar',
@@ -1616,11 +1745,12 @@ final class LknIntegrationRedeForWoocommerce
             'pro_version' => 'https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin-rede-free-transaction',
             'site_domain' => home_url(),
             'version_free' => defined('INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION') ? INTEGRATION_REDE_FOR_WOOCOMMERCE_VERSION : 'N/A',
-            'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A'
+            'version_pro' => defined('REDE_FOR_WOOCOMMERCE_PRO_VERSION') ? REDE_FOR_WOOCOMMERCE_PRO_VERSION : 'N/A',
+            'whatsapp_number' => LKN_WC_REDE_WPP_NUMBER
         ));
 
         // Adiciona tradução se necessário
-        wp_set_script_translations('lkn-rede-analytics', 'lkn-integration-rede-for-woocommerce');
+        wp_set_script_translations('lkn-rede-analytics', 'woo-rede');
     }
 
     /**
@@ -1631,7 +1761,7 @@ final class LknIntegrationRedeForWoocommerce
     public function ajax_get_recent_rede_orders()
     {
         // Verificar nonce se fornecido
-        if (isset($_POST['nonce']) && !wp_verify_nonce(wp_unslash($_POST['nonce']), 'lkn_rede_orders_nonce')) {
+        if (isset($_POST['nonce']) && !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_rede_orders_nonce')) {
             wp_send_json_error(array('message' => 'Nonce inválido'));
             return;
         }
@@ -1650,11 +1780,35 @@ final class LknIntegrationRedeForWoocommerce
         $query_limit = isset($_POST['query_limit']) ? max(1, min(1000, (int) sanitize_text_field(wp_unslash($_POST['query_limit'])))) : 50;
         $offset = ($page - 1) * $query_limit;
 
-        // Parâmetros de filtros de data
-        $start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash($_POST['start_date'])) : '';
-        $end_date = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash($_POST['end_date'])) : '';
+        // Parâmetros de filtros de data com validação rigorosa
+        $start_date = '';
+        $end_date = '';
+        
+        // Validar e sanitizar data de início
+        if (isset($_POST['start_date']) && !empty($_POST['start_date'])) {
+            $raw_start_date = sanitize_text_field(wp_unslash($_POST['start_date']));
+            // Validar formato de data Y-m-d
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw_start_date)) {
+                $date_obj = \DateTime::createFromFormat('Y-m-d', $raw_start_date);
+                if ($date_obj && $date_obj->format('Y-m-d') === $raw_start_date) {
+                    $start_date = $raw_start_date;
+                }
+            }
+        }
+        
+        // Validar e sanitizar data de fim  
+        if (isset($_POST['end_date']) && !empty($_POST['end_date'])) {
+            $raw_end_date = sanitize_text_field(wp_unslash($_POST['end_date']));
+            // Validar formato de data Y-m-d
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw_end_date)) {
+                $date_obj = \DateTime::createFromFormat('Y-m-d', $raw_end_date);
+                if ($date_obj && $date_obj->format('Y-m-d') === $raw_end_date) {
+                    $end_date = $raw_end_date;
+                }
+            }
+        }
 
-        // Se não há filtros de data especificados, usar o filtro padrão de "hoje"
+        // Se não há filtros de data válidos especificados, usar o filtro padrão de "hoje"
         if (empty($start_date) && empty($end_date)) {
             $today = gmdate('Y-m-d');
             $start_date = $today;
@@ -1664,30 +1818,44 @@ final class LknIntegrationRedeForWoocommerce
         try {
             global $wpdb;
             
-            // Aplicar filtros de data (sempre há pelo menos o filtro de hoje)
-            $date_where = " WHERE 1=1";
-            $date_params = array();
+            // Query base estática
+            $base_sql = "SELECT o.id 
+                        FROM {$wpdb->prefix}wc_orders o
+                        INNER JOIN {$wpdb->prefix}wc_orders_meta om ON o.id = om.order_id
+                        WHERE om.meta_key = 'lkn_rede_transaction_data'
+                          AND om.meta_value != ''";
             
-            if (!empty($start_date)) {
-                $date_where .= " AND date_created_gmt >= %s";
-                $date_params[] = $start_date . ' 00:00:00';
+            // Construir query baseado nas condições
+            if (!empty($start_date) && !empty($end_date)) {
+                // Ambas as datas
+                $rede_order_ids = $wpdb->get_col($wpdb->prepare(
+                    /* placeholder: %1$s: start date in Y-m-d H:i:s format, %2$s: end date in Y-m-d H:i:s format */
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "$base_sql AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s ORDER BY o.date_created_gmt DESC, o.id DESC",
+                    $start_date . ' 00:00:00',
+                    $end_date . ' 23:59:59'
+                ));
+            } elseif (!empty($start_date)) {
+                // Apenas data de início
+                $rede_order_ids = $wpdb->get_col($wpdb->prepare(
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "$base_sql AND o.date_created_gmt >= %s ORDER BY o.date_created_gmt DESC, o.id DESC",
+                    $start_date . ' 00:00:00'
+                ));
+            } elseif (!empty($end_date)) {
+                // Apenas data de fim
+                $rede_order_ids = $wpdb->get_col($wpdb->prepare(
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "$base_sql AND o.date_created_gmt <= %s ORDER BY o.date_created_gmt DESC, o.id DESC",
+                    $end_date . ' 23:59:59'
+                ));
+            } else {
+                // Nenhum filtro de data
+                $rede_order_ids = $wpdb->get_col($wpdb->prepare(
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "$base_sql ORDER BY o.date_created_gmt DESC, o.id DESC"
+                ));
             }
-            
-            if (!empty($end_date)) {
-                $date_where .= " AND date_created_gmt <= %s";
-                $date_params[] = $end_date . ' 23:59:59';
-            }
-            
-            // PRIMEIRA ETAPA: Buscar TODOS os pedidos que têm dados Rede no período (sem LIMIT)
-            $all_orders_query = "SELECT o.id 
-                               FROM {$wpdb->prefix}wc_orders o
-                               INNER JOIN {$wpdb->prefix}wc_orders_meta om ON o.id = om.order_id
-                               " . $date_where . "
-                               AND om.meta_key = 'lkn_rede_transaction_data'
-                               AND om.meta_value != ''
-                               ORDER BY o.date_created_gmt DESC, o.id DESC";
-            
-            $rede_order_ids = $wpdb->get_col($wpdb->prepare($all_orders_query, $date_params));
             
             // Se não há pedidos Rede, retornar resultado vazio
             if (empty($rede_order_ids)) {
@@ -1748,7 +1916,9 @@ final class LknIntegrationRedeForWoocommerce
             }
 
             $response_data = array(
-                'message' => sprintf('Página %d - %d transações Rede encontradas de %d total', 
+                'message' => sprintf(
+                    /* translators: %1$d is the page number, %2$d is the transactions found, %3$d is the total count */
+                    'Página %d - %d transações Rede encontradas de %d total', 
                     $page, 
                     count($orders_data), 
                     $total_rede_count
@@ -1808,7 +1978,8 @@ final class LknIntegrationRedeForWoocommerce
         }
 
         // Enviar resposta e encerrar
-        echo $toon_response;
+        // Data sanitized and encoded via sanitize Wordpress functions.
+        echo $toon_response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         wp_die('', '', array('response' => null));
     }
 }

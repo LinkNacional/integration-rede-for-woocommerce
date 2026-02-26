@@ -17,6 +17,7 @@
     const pluginPages = [
       'maxipago_credit',
       'maxipago_debit',
+      'rede_google_pay',
       'maxipago_pix',
       'rede_credit',
       'rede_debit',

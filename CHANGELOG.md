@@ -1,3 +1,6 @@
+# 5.2.1 - 24/02/2026
+* Adição do novo método de pagamento Google Pay.
+
 # 5.2.0 - 12/02/2026
 * NOVO Tabela de transações da Rede.
 * NOVO Sistema de envio de credenciais para o suporte.

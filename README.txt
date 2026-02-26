@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.9  
-Stable tag: 5.2.0
+Stable tag: 5.2.1
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -79,6 +79,16 @@ Note: Do not hardcode credentials in source files. Use the plugin settings or en
 
 ---
 
+## External Libraries
+
+This plugin utilizes the following external libraries/services:
+
+- **Google Pay API**: Integrates Google Pay as a payment method, allowing customers to pay quickly and securely. For more information, visit the [Google Pay API documentation](https://developers.google.com/pay/api/web) and the [Terms of Service](https://payments.developers.google.com/terms/sellertos).
+- **Rede API**: Used to process credit, debit, and PIX payments through the Rede gateway. For details, see the [Rede API documentation](https://developer.userede.com.br/e-rede).
+- **Maxipago API**: Enables payment processing via the Maxipago gateway for credit and debit cards. More information is available at the [Maxipago API documentation](https://www.maxipago.com/developers/apidocs/maxipago/
+
+The external libraries and APIs used by this plugin (Google Pay, Rede, Maxipago) are provided by trusted and established payment platforms. These services handle sensitive payment data in accordance with industry security standards and privacy regulations. For more information about data handling and privacy, please refer to the documentation of each service or contact plugin support.
+
 ## Frequently Asked Questions
 
 Q: What is the license of the plugin?  
@@ -114,6 +124,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.2.1 - 2026/02/24
+- Addition of the new Google Pay payment method.
+
 ### 5.2.0 - 2026/02/12
 - NEW Rede transactions table.
 - NEW Credentials submission system for support.
