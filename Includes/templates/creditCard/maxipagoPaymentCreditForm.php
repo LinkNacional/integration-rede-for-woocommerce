@@ -67,7 +67,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_cred
             ) {    ?>
                 <div class="form-row form-row">
                     <label
-                        id="labels-with-icons"
+                        class="labels-with-icons"
                         for="maxipagoCreditCardCpf">
                         <?php echo esc_attr('CPF'); ?><span
                             class="required">*</span>
@@ -111,7 +111,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_cred
 
             <div class="form-row form-row">
                 <label
-                    id="labels-with-icons"
+                    class="labels-with-icons"
                     for="maxipago-card-holder-name">
                     <?php esc_attr_e('Name on Card', 'woo-rede'); ?><span
                         class="required">*</span>
@@ -154,7 +154,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_cred
 
             <div class="form-row form-row">
                 <label
-                    id="labels-with-icons"
+                    class="labels-with-icons"
                     for="maxipago-card-number">
                     <?php esc_attr_e('Card Number', 'woo-rede'); ?>
                     <span class="required">*</span>
@@ -212,7 +212,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_cred
 
             <div class="form-row form-row">
                 <label
-                    id="labels-with-icons"
+                    class="labels-with-icons"
                     for="maxipago-card-expiry">
                     <?php esc_attr_e('Card Expiring Date', 'woo-rede'); ?><span
                         class="required">*</span>
@@ -248,7 +248,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_maxipago_cred
 
             <div class="form-row form-row">
                 <label
-                    id="labels-with-icons"
+                    class="labels-with-icons"
                     for="maxipago-card-cvc"><?php esc_attr_e('Security Code', 'woo-rede'); ?><span
                         class="required">*</span>
                     <div class="icon-maxipago-input">

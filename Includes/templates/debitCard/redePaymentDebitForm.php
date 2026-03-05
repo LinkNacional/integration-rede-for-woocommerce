@@ -7,24 +7,24 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_rede_debit_se
 ?>
 <fieldset id="rede-debit-payment-form" class="rede-payment-form">
     <div class="payment-method-description">
-        <p><?php echo esc_html($integration_rede_for_woocommerce_option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')); ?>
-            <svg id="logo-rede" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480.72 156.96">
-                <defs>
-                    <style>
-                        .cls-1 {
-                            fill: #ff7800
-                        }
-                    </style>
-                </defs>
-                <title>logo-rede</title>
-                <path class="cls-1" d="M475.56 98.71h-106c-15.45 0-22-6-24.67-14.05h33.41c22.33 0 36.08-9.84 36.08-31.08S400.6 21.4 378.27 21.4h-10.62c-20 0-44.34 11.64-49.45 39.51h-29.89V0H263v60.91h-31.23c-29.94.15-46.61 15.31-48.79 37.8h-52.26c-15.45 0-22-6-24.67-14.05h33.41c22.33 0 36.08-9.84 36.08-31.08S161.8 21.4 139.47 21.4h-10.62c-20 0-44.34 11.64-49.45 39.51H57.47c-13.74 0-25.93 4.22-32.64 12.5V62.78H0v87.62c0 5 1.56 6.56 6.4 6.56h12.5c4.68 0 6.4-1.56 6.4-6.56v-34.51c0-26.08 16.4-31.24 33.27-31.24h21.06c5.26 25.88 26.93 38.26 52 38.26h54.48c6.26 15 21.21 22.8 45.17 22.8h14.52c23.74 0 43.73-16.87 43.73-41.7V84.65h28.87c5.26 25.88 26.93 38.26 52 38.26h105.16a5.23 5.23 0 0 0 5.15-5.31v-13.9a5.07 5.07 0 0 0-5.15-4.99zM127.91 45.14h12.34c5.62 0 9.53 2.34 9.53 8 0 5.31-3.9 7.81-9.53 7.81h-34.9c2.07-8.84 7.88-15.81 22.56-15.81zM263 104.8c0 9.84-7.49 16.87-17.18 16.87h-16.24c-13.12 0-21.71-5.15-21.71-18.12 0-12.65 8.59-18.9 21.71-18.9H263v20.15zm103.71-59.66H379c5.62 0 9.53 2.34 9.53 8 0 5.31-3.9 7.81-9.53 7.81h-34.9c2.12-8.84 7.9-15.81 22.61-15.81z"></path>
-            </svg>
+        <p><?php echo esc_html($integration_rede_for_woocommerce_option['description'] ?? __('Pay for your purchase with a debit card through', 'woo-rede')); ?></p>
+        <svg id="logo-rede" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480.72 156.96">
+            <defs>
+                <style>
+                    .cls-1 {
+                        fill: #ff7800
+                    }
+                </style>
+            </defs>
+            <title>logo-rede</title>
+            <path class="cls-1" d="M475.56 98.71h-106c-15.45 0-22-6-24.67-14.05h33.41c22.33 0 36.08-9.84 36.08-31.08S400.6 21.4 378.27 21.4h-10.62c-20 0-44.34 11.64-49.45 39.51h-29.89V0H263v60.91h-31.23c-29.94.15-46.61 15.31-48.79 37.8h-52.26c-15.45 0-22-6-24.67-14.05h33.41c22.33 0 36.08-9.84 36.08-31.08S161.8 21.4 139.47 21.4h-10.62c-20 0-44.34 11.64-49.45 39.51H57.47c-13.74 0-25.93 4.22-32.64 12.5V62.78H0v87.62c0 5 1.56 6.56 6.4 6.56h12.5c4.68 0 6.4-1.56 6.4-6.56v-34.51c0-26.08 16.4-31.24 33.27-31.24h21.06c5.26 25.88 26.93 38.26 52 38.26h54.48c6.26 15 21.21 22.8 45.17 22.8h14.52c23.74 0 43.73-16.87 43.73-41.7V84.65h28.87c5.26 25.88 26.93 38.26 52 38.26h105.16a5.23 5.23 0 0 0 5.15-5.31v-13.9a5.07 5.07 0 0 0-5.15-4.99zM127.91 45.14h12.34c5.62 0 9.53 2.34 9.53 8 0 5.31-3.9 7.81-9.53 7.81h-34.9c2.07-8.84 7.88-15.81 22.56-15.81zM263 104.8c0 9.84-7.49 16.87-17.18 16.87h-16.24c-13.12 0-21.71-5.15-21.71-18.12 0-12.65 8.59-18.9 21.71-18.9H263v20.15zm103.71-59.66H379c5.62 0 9.53 2.34 9.53 8 0 5.31-3.9 7.81-9.53 7.81h-34.9c2.12-8.84 7.9-15.81 22.61-15.81z"></path>
+        </svg>
     </div>
     <div class="rede-debit-fields-wrapper">
         <div id="rede-debit-card-animation" class="card-wrapper card-animation"></div>
         <div class="wc-payment-rede-form-fields">
             <div class="form-row form-row">
-                <label id="labels-with-icons" for="rede-debit-card-holder-name">
+                <label class="labels-with-icons" for="rede-debit-card-holder-name">
                     <?php esc_attr_e('Name on Card', 'woo-rede'); ?><span class="required">*</span>
                     <div class="icon-rede-input">
                         <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -44,7 +44,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_rede_debit_se
             </div>
 
             <div class="form-row form-row">
-                <label id="labels-with-icons" for="rede-debit-card-number">
+                <label class="labels-with-icons" for="rede-debit-card-number">
                     <?php esc_attr_e('Card Number', 'woo-rede'); ?>
                     <span class="required">*</span>
                     <div class="icon-rede-input">
@@ -73,7 +73,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_rede_debit_se
             </div>
 
             <div class="form-row form-row">
-                <label id="labels-with-icons" for="rede-debit-card-expiry">
+                <label class="labels-with-icons" for="rede-debit-card-expiry">
                     <?php esc_attr_e('Card Expiring Date', 'woo-rede'); ?><span class="required">*</span>
                     <div class="icon-rede-input">
                         <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="4px" width="24px" height="16px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
@@ -91,7 +91,7 @@ $integration_rede_for_woocommerce_option = get_option('woocommerce_rede_debit_se
             </div>
 
             <div class="form-row form-row">
-                <label id="labels-with-icons" for="rede-debit-card-cvc"><?php esc_attr_e('Security Code', 'woo-rede'); ?><span class="required">*</span>
+                <label class="labels-with-icons" for="rede-debit-card-cvc"><?php esc_attr_e('Security Code', 'woo-rede'); ?><span class="required">*</span>
                     <div class="icon-rede-input">
                         <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="3px" width="24px" height="17px" viewBox="0 0 216 146" enable-background="new 0 0 216 146" xml:space="preserve">
                             <path class="svg" d="M152.646,70.067c-1.521-1.521-3.367-2.281-5.541-2.281H144.5V52.142c0-9.994-3.585-18.575-10.754-25.745c-7.17-7.17-15.751-10.755-25.746-10.755s-18.577,3.585-25.746,10.755C75.084,33.567,71.5,42.148,71.5,52.142v15.644h-2.607c-2.172,0-4.019,0.76-5.54,2.281c-1.521,1.52-2.281,3.367-2.281,5.541v46.929c0,2.172,0.76,4.019,2.281,5.54c1.521,1.52,3.368,2.281,5.54,2.281h78.214c2.174,0,4.02-0.76,5.541-2.281c1.52-1.521,2.281-3.368,2.281-5.54V75.607C154.93,73.435,154.168,71.588,152.646,70.067z M128.857,67.786H87.143V52.142c0-5.757,2.037-10.673,6.111-14.746c4.074-4.074,8.989-6.11,14.747-6.11s10.673,2.036,14.746,6.11c4.073,4.073,6.11,8.989,6.11,14.746V67.786z" style="fill: rgb(21, 140, 186);"></path>

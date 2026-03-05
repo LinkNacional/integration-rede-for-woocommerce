@@ -1,0 +1,48 @@
+.rede-payment-form {
+    padding: 20px !important;
+}
+
+.payment-method-description {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.payment-method-description p {
+    text-align: center;
+    margin: 0 !important;
+}
+
+#logo-rede {
+    height: 20px;
+}
+
+.labels-with-icons {
+    display: flex !important;
+    align-items: center;
+}
+
+.icon-rede-input {
+    display: flex !important;
+    width: fit-content;
+    height: fit-content;
+}
+
+.required {
+    line-height: normal !important;
+}
+
+.input-text,
+.input-select {
+    padding: .5em .8em !important;
+    font-size: 1rem !important;
+}
+
+@media (max-width: 450px) {
+    .rede-payment-form {
+        padding: 10px !important;
+    }
+}
