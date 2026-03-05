@@ -1,3 +1,40 @@
+#rede-card-animation,
+#rede-debit-card-animation {
+    display: flex;
+    align-items: center;
+    justify-self: center; 
+    margin: 0px !important;
+    margin-bottom: 2em !important;
+    padding: 0px !important;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#rede-card-animation .jp-card-container,
+#rede-debit-card-animation .jp-card-container {
+    width: 100% !important;
+    max-width: 350px;
+}
+
+#rede-card-animation .jp-card-front,
+#rede-debit-card-animation .jp-card-front {
+    background: #c1c1c1;
+}
+
+#rede-card-animation .jp-card-display,
+#rede-debit-card-animation .jp-card-display {
+    color: #fff;
+    opacity: 1 !important;
+}
+
+#rede-card-animation .jp-card-expiry:after,
+#rede-debit-card-animation .jp-card-expiry:after {
+    height: 100% !important;
+    top: 3px;
+    opacity: 1 !important;
+}
+
 .jp-card.jp-card-safari.jp-card-identified .jp-card-front:before,
 .jp-card.jp-card-safari.jp-card-identified .jp-card-back:before {
     background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 1px, rgba(255, 255, 255, 0) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(210deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), -webkit-linear-gradient(-245deg, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.2) 70%, rgba(255, 255, 255, 0) 90%);
@@ -803,7 +840,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    min-width: 315px;
+    min-width: 260px !important;
     border-radius: 10px;
     -webkit-transform-style: preserve-3d;
     -moz-transform-style: preserve-3d;
@@ -1094,4 +1131,16 @@
 .jp-card.jp-card-identified.no-radial-gradient .jp-card-front:before {
     background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 1px, rgba(255, 255, 255, 0) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(210deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), -webkit-linear-gradient(-245deg, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.2) 70%, rgba(255, 255, 255, 0) 90%);
     background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 1px, rgba(255, 255, 255, 0) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), repeating-linear-gradient(210deg, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.05) 4px), linear-gradient(-25deg, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.2) 70%, rgba(255, 255, 255, 0) 90%)
+}
+
+@media (max-width: 450px) {
+    #rede-card-animation,
+    #rede-debit-card-animation {
+        width: 200px !important;
+        margin-bottom: 0px !important;
+    }
+
+    .jp-card {
+        min-width: 315px !important;
+    }
 }
