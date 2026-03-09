@@ -423,7 +423,7 @@ class LknIntegrationRedeForWoocommerceHelper
 
     public static function getUrlIcon()
     {
-        return plugin_dir_url(__DIR__) . "Includes/assets/WordpressAssets/icon.svg";
+        return plugin_dir_url(__DIR__) . "Includes/assets/icons/icon.svg";
     }
 
     public static function lknIntegrationRedeProRedeInterest($order_total, $interest, $i, $option, $instance, $order_id = null) 
