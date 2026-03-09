@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.9  
-Stable tag: 5.3.0
+Stable tag: 5.3.1
 Requires PHP: 7.2  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -124,6 +124,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.3.1 - 2026/03/09
+- Addition of the network icon.
+
 ### 5.3.0 - 2026/02/24
 - Addition of the new Google Pay payment method.
 
