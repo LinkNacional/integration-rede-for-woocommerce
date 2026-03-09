@@ -124,6 +124,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.3.1 - 2026/03/09
+- Addition of the network icon.
+
 ### 5.3.0 - 2026/02/24
 - Addition of the new Google Pay payment method.
 

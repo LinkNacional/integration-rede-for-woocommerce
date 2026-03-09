@@ -1,3 +1,6 @@
+# 5.3.1 - 09/03/2026
+* Adição do ícone da rede.
+
 # 5.3.0 - 24/02/2026
 * Adição do novo método de pagamento Google Pay.
 
