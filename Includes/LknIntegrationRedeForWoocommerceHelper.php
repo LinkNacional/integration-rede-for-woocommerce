@@ -1179,8 +1179,15 @@ class LknIntegrationRedeForWoocommerceHelper
 
         // Environment baseado no gateway
         $environment = 'Sandbox';
-        if ($gatewayInstance && method_exists($gatewayInstance, 'get_option')) {
-            $environment = ($gatewayInstance->get_option('env') == 'production') ? 'Produção' : 'Sandbox';
+        if ($gatewayInstance) {
+            if (is_array($gatewayInstance)) {
+                // É um array de configurações
+                $env = $gatewayInstance['environment'] ?? 'test';
+                $environment = ($env === 'production') ? 'Produção' : 'Sandbox';
+            } else {
+                // É uma instância do gateway
+                $environment = ($gatewayInstance->get_option('environment', 'test') === 'production') ? 'Produção' : 'Sandbox';
+            }
         }
 
         // Validar e mascarar credentials dinamicamente

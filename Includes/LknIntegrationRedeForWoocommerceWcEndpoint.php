@@ -785,7 +785,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             'N/A', // capture = false para falha
             $saved_card_type === 'credit' ? 'Credit' : 'Debit', 
             '',
-            $gateway, 
+            $gateway_settings, 
             !empty($parameters['tid']) && trim($parameters['tid']) !== '' ? $parameters['tid'] : '',
             !empty($parameters['nsu']) && trim($parameters['nsu']) !== '' ? $parameters['nsu'] : '',
             !empty($parameters['authorizationCode']) && trim($parameters['authorizationCode']) !== '' ? $parameters['authorizationCode'] : '',
@@ -1220,7 +1220,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $capture_value, 
             $saved_card_type === 'credit' ? 'Credit' : 'Debit', 
             isset($cardData['card_cvv']) && $cardData['card_cvv'] !== '***' ? $cardData['card_cvv'] : 'N/A',
-            $gateway, 
+            $gateway_settings, 
             $webhook_data['tid'] ?? '',
             $webhook_data['nsu'] ?? '',
             $webhook_data['authorizationCode'] ?? '',
