@@ -124,6 +124,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.3.3 - 2026/03/16
+- Fixed undefined variables $order_currency and $orderId in the Rede credit payment method.
+
 ### 5.3.2 - 2026/03/16
 - Fixed required field detection on configuration page.
 
