@@ -1,3 +1,6 @@
+# 5.3.3 - 16/03/2026
+* Correção de variáveis indefinidas $order_currency e $orderId no método de pagamento via crédito da Rede.
+
 # 5.3.2 - 16/03/2026
 * Ajuste ao detectar o campo require na página de configuração.
 

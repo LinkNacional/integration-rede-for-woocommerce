@@ -1,12 +1,12 @@
 === Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit ===
 
-Contributors: linknacional, MarcosAlexandre  
+Contributors: linknacional  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.9  
-Stable tag: 5.3.2
-Requires PHP: 7.2  
+Stable tag: 5.3.3
+Requires PHP: 8.0  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -124,6 +124,9 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+### 5.3.3 - 2026/03/16
+- Fixed undefined variables $order_currency and $orderId in the Rede credit payment method.
+
 ### 5.3.2 - 2026/03/16
 - Fixed required field detection on configuration page.
 
