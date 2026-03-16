@@ -1,6 +1,6 @@
 === Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit ===
 
-Contributors: linknacional, MarcosAlexandre  
+Contributors: linknacional  
 Donate link: https://www.linknacional.com/wordpress/plugins/  
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
