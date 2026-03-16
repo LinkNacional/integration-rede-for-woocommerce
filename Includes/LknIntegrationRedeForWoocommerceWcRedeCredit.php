@@ -897,6 +897,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         $order = wc_get_order($order_id);
+        
+        // Define variables needed throughout the function
+        $orderId = $order->get_id();
+        $default_currency = get_option('woocommerce_currency', 'BRL');
+        $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
         $cardNumber = isset($_POST['rede_credit_number']) ?
             sanitize_text_field(wp_unslash($_POST['rede_credit_number'])) : '';
 
@@ -979,13 +984,10 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 throw new Exception(__('Invalid number of installments', 'woo-rede'));
             }
 
-            $orderId = $order->get_id();
             $interest = round((float) $this->get_option($installments . 'x'), 2);
             $order_total = $order->get_total();
             $decimals = get_option('woocommerce_price_num_decimals', 2);
             $convert_to_brl_enabled = false;
-            $default_currency = get_option('woocommerce_currency', 'BRL');
-            $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : $default_currency;
 
             // Check if BRL conversion is enabled via pro plugin
             $convert_to_brl_enabled = LknIntegrationRedeForWoocommerceHelper::is_convert_to_brl_enabled($this->id);
