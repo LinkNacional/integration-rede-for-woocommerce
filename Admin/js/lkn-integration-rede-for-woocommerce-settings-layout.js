@@ -133,7 +133,7 @@
                     }
                 }
 
-                // Caso o formulário tenha um campo inválido, força o click no menu em que o campo inválido está
+                // Caso o formulário tenha um campo inválido, navega para a aba correta
                 mainForm.addEventListener('invalid', function (event) {
                     const invalidField = event.target
                     if (invalidField) {
@@ -141,12 +141,38 @@
                         while (parentNode && parentNode.tagName !== 'TABLE') {
                             parentNode = parentNode.parentNode
                         }
-                        if (parentNode) {
-                            // Força o click no menu em que o campo inválido está
-                            // TODO Fix this latter pElements don't exist
-                            // if (pElements) {
-                            //    pElements[parentNode.menuIndex - 1].parentNode.click()
-                            // }
+                        if (parentNode && typeof parentNode.menuIndex !== 'undefined') {
+                            const tableIndex = parentNode.menuIndex;
+                            let targetTabIndex = -1;
+                            
+                            // Determina qual aba deve ser ativada baseado no índice da tabela
+                            if (tableIndex === 0 || tableIndex === 1) {
+                                // Tabelas 0 e 1 pertencem à primeira aba (General)
+                                targetTabIndex = 0;
+                            } else {
+                                // Outras tabelas seguem a regra: tabela index = aba index
+                                targetTabIndex = tableIndex - 1;
+                            }
+                            
+                            // Clica na aba correspondente se ela existir e não for a aba já ativa
+                            if (targetTabIndex >= 0 && targetTabIndex < aElements.length && 
+                                lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar !== (targetTabIndex + 1)) {
+                                
+                                // Atualiza a variável de controle da seção ativa
+                                lknIntegrationRedeForWoocommerceSettingsLayoutMenuVar = targetTabIndex + 1;
+                                
+                                // Atualiza as classes das abas
+                                aElements.forEach((aElement, index) => {
+                                    if (index === targetTabIndex) {
+                                        aElement.className = 'nav-tab nav-tab-active';
+                                    } else {
+                                        aElement.className = 'nav-tab';
+                                    }
+                                });
+                                
+                                // Atualiza o layout para mostrar a aba correta
+                                changeLayout();
+                            }
                         }
                     }
                 }, true)
