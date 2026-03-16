@@ -1,3 +1,6 @@
+# 5.3.2 - 16/03/2026
+* Ajuste ao detectar o campo require na página de configuração.
+
 # 5.3.1 - 09/03/2026
 * Adição do ícone da rede.
 
