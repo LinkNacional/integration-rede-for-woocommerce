@@ -285,6 +285,9 @@ final class LknIntegrationRedeForWoocommerce
 
         // Hook AJAX para gerar novas chaves Google Pay
         $this->loader->add_action('wp_ajax_lkn_generate_new_google_pay_keys', $this, 'lkn_generate_new_google_pay_keys');
+        
+        // Hook AJAX para dispensar notificação de fraude
+        $this->loader->add_action('wp_ajax_lkn_dismiss_fraud_notice', $this, 'lkn_dismiss_fraud_notice');
     }
 
     /**
@@ -316,6 +319,32 @@ final class LknIntegrationRedeForWoocommerce
             }
         } catch (Exception $e) {
             wp_send_json_error(__('Internal error: ', 'woo-rede') . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Handler AJAX para dispensar notificação de fraude
+     */
+    public function lkn_dismiss_fraud_notice(): void {
+        // Verificar nonce
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'lkn_dismiss_fraud_notice_nonce' ) ) {
+            wp_send_json_error( __( 'Invalid nonce.', 'woo-rede' ) );
+        }
+
+        // Check user capability
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'woo-rede' ) );
+        }
+        
+        // Atualizar option para marcar como dispensada
+        $updated = update_option('lkn_fraud_notice_dismissed', 'yes');
+        
+        if ($updated) {
+            wp_send_json_success(array(
+                'message' => __('Notice dismissed successfully.', 'woo-rede')
+            ));
+        } else {
+            wp_send_json_error(__('Error updating option.', 'woo-rede'));
         }
     }
 
@@ -972,9 +1001,23 @@ final class LknIntegrationRedeForWoocommerce
         }
     }
 
-    public function lkn_admin_notice()
+    /**
+     * Show admin notice for fraud detection plugin
+     */
+    public function lkn_admin_notice(): void
     {
-        if (!file_exists(WP_PLUGIN_DIR . '/fraud-detection-for-woocommerce/fraud-detection-for-woocommerce.php')) {
+        // Verificar se usuario já dispensou a notificação
+        $notice_dismissed = get_option('lkn_fraud_notice_dismissed', 'no');
+        
+        if ($notice_dismissed === 'no' && !file_exists(WP_PLUGIN_DIR . '/fraud-detection-for-woocommerce/fraud-detection-for-woocommerce.php')) {
+            // Enfileirar script para dismiss da notificação
+            wp_enqueue_script('lkn-rede-dismiss-notice', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Admin/js/lkn-dismiss-fraud-notice.js', array('jquery'), $this->version, true);
+            wp_localize_script('lkn-rede-dismiss-notice', 'lknRedeDismissNotice', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('lkn_dismiss_fraud_notice_nonce'),
+                'action' => 'lkn_dismiss_fraud_notice'
+            ));
+            
             require INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR . 'Includes/views/notices/lkn-integration-rede-for-woocommerce-notice-download.php';
         }
     }
