@@ -232,4 +232,400 @@ final class LknIntegrationRedeForWoocommerceAdmin
             ));
         }
     }
+
+    /**
+     * Add bulk actions for WooCommerce orders page
+     *
+     * @since    1.0.0
+     */
+    public function add_bulk_order_actions($bulk_actions)
+    {
+        $bulk_actions['export_rede_xls'] = __('Exportar Rede XLS', 'woo-rede');
+        return $bulk_actions;
+    }
+
+    /**
+     * Handle bulk action for export orders to XLS
+     *
+     * @since    1.0.0
+     */
+    public function handle_bulk_export_rede_xls($redirect_to, $action, $order_ids)
+    {
+        if ($action !== 'export_rede_xls') {
+            return $redirect_to;
+        }
+
+        if (empty($order_ids)) {
+            return $redirect_to;
+        }
+
+        // Check user permissions
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(__('Você não tem permissão para exportar pedidos.', 'woo-rede'));
+        }
+
+        // Generate XLS file
+        $this->export_orders_to_xls($order_ids);
+
+        return $redirect_to;
+    }
+
+    /**
+     * Export orders to XLS format
+     *
+     * @since    1.0.0
+     */
+    private function export_orders_to_xls($order_ids)
+    {
+        // Set content type for Excel download
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="exportacao_rede_' . date('Y-m-d_H-i-s') . '.xls"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // Start output with UTF-8 BOM for proper encoding
+        echo "\xEF\xBB\xBF";
+
+        // Generate CSV content that Excel will interpret as XLS
+        $this->generate_xls_content($order_ids);
+
+        exit;
+    }
+
+    /**
+     * Generate XLS content for orders
+     *
+     * @since    1.0.0
+     */
+    private function generate_xls_content($order_ids)
+    {
+        // CSV delimiter
+        $delimiter = "\t"; // Tab delimiter works better with Excel
+
+        // Predefined column headers
+        $headers = array(
+            'ID do Pedido',
+            'Data do Pedido',
+            'Status do Pedido',
+            'Total do Pedido',
+            'Método de Pagamento',
+            'Nome do Cliente',
+            'Email do Cliente',
+            'Telefone do Cliente',
+            'CPF/CNPJ',
+            'Tipo de Pessoa'
+        );
+
+        // Get Rede gateway metadata fields
+        $rede_meta_fields = array(
+            '_wc_rede_card_type' => 'Tipo do Cartão',
+            '_wc_rede_installments' => 'Parcelas',
+            '_wc_rede_transaction_card_number' => 'Número do Cartão',
+            '_wc_rede_transaction_last4' => 'Últimos 4 dígitos',
+            '_wc_rede_transaction_bin' => 'BIN do Cartão',
+            '_wc_rede_transaction_expiration_month' => 'Mês de Expiração',
+            '_wc_rede_transaction_expiration_year' => 'Ano de Expiração',
+            '_wc_rede_transaction_holder' => 'Portador do Cartão',
+            '_wc_rede_transaction_refund_id' => 'ID do Reembolso',
+            '_wc_rede_transaction_cancel_id' => 'ID do Cancelamento',
+            '_wc_rede_pix_integration_time_expiration' => 'Expiração PIX',
+            '_wc_rede_transaction_id' => 'ID da Transação Rede',
+            '_wc_rede_transaction_return_code' => 'Código de Retorno',
+            '_wc_rede_transaction_return_message' => 'Mensagem de Retorno',
+            '_wc_rede_transaction_authorization_code' => 'Código de Autorização',
+            '_wc_rede_transaction_nsu' => 'NSU',
+            '_wc_rede_transaction_amount' => 'Valor da Transação',
+            '_wc_rede_pix_qr_code' => 'QR Code PIX',
+            '_wc_rede_pix_txid' => 'TXID PIX'
+        );
+
+        // Adicionar campos específicos do lkn_rede_transaction_data
+        $transaction_data_fields = array(
+            'lkn_rede_gateway_type' => 'Tipo Gateway',
+            'lkn_rede_gateway_brand' => 'Bandeira',
+            'lkn_rede_gateway_masked' => 'Cartão Mascarado',
+            'lkn_rede_gateway_expiry' => 'Validade',
+            'lkn_rede_transaction_tid' => 'TID',
+            'lkn_rede_transaction_capture' => 'Captura',
+            'lkn_rede_transaction_recurrent' => 'Recorrente',
+            'lkn_rede_transaction_installment_amount' => 'Valor da Parcela',
+            'lkn_rede_amounts_subtotal' => 'Subtotal',
+            'lkn_rede_amounts_shipping' => 'Frete',
+            'lkn_rede_amounts_interest_discount' => 'Juros/Desconto',
+            'lkn_rede_system_environment' => 'Ambiente',
+            'lkn_rede_system_gateway' => 'Gateway Sistema',
+            'lkn_rede_system_reference' => 'Referência',
+            'lkn_rede_response_http_status' => 'Status HTTP'
+        );
+
+        // Combinar todos os campos de metadados
+        $rede_meta_fields = array_merge($rede_meta_fields, $transaction_data_fields);
+
+        // Add Rede metadata headers
+        foreach ($rede_meta_fields as $meta_key => $label) {
+            $headers[] = $label;
+        }
+
+        // Process first order to get max products
+        $max_products = 0;
+
+        foreach ($order_ids as $order_id) {
+            if (!$order_id) continue;
+
+            $order = wc_get_order($order_id);
+            if (!$order) continue;
+
+            $items = $order->get_items();
+            $product_count = count($items);
+            if ($product_count > $max_products) {
+                $max_products = $product_count;
+            }
+        }
+
+        // Add product headers
+        for ($i = 1; $i <= $max_products; $i++) {
+            $headers[] = "ID do Produto #{$i}";
+            $headers[] = "Nome do Produto #{$i}";
+            $headers[] = "Quantidade #{$i}";
+            $headers[] = "Preço #{$i}";
+            $headers[] = "Metadados do Produto #{$i}";
+        }
+
+        // Escape headers and output
+        $escaped_headers = array();
+        foreach ($headers as $header) {
+            $escaped_headers[] = $this->escape_csv_field($header);
+        }
+        echo implode($delimiter, $escaped_headers) . "\n";
+
+        // Process each order
+        foreach ($order_ids as $order_id) {
+            if (!$order_id) continue;
+
+            $order = wc_get_order($order_id);
+            if (!$order) continue;
+
+            $row = array();
+
+            // Basic order data
+            $row[] = $order->get_id();
+            $row[] = $order->get_date_created()->date('Y-m-d H:i:s');
+            $row[] = $order->get_status();
+            $row[] = $order->get_total();
+            $row[] = $order->get_payment_method_title();
+
+            // Customer data
+            $row[] = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
+            $row[] = $order->get_billing_email();
+            $row[] = $order->get_billing_phone();
+
+            // CPF/CNPJ field
+            $cpf = $order->get_meta('_billing_cpf');
+            $cnpj = $order->get_meta('_billing_cnpj');
+            $row[] = $cpf ?: $cnpj ?: '';
+
+            // Person type
+            $person_type = $order->get_meta('_billing_persontype');
+            $person_type_label = '';
+            switch ($person_type) {
+                case '1':
+                    $person_type_label = 'Pessoa Física';
+                    break;
+                case '2':
+                    $person_type_label = 'Pessoa Jurídica';
+                    break;
+                case '0':
+                    $person_type_label = 'Nenhum';
+                    break;
+                default:
+                    $person_type_label = '';
+            }
+            $row[] = $person_type_label;
+
+            // Rede metadata
+            $transaction_data = $order->get_meta('lkn_rede_transaction_data');
+            $parsed_transaction_data = array();
+            
+            // Parse transaction data if available
+            if (!empty($transaction_data)) {
+                $parsed_transaction_data = is_string($transaction_data) ? json_decode($transaction_data, true) : $transaction_data;
+                if (!is_array($parsed_transaction_data)) {
+                    $parsed_transaction_data = array();
+                }
+            }
+
+            foreach ($rede_meta_fields as $meta_key => $label) {
+                $meta_value = $order->get_meta($meta_key);
+                
+                // Se o metadado não existir, tentar extrair do lkn_rede_transaction_data
+                if (empty($meta_value) && !empty($parsed_transaction_data)) {
+                    $meta_value = $this->extract_from_transaction_data($meta_key, $parsed_transaction_data);
+                }
+                
+                $row[] = $meta_value ?: '';
+            }
+
+            // Product data
+            $items = $order->get_items();
+            $item_index = 0;
+
+            foreach ($items as $item) {
+                $item_index++;
+                $product_id = $item->get_product_id();
+                $product = $item->get_product();
+
+                $row[] = $product_id;
+                $row[] = $item->get_name();
+                $row[] = $item->get_quantity();
+                $row[] = $item->get_total();
+
+                // Consolidated product metadata
+                $product_metadata = '';
+                if ($product) {
+                    $product_metadata = $this->get_consolidated_product_metadata($product, $item->get_name());
+                }
+                $row[] = $product_metadata;
+            }
+
+            // Fill remaining product columns if this order has fewer products than max
+            $remaining_products = $max_products - $item_index;
+            for ($i = 0; $i < $remaining_products; $i++) {
+                $row[] = ''; // Product ID
+                $row[] = ''; // Product Name
+                $row[] = ''; // Quantity
+                $row[] = ''; // Price
+                $row[] = ''; // Product Metadata
+            }
+
+            // Convert all fields to UTF-8 and escape properly
+            $escaped_row = array();
+            foreach ($row as $field) {
+                $escaped_row[] = $this->escape_csv_field($field);
+            }
+
+            // Output row
+            echo implode($delimiter, $escaped_row) . "\n";
+        }
+    }
+
+    /**
+     * Escape field for CSV/XLS export
+     *
+     * @since    1.0.0
+     */
+    private function escape_csv_field($field)
+    {
+        // Convert to string and ensure UTF-8
+        $field = (string) $field;
+        $field = mb_convert_encoding($field, 'UTF-8', 'auto');
+        
+        // Escape double quotes by doubling them
+        $field = str_replace('"', '""', $field);
+        
+        // If field contains delimiter, quotes, or newlines, wrap in quotes
+        if (strpos($field, "\t") !== false || strpos($field, '"') !== false || strpos($field, "\n") !== false || strpos($field, "\r") !== false) {
+            $field = '"' . $field . '"';
+        }
+
+        return $field;
+    }
+
+    /**
+     * Extract value from lkn_rede_transaction_data array
+     *
+     * @since    1.0.0
+     */
+    private function extract_from_transaction_data($meta_key, $transaction_data)
+    {
+        if (!is_array($transaction_data)) {
+            return '';
+        }
+
+        // Mapeamento dos campos de metadados para as chaves do transaction_data
+        $mapping = array(
+            'lkn_rede_gateway_type' => 'gateway.type',
+            'lkn_rede_gateway_brand' => 'gateway.brand', 
+            'lkn_rede_gateway_masked' => 'gateway.masked',
+            'lkn_rede_gateway_expiry' => 'gateway.expiry',
+            'lkn_rede_transaction_tid' => 'transaction.tid',
+            'lkn_rede_transaction_capture' => 'transaction.capture',
+            'lkn_rede_transaction_recurrent' => 'transaction.recurrent',
+            'lkn_rede_transaction_installment_amount' => 'transaction.installment_amount',
+            'lkn_rede_amounts_subtotal' => 'amounts.subtotal',
+            'lkn_rede_amounts_shipping' => 'amounts.shipping',
+            'lkn_rede_amounts_interest_discount' => 'amounts.interest_discount',
+            'lkn_rede_system_environment' => 'system.environment',
+            'lkn_rede_system_gateway' => 'system.gateway',
+            'lkn_rede_system_reference' => 'system.reference',
+            'lkn_rede_response_http_status' => 'response.http_status',
+            // Mapeamento para campos existentes que podem estar no transaction_data
+            '_wc_rede_transaction_nsu' => 'transaction.nsu',
+            '_wc_rede_transaction_authorization_code' => 'transaction.authorization_code',
+            '_wc_rede_installments' => 'transaction.installments',
+            '_wc_rede_transaction_holder' => 'gateway.holder_name'
+        );
+
+        if (!isset($mapping[$meta_key])) {
+            return '';
+        }
+
+        $path = $mapping[$meta_key];
+        $keys = explode('.', $path);
+        $value = $transaction_data;
+
+        // Navegar pela estrutura aninhada
+        foreach ($keys as $key) {
+            if (!isset($value[$key])) {
+                return '';
+            }
+            $value = $value[$key];
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Get consolidated product metadata in "key: value" format
+     *
+     * @since    1.0.0
+     */
+    private function get_consolidated_product_metadata($product, $product_name)
+    {
+        if (!$product) {
+            return '';
+        }
+
+        // Metadados que devem ser excluídos
+        $excluded_meta_keys = array(
+            'lkn_wcip_subscription_limit',
+            'lkn_wcip_subscription_interval_type',
+            'lkn_wcip_subscription_interval_number',
+            'lknMaxipagoProdutctInterest',
+            'lknRedeProdutctInterest'
+        );
+
+        $meta_data = $product->get_meta_data();
+        $metadata_strings = array();
+
+        foreach ($meta_data as $meta) {
+            $meta_info = $meta->get_data();
+            $meta_key = $meta_info['key'];
+            $meta_value = $meta_info['value'];
+
+            // Pular metadados internos (começam com _) e excluídos
+            if (str_starts_with($meta_key, '_') || in_array($meta_key, $excluded_meta_keys)) {
+                continue;
+            }
+
+            // Pular se valor estiver vazio
+            if (empty($meta_value)) {
+                continue;
+            }
+
+            // Formatar como "chave: valor"
+            $metadata_strings[] = $meta_key . ': ' . $meta_value;
+        }
+
+        return implode(' | ', $metadata_strings);
+    }
 }

@@ -288,6 +288,12 @@ final class LknIntegrationRedeForWoocommerce
         
         // Hook AJAX para dispensar notificação de fraude
         $this->loader->add_action('wp_ajax_lkn_dismiss_fraud_notice', $this, 'lkn_dismiss_fraud_notice');
+
+        // Hooks para exportação XLS em ações em massa (HPOS e Legacy)
+        $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'add_bulk_order_actions');
+        $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'handle_bulk_export_rede_xls', 10, 3);
+        $this->loader->add_filter('bulk_actions-woocommerce_page_wc-orders', $plugin_admin, 'add_bulk_order_actions');
+        $this->loader->add_filter('handle_bulk_actions-woocommerce_page_wc-orders', $plugin_admin, 'handle_bulk_export_rede_xls', 10, 3);
     }
 
     /**
