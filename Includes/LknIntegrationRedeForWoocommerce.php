@@ -2142,37 +2142,25 @@ final class LknIntegrationRedeForWoocommerce
             return false;
         }
 
-        // Para PV (formato: 106**432)
-        if (strpos($masked, '**') !== false) {
-            $parts = explode('**', $masked);
-            if (count($parts) === 2) {
-                $prefix = $parts[0];
-                $suffix = $parts[1];
-                
-                $prefix_match = (substr($current, 0, strlen($prefix)) === $prefix);
-                $suffix_match = (substr($current, -strlen($suffix)) === $suffix);
-                
-                return $prefix_match && $suffix_match;
-            }
+        // Verificar se tem asteriscos
+        if (strpos($masked, '*') === false) {
+            return false;
         }
 
-        // Para Token (formato: 4f731a********************3c6304)
-        if (strpos($masked, '*') !== false) {
-            // Contar asteriscos para determinar padrão
-            $asterisk_count = substr_count($masked, '*');
-            
-            if ($asterisk_count >= 10) { // Token format
-                // Extrair início e fim
-                preg_match('/^([^*]+)\*+([^*]+)$/', $masked, $matches);
-                if (count($matches) === 3) {
-                    $prefix = $matches[1];
-                    $suffix = $matches[2];
-                    
-                    $prefix_match = (substr($current, 0, strlen($prefix)) === $prefix);
-                    $suffix_match = (substr($current, -strlen($suffix)) === $suffix);
-                    
-                    return $prefix_match && $suffix_match;
-                }
+        // Contar asteriscos para determinar tipo
+        $asterisk_count = substr_count($masked, '*');
+        
+        // Usar regex para extrair prefixo e sufixo
+        if (preg_match('/^([^*]+)\*+([^*]+)$/', $masked, $matches)) {
+            if (count($matches) === 3) {
+                $prefix = $matches[1];
+                $suffix = $matches[2];
+                
+                // Verificar se começa com prefixo E termina com sufixo
+                $starts_with_prefix = (substr($current, 0, strlen($prefix)) === $prefix);
+                $ends_with_suffix = (substr($current, -strlen($suffix)) === $suffix);
+                
+                return $starts_with_prefix && $ends_with_suffix;
             }
         }
 
