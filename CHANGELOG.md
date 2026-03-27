@@ -1,3 +1,7 @@
+# 5.4.0 - 27/03/2026
+* Novo sistema de exportação de planilha (PRO).
+* Ajuste na notificação do plugin de antifraude.
+
 # 5.3.3 - 16/03/2026
 * Correção de variáveis indefinidas $order_currency e $orderId no método de pagamento via crédito da Rede.
 
