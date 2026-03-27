@@ -592,7 +592,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
     }
 
     /**
-     * Get product attributes as formatted string
+     * Get product attributes as formatted string - Enhanced to include custom form fields
      */
     private function get_product_attributes($product)
     {
@@ -643,6 +643,226 @@ final class LknIntegrationRedeForWoocommerceAdmin
         
         // Always return string with proper formatting
         return implode(' - ', $attributes) ?: '';
+    }
+
+    /**
+     * Get enhanced product attributes including ONLY order-specific data
+     * Captures ONLY order item specific metadata (no standard product attributes)
+     */
+    private function get_enhanced_product_attributes($product, $order_item = null)
+    {
+        if (!$product) return '';
+        
+        // ONLY custom form fields from order item meta (campos específicos do pedido)
+        if ($order_item) {
+            return $this->extract_custom_form_fields($order_item);
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract all metadata from product and its variations
+     * Captures ALL custom fields, ACF, meta boxes, plugin data, etc.
+     * NO FILTERING - captures everything from product metadata
+     */
+    private function extract_product_metadata($product)
+    {
+        if (!$product) return '';
+        
+        $metadata = array();
+        
+        // Get ALL product metadata without any filtering
+        $product_meta_data = $product->get_meta_data();
+        foreach ($product_meta_data as $meta) {
+            $meta_data = $meta->get_data();
+            $meta_key = $meta_data['key'];  
+            $meta_value = $meta_data['value'];
+            
+            // Only skip completely empty values
+            if ($meta_value !== '' && $meta_value !== null) {
+                $label = $this->format_product_meta_label($meta_key);
+                $value = $this->format_meta_value($meta_value);
+                $metadata[] = $label . ': ' . $value;
+            }
+        }
+        
+        // For variations, also get parent product metadata 
+        if ($product->is_type('variation')) {
+            $parent_product = wc_get_product($product->get_parent_id());
+            if ($parent_product) {
+                $parent_meta = $parent_product->get_meta_data();
+                foreach ($parent_meta as $meta) {
+                    $meta_data = $meta->get_data();
+                    $meta_key = $meta_data['key'];
+                    $meta_value = $meta_data['value'];
+                    
+                    // Only skip completely empty values
+                    if ($meta_value !== '' && $meta_value !== null) {
+                        $label = $this->format_product_meta_label($meta_key) . ' (Parent)';
+                        $value = $this->format_meta_value($meta_value);
+                        $metadata[] = $label . ': ' . $value;
+                    }
+                }
+            }
+        }
+        
+        // Get ACF fields if ACF is active
+        if (function_exists('get_field_objects')) {
+            $acf_fields = get_field_objects($product->get_id());
+            if (is_array($acf_fields)) {
+                foreach ($acf_fields as $field) {
+                    if (!empty($field['value'])) {
+                        $value = $this->format_meta_value($field['value']);
+                        $metadata[] = 'ACF ' . $field['label'] . ': ' . $value;
+                    }
+                }
+            }
+        }
+        
+        return implode(' - ', $metadata);
+    }
+    /**
+     * Format product meta key into readable label
+     */
+    private function format_product_meta_label($meta_key)
+    {
+        // Remove common prefixes
+        $clean_key = $meta_key;
+        $clean_key = ltrim($clean_key, '_');
+        
+        // Handle common patterns
+        $replacements = array(
+            'wc_' => '',
+            'product_' => '',
+            'custom_' => '',
+            'meta_' => '',
+            'field_' => '',
+        );
+        
+        foreach ($replacements as $pattern => $replacement) {
+            if (strpos($clean_key, $pattern) === 0) {
+                $clean_key = substr($clean_key, strlen($pattern));
+                break;
+            }
+        }
+        
+        // Convert to readable format
+        $clean_key = str_replace('_', ' ', $clean_key);
+        $clean_key = ucwords($clean_key);
+        
+        return $clean_key;
+    }
+
+    /**
+     * Extract custom form fields from order item (student info, custom fields, etc.)
+     * Captures ALL fields from order item meta without any filtering
+     * NO PATTERNS OR FILTERING - captures everything from order item metadata
+     */
+    private function extract_custom_form_fields($order_item)
+    {
+        $custom_fields = array();
+        
+        // Get ALL order item meta data without any filtering
+        $item_meta_data = $order_item->get_meta_data();
+        
+        foreach ($item_meta_data as $meta) {
+            $meta_data = $meta->get_data();
+            $meta_key = $meta_data['key'];
+            $meta_value = $meta_data['value'];
+            
+            // Only skip completely empty values
+            if ($meta_value !== '' && $meta_value !== null) {
+                // Use key as label directly (cleaned up)
+                $field_label = $this->generate_field_label($meta_key);
+                
+                // Format the value (handle arrays, objects, etc.)
+                $formatted_value = $this->format_meta_value($meta_value);
+                
+                if (!empty($formatted_value)) {
+                    $custom_fields[] = $field_label . ': ' . $formatted_value;
+                }
+            }
+        }
+        
+        return implode(' - ', $custom_fields);
+    }
+    
+    /**
+     * Generate human-readable field label from meta key (simplified - no patterns)
+     */
+    private function generate_field_label($meta_key)
+    {
+        // Simple cleanup: replace underscores with spaces and capitalize
+        $label = str_replace('_', ' ', $meta_key);
+        $label = ucwords($label);
+        
+        return $label;
+    }
+    
+    /**
+     * Format meta value for display (handle different data types)
+     */
+    private function format_meta_value($value)
+    {
+        // Handle null or empty
+        if ($value === null || $value === '') {
+            return '';
+        }
+        
+        // Handle boolean
+        if (is_bool($value)) {
+            return $value ? 'Sim' : 'Não';
+        }
+        
+        // Handle arrays
+        if (is_array($value)) {
+            // If it's a simple indexed array, join with commas
+            if (array_keys($value) === range(0, count($value) - 1)) {
+                return implode(', ', array_filter($value));
+            }
+            
+            // If it's associative array, format as key: value pairs
+            $formatted = array();
+            foreach ($value as $k => $v) {
+                if (!empty($v)) {
+                    $formatted[] = $k . ': ' . $this->format_meta_value($v);
+                }
+            }
+            return implode('; ', $formatted);
+        }
+        
+        // Handle objects
+        if (is_object($value)) {
+            // Try to convert to array first
+            $array_value = json_decode(json_encode($value), true);
+            if (is_array($array_value)) {
+                return $this->format_meta_value($array_value);
+            }
+            return 'Object(' . get_class($value) . ')';
+        }
+        
+        // Handle serialized data
+        if (is_string($value) && @unserialize($value) !== false) {
+            $unserialized = unserialize($value);
+            return $this->format_meta_value($unserialized);
+        }
+        
+        // Handle JSON strings
+        if (is_string($value) && json_decode($value) !== null) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return $this->format_meta_value($decoded);
+            }
+        }
+        
+        // Handle long strings (truncate if too long)
+        if (is_string($value) && strlen($value) > 200) {
+            return substr($value, 0, 200) . '...';
+        }
+        
+        // Handle regular strings and numbers
+        return strval($value);
     }
 
     /**
@@ -709,7 +929,8 @@ final class LknIntegrationRedeForWoocommerceAdmin
             case 'attributes':
                 $product = $item->get_product();
                 if ($product) {
-                    return $this->get_product_attributes($product);
+                    // Use enhanced function to capture custom form fields + standard attributes
+                    return $this->get_enhanced_product_attributes($product, $item);
                 }
                 return '';
                 
