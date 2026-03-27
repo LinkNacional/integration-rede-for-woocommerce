@@ -2,6 +2,8 @@
 
 namespace Lknwoo\IntegrationRedeForWoocommerce\Admin;
 
+use Lknwoo\IntegrationRedeForWoocommerce\Includes\LknIntegrationRedeForWoocommerceHelper;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -240,7 +242,11 @@ final class LknIntegrationRedeForWoocommerceAdmin
      */
     public function add_bulk_order_actions($bulk_actions)
     {
-        $bulk_actions['export_rede_xls'] = __('Exportar Rede XLS', 'woo-rede');
+        // Só adiciona a ação de exportação se a licença PRO estiver válida
+        if (LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            $bulk_actions['export_rede_xls'] = __('Rede Orders Spreadsheet', 'woo-rede');
+        }
+        
         return $bulk_actions;
     }
 
@@ -257,6 +263,11 @@ final class LknIntegrationRedeForWoocommerceAdmin
 
         if (empty($order_ids)) {
             return $redirect_to;
+        }
+
+        // Verificar se a licença PRO está válida
+        if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
+            wp_die(__('Esta funcionalidade requer o plugin Rede PRO ativo com licença válida.', 'woo-rede'));
         }
 
         // Check user permissions
@@ -302,6 +313,9 @@ final class LknIntegrationRedeForWoocommerceAdmin
     {
         // CSV delimiter
         $delimiter = "\t"; // Tab delimiter works better with Excel
+
+        // ===== PRIMEIRO PASSO: DESCOBRIR O NÚMERO MÁXIMO DE PRODUTOS =====
+        $max_products = $this->get_max_products_in_orders($order_ids);
 
         // ===== DEFINIÇÃO COMPLETA DE COLUNAS =====
         $column_definitions = array(
@@ -356,11 +370,17 @@ final class LknIntegrationRedeForWoocommerceAdmin
             // 8. PIX (3 campos)
             array('header' => 'PIX QR Code', 'source' => 'toon', 'toon_path' => 'pix.qr_code', 'meta_key' => '_wc_rede_pix_qr_code'),
             array('header' => 'PIX TXID', 'source' => 'toon', 'toon_path' => 'pix.txid', 'meta_key' => '_wc_rede_pix_txid'),
-            array('header' => 'PIX Expiração', 'source' => 'toon', 'toon_path' => 'pix.expiration', 'meta_key' => '_wc_rede_pix_integration_time_expiration'),
-            
-            // 9. PRODUTO (1 campo)
-            array('header' => 'Produtos', 'source' => 'products')
+            array('header' => 'PIX Expiração', 'source' => 'toon', 'toon_path' => 'pix.expiration', 'meta_key' => '_wc_rede_pix_integration_time_expiration')
         );
+
+        // ===== ADICIONAR COLUNAS DINÂMICAS DE PRODUTOS =====
+        for ($i = 1; $i <= $max_products; $i++) {
+            $column_definitions[] = array('header' => "ID Produto #{$i}", 'source' => 'product_field', 'field' => 'id', 'product_index' => $i - 1);
+            $column_definitions[] = array('header' => "Nome Produto #{$i}", 'source' => 'product_field', 'field' => 'name', 'product_index' => $i - 1);
+            $column_definitions[] = array('header' => "Preço Produto #{$i}", 'source' => 'product_field', 'field' => 'price', 'product_index' => $i - 1);
+            $column_definitions[] = array('header' => "Quantidade Produto #{$i}", 'source' => 'product_field', 'field' => 'quantity', 'product_index' => $i - 1);
+            $column_definitions[] = array('header' => "Variáveis Produto #{$i}", 'source' => 'product_field', 'field' => 'attributes', 'product_index' => $i - 1);
+        }
 
         // Output headers
         $headers = array();
@@ -454,6 +474,11 @@ final class LknIntegrationRedeForWoocommerceAdmin
             case 'products':
                 $items = $order->get_items();
                 $value = $this->format_products_string($items);
+                break;
+                
+            case 'product_field':
+                $items = $order->get_items();
+                $value = $this->get_product_field_value($items, $column_def['product_index'], $column_def['field']);
                 break;
         }
 
@@ -563,24 +588,6 @@ final class LknIntegrationRedeForWoocommerceAdmin
                 return strval($value);
         }
     }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Get product attributes as formatted string
@@ -637,41 +644,76 @@ final class LknIntegrationRedeForWoocommerceAdmin
     }
 
     /**
-     * Format products string for single column
+     * Get maximum number of products in any order from the given order IDs
+     *
+     * @since    1.0.0
      */
-    private function format_products_string($items)
+    private function get_max_products_in_orders($order_ids)
+    {
+        $max_products = 1; // Mínimo 1 produto
+        
+        foreach ($order_ids as $order_id) {
+            if (!$order_id) continue;
+            
+            $order = wc_get_order($order_id);
+            if (!$order) continue;
+            
+            $items = $order->get_items();
+            $product_count = count($items);
+            
+            if ($product_count > $max_products) {
+                $max_products = $product_count;
+            }
+        }
+        
+        return $max_products;
+    }
+
+    /**
+     * Get specific field value for a product at given index
+     *
+     * @since    1.0.0
+     */
+    private function get_product_field_value($items, $product_index, $field)
     {
         if (empty($items)) {
             return '';
         }
-
-        $products_array = array();
         
-        foreach ($items as $item) {
-            $product_id = $item->get_product_id() ?: '';
-            $product = $item->get_product();
-            $product_name = $item->get_name() ?: '';
-            $quantity = $item->get_quantity() ?: 0;
-            $total = $item->get_total() ?: 0;
-            
-            // Atributos do produto
-            $product_attributes = '';
-            if ($product) {
-                $product_attributes = $this->get_product_attributes($product);
-            }
-            
-            // Formatar: ID do Produto: {id} - Nome do Produto: {nome} - Valor do Produto: {valor} - Quantidade: {quantidade} - atributos
-            $product_string = "ID do Produto: {$product_id} - Nome do Produto: {$product_name} - Valor do Produto: R$ " . number_format(floatval($total), 2, '.', '') . " - Quantidade: {$quantity}";
-            
-            if (!empty($product_attributes)) {
-                $product_string .= " - Atributos (" . $product_attributes . ")";
-            }
-            
-            $products_array[] = $product_string;
+        // Converter items para array indexado
+        $items_array = array_values($items);
+        
+        // Verificar se o índice existe
+        if (!isset($items_array[$product_index])) {
+            return '';
         }
         
-        // Separar múltiplos produtos com separador seguro para Excel
-        return implode(" | ", $products_array);
+        $item = $items_array[$product_index];
+        
+        switch ($field) {
+            case 'id':
+                return strval($item->get_product_id() ?: '');
+                
+            case 'name':
+                return strval($item->get_name() ?: '');
+                
+            case 'price':
+                $total = $item->get_total() ?: 0;
+                return 'R$ ' . number_format(floatval($total), 2, ',', '.');
+                
+            case 'quantity':
+                return strval($item->get_quantity() ?: 0);
+                
+            case 'attributes':
+                $product = $item->get_product();
+                if ($product) {
+                    return $this->get_product_attributes($product);
+                }
+                return '';
+                
+            default:
+                return '';
+        }
     }
 
 

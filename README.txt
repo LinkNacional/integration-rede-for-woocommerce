@@ -124,6 +124,11 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+
+### 5.4.0 - 2026/03/27
+- New spreadsheet export system (PRO).
+- Fixed antifraud plugin notification.
+
 ### 5.3.3 - 2026/03/16
 - Fixed undefined variables $order_currency and $orderId in the Rede credit payment method.
 
