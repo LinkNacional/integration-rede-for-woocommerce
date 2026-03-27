@@ -2067,6 +2067,9 @@ final class LknIntegrationRedeForWoocommerce
                     $current_token = isset($gateway_settings['token']) ? $gateway_settings['token'] : '';
                     $current_environment = isset($gateway_settings['environment']) ? $gateway_settings['environment'] : 'sandbox';
 
+                    // Mapear ambiente para formato correto
+                    $environment = ($current_environment === 'production') ? 'Produção' : 'Sandbox';
+
                     if (empty($current_pv) || empty($current_token)) {
                         continue;
                     }
@@ -2102,9 +2105,9 @@ final class LknIntegrationRedeForWoocommerce
                     $token_matches = $this->compare_masked_credential($current_token, $toon_token_masked);
 
                     // Se as credenciais batem mas o ambiente está errado
-                    if ($pv_matches && $token_matches && $toon_environment !== ucfirst($current_environment)) {
+                    if ($pv_matches && $token_matches && $toon_environment !== $environment) {
                         // Corrigir ambiente no TOON
-                        $decoded_data['system']['environment'] = ucfirst($current_environment);
+                        $decoded_data['system']['environment'] = $environment;
 
                         // Recodificar dados
                         if ($data_format === 'toon') {
