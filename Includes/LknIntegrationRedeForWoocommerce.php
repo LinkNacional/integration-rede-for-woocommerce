@@ -248,6 +248,9 @@ final class LknIntegrationRedeForWoocommerce
         $this->loader->add_filter('woocommerce_gateway_title', $this, 'customize_wc_payment_gateway_pix_name', 10, 2);
 
         $this->loader->add_action('add_meta_boxes', $this->LknIntegrationRedeForWoocommerceHelperClass, 'showOrderLogs');
+        
+        // Hook para verificar e corrigir ambiente dos pedidos Rede
+        $this->loader->add_action('admin_init', $this, 'check_and_fix_rede_orders_environment');
 
         $this->loader->add_action('admin_notices', $this, 'lkn_admin_notice');
 
@@ -2000,6 +2003,180 @@ final class LknIntegrationRedeForWoocommerce
                 wp_send_json_error($error_data);
             }
         }
+    }
+
+    /**
+     * Verifica e corrige o ambiente dos pedidos Rede baseado nas credenciais
+     * Executa apenas uma vez através da opção check_rede_orders
+     */
+    public function check_and_fix_rede_orders_environment() 
+    {
+        // Verificar se já foi executado
+        if (get_option('check_rede_orders', false)) {
+            return;
+        }
+
+        // Marcar como executado para não rodar novamente - SEMPRE salva independente de erros
+        update_option('check_rede_orders', true);
+
+        try {
+            // Buscar pedidos dos últimos 40 dias com transações Rede
+            $date_limit = gmdate('Y-m-d H:i:s', strtotime('-60 days'));
+            
+            global $wpdb;
+            
+            // Query simples: apenas pedidos com lkn_rede_transaction_data nos últimos 40 dias
+            $rede_orders = $wpdb->get_results($wpdb->prepare(
+                "SELECT o.id, om_toon.meta_value as transaction_data
+                 FROM {$wpdb->prefix}wc_orders o
+                 INNER JOIN {$wpdb->prefix}wc_orders_meta om_toon ON o.id = om_toon.order_id 
+                     AND om_toon.meta_key = 'lkn_rede_transaction_data'
+                 WHERE o.date_created_gmt >= %s 
+                     AND om_toon.meta_value != ''
+                 ORDER BY o.date_created_gmt DESC",
+                $date_limit
+            ));
+
+            if (empty($rede_orders)) {
+                return;
+            }
+
+            foreach ($rede_orders as $order_data) {
+                try {
+                    $order_id = $order_data->id;
+                    
+                    // Carregar pedido WooCommerce
+                    $order = wc_get_order($order_id);
+                    if (!$order) {
+                        continue;
+                    }
+
+                    // Obter metadados do pedido
+                    $payment_method = $order->get_payment_method();
+                    $transaction_data = $order_data->transaction_data; // Já vem da query
+                    $data_format = $order->get_meta('lkn_rede_data_format') ?: 'json';
+                    
+                    // Obter configurações do gateway
+                    $gateway_settings = get_option('woocommerce_' . $payment_method . '_settings', array());
+                    if (empty($gateway_settings)) {
+                        continue;
+                    }
+
+                    // Obter credenciais atuais do gateway
+                    $current_pv = isset($gateway_settings['pv']) ? $gateway_settings['pv'] : '';
+                    $current_token = isset($gateway_settings['token']) ? $gateway_settings['token'] : '';
+                    $current_environment = isset($gateway_settings['environment']) ? $gateway_settings['environment'] : 'sandbox';
+
+                    // Mapear ambiente para formato correto
+                    $environment = ($current_environment === 'production') ? 'Produção' : 'Sandbox';
+
+                    if (empty($current_pv) || empty($current_token)) {
+                        continue;
+                    }
+
+                    // Decodificar dados da transação
+                    if ($data_format === 'toon') {
+                        $decoded_data = LknIntegrationRedeForWoocommerceHelper::decodeToonData($transaction_data);
+                    } else {
+                        $decoded_data = json_decode($transaction_data, true);
+                    }
+
+                    if (empty($decoded_data) || !is_array($decoded_data)) {
+                        continue;
+                    }
+
+                    // Extrair credenciais do TOON
+                    $toon_pv_masked = '';
+                    $toon_token_masked = '';
+                    $toon_environment = '';
+
+                    if (isset($decoded_data['credentials']['pv_masked'])) {
+                        $toon_pv_masked = $decoded_data['credentials']['pv_masked'];
+                    }
+                    if (isset($decoded_data['credentials']['token_masked'])) {
+                        $toon_token_masked = $decoded_data['credentials']['token_masked'];
+                    }
+                    if (isset($decoded_data['system']['environment'])) {
+                        $toon_environment = $decoded_data['system']['environment'];
+                    }
+
+                    // Verificar se as credenciais batem
+                    $pv_matches = $this->compare_masked_credential($current_pv, $toon_pv_masked);
+                    $token_matches = $this->compare_masked_credential($current_token, $toon_token_masked);
+
+                    // Se as credenciais batem mas o ambiente está errado
+                    if ($pv_matches && $token_matches && $toon_environment !== $environment) {
+                        // Corrigir ambiente no TOON
+                        $decoded_data['system']['environment'] = $environment;
+
+                        // Recodificar dados
+                        if ($data_format === 'toon') {
+                            $updated_transaction_data = LknIntegrationRedeForWoocommerceHelper::encodeToonData($decoded_data);
+                        } else {
+                            $updated_transaction_data = wp_json_encode($decoded_data);
+                        }
+
+                        // Atualizar metadado do pedido (order já carregado)
+                        $order->update_meta_data('lkn_rede_transaction_data', $updated_transaction_data);
+                        $order->save();
+                    }
+
+                } catch (Exception $e) {
+                    // Silencioso - continua processando outros pedidos
+                    continue;
+                }
+            }
+        } catch (Exception $e) {
+            // Silencioso - opção já foi salva, então não vai executar novamente
+            return;
+        }
+    }
+
+    /**
+     * Compara credencial atual com versão mascarada do TOON
+     * Verifica se os caracteres visíveis batem
+     */
+    private function compare_masked_credential($current, $masked) 
+    {
+        if (empty($current) || empty($masked)) {
+            return false;
+        }
+
+        // Para PV (formato: 106**432)
+        if (strpos($masked, '**') !== false) {
+            $parts = explode('**', $masked);
+            if (count($parts) === 2) {
+                $prefix = $parts[0];
+                $suffix = $parts[1];
+                
+                $prefix_match = (substr($current, 0, strlen($prefix)) === $prefix);
+                $suffix_match = (substr($current, -strlen($suffix)) === $suffix);
+                
+                return $prefix_match && $suffix_match;
+            }
+        }
+
+        // Para Token (formato: 4f731a********************3c6304)
+        if (strpos($masked, '*') !== false) {
+            // Contar asteriscos para determinar padrão
+            $asterisk_count = substr_count($masked, '*');
+            
+            if ($asterisk_count >= 10) { // Token format
+                // Extrair início e fim
+                preg_match('/^([^*]+)\*+([^*]+)$/', $masked, $matches);
+                if (count($matches) === 3) {
+                    $prefix = $matches[1];
+                    $suffix = $matches[2];
+                    
+                    $prefix_match = (substr($current, 0, strlen($prefix)) === $prefix);
+                    $suffix_match = (substr($current, -strlen($suffix)) === $suffix);
+                    
+                    return $prefix_match && $suffix_match;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
