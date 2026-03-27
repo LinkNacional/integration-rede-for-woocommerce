@@ -267,12 +267,12 @@ final class LknIntegrationRedeForWoocommerceAdmin
 
         // Verificar se a licença PRO está válida
         if (!LknIntegrationRedeForWoocommerceHelper::isProLicenseValid()) {
-            wp_die(__('Esta funcionalidade requer o plugin Rede PRO ativo com licença válida.', 'woo-rede'));
+            wp_die(esc_html__('Esta funcionalidade requer o plugin Rede PRO ativo com licença válida.', 'woo-rede'));
         }
 
         // Check user permissions
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Você não tem permissão para exportar pedidos.', 'woo-rede'));
+            wp_die(esc_html__('Você não tem permissão para exportar pedidos.', 'woo-rede'));
         }
 
         // Generate XLS file
@@ -290,7 +290,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
     {
         // Set content type for Excel download  
         header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="exportacao_rede_' . date('Y-m-d_H-i-s') . '.xls"');
+        header('Content-Disposition: attachment; filename="exportacao_rede_' . gmdate('Y-m-d_H-i-s') . '.xls"');
         header('Pragma: no-cache');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -392,6 +392,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
         foreach ($headers as $header) {
             $escaped_headers[] = $this->escape_csv_field($header);
         }
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Data already escaped by escape_csv_field() method for XLS export
         echo implode($delimiter, $escaped_headers) . "\n";
 
         // ===== PROCESSAMENTO DOS PEDIDOS =====
@@ -423,6 +424,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             foreach ($row as $field) {
                 $escaped_row[] = $this->escape_csv_field($field);
             }
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Data already escaped by escape_csv_field() method for XLS export
             echo implode($delimiter, $escaped_row) . "\n";
         }
     }

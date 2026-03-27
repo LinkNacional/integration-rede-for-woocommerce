@@ -484,7 +484,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
                 'type'  => 'button',
                 'id'    => 'sendConfigs',
                 'description' => __('Enable Debug Mode and click Save Changes to get quick support via WhatsApp.', 'woo-rede'),
-                'desc_tip' => __('', 'woo-rede'),
+                'desc_tip' => '',
                 'custom_attributes' => array(
                     'merge-top' => "woocommerce_{$this->id}_debug",
                     'data-title-description' => __('Send the settings for this payment method to WordPress Support.', 'woo-rede')
