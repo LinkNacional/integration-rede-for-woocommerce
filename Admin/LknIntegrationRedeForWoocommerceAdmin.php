@@ -785,7 +785,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             }
         }
         
-        return implode(' - ', $custom_fields);
+        return implode("\n", $custom_fields);
     }
     
     /**
