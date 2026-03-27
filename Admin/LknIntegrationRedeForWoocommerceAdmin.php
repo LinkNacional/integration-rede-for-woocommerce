@@ -365,12 +365,7 @@ final class LknIntegrationRedeForWoocommerceAdmin
             // 7. RESPOSTA (3 campos)
             array('header' => 'Status HTTP', 'source' => 'toon', 'toon_path' => 'response.http_status', 'meta_key' => 'lkn_rede_response_http_status'),
             array('header' => 'Código Retorno', 'source' => 'toon', 'toon_path' => 'response.return_code', 'meta_key' => '_wc_rede_transaction_return_code'),
-            array('header' => 'Mensagem Retorno', 'source' => 'toon', 'toon_path' => 'response.return_message', 'meta_key' => '_wc_rede_transaction_return_message'),
-            
-            // 8. PIX (3 campos)
-            array('header' => 'PIX QR Code', 'source' => 'toon', 'toon_path' => 'pix.qr_code', 'meta_key' => '_wc_rede_pix_qr_code'),
-            array('header' => 'PIX TXID', 'source' => 'toon', 'toon_path' => 'pix.txid', 'meta_key' => '_wc_rede_pix_txid'),
-            array('header' => 'PIX Expiração', 'source' => 'toon', 'toon_path' => 'pix.expiration', 'meta_key' => '_wc_rede_pix_integration_time_expiration')
+            array('header' => 'Mensagem Retorno', 'source' => 'toon', 'toon_path' => 'response.return_message', 'meta_key' => '_wc_rede_transaction_return_message')
         );
 
         // ===== ADICIONAR COLUNAS DINÂMICAS DE PRODUTOS =====
