@@ -443,7 +443,10 @@ class LknIntegrationRedeForWoocommerceHelper
             $cart_subtotal = WC()->cart->get_subtotal();
             $cart_shipping = WC()->cart->get_shipping_total();
             if ($cart_subtotal > 0) {
-                $base_amount = $cart_subtotal + $cart_shipping;
+                // Pegar desconto de cupom
+                $discount_amount = WC()->cart->get_discount_total();
+                
+                $base_amount = $cart_subtotal + $cart_shipping - $discount_amount;
                 
                 // Pegar fees externos (não criados por este plugin)
                 $additional_fees = 0;
@@ -455,9 +458,6 @@ class LknIntegrationRedeForWoocommerceHelper
                     }
                 }
                 
-                // Pegar desconto de cupom
-                $discount_amount = WC()->cart->get_discount_total();
-                
                 // Pegar taxes
                 $tax_amount = WC()->cart->get_total_tax();
             }
@@ -468,7 +468,10 @@ class LknIntegrationRedeForWoocommerceHelper
                 $order_subtotal = $order->get_subtotal();
                 $order_shipping = $order->get_shipping_total();
                 if ($order_subtotal > 0) {
-                    $base_amount = $order_subtotal + $order_shipping;
+                    // Pegar desconto de cupom do pedido
+                    $discount_amount = $order->get_total_discount();
+                    
+                    $base_amount = $order_subtotal + $order_shipping - $discount_amount;
                     
                     // Pegar fees externos do pedido (não criados por este plugin)
                     $additional_fees = 0;
@@ -479,9 +482,6 @@ class LknIntegrationRedeForWoocommerceHelper
                             $additional_fees += $fee->get_total();
                         }
                     }
-                    
-                    // Pegar desconto de cupom do pedido
-                    $discount_amount = $order->get_total_discount();
                     
                     // Pegar taxes do pedido
                     $tax_amount = $order->get_total_tax();
@@ -500,11 +500,11 @@ class LknIntegrationRedeForWoocommerceHelper
                         $interest = 0;
                     }
                     if ($interest >= 1) {
-                        // Calcular juros apenas sobre a base (subtotal + shipping)
+                        // Calcular juros apenas sobre a base (subtotal + shipping - cupom)
                         $total_with_interest = $base_amount + ($base_amount * ($interest * 0.01));
                         
-                        // Adicionar outros valores: fees externos - cupom + taxes
-                        $final_total = $total_with_interest + $additional_fees - $discount_amount + $tax_amount;
+                        // Adicionar outros valores: fees externos + taxes
+                        $final_total = $total_with_interest + $additional_fees + $tax_amount;
                         
                         if ($instance->get_option('interest_show_percent') == 'yes') {
                             /* translators: %1$d: number of installments, %2$s: installment price, %3$s: interest percentage */
@@ -514,7 +514,7 @@ class LknIntegrationRedeForWoocommerceHelper
                             return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price(($final_total / $i)))));
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
-                        $final_total = $base_amount + $additional_fees - $discount_amount + $tax_amount;
+                        $final_total = $base_amount + $additional_fees + $tax_amount;
                         /* translators: %1$d: number of installments, %2$s: installment price */
                         return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'woo-rede');
                     }
@@ -522,8 +522,8 @@ class LknIntegrationRedeForWoocommerceHelper
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);
                     $total_with_discount = $base_amount - ($base_amount * ($discount * 0.01));
                     
-                    // Adicionar outros valores: fees externos - cupom + taxes
-                    $final_total = $total_with_discount + $additional_fees - $discount_amount + $tax_amount;
+                    // Adicionar outros valores: fees externos + taxes
+                    $final_total = $total_with_discount + $additional_fees + $tax_amount;
                     
                     if ($discount >= 1) {
                         if ($instance->get_option('interest_show_percent') == 'yes') {

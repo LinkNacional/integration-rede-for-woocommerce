@@ -1084,7 +1084,21 @@ const RedeAnalyticsPage = () => {
                     value = (transaction && transaction.system && transaction.system.gateway) ? transaction.system.gateway : 'N/A';
                     break;
                 case 'order_id':
-                    value = (transaction && transaction.system && transaction.system.order_id) ? transaction.system.order_id : 'N/A';
+                    if (transaction && transaction.system && transaction.system.order_id && transaction.system.order_id !== 'N/A') {
+                        const orderId = transaction.system.order_id;
+                        const siteDomain = analyticsData.site_domain || '';
+                        const orderUrl = `${siteDomain}/wp-admin/admin.php?page=wc-orders&action=edit&id=${orderId}`;
+                        value = html(
+                            `<a href="${orderUrl}" target="_blank" rel="noopener noreferrer" style="color: #0073aa; text-decoration: none; font-weight: 500;" 
+                                title="${escapeHtml(__('Edit order in WooCommerce', 'woo-rede'))}" 
+                                onmouseover="this.style.textDecoration='underline'" 
+                                onmouseout="this.style.textDecoration='none'">
+                                ${escapeHtml(orderId)}
+                            </a>`
+                        );
+                    } else {
+                        value = 'N/A';
+                    }
                     break;
                 case 'reference':
                     value = (transaction && transaction.system && transaction.system.reference) ? transaction.system.reference : 'N/A';
