@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 5.0  
 Tested up to: 6.9  
-Stable tag: 5.4.0
+Stable tag: 5.4.1
 Requires PHP: 8.0  
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -124,6 +124,10 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+
+### 5.4.1 - 2026/04/24
+- Fix in installments with coupon.
+- Change in Order ID field type: Text -> Link.
 
 ### 5.4.0 - 2026/03/27
 - New spreadsheet export system (PRO).
