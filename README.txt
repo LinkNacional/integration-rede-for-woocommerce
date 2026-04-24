@@ -125,6 +125,10 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.1 - 2026/04/24
+- Fix in installments with coupon.
+- Change in Order ID field type: Text -> Link.
+
 ### 5.4.0 - 2026/03/27
 - New spreadsheet export system (PRO).
 - Fixed antifraud plugin notification.

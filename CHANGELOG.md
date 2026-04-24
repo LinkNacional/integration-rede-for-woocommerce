@@ -1,3 +1,7 @@
+# 5.4.1 - 24/04/2026
+* Ajuste nas parcelas com cupom.
+* Mudança do tipo do campo do Order ID: Texto -> Link.
+
 # 5.4.0 - 27/03/2026
 * Novo sistema de exportação de planilha (PRO).
 * Ajuste na notificação do plugin de antifraude.
