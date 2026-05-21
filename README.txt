@@ -125,6 +125,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.2 - 2026/05/21
+- Migrating order cancellation hook to PRO version.
+
 ### 5.4.1 - 2026/04/24
 - Fix in installments with coupon.
 - Change in Order ID field type: Text -> Link.
