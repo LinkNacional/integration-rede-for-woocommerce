@@ -1,3 +1,6 @@
+# 5.4.2 - 21/05/2026
+* Migração do hook de cancelamento do pedido para versão PRO.
+
 # 5.4.1 - 24/04/2026
 * Ajuste nas parcelas com cupom.
 * Mudança do tipo do campo do Order ID: Texto -> Link.
