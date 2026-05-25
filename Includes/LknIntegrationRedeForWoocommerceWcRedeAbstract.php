@@ -255,6 +255,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
                 if ($transaction->getCapture()) {
                     // Status configurável pelo usuário para pagamentos aprovados
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($payment_complete_status);
                     apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {

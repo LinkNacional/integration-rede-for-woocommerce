@@ -1198,6 +1198,7 @@ final class LknIntegrationRedeForWoocommerce
                     
                     // translators: %s is the order total amount
                     $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($paymentCompleteStatus);
                 } else {
                     // translators: %s is the order total amount
