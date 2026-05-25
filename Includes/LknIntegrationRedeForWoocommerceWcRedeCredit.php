@@ -37,8 +37,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         if ($this->get_option('enabled_soft_descriptor') === 'yes') {
             $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option('soft_descriptor'));
         } elseif ($this->get_option('enabled_soft_descriptor') === 'no') {
-            add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
-            update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
+            if (get_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit')) {
+                update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorCredit', false);
+            }
         }
 
         // Auto capture com validação PRO - se não tiver licença PRO válida, força auto_capture como true

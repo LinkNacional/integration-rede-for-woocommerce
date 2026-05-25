@@ -50,8 +50,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         if ($this->get_option('enabled_soft_descriptor') === 'yes') {
             $this->soft_descriptor = preg_replace('/\W/', '', $this->get_option('soft_descriptor'));
         } elseif ($this->get_option('enabled_soft_descriptor') === 'no') {
-            add_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
-            update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+            if (get_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit')) {
+                update_option('lknIntegrationRedeForWoocommerceSoftDescriptorErrorDebit', false);
+            }
         }
 
         // Auto capture configurável igual ao rede_credit
