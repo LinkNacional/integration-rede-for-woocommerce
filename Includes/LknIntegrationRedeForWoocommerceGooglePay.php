@@ -554,6 +554,7 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends LknIntegrationRede
                 // Update order status based on configuration
                 $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
                 if (!empty($payment_complete_status) && $payment_complete_status !== $order->get_status()) {
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($payment_complete_status);
                 }
 

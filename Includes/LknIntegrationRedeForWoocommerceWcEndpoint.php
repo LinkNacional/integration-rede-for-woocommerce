@@ -289,6 +289,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 if ("" == $paymentCompleteStatus) {
                     $paymentCompleteStatus = 'processing';
                 }
+                $order->set_date_paid(current_time('timestamp', true));
                 $order->update_status($paymentCompleteStatus);
                 break;
             case '9':
@@ -337,6 +338,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                             $paymentCompleteStatus = 'processing';
                         }
                         
+                        $order->set_date_paid(current_time('timestamp', true));
                         $order->update_status($paymentCompleteStatus, __('PIX payment confirmed via webhook - FREE version', 'woo-rede'));
                         
                         // Limpar cron de verificação se existir
@@ -513,6 +515,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                         $paymentCompleteStatus = 'processing';
                     }
                     
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($paymentCompleteStatus, __('PIX payment confirmed via webhook - PRO version', 'woo-rede'));
 
                     // Log 8: Finalização PRO
@@ -544,6 +547,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                         ));
                     }
                     
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status('processing', __('PIX payment confirmed via webhook - FREE version', 'woo-rede'));
                     
                     // Log 10: Finalização FREE
@@ -635,6 +639,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             if ("" == $paymentCompleteStatus) {
                 $paymentCompleteStatus = 'processing';
             }
+            $order->set_date_paid(current_time('timestamp', true));
             $order->update_status($paymentCompleteStatus);
 
             $order->save();
@@ -835,6 +840,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 if ($capture) {
                     // Status configurável pelo usuário para pagamentos aprovados com captura
                     $payment_complete_status = $gateway_settings['payment_complete_status'] ?? 'processing';
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($payment_complete_status);
                 } else {
                     // Para pagamentos credit sem captura, aguardando captura manual

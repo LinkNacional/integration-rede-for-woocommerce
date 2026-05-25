@@ -164,6 +164,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 if ($capture) {
                     // Status configurável pelo usuário para pagamentos aprovados com captura
                     $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                    $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($payment_complete_status);
                     apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
                 } else {
