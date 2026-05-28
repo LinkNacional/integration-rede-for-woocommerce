@@ -125,6 +125,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.3 - 2026/05/28
+- Fix in error log logic for 3DS transactions.
+
 ### 5.4.2 - 2026/05/21
 - Migrating order cancellation hook to PRO version.
 

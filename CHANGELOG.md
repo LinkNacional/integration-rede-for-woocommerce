@@ -1,3 +1,6 @@
+# 5.4.3 - 28/05/2026
+* Ajuste na lógica dos logs com erro no 3DS.
+
 # 5.4.2 - 21/05/2026
 * Migração do hook de cancelamento do pedido para versão PRO.
 
