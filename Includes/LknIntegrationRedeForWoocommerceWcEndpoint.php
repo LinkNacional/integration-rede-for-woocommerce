@@ -798,6 +798,22 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $parameters['returnMessage'] ?? ''
         );
 
+        // Registrar logs de debug se habilitado
+        if (($gateway_settings['debug'] ?? 'no') === 'yes') {
+            $cardData = array(
+                'card_number' => $cardNumber,
+                'card_holder' => $cardHolder,
+                'card_expiration_month' => $order->get_meta('_wc_rede_transaction_expiration_month') ?: '**',
+                'card_expiration_year' => $order->get_meta('_wc_rede_transaction_expiration_year') ?: '****',
+                'card_cvv' => $order->get_meta('_wc_rede_transaction_cvv') ?: '***',
+                'card_type' => $saved_card_type,
+            );
+            if ($saved_card_type === 'credit') {
+                $cardData['installments'] = $saved_installments;
+            }
+            $this->regOrderLogs($order->get_id(), $order->get_total(), $cardData, $error_webhook_data, $order);
+        }
+
         // Marca pedido como falhado
         $order->add_order_note(__('3D Secure authentication failed', 'woo-rede'));
         $order->update_status('failed');
