@@ -84,6 +84,79 @@ class LknIntegrationRedeForWoocommerceHelper
     }
 
     /**
+     * Detecta a bandeira do cartão a partir do BIN (primeiros 6 dígitos).
+     * Usado como fallback quando o TID não está disponível (ex: returnCode 64).
+     * Retorna apenas o nome da bandeira; os demais campos do objeto brand não
+     * são recuperáveis sem TID pois dependem de uma autorização concluída.
+     */
+    final public static function getBrandFromBin($bin)
+    {
+        if (empty($bin)) {
+            return '';
+        }
+
+        $bin = preg_replace('/\D/', '', $bin);
+        $bin6 = substr($bin, 0, 6);
+        $bin4 = substr($bin, 0, 4);
+        $bin2 = substr($bin, 0, 2);
+        $bin1 = substr($bin, 0, 1);
+
+        // Hipercard
+        $hipercard_bins = array('606282', '637095', '637568', '637599', '637609', '637612');
+        if (in_array($bin6, $hipercard_bins, true)) {
+            return 'Hipercard';
+        }
+
+        // Elo — principais faixas usadas no Brasil
+        $elo_bin6_list = array(
+            '401178', '401179', '438935', '451416', '457393', '504175',
+            '506699', '506778', '509000', '509999', '627780', '636297',
+            '636368', '650031', '650033', '650035', '650051', '650405',
+            '650439', '650485', '650486', '650487', '650488', '650489',
+            '650491', '650495', '650501', '650503', '650506', '650533',
+            '650536', '650540', '650541', '650598', '650720', '650727',
+            '650901', '650978', '651652', '651679', '655000', '655019',
+            '655021', '655058',
+        );
+        $elo_bin4_list = array('4576', '4011', '5067');
+        if (in_array($bin6, $elo_bin6_list, true) || in_array($bin4, $elo_bin4_list, true)) {
+            return 'Elo';
+        }
+
+        // American Express
+        if (in_array($bin2, array('34', '37'), true)) {
+            return 'Amex';
+        }
+
+        // Diners Club
+        $diners_prefixes = array('300', '301', '302', '303', '304', '305');
+        if (in_array(substr($bin, 0, 3), $diners_prefixes, true) || in_array($bin2, array('36', '38'), true)) {
+            return 'Diners';
+        }
+
+        // Discover
+        if ($bin4 === '6011' || $bin2 === '65') {
+            return 'Discover';
+        }
+
+        // Mastercard — BIN 51-55 e faixa 2221-2720
+        if (in_array($bin2, array('51', '52', '53', '54', '55'), true)) {
+            return 'Mastercard';
+        }
+        $bin_int4 = intval($bin4);
+        if ($bin_int4 >= 2221 && $bin_int4 <= 2720) {
+            return 'Mastercard';
+        }
+
+        // Visa
+        if ($bin1 === '4') {
+            return 'Visa';
+        }
+
+        return '';
+    }
+
+    /**
      * Busca dados completos da transação pela API da Rede usando TID
      * e preenche metadados faltantes no pedido
      */
