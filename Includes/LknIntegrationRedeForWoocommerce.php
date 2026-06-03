@@ -1133,7 +1133,7 @@ final class LknIntegrationRedeForWoocommerce
         
         // Validar se é pedido PIX
         if (!self::is_pix_gateway($payment_method)) {
-            $order->add_order_note(__('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
+            $order->add_order_note('[' . $payment_method . '] ' . __('Verificação PIX: Esta ação é aplicável apenas a pedidos com método de pagamento PIX.', 'woo-rede'));
             return;
         }
         
@@ -1146,7 +1146,7 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         if (empty($tId)) {
-            $order->add_order_note(__('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
+            $order->add_order_note('[' . $payment_method . '] ' . __('Verificação PIX: Identificador da transação não localizado nos metadados do pedido.', 'woo-rede'));
             return;
         }
         
@@ -1197,19 +1197,19 @@ final class LknIntegrationRedeForWoocommerce
                     }
                     
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
+                    $order->add_order_note('[' . $gateway_id . '] ' . sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                     $order->set_date_paid(current_time('timestamp', true));
                     $order->update_status($paymentCompleteStatus);
                 } else {
                     // translators: %s is the order total amount
-                    $order->add_order_note(sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
+                    $order->add_order_note('[' . $gateway_id . '] ' . sprintf(__('Manual PIX Verification: Payment of %s confirmed by Rede.', 'woo-rede'), $order_total));
                 }
             } else {
-                $order->add_order_note(__('Manual PIX Verification: Payment not confirmed by Rede. Transaction status: ', 'woo-rede') . $status);
+                $order->add_order_note('[' . $gateway_id . '] ' . __('Manual PIX Verification: Payment not confirmed by Rede. Transaction status: ', 'woo-rede') . $status);
             }
             
         } catch (\Exception $e) {
-            $order->add_order_note(__('Manual PIX Verification: Failed to query payment from Rede. Details: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note('[' . $gateway_id . '] ' . __('Manual PIX Verification: Failed to query payment from Rede. Details: ', 'woo-rede') . $e->getMessage());
         }
         
         $order->save();
@@ -1395,22 +1395,31 @@ final class LknIntegrationRedeForWoocommerce
 
             if ($order && is_a($order, 'WC_Order')) {
 
-                // Metodos do plugin integration rede e integration rede pro
-                $methods = ['maxipago_credit', 'maxipago_debit', 'integration_rede_pix', 'rede_credit', 'rede_debit', 'maxipago_pix', 'rede_pix'];
+                // Metodos do plugin integration rede (free) e integration rede pro
+                $methods = ['maxipago_credit', 'maxipago_debit', 'maxipago_pix', 'integration_rede_pix', 'rede_credit', 'rede_debit', 'rede_pix', 'rede_google_pay'];
                 $payment_method = $order->get_payment_method();
 
                 if (in_array($payment_method, $methods)) {
 
-                    $payment_gateways = WC()->payment_gateways->payment_gateways();
-                    $gateway_title = 'Rede'; // Fallback
+                    // Só processar notas que contenham o marcador [$payment_method] para ignorar plugins terceiros
+                    $pattern = '/\[' . preg_quote($payment_method, '/') . '\]\s*/';
+                    if (preg_match($pattern, $note_data['comment_content'])) {
 
-                    if (isset($payment_gateways[$payment_method])) {
-                        $gateway_title = $payment_gateways[$payment_method]->get_title();
-                    }
+                        // Remover o marcador do conteúdo
+                        $note_data['comment_content'] = preg_replace($pattern, '', $note_data['comment_content']);
 
-                    $prefix = $gateway_title . ' — ';
-                    if (strpos($note_data['comment_content'], $prefix) === false) {
-                        $note_data['comment_content'] = $prefix . $note_data['comment_content'];
+                        $payment_gateways = WC()->payment_gateways->payment_gateways();
+                        $gateway_title = 'Rede'; // Fallback
+
+                        if (isset($payment_gateways[$payment_method])) {
+                            $gateway_title = $payment_gateways[$payment_method]->get_title();
+                        }
+
+                        // Verificar se o prefixo já existe para evitar duplicação
+                        $prefix = $gateway_title . ' — ';
+                        if (strpos($note_data['comment_content'], $prefix) === false) {
+                            $note_data['comment_content'] = $prefix . $note_data['comment_content'];
+                        }
                     }
                 }
             }
