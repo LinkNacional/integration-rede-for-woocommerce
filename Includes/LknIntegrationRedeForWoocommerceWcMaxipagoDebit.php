@@ -410,14 +410,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             // Adiciona nota de status do pagamento estilo Maxipago[Success.] ou Maxipago[Failed.]
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->add_order_note(
-                    sprintf(
+                    '[' . $this->id . '] ' . sprintf(
                         'Maxipago[Success.] %s',
                         $xml_decode['processorMessage'] ?? ''
                     )
                 );
             } else {
                 $order->add_order_note(
-                    sprintf(
+                    '[' . $this->id . '] ' . sprintf(
                         'Maxipago[Failed.] %s',
                         $xml_decode['processorMessage'] ?? ''
                     )
@@ -453,7 +453,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
 
         if ($convert_to_brl_enabled) {
             $order->add_order_note(
-                sprintf(
+                '[' . $this->id . '] ' . sprintf(
                     // translators: %s is the original order currency code (e.g., USD, EUR, etc.)
                     __('Order currency %s converted to BRL.', 'woo-rede'),
                     $order_currency,

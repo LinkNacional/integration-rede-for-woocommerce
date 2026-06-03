@@ -510,7 +510,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
         if ($convert_to_brl_enabled) {
             $order->add_order_note(
-                sprintf(
+                '[' . $this->id . '] ' . sprintf(
                     // translators: %s is the original order currency code (e.g., USD, EUR, etc.)
                     __('Order currency %s converted to BRL.', 'woo-rede'),
                     $order_currency,
@@ -694,14 +694,14 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
             // Adiciona nota de status do pagamento estilo Maxipago[Success.] ou Maxipago[Failed.]
             if (isset($xml_decode['responseCode']) && "0" == $xml_decode['responseCode']) {
                 $order->add_order_note(
-                    sprintf(
+                    '[' . $this->id . '] ' . sprintf(
                         'Maxipago[Success.] %s',
                         $xml_decode['processorMessage'] ?? ''
                     )
                 );
             } else {
                 $order->add_order_note(
-                    sprintf(
+                    '[' . $this->id . '] ' . sprintf(
                         'Maxipago[Failed.] %s',
                         $xml_decode['processorMessage'] ?? ''
                     )
@@ -877,7 +877,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
 
                     if (is_wp_error($response)) {
                         $error_message = $response->get_error_message();
-                        $order->add_order_note('Maxipago[Refund Error] ' . esc_attr($error_message));
+                        $order->add_order_note('[' . $this->id . '] Maxipago[Refund Error] ' . esc_attr($error_message));
                         $order->save();
                         return false;
                     } else {
@@ -921,7 +921,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                         ),
                     ));
                 } catch (Exception $e) {
-                    $order->add_order_note('Maxipago[Refund Error] ' . sanitize_text_field($e->getMessage()));
+                    $order->add_order_note('[' . $this->id . '] Maxipago[Refund Error] ' . sanitize_text_field($e->getMessage()));
                     $order->save();
                     return false;
                 }
@@ -929,7 +929,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoCredit extends LknIntegrat
                 return true;
             } else {
                 $order->add_order_note(
-                    'Maxipago[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede')
+                    '[' . $this->id . '] Maxipago[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede')
                 );
                 $order->save();
                 return false;

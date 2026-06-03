@@ -157,7 +157,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         /* translators: %s: return message from payment processor */
         $status_note = sprintf('Rede[%s]', $return_message);
-        $order->add_order_note($status_note . ' ' . $note);
+        $order->add_order_note('[' . $this->id . '] ' . $status_note . ' ' . $note);
 
         // Só altera o status se o pedido estiver pendente
         if ($order->get_status() === 'pending') {
@@ -495,11 +495,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         
         // Adiciona nota sobre o retorno do 3DS
         if ($threeds_status === 'ok') {
-            $order->add_order_note(__('Customer returned from 3D Secure authentication - Success', 'woo-rede'));
+            $order->add_order_note('[' . $this->id . '] ' . __('Customer returned from 3D Secure authentication - Success', 'woo-rede'));
             // Redireciona para a página de confirmação em caso de sucesso
             $redirect_url = $order->get_checkout_order_received_url();
         } else {
-            $order->add_order_note(__('Customer returned from 3D Secure authentication - Failure', 'woo-rede'));
+            $order->add_order_note('[' . $this->id . '] ' . __('Customer returned from 3D Secure authentication - Failure', 'woo-rede'));
             $order->update_status('failed');
             
             // Redireciona para a página de checkout em caso de falha
@@ -1354,7 +1354,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
             if ($convert_to_brl_enabled) {
                 $order->add_order_note(
-                    sprintf(
+                    '[' . $this->id . '] ' . sprintf(
                         // translators: %s is the original order currency code (e.g., USD, EUR, etc.)
                         __('Order currency %s converted to BRL.', 'woo-rede'),
                         $order_currency,
@@ -1378,7 +1378,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 if (isset($transaction_response['threeDSecure']) && isset($transaction_response['threeDSecure']['url']) && !empty($transaction_response['threeDSecure']['url'])) {
                     
                     // Add order note
-                    $order->add_order_note(__('3D Secure authentication required. Customer redirected to bank authentication.', 'woo-rede'));
+                    $order->add_order_note('[' . $this->id . '] ' . __('3D Secure authentication required. Customer redirected to bank authentication.', 'woo-rede'));
                     
                     return array(
                         'result' => 'success',
@@ -1407,7 +1407,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         );
                         $order->save();
                         
-                        $order->add_order_note(__('Payment processed successfully without 3D Secure authentication.', 'woo-rede'));
+                        $order->add_order_note('[' . $this->id . '] ' . __('Payment processed successfully without 3D Secure authentication.', 'woo-rede'));
                         
                         return array(
                             'result' => 'success',
@@ -1633,13 +1633,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $order_currency = method_exists($order, 'get_currency') ? $order->get_currency() : 'BRL';
 
             if (!empty($order->get_meta('_wc_rede_transaction_canceled'))) {
-                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
+                $order->add_order_note('[' . $this->id . '] Rede[Refund Error] ' . esc_attr__('Total refund already processed, check the order notes block.', 'woo-rede'));
                 $order->save();
                 return false;
             }
 
             if (! $order || ! $order->get_meta('_wc_rede_transaction_id')) {
-                $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'woo-rede'));
+                $order->add_order_note('[' . $this->id . '] Rede[Refund Error] ' . esc_attr__('Order or transaction invalid for refund.', 'woo-rede'));
                 $order->save();
                 return false;
             }
@@ -1660,7 +1660,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 try {
                     if ($amount > 0) {
                         if (isset($amount) && ($amount > 0 && $amount < $totalAmount) || ($is_converted && $amount > 0 && $amount < $amount_converted)) {
-                            $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
+                            $order->add_order_note('[' . $this->id . '] Rede[Refund Error] ' . esc_attr__('Partial refunds are not allowed. You must refund the total order amount.', 'woo-rede'));
                             $order->save();
                             return false;
                         } elseif ($order->get_total() == $amount || ($is_converted && $amount == $amount_converted)) {
@@ -1681,15 +1681,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         } else {
                             $formatted_amount = wc_price($amount, array('currency' => $order_currency));
                         }
-                        $order->add_order_note(esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
+                        $order->add_order_note('[' . $this->id . '] ' . esc_attr__('Refunded:', 'woo-rede') . ' ' . $formatted_amount);
                         $order->save();
                     } else {
-                        $order->add_order_note('Rede[Refund Error] ' . esc_attr__('Invalid refund amount.', 'woo-rede'));
+                        $order->add_order_note('[' . $this->id . '] Rede[Refund Error] ' . esc_attr__('Invalid refund amount.', 'woo-rede'));
                         $order->save();
                         return false;
                     }
                 } catch (Exception $e) {
-                    $order->add_order_note('Rede[Refund Error] ' . sanitize_text_field($e->getMessage()));
+                    $order->add_order_note('[' . $this->id . '] Rede[Refund Error] ' . sanitize_text_field($e->getMessage()));
                     $order->save();
                     return false;
                 }

@@ -247,7 +247,7 @@ abstract class LknIntegrationRedeForWoocommerceWcRedeAbstract extends WC_Payment
         /* translators: %s: return message from payment processor */
         $status_note = sprintf('Rede[%s]', $transaction->getReturnMessage());
 
-        $order->add_order_note($status_note . ' ' . $note);
+        $order->add_order_note('[' . $this->id . '] ' . $status_note . ' ' . $note);
 
         // Só altera o status se o pedido estiver pendente
         if ($order->get_status() === 'pending') {

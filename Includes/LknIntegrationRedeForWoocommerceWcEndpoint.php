@@ -688,7 +688,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // VALIDAÇÃO DE SEGURANÇA: Verifica autenticidade da requisição
         if (!$this->validate_webhook_security($order, $parameters, 'success')) {
-            $order->add_order_note(__('Security validation failed for 3DS webhook', 'woo-rede'));
+            $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('Security validation failed for 3DS webhook', 'woo-rede'));
             return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
         }
 
@@ -700,7 +700,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             wp_safe_redirect($redirect_url);
             exit;
         } catch (Exception $e) {
-            $order->add_order_note(__('Error processing 3DS success: ', 'woo-rede') . $e->getMessage());
+            $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('Error processing 3DS success: ', 'woo-rede') . $e->getMessage());
             return new WP_REST_Response(array('status' => 'error', 'message' => $e->getMessage()), 500);
         }
     }
@@ -848,7 +848,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         // Marca pedido como falhado
-        $order->add_order_note(__('3D Secure authentication failed', 'woo-rede'));
+        $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('3D Secure authentication failed', 'woo-rede'));
         $order->update_status('failed');
         $order->save();
         
@@ -881,7 +881,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         // Adiciona informação sobre o tipo de cartão detectado na nota
         $card_type_note = sprintf(' [Card Type: %s, Capture: %s]', $saved_card_type, $capture ? 'Yes' : 'No');
         $status_note = sprintf('Rede[%s]', $return_message);
-        $order->add_order_note($status_note . ' ' . $note . $card_type_note);
+        $order->add_order_note('[' . $order->get_payment_method() . '] ' . $status_note . ' ' . $note . $card_type_note);
 
         // Só altera o status se o pedido estiver pendente
         if ($order->get_status() === 'pending') {
