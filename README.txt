@@ -125,6 +125,10 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.4 - 2026/06/03
+- Fix in custom order notes logic.
+- Fix in order status update logic.
+
 ### 5.4.3 - 2026/05/28
 - Fix in error log logic for 3DS transactions.
 

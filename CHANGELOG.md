@@ -1,3 +1,7 @@
+# 5.4.4 - 03/06/2026
+* Ajuste nas notas customizadas.
+* Ajuste na mudança do status do pedido.
+
 # 5.4.3 - 28/05/2026
 * Ajuste na lógica dos logs com erro no 3DS.
 
