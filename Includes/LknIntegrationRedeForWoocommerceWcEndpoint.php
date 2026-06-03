@@ -883,22 +883,19 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note('[' . $order->get_payment_method() . '] ' . $status_note . ' ' . $note . $card_type_note);
 
-        // Só altera o status se o pedido estiver pendente
-        if ($order->get_status() === 'pending') {
-            if ($return_code == '00') {
-                if ($capture) {
-                    // Status configurável pelo usuário para pagamentos aprovados com captura
-                    $payment_complete_status = $gateway_settings['payment_complete_status'] ?? 'processing';
-                    $order->set_date_paid(current_time('timestamp', true));
-                    $order->update_status($payment_complete_status);
-                } else {
-                    // Para pagamentos credit sem captura, aguardando captura manual
-                    $order->update_status('on-hold', 'Pagamento autorizado, aguardando captura manual.');
-                    wc_reduce_stock_levels($order->get_id());
-                }
+        if ($return_code == '00') {
+            if ($capture) {
+                // Status configurável pelo usuário para pagamentos aprovados com captura
+                $payment_complete_status = $gateway_settings['payment_complete_status'] ?? 'processing';
+                $order->set_date_paid(current_time('timestamp', true));
+                $order->update_status($payment_complete_status);
             } else {
-                $order->update_status('failed', $status_note);
+                // Para pagamentos credit sem captura, aguardando captura manual
+                $order->update_status('on-hold', 'Pagamento autorizado, aguardando captura manual.');
+                wc_reduce_stock_levels($order->get_id());
             }
+        } else {
+            $order->update_status('failed', $status_note);
         }
     }
 

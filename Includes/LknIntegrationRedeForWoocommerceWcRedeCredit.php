@@ -720,23 +720,20 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         $status_note = sprintf('Rede[%s]', $return_message);
         $order->add_order_note('[' . $this->id . '] ' . $status_note . ' ' . $note);
 
-        // Só altera o status se o pedido estiver pendente
-        if ($order->get_status() === 'pending') {
-            if ($return_code == '00') {
-                if ($capture) {
-                    // Status configurável pelo usuário para pagamentos aprovados com captura
-                    $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
-                    $order->set_date_paid(current_time('timestamp', true));
-                    $order->update_status($payment_complete_status);
-                    apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
-                } else {
-                    // Para pagamentos sem captura, sempre aguardando
-                    $order->update_status('on-hold');
-                    wc_reduce_stock_levels($order->get_id());
-                }
+        if ($return_code == '00') {
+            if ($capture) {
+                // Status configurável pelo usuário para pagamentos aprovados com captura
+                $payment_complete_status = $this->get_option('payment_complete_status', 'processing');
+                $order->set_date_paid(current_time('timestamp', true));
+                $order->update_status($payment_complete_status);
+                apply_filters("integration_rede_for_woocommerce_change_order_status", $order, $this);
             } else {
-                $order->update_status('failed', $status_note);
+                // Para pagamentos sem captura, sempre aguardando
+                $order->update_status('on-hold');
+                wc_reduce_stock_levels($order->get_id());
             }
+        } else {
+            $order->update_status('failed', $status_note);
         }
 
         WC()->cart->empty_cart();
