@@ -343,7 +343,8 @@ final class LknIntegrationRedeForWoocommerce
         }
         
         // Atualizar option para marcar como dispensada
-        $updated = update_option('lkn_fraud_notice_dismissed', 'yes');
+        update_option('lkn_fraud_notice_dismissed', 'yes');
+        $updated = get_option('lkn_fraud_notice_dismissed') === 'yes';
         
         if ($updated) {
             wp_send_json_success(array(
@@ -1015,7 +1016,7 @@ final class LknIntegrationRedeForWoocommerce
         // Verificar se usuario já dispensou a notificação
         $notice_dismissed = get_option('lkn_fraud_notice_dismissed', 'no');
         
-        if ($notice_dismissed === 'no' && !file_exists(WP_PLUGIN_DIR . '/fraud-detection-for-woocommerce/fraud-detection-for-woocommerce.php')) {
+        if ($notice_dismissed === 'no' && (!file_exists(WP_PLUGIN_DIR . '/fraud-scam-detection-woocommerce/fraud-scam-detection-woocommerce.php') && !file_exists(WP_PLUGIN_DIR . '/fraud-and-scam-detection-for-woocommerce/fraud-scam-detection-woocommerce.php'))) {
             // Enfileirar script para dismiss da notificação
             wp_enqueue_script('lkn-rede-dismiss-notice', INTEGRATION_REDE_FOR_WOOCOMMERCE_DIR_URL . 'Admin/js/lkn-dismiss-fraud-notice.js', array('jquery'), $this->version, true);
             wp_localize_script('lkn-rede-dismiss-notice', 'lknRedeDismissNotice', array(
