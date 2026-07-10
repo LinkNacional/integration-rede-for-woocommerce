@@ -588,8 +588,12 @@ class LknIntegrationRedeForWoocommerceHelper
                     } else {
                         // Sem juros, mas ainda aplicar outros valores
                         $final_total = $base_amount + $additional_fees + $tax_amount;
+                        if ($instance->get_option('interest_show_percent') == 'yes') {
+                            /* translators: %1$d: number of installments, %2$s: installment price */
+                            return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'woo-rede');
+                        }
                         /* translators: %1$d: number of installments, %2$s: installment price */
-                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i)))) . ' ' . __("interest-free", 'woo-rede');
+                        return html_entity_decode(sprintf('%dx de %s', $i, wp_strip_all_tags( wc_price( $final_total / $i))));
                     }
                 } else {
                     $discount = round((float) $instance->get_option($i . 'x_discount'), 0);

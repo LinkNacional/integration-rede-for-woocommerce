@@ -936,27 +936,19 @@ final class LknIntegrationRedeForWoocommerce
 
         // Se o valor for 0 ou vazio, adicionar "sem juros" apenas se configurado para mostrar
         if ($value === 0) {
-            // Para rede_debit, verificar se deve mostrar a informação "sem juros"
-            if ($gateway === self::GATEWAY_DEBIT) {
-                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
-                if ($show_percent) {
-                    return $base_label . ' sem juros';
-                } else {
-                    return $base_label;
-                }
-            } else {
+            $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+            if ($show_percent) {
                 return $base_label . ' sem juros';
+            } else {
+                return $base_label;
             }
         }
 
         // Calcular novo valor da parcela com juros/desconto
         $newInstallmentValue = $installmentValue;
 
-        // Verificar se deve mostrar porcentagem na label (apenas para rede_debit)
-        $show_percent = true;
-        if ($gateway === self::GATEWAY_DEBIT) {
-            $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
-        }
+        // Verificar se deve mostrar porcentagem na label
+        $show_percent = isset($gatewaySettings['interest_show_percent']) ? $gatewaySettings['interest_show_percent'] === 'yes' : true;
 
         if ($is_discount) {
             // Aplicar desconto
@@ -977,16 +969,11 @@ final class LknIntegrationRedeForWoocommerce
         } else {
             // Para juros, verificar se deve ignorar devido ao valor mínimo da parcela
             if ($ignoreInterest) {
-                // Para rede_debit, verificar se deve mostrar a informação "sem juros"
-                if ($gateway === self::GATEWAY_DEBIT) {
-                    $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
-                    if ($show_percent) {
-                        return $base_label . ' sem juros';
-                    } else {
-                        return $base_label;
-                    }
-                } else {
+                $show_percent = isset($gatewaySettings['interest_show_percent']) && $gatewaySettings['interest_show_percent'] === 'yes';
+                if ($show_percent) {
                     return $base_label . ' sem juros';
+                } else {
+                    return $base_label;
                 }
             } else {
                 // Aplicar juros
