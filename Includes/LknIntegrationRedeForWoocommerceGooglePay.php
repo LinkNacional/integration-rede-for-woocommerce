@@ -489,6 +489,14 @@ final class LknIntegrationRedeForWoocommerceGooglePay extends LknIntegrationRede
             return;
         }
 
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            throw new Exception(
+                __('Este pedido já foi pago. Não é possível processar o pagamento novamente.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
+
         $google_pay_signature = isset($_POST['google_pay_signature']) ? sanitize_text_field(wp_unslash($_POST['google_pay_signature'])) : '';
         $google_pay_signed_key = isset($_POST['google_pay_signed_key']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_signed_key'])) : '';
         $google_pay_signature_value = isset($_POST['google_pay_signature_value']) ? sanitize_textarea_field(wp_unslash($_POST['google_pay_signature_value'])) : '';

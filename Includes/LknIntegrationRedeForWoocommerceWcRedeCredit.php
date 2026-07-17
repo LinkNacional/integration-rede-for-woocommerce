@@ -904,6 +904,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         $order = wc_get_order($order_id);
+
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            throw new Exception(
+                __('Este pedido já foi pago. Não é possível processar o pagamento novamente.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
         
         // Define variables needed throughout the function
         $orderId = $order->get_id();

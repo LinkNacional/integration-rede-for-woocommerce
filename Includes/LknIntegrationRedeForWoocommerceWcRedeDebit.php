@@ -1357,6 +1357,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         $order = wc_get_order($order_id);
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            throw new Exception(
+                __('Este pedido já foi pago. Não é possível processar o pagamento novamente.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
         $cardNumber = isset($_POST['rede_debit_number']) ?
             sanitize_text_field(wp_unslash($_POST['rede_debit_number'])) : '';
 

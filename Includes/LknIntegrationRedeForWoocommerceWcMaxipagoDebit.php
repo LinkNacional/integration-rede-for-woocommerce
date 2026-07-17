@@ -438,6 +438,13 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
         }
 
         $order = wc_get_order($orderId);
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            throw new Exception(
+                __('Este pedido já foi pago. Não é possível processar o pagamento novamente.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
         $order_total = $order->get_total();
         $decimals = get_option('woocommerce_price_num_decimals', 2);
         $convert_to_brl_enabled = false;
