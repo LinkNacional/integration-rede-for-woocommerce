@@ -888,6 +888,14 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function process_payment($order_id)
     {
+        // ===== PROTEÇÃO: Bloqueia novo checkout se já houve pagamento 3DS concluído nesta sessão =====
+        if (is_object(WC()->session) && WC()->session->get('rede_3ds_payment_completed')) {
+            throw new Exception(
+                __('Já existe um pagamento concluído nesta sessão. Para realizar um novo pedido, por favor, aguarde a confirmação do pedido anterior ou utilize uma nova janela de navegação.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
+
         if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
