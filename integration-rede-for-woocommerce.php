@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       Integration Rede Itaú for WooCommerce — Payment PIX, Credit Card and Debit
  * Description:       Receba pagamentos por meio de cartões de crédito e débito, de diferentes bandeiras, usando a tecnologia de autenticação 3DS e recursos avançados de proteção contra fraudes.
- * Version:           5.4.5
+ * Version:           5.4.6
  * Requires at least: 6.0
  * Requires PHP:      8.2
  * Author:            Link Nacional
