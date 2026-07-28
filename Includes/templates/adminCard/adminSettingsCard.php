@@ -19,25 +19,25 @@ if (!defined('ABSPATH')) {
             <div id="lknIntegrationRedeForWoocommerDivLinks">
                 <div>
                     <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/woocommerce/rede/?utm=plugin'); ?>>
-                        <b>•</b><?php echo esc_attr_e('Documentation', 'woo-rede'); ?>
+                        <b>•</b><?php esc_attr_e('Documentation', 'woo-rede'); ?>
                     </a>
                     <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/'); ?>>
-                        <b>•</b><?php echo esc_attr_e('Hosting', 'woo-rede'); ?>
+                        <b>•</b><?php esc_attr_e('Hosting', 'woo-rede'); ?>
                     </a>
                 </div>
                 <div>
                     <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/plugins/'); ?>>
-                        <b>•</b><?php echo esc_attr_e('WP Plugin', 'woo-rede'); ?>
+                        <b>•</b><?php esc_attr_e('WP Plugin', 'woo-rede'); ?>
                     </a>
                     <a target="_blank" href=<?php echo esc_url('https://www.linknacional.com.br/wordpress/suporte/'); ?>>
-                        <b>•</b><?php echo esc_attr_e('Suporte WP', 'woo-rede'); ?>
+                        <b>•</b><?php esc_attr_e('Suporte WP', 'woo-rede'); ?>
                     </a>
                 </div>
             </div>
             <div class="lknIntegrationRedeForWoocommerceSupportLinks">
                 <div id="lknIntegrationRedeForWoocommerStarsDiv">
                     <a target="_blank" href=<?php echo esc_url('https://wordpress.org/support/plugin/woo-rede/reviews/#new-post'); ?>>
-                        <p><?php echo esc_attr_e('Rate Plugin', 'woo-rede'); ?></p>
+                        <p><?php esc_attr_e('Rate Plugin', 'woo-rede'); ?></p>
                         <div class="lknIntegrationRedeForWoocommerceStars">
                             <span class="dashicons dashicons-star-filled lkn-stars"></span>
                             <span class="dashicons dashicons-star-filled lkn-stars"></span>
