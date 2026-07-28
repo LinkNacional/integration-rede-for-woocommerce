@@ -847,12 +847,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $this->regOrderLogs($order->get_id(), $order->get_total(), $cardData, $error_webhook_data, $order);
         }
 
-        // Marca pedido como falhado
+        // Marca a transação como falha internamente, mas mantém o status
+        // do pedido como "pagamento pendente" para permitir nova tentativa.
         
         $order->update_meta_data('_wc_rede_transaction_status', 'failed');
         $order->delete_meta_data('_wc_rede_pending_3ds_time');
         $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('3D Secure authentication failed', 'woo-rede'));
-        $order->update_status('failed');
+        $order->update_status('pending');
         $order->save();
         
         // Redireciona para a página de checkout com parâmetro de erro
