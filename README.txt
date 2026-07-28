@@ -125,6 +125,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.6 - 2026-07-28
+* Component sanitization adjustment.
+
 ### 5.4.5 - 2026-07-28
 * Fix for duplicate payment attempt.
 
