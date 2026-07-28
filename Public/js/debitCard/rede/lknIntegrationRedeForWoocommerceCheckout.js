@@ -12,6 +12,10 @@ const templateStyle = settingsRedeDebit['3dsTemplateStyle'] || 'basic';
 const gatewayDescription = settingsRedeDebit.gatewayDescription || '';
 const cardTemplateAssets = window.redeDebitAjax?.cardTemplateAssets || {};
 
+// Flag de proteção contra duplo envio do checkout (evita duplicidade de transações)
+let redeCheckoutSubmitted = false;
+const REDE_CHECKOUT_SESSION_KEY = 'rede_checkout_processing';
+
 // Observer global para adicionar ícones das bandeiras (fora do componente React)
 if (templateStyle === 'modern') {
   const addCardBrandIcons = () => {
@@ -207,6 +211,13 @@ const ContentRedeDebit = props => {
   const [options, setOptions] = window.wp.element.useState([]);
   const [detectedBrand, setDetectedBrand] = window.wp.element.useState(null);
   const [brandDetectionTimeout, setBrandDetectionTimeout] = window.wp.element.useState(null);
+
+  // Limpa flags de processamento ao montar o componente (evita que sessionStorage sujo
+  // de um teste/crash anterior bloqueie o checkout na próxima carga da página)
+  window.wp.element.useEffect(() => {
+    sessionStorage.removeItem(REDE_CHECKOUT_SESSION_KEY);
+    redeCheckoutSubmitted = false;
+  }, []);
 
   // Função para buscar dados atualizados do backend e gerar as opções de installments (com debounce)
   let installmentTimeout = null;
@@ -404,7 +415,7 @@ const ContentRedeDebit = props => {
     };
   }, [debitObject.card_type]);
 
-  // useEffect para resetar bandeiras quando componente for desmontado
+  // useEffect para resetar bandeiras e limpar flags de checkout quando componente for desmontado
   window.wp.element.useEffect(() => {
     return () => {
       // Cleanup: reset das bandeiras quando o componente é desmontado (mudança de gateway)
@@ -419,6 +430,9 @@ const ContentRedeDebit = props => {
           });
         }
       }
+      // Limpa a flag de processamento do sessionStorage ao desmontar
+      sessionStorage.removeItem(REDE_CHECKOUT_SESSION_KEY);
+      redeCheckoutSubmitted = false;
     };
   }, []);
 
@@ -680,7 +694,6 @@ const ContentRedeDebit = props => {
       }
       
       const allFieldsFilled = requiredFields.every(field => debitObject[field] && debitObject[field].trim() !== '');
-      
       if (allFieldsFilled) {
         return {
           type: emitResponse.responseTypes.SUCCESS,
@@ -836,24 +849,92 @@ const ContentRedeDebit = props => {
             type="button" 
             className="modern-submit-button"
             onClick={() => {
-              // Bloqueia o botão visualmente
+              // Proteção contra duplo envio
+              if (redeCheckoutSubmitted) {
+                return;
+              }
+              if (sessionStorage.getItem(REDE_CHECKOUT_SESSION_KEY)) {
+                return;
+              }
+
+              redeCheckoutSubmitted = true;
+              sessionStorage.setItem(REDE_CHECKOUT_SESSION_KEY, '1');
+
+              // 1. Bloqueia visualmente o botão customizado (NÃO afeta o botão real)
               const modernButton = document.querySelector('.modern-submit-button');
+              const originalButtonText = modernButton ? modernButton.textContent : '';
               if (modernButton) {
                 modernButton.classList.add('blocked');
                 modernButton.disabled = true;
-                
-                // Remove o bloqueio após 5 segundos (caso haja erro e o formulário não seja enviado)
-                setTimeout(() => {
+                modernButton.textContent = translationsRedeDebit?.processing || 'Processando...';
+              }
+
+              // 2. Busca o botão REAL do WooCommerce Blocks
+              let checkoutButton = document.querySelector('.wp-element-button.wc-block-components-checkout-place-order-button');
+
+              if (!checkoutButton) {
+                // Fallback por texto
+                const allButtons = document.querySelectorAll('button');
+                for (const btn of allButtons) {
+                  const text = (btn.textContent || '').toLowerCase();
+                  if (text.includes('finalizar') || text.includes('place order') || text.includes('comprar')) {
+                    checkoutButton = btn;
+                    break;
+                  }
+                }
+              }
+
+              if (!checkoutButton) {
+                sessionStorage.removeItem(REDE_CHECKOUT_SESSION_KEY);
+                redeCheckoutSubmitted = false;
+                return;
+              }
+
+              let observer = null;
+              let safetyTimeout = null;
+
+              // Função que libera todos os locks (erro, timeout, etc.)
+              const releaseLock = () => {
+                if (observer) {
+                  observer.disconnect();
+                  observer = null;
+                }
+                if (safetyTimeout) {
+                  clearTimeout(safetyTimeout);
+                  safetyTimeout = null;
+                }
+                sessionStorage.removeItem(REDE_CHECKOUT_SESSION_KEY);
+                redeCheckoutSubmitted = false;
+                if (modernButton) {
                   modernButton.classList.remove('blocked');
                   modernButton.disabled = false;
-                }, 5000);
-              }
-              
-              // Busca e clica no botão real do checkout
-              const checkoutButton = document.querySelector('.wp-element-button.wc-block-components-checkout-place-order-button');
-              if (checkoutButton) {
-                checkoutButton.click();
-              }
+                  modernButton.textContent = originalButtonText;
+                }
+                if (checkoutButton && checkoutButton.disabled) {
+                  checkoutButton.disabled = false;
+                }
+              };
+
+              // 3. MutationObserver: re-desabilita se o WC Blocks reabilitar durante o processamento
+              observer = new MutationObserver(() => {
+                if (!checkoutButton.disabled) {
+                  checkoutButton.disabled = true;
+                }
+              });
+              observer.observe(checkoutButton, { attributes: true, attributeFilter: ['disabled'] });
+
+              // 4. Timeout de segurança: se em 15s o checkout não redirecionou (erro/travamento),
+              //    libera os botões para o usuário tentar novamente
+              safetyTimeout = setTimeout(() => {
+                releaseLock();
+              }, 15000);
+
+              // 5. CLICA PRIMEIRO (botão ainda habilitado → React processa o evento)
+              // ⚠️ NUNCA desabilitar antes do click — botões disabled ignoram eventos React
+              checkoutButton.click();
+
+              // 6. SÓ AGORA desabilita (após o React já ter capturado o evento)
+              checkoutButton.disabled = true;
             }}
           >
             {redeDebitAjax.completeOrder}

@@ -663,7 +663,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     public function handle3dsSuccess($request)
     {
         $parameters = $request->get_params();
-
+        
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
         $tid = sanitize_text_field($parameters['tid'] ?? '');
@@ -719,7 +719,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
     public function handle3dsFailure($request)
     {
         $parameters = $request->get_params();
-
+        
         // Extrai o order_id da reference (formato: order_id-timestamp)
         $reference = sanitize_text_field($parameters['reference'] ?? '');
         
@@ -847,9 +847,13 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
             $this->regOrderLogs($order->get_id(), $order->get_total(), $cardData, $error_webhook_data, $order);
         }
 
-        // Marca pedido como falhado
+        // Marca a transação como falha internamente, mas mantém o status
+        // do pedido como "pagamento pendente" para permitir nova tentativa.
+        
+        $order->update_meta_data('_wc_rede_transaction_status', 'failed');
+        $order->delete_meta_data('_wc_rede_pending_3ds_time');
         $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('3D Secure authentication failed', 'woo-rede'));
-        $order->update_status('failed');
+        $order->update_status('pending');
         $order->save();
         
         // Redireciona para a página de checkout com parâmetro de erro
@@ -884,6 +888,10 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $order->add_order_note('[' . $order->get_payment_method() . '] ' . $status_note . ' ' . $note . $card_type_note);
 
         if ($return_code == '00') {
+            // Marca transação como concluída com sucesso
+            $order->update_meta_data('_wc_rede_transaction_status', 'completed');
+            $order->delete_meta_data('_wc_rede_pending_3ds_time');
+            
             if ($capture) {
                 // Status configurável pelo usuário para pagamentos aprovados com captura
                 $payment_complete_status = $gateway_settings['payment_complete_status'] ?? 'processing';
@@ -895,6 +903,9 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 wc_reduce_stock_levels($order->get_id());
             }
         } else {
+            // Marca transação como falha para permitir retry
+            $order->update_meta_data('_wc_rede_transaction_status', 'failed');
+            $order->delete_meta_data('_wc_rede_pending_3ds_time');
             $order->update_status('failed', $status_note);
         }
     }

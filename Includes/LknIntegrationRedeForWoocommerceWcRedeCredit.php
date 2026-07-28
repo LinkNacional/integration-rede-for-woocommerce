@@ -888,6 +888,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
 
     public function process_payment($order_id)
     {
+
         if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
@@ -896,6 +897,19 @@ final class LknIntegrationRedeForWoocommerceWcRedeCredit extends LknIntegrationR
         }
 
         $order = wc_get_order($order_id);
+
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            $order->add_order_note(
+                '[' . $this->id . '] ' .
+                __('Duplicate order attempt.', 'woo-rede')
+            );
+            $order->save();
+            throw new Exception(
+                __('This order has already been paid. It is not possible to process the payment again.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
         
         // Define variables needed throughout the function
         $orderId = $order->get_id();

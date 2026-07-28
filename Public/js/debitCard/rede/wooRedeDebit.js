@@ -1,4 +1,31 @@
 window.jQuery(function ($) {
+  // === PROTEÇÃO CONTRA DUPLO ENVIO DO CHECKOUT ===
+  var redeDebitCheckoutSubmitted = false;
+  
+  // Intercepta o submit do formulário de checkout via listener nativo (executa ANTES do jQuery)
+  document.addEventListener('submit', function(e) {
+    var form = e.target;
+    if (form && (form.classList.contains('checkout') || form.classList.contains('woocommerce-checkout'))) {
+      if ($('#payment_method_rede_debit').is(':checked')) {
+        if (redeDebitCheckoutSubmitted) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return false;
+        }
+        redeDebitCheckoutSubmitted = true;
+        $('#place_order').prop('disabled', true).addClass('disabled');
+      }
+    }
+  }, true); // 'true' = fase de captura, executa antes do jQuery
+  
+  // Desabilita botão também no clique (camada extra)
+  $(document).on('click', '#place_order', function() {
+    if ($('#payment_method_rede_debit').is(':checked') && redeDebitCheckoutSubmitted) {
+      return false;
+    }
+  });
+  // === FIM PROTEÇÃO ===
+  
   // Event delegation para capturar mudanças nos métodos de pagamento
   $(document).on('change', 'input[name="payment_method"][type="radio"]', function() {
     const selectedMethod = $(this).val();

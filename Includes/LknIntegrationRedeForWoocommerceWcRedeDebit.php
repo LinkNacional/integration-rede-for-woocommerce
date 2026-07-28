@@ -127,6 +127,76 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Obtém token de autenticação OAuth2 usando sistema de cache específico do gateway
      */
+    /**
+     * Consulta o status real da transação na API da Rede
+     * Útil para verificar se um 3DS pendente foi abandonado ou concluído
+     * 
+     * @param string $tid TID da transação
+     * @return string|null 'Approved', 'Declined', 'Pending', ou null em caso de erro/transação não encontrada
+     */
+    private function query_rede_transaction_status($tid)
+    {
+        try {
+            $access_token = $this->get_oauth_token(null);
+            
+            if ($this->environment === 'production') {
+                $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $tid;
+            } else {
+                $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions/' . $tid;
+            }
+            
+            $response = wp_remote_get($apiUrl, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $access_token
+                ),
+                'timeout' => 15
+            ));
+            
+            if (is_wp_error($response)) {
+                return null;
+            }
+            
+            $response_code = wp_remote_retrieve_response_code($response);
+            $response_body = wp_remote_retrieve_body($response);
+            
+            
+            if ($response_code === 404) {
+                // Transação não encontrada — provavelmente nunca foi concluída
+                return null;
+            }
+            
+            if ($response_code !== 200) {
+                return null;
+            }
+            
+            $transaction_data = json_decode($response_body, true);
+            $authorization = $transaction_data['authorization'] ?? array();
+            
+            if (empty($authorization)) {
+                return null;
+            }
+            
+            $status = $authorization['status'] ?? '';
+            
+            if (in_array($status, array('Approved', 'Declined', 'Pending'))) {
+                return $status;
+            }
+            
+            return null;
+            
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Consulta o status da transação na API da Rede por reference
+     * ATENÇÃO: Este método foi removido porque a API da Rede NÃO aceita
+     * reference no path de GET /v2/transactions/{id} — apenas TID.
+     * O método query_rede_transaction_status() deve ser usado com o TID.
+     */
+
     private function get_oauth_token($order_id = null)
     {
         $token = LknIntegrationRedeForWoocommerceHelper::get_rede_oauth_token_for_gateway($this->id, $order_id);
@@ -284,6 +354,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         ));
 
         if (is_wp_error($response)) {
+            // Marca transação como falha para permitir retry (erro de rede não chegou na Rede)
+            if ($order) {
+                $order->update_meta_data('_wc_rede_transaction_status', 'failed');
+                $order->delete_meta_data('_wc_rede_pending_3ds_time');
+                $order->save();
+            }
+            
             // Salvar metadados em caso de erro da requisição
             $error_message = 'Erro na requisição: ' . $response->get_error_message();
             $translated_error_message = $this->translateRedeErrorMessage(44, $error_message);
@@ -493,6 +570,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         // Adiciona nota sobre o retorno do 3DS
         if ($threeds_status === 'ok') {
             $order->add_order_note('[' . $this->id . '] ' . __('Customer returned from 3D Secure authentication - Success', 'woo-rede'));
+            
             // Redireciona para a página de confirmação em caso de sucesso
             $redirect_url = $order->get_checkout_order_received_url();
         } else {
@@ -1247,6 +1325,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
 
     public function process_payment($order_id)
     {
+
         if (isset($_POST['rede_card_nonce']) && ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rede_card_nonce'])), 'redeCardNonce')) {
             return array(
                 'result' => 'fail',
@@ -1255,6 +1334,18 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
 
         $order = wc_get_order($order_id);
+        // ===== PROTEÇÃO: Bloqueia pagamento se o pedido já foi pago =====
+        if ($order->is_paid() || $order->get_meta('_wc_rede_transaction_status') === 'completed') {
+            $order->add_order_note(
+                '[' . $this->id . '] ' .
+                __('Duplicate order attempt.', 'woo-rede')
+            );
+            $order->save();
+            throw new Exception(
+                __('This order has already been paid. It is not possible to process the payment again.', 'woo-rede')
+            );
+        }
+        // ===== FIM PROTEÇÃO =====
         $cardNumber = isset($_POST['rede_debit_number']) ?
             sanitize_text_field(wp_unslash($_POST['rede_debit_number'])) : '';
 
@@ -1369,7 +1460,17 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 
                 $order->save();
                 
-                $transaction_response = $this->process_debit_and_credit_transaction_v2($orderId . '-' . time(), $order_total, $cardData, $orderId, $order, $order_currency, $debitExpiry);
+                // Gera a reference UMA ÚNICA VEZ e salva antes da chamada à API
+                // A Rede NÃO retorna tid/reference na resposta inicial do 3DS (só no webhook)
+                $reference = $orderId . '-' . time();
+                
+                $transaction_response = $this->process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $orderId, $order, $order_currency, $debitExpiry);
+
+                // Salva TID se disponível na resposta (só vem em transações sem 3DS)
+                if (!empty($transaction_response['tid'])) {
+                    $order->update_meta_data('_wc_rede_transaction_id', $transaction_response['tid']);
+                    $order->save();
+                }
 
                 // Handle 3DS authentication requirement - verificar se tem threeDSecure na resposta
                 if (isset($transaction_response['threeDSecure']) && isset($transaction_response['threeDSecure']['url']) && !empty($transaction_response['threeDSecure']['url'])) {
@@ -1385,6 +1486,9 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                     // Transação processada - verificar se foi aprovada
                     if (isset($transaction_response['returnCode']) && $transaction_response['returnCode'] === '00') {
                         // Pagamento aprovado sem necessidade de 3DS
+                        // Marca como completado (sem 3DS, processamento direto)
+                        $order->update_meta_data('_wc_rede_transaction_status', 'completed');
+                        
                         $this->process_order_status_v2($order, $transaction_response);
                         $this->regOrderLogs($orderId, $order_total, $cardData, $transaction_response, $order);
                         
@@ -1412,6 +1516,11 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         );
                     } else {
                         // Transação rejeitada
+                        // Marca como falha para permitir que o cliente tente novamente
+                        $order->update_meta_data('_wc_rede_transaction_status', 'failed');
+                        $order->delete_meta_data('_wc_rede_pending_3ds_time');
+                        $order->save();
+                        
                         $error_message = isset($transaction_response['returnMessage']) ? $transaction_response['returnMessage'] : 'Transaction declined';
                         $return_code = $transaction_response['returnCode'] ?? 33;
                         
