@@ -1,3 +1,6 @@
+# 5.4.6 - 28/07/2026
+* Ajuste de sanitização de componentes.
+  
 # 5.4.5 - 28/07/2026
 * Ajuste na tentativa de pagamento duplicado.
 

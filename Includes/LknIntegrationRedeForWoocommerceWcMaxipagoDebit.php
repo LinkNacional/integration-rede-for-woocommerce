@@ -446,7 +446,7 @@ final class LknIntegrationRedeForWoocommerceWcMaxipagoDebit extends LknIntegrati
             );
             $order->save();
             throw new Exception(
-                __('This order has already been paid. It is not possible to process the payment again.', 'woo-rede')
+                esc_html__('This order has already been paid. It is not possible to process the payment again.', 'woo-rede')
             );
         }
         // ===== FIM PROTEÇÃO =====
