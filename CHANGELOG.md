@@ -1,3 +1,6 @@
+# 5.4.5 - 28/07/2026
+* Ajuste na tentativa de pagamento duplicado.
+
 # 5.4.4 - 03/06/2026
 * Ajuste nas notas customizadas.
 * Ajuste na mudança do status do pedido.

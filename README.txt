@@ -125,6 +125,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.5 - 2026-07-28
+* Fix for duplicate payment attempt.
+
 ### 5.4.4 - 2026/06/03
 - Fix in custom order notes logic.
 - Fix in order status update logic.
@@ -271,12 +274,8 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
-- 5.1.0 — New Rede API request system (V2).
-- New 3DS request system for Rede debit transactions.
-- Improvement in installment labels.
-- Cron system for automatic PIX payment verification.
-- JavaScript script optimization for better performance.
-- Automatic installment reset on cart changes.
+### 5.4.5 - 2026-07-28
+* Fix for duplicate payment attempt.
 
 ---
 
