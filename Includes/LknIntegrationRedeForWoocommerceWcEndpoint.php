@@ -305,6 +305,9 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
     /**
      * Listener PIX específico para versão FREE
+     * 
+     * SEGURANÇA: Valida a transação via API da Rede (server-to-server) antes de
+     * alterar o status do pedido, prevenindo webhook forgery (CVE-2026-0939).
      */
     public function redePixListenerLegacy($request)
     {
@@ -313,7 +316,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         $requestParams = $request->get_params();
 
         $redePixOptions = get_option('woocommerce_' . self::GATEWAY_PIX_FREE . '_settings');
-        $tid = $requestParams['data']['id'];
+        $tid = isset($requestParams['data']['id']) ? sanitize_text_field($requestParams['data']['id']) : '';
+
+        if (empty($tid)) {
+            return new WP_REST_Response('', 400);
+        }
 
         // Argumentos para buscar pedidos com o gateway FREE
         $args = array(
@@ -333,6 +340,12 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                 if ('PV.UPDATE_TRANSACTION_PIX' == $requestParams['events'][0]) {
                     // Só altera o status se estiver pendente de pagamento
                     if ($order->get_status() === 'pending') {
+                        // SEGURANÇA: Valida a transação diretamente na API da Rede
+                        if (!$this->validate_pix_transaction_with_rede_api($order, $tid)) {
+                            $order->add_order_note('[' . self::GATEWAY_PIX_FREE . '] ' . __('PIX webhook rejected: Rede API validation failed', 'woo-rede'));
+                            return new WP_REST_Response('', 403);
+                        }
+
                         $paymentCompleteStatus = $redePixOptions['payment_complete_status'] ?? '';
                         if (empty($paymentCompleteStatus)) {
                             $paymentCompleteStatus = 'processing';
@@ -349,6 +362,83 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         return new WP_REST_Response('', 200);
+    }
+
+    /**
+     * Valida transação PIX diretamente na API da Rede (server-to-server)
+     * 
+     * Previne webhook forgery: confirma que a transação realmente existe e
+     * está aprovada antes de alterar o status do pedido.
+     * 
+     * @param \WC_Order $order O pedido do WooCommerce
+     * @param string $tid Transaction ID
+     * @return bool True se a transação está aprovada na Rede
+     */
+    private function validate_pix_transaction_with_rede_api($order, $tid)
+    {
+        try {
+            $pixOptions = get_option('woocommerce_' . self::GATEWAY_PIX_FREE . '_settings');
+            $environment = $pixOptions['environment'] ?? 'test';
+
+            // Obter token OAuth2 válido
+            LknIntegrationRedeForWoocommerceHelper::refresh_expired_rede_oauth_tokens(20);
+            $token_data = LknIntegrationRedeForWoocommerceHelper::get_cached_rede_oauth_token_for_gateway(self::GATEWAY_PIX_FREE, $environment);
+
+            if (!$token_data || empty($token_data['token'])) {
+                return false;
+            }
+
+            // API v2 da Rede
+            if ('production' === $environment) {
+                $apiUrl = 'https://api.userede.com.br/erede/v2/transactions/' . $tid;
+            } else {
+                $apiUrl = 'https://sandbox-erede.useredecloud.com.br/v2/transactions/' . $tid;
+            }
+
+            $response = wp_remote_get($apiUrl, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token_data['token']
+                ),
+                'timeout' => 15
+            ));
+
+            if (is_wp_error($response)) {
+                return false;
+            }
+
+            $response_code = wp_remote_retrieve_response_code($response);
+            $response_body = wp_remote_retrieve_body($response);
+
+            if ($response_code !== 200) {
+                return false;
+            }
+
+            $transaction_data = json_decode($response_body, true);
+
+            if (!$transaction_data) {
+                return false;
+            }
+
+            $authorization = $transaction_data['authorization'] ?? array();
+            $api_status = $authorization['status'] ?? '';
+            $api_tid = $authorization['tid'] ?? '';
+
+            // Confirma que o TID da API bate com o recebido
+            if ($api_tid !== $tid) {
+                return false;
+            }
+
+            // Só permite se a transação estiver aprovada
+            return $api_status === 'Approved';
+
+        } catch (\Exception $e) {
+            if (function_exists('wc_get_logger')) {
+                $logger = wc_get_logger();
+                $logger->error('PIX webhook validation error: ' . $e->getMessage(), array('source' => 'rede_security'));
+            }
+            return false;
+        }
     }
 
     /**
