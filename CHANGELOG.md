@@ -1,3 +1,6 @@
+# 5.4.7 - 10/08/2026
+* Segurança: Validação server-to-server no webhook PIX FREE (redePixListenerLegacy) para prevenir webhook forgery não autenticado.
+
 # 5.4.6 - 28/07/2026
 * Ajuste de sanitização de componentes.
   
