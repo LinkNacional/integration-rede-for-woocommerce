@@ -280,6 +280,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
+### 5.4.8 - 2026-08-14
+* Adjustment: Updated the notification text when detecting a frictionless 3DS payment.
+
 ### 5.4.7 - 2026-08-10
 * Security: Server-to-server validation added to PIX FREE webhook (redePixListenerLegacy) to prevent unauthenticated webhook forgery.
 
