@@ -1508,7 +1508,13 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                         );
                         $order->save();
                         
-                        $order->add_order_note('[' . $this->id . '] ' . __('Payment processed successfully without 3D Secure authentication.', 'woo-rede'));
+                        if (isset($transaction_response['threeDSecure'])) {
+                            // 3DS autenticado sem desafio (frictionless)
+                            $order->add_order_note('[' . $this->id . '] ' . __('3D Secure authentication completed without challenge (frictionless).', 'woo-rede'));
+                        } else {
+                            // Transação aprovada sem autenticação 3D Secure
+                            $order->add_order_note('[' . $this->id . '] ' . __('Payment processed successfully without 3D Secure authentication.', 'woo-rede'));
+                        }
                         
                         return array(
                             'result' => 'success',

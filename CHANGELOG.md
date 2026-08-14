@@ -1,3 +1,6 @@
+# 5.4.8 - 14/08/2026
+* Ajuste: Mudança no texto de notificação ao detectar pagamento com frictionless no 3DS.
+  
 # 5.4.7 - 10/08/2026
 * Segurança: Validação server-to-server no webhook PIX FREE (redePixListenerLegacy) para prevenir webhook forgery não autenticado.
 

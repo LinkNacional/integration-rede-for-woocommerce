@@ -1432,7 +1432,7 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
         }
 
         // Processa status do pedido usando a função específica para 3DS (inclui lógica de auto_capture)
-        $this->process_3ds_order_status($order, $webhook_data, '3D Secure authentication completed');
+        $this->process_3ds_order_status($order, $webhook_data, __('3D Secure authentication completed with challenge', 'woo-rede'));
     }
 
     /**
