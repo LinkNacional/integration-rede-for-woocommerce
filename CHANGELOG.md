@@ -1,3 +1,6 @@
+# 5.4.9 - 17/08/2026
+* Ajuste: Validação da rota de webhook.
+
 # 5.4.8 - 14/08/2026
 * Ajuste: Mudança no texto de notificação ao detectar pagamento com frictionless no 3DS.
   

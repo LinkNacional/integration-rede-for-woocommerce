@@ -125,6 +125,9 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Changelog
 
+### 5.4.9 - 2026-08-17
+* Tweak: Webhook route validation.
+
 ### 5.4.8 - 2026-08-14
 * Adjustment: Updated the notification text when detecting a frictionless 3DS payment.
 
@@ -283,17 +286,14 @@ A: Yes — tested up to WordPress 6.8.
 
 ## Upgrade Notice
 
+### 5.4.9 - 2026-08-17
+* Tweak: Webhook route validation.
+
 ### 5.4.8 - 2026-08-14
 * Adjustment: Updated the notification text when detecting a frictionless 3DS payment.
 
 ### 5.4.7 - 2026-08-10
 * Security: Server-to-server validation added to PIX FREE webhook (redePixListenerLegacy) to prevent unauthenticated webhook forgery.
-
-### 5.4.6 - 2026-07-28
-* Component sanitization adjustment.
-
-### 5.4.5 - 2026-07-28
-* Fix for duplicate payment attempt.
 
 ---
 
