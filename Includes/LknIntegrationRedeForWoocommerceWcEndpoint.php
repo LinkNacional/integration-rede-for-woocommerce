@@ -625,7 +625,14 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
                     
                 } else if ($order->get_payment_method() === self::GATEWAY_PIX_FREE) {
                     // Versão FREE - só logs PRO para debug
-                    
+
+                    // SEGURANÇA: valida a transação server-to-server na API da Rede antes
+                    // de alterar o status, prevenindo webhook forgery (mesma classe do CVE-2026-0939).
+                    if (!$this->validate_pix_transaction_with_rede_api($order, $tid)) {
+                        $order->add_order_note('[' . self::GATEWAY_PIX_FREE . '] ' . __('PIX webhook rejected: Rede API validation failed', 'woo-rede'));
+                        return new WP_REST_Response('', 403);
+                    }
+
                     // Log 9: Processamento FREE
                     if ($validPROLicense && ($redePixOptions['advanced_debug'] ?? 'no') === 'yes') {
                         $logger = wc_get_logger();
