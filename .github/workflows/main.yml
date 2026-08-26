@@ -1,6 +1,7 @@
 name: Generate new release for plugin
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [ closed ]
     branches: [ main ]
@@ -13,7 +14,7 @@ env:
 
 jobs:
   release-build:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
