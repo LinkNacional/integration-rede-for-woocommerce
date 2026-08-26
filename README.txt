@@ -5,7 +5,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: rede, PIX, cartao credito, itau, pagamento  
 Requires at least: 6.0
 Tested up to: 7.1  
-Stable tag: 5.4.9
+Stable tag: 5.4.10
 Requires PHP: 8.2
 License: GPLv3 or later  
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
@@ -124,6 +124,11 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Changelog
+
+### 5.4.10 - 2026-08-26
+* Fix: 3D Secure challenge cancellation/timeout now declines the transaction (onFailure always "decline").
+* Adjustment: Cards not enrolled in 3D Secure (returnCode 204) are retried without 3DS when "Continue without 3DS" is enabled.
+* Fix: 3DS webhook security validation failure now redirects to checkout and adds an order note.
 
 ### 5.4.9 - 2026-08-17
 * Tweak: Webhook route validation.
@@ -285,6 +290,11 @@ A: Yes — tested up to WordPress 6.8.
 ---
 
 ## Upgrade Notice
+
+### 5.4.10 - 2026-08-26
+* Fix: 3D Secure challenge cancellation/timeout now declines the transaction (onFailure always "decline").
+* Adjustment: Cards not enrolled in 3D Secure (returnCode 204) are retried without 3DS when "Continue without 3DS" is enabled.
+* Fix: 3DS webhook security validation failure now redirects to checkout and adds an order note.
 
 ### 5.4.9 - 2026-08-17
 * Tweak: Webhook route validation.

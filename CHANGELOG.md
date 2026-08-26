@@ -1,3 +1,8 @@
+# 5.4.10 - 26/08/2026
+* Ajuste: Cancelamento ou timeout no desafio 3D Secure agora recusa a transação (onFailure sempre "decline").
+* Ajuste: Cartões não registrados no 3DS (returnCode 204) são reenviados sem 3DS quando "Continuar sem 3DS" está habilitado.
+* Correção: Falha na validação de segurança do webhook 3DS agora redireciona ao checkout e registra nota no pedido.
+
 # 5.4.9 - 17/08/2026
 * Ajuste: Validação da rota de webhook.
 
