@@ -785,8 +785,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // VALIDAÇÃO DE SEGURANÇA: Verifica autenticidade da requisição
         if (!$this->validate_webhook_security($order, $parameters, 'success')) {
-            $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('Security validation failed for 3DS webhook', 'woo-rede'));
-            return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
+            $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('Security validation failed for 3DS success webhook', 'woo-rede'));
+            // Redireciona de volta ao checkout em vez de deixar o cliente preso na URL do webhook
+            $redirect_url = add_query_arg('3ds_error', '1', wc_get_checkout_url());
+            wp_safe_redirect($redirect_url);
+            exit;
         }
 
         try {
@@ -840,7 +843,11 @@ final class LknIntegrationRedeForWoocommerceWcEndpoint
 
         // VALIDAÇÃO DE SEGURANÇA: Verifica autenticidade da requisição
         if (!$this->validate_webhook_security($order, $parameters, 'failure')) {
-            return new WP_Error('security_validation_failed', __('Security validation failed', 'woo-rede'), array('status' => 403));
+            $order->add_order_note('[' . $order->get_payment_method() . '] ' . __('Security validation failed for 3DS failure webhook', 'woo-rede'));
+            // Redireciona de volta ao checkout em vez de deixar o cliente preso na URL do webhook
+            $redirect_url = add_query_arg('3ds_error', '1', wc_get_checkout_url());
+            wp_safe_redirect($redirect_url);
+            exit;
         }
 
         // Salvar metadados da transação usando helper (mesmo para falhas)

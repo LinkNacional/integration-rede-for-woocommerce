@@ -254,7 +254,7 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
     /**
      * Processa transação de débito/crédito
      */
-    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order_id, $order = null, $order_currency = 'BRL', $creditExpiry = '')
+    private function process_debit_and_credit_transaction_v2($reference, $order_total, $cardData, $order_id, $order = null, $order_currency = 'BRL', $creditExpiry = '', $skip_3ds = false)
     {
         $access_token = $this->get_oauth_token($order_id);
         
@@ -294,14 +294,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
         }
         
         // Add 3D Secure configuration if enabled (para débito e crédito)
-        if ($this->enable_3ds) {
+        if ($this->enable_3ds && ! $skip_3ds) {
             
-            // Determina o comportamento de fallback baseado no tipo de cartão
-            $fallback_behavior = ($card_type === 'debit') ? 'decline' : $this->threeds_fallback_behavior;
+            // onFailure SEMPRE 'decline': cancelamento/timeout no desafio 3DS recusam a transação.
+            // A opção "Continuar sem 3DS" (3ds_fallback_behavior) afeta SOMENTE o caso
+            // "cartão não registrado no 3DS" (returnCode 204), tratado com reenvio sem 3DS abaixo.
             
             $body['threeDSecure'] = array(
                 'embedded' => true, // Integração direta na página (true) ou redirecionamento (false)
-                'onFailure' => $fallback_behavior, // Para débito: sempre 'decline'. Para crédito: configurável
+                'onFailure' => 'decline', // Recusa se o cliente cancelar ou o desafio falhar/timeout
                 'device' => array(
                     'colorDepth' => 24, // Profundidade de cores do monitor. Aceita: 1, 4, 8, 15, 16, 24, 32, 48
                     'deviceType3ds' => 'BROWSER', // Tipo de dispositivo. Aceita: 'BROWSER', 'SDK'
@@ -391,6 +392,26 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
             $response_data['return_http'] = $response_code;
         } else {
             $response_data = array('return_http' => $response_code);
+        }
+
+        // ===== Fallback "Continuar sem 3DS" para cartões NÃO registrados no 3DS (returnCode 204) =====
+        // Diferente de cancelamento/timeout (recusados via onFailure=decline), o cartão não registrado
+        // no 3DS pode seguir como transação comum se o lojista habilitou "Continuar sem 3DS".
+        if (($response_data['returnCode'] ?? '') === '204' && $this->threeds_fallback_behavior === 'continue' && ! $skip_3ds) {
+            if ($order) {
+                $order->add_order_note('[' . $this->id . '] ' . __('Card not enrolled in 3D Secure. Retrying transaction without 3DS (fallback "continue without 3DS").', 'woo-rede'));
+            }
+            // Reenvia a transação SEM o bloco threeDSecure para autorizar como transação comum
+            return $this->process_debit_and_credit_transaction_v2(
+                $reference,
+                $order_total,
+                $cardData,
+                $order_id,
+                $order,
+                $order_currency,
+                $creditExpiry,
+                true
+            );
         }
 
         if ($response_code !== 200 && $response_code !== 201) {
@@ -1060,15 +1081,15 @@ final class LknIntegrationRedeForWoocommerceWcRedeDebit extends LknIntegrationRe
                 'title' => '3DS Comportamento Alternativo',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
-                'description' => 'IMPORTANTE: Para cartões de débito, a autenticação 3DS é OBRIGATÓRIA e mais segura. Caso ainda sim deseje por mais flexibilidade, pode habilitar “Continuar” para proseguir com o pagamento mesmo em caso de falha do 3DS.',
-                'desc_tip' => 'Define se o pagamento prossegue ou é recusado quando a autenticação 3DS falha.',
+                'description' => 'Quando o cartão NÃO está registrado no 3DS (returnCode 204), escolha “Continuar sem 3DS” para autorizar a transação mesmo sem autenticação. Cancelamento ou timeout no desafio 3DS são SEMPRE recusados.',
+                'desc_tip' => 'Aplica-se apenas a cartões não registrados no 3DS. Cancelar/timeout do desafio recusa a transação.',
                 'default' => 'decline',
                 'options' => array(
                     'decline' => 'Recusar transação (Opção recomendada)',
                     'continue' => 'Continuar sem 3DS',
                 ),
                 'custom_attributes' => array(
-                    'data-title-description' => 'CONFORMIDADE REGULATÓRIA: Para cartões de débito, o 3DS é obrigatório. Por padrão a opção vem marcada como “Recusar”, caso habilite “Continuar”, o pagamento irá proseguir com os dados preenchidos do cliente.'
+                    'data-title-description' => 'Cartão não registrado no 3DS: “Continuar” autoriza sem 3DS. Cancelamento/timeout do desafio: sempre recusa.'
                 )
             ),
 
